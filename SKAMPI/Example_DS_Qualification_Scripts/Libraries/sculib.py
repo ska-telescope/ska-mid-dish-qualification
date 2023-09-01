@@ -16,7 +16,12 @@
 #Import of Python available libraries
 import time
 import json
-import asyncio, threading, asyncua
+import asyncio, threading, asyncua, logging
+
+logging.basicConfig(level = logging.INFO)
+logger = logging.getLogger('sculib')
+# Make the ua client less chatty
+logging.getLogger("asyncua").setLevel(logging.WARNING)
 
 #define some preselected sensors for recording into a logfile
 hn_feed_indexer_sensors=[
@@ -94,8 +99,9 @@ hn_tilt_sensors=[
 'acu.pointing.incl_corr_val_el'
 ]
 
+
 async def handle_exception(e):
-    print(f'*** Exception caught\n{e}')
+    logger.error(f'*** Exception caught\n{e}')
 
 def create_command_function(node, event_loop):
     call = asyncio.run_coroutine_threadsafe(node.get_parent(), event_loop).result().call_method
@@ -194,7 +200,7 @@ class scu():
     "User does not have permission to perform the requested operation."(BadUserAccessDenied)
     """
     def __init__(self, host: str = 'localhost', port: int = 4840, endpoint: str = '', namespace: str = 'http://skao.int/DS_ICD/', timeout: float = 10.0):
-        print('Initialising sculib. This will take about 10s...')
+        logger.info('Initialising sculib. This will take about 10s...')
         self.init_called = False
         self.host = host
         self.port = port
@@ -208,7 +214,7 @@ class scu():
         self.populate_node_dicts()
         self.debug = True
         self.init_called = True
-        print('Initialising sculib done.')
+        logger.info('Initialising sculib done.')
 
     def __del__(self):
         self.disconnect()
@@ -321,32 +327,35 @@ class scu():
         return nodes, attributes, commands
 
     def get_node_list(self) -> None:
-        print('Available nodes:')
+        info = ''
         for key in self.nodes.keys():
-            print(f'\t{key}')
+            info += f'{key}\n'
+        logger.info(info)
     def get_command_list(self) -> None:
-        print('Available commands:')
+        info = ''
         for key in self.commands.keys():
-            print(f'\t{key}')
+            logger.info(f'{key}\n')
+        logger.info(info)
     def get_attribute_list(self) -> None:
-        print('Available attributes:')
+        info = ''
         for key in self.attributes.keys():
-            print(f'\t{key}')
+            info += f'{key}\n'
+        logger.info(info)
 
     #Direct SCU webapi functions based on urllib PUT/GET
     def feedback(self, r):
         if self.debug == True:
-            print('***Feedback:', r.request.url, r.request.body)
-            print(r.reason, r.status_code)
-            print("***Text returned:")
-            print(r.text)
+            logger.info('***Feedback:', r.request.url, r.request.body)
+            logger.info(r.reason, r.status_code)
+            logger.info("***Text returned:")
+            logger.info(r.text)
         elif r.status_code != 200:
-            print('***Feedback:', r.request.url, r.request.body)
-            print(r.reason, r.status_code)
-            print("***Text returned:")
-            print(r.text)
-            #print(r.reason, r.status_code)
-            #print()
+            logger.info('***Feedback:', r.request.url, r.request.body)
+            logger.info(r.reason, r.status_code)
+            logger.info("***Text returned:")
+            logger.info(r.text)
+            #logger.info(r.reason, r.status_code)
+            #logger.info()
 
     #	def scu_get(device, params = {}, r_ip = self.ip, r_port = port):
     def scu_get(self, device, params = {}):
@@ -378,7 +387,7 @@ class scu():
     #command authority
     def command_authority(self, action):
         #1 get #2 release
-        print('command authority: ', action)
+        logger.info('command authority: ', action)
         authority={'Get': 1, 'Release': 2}
         self.scu_put('/devices/command',
             {'path': 'acu.command_arbiter.authority',
@@ -386,28 +395,28 @@ class scu():
 
     #commands to DMC state - dish management controller
     def interlock_acknowledge_dmc(self):
-        print('reset dmc')
+        logger.info('reset dmc')
         self.scu_put('/devices/command',
             {'path': 'acu.dish_management_controller.interlock_acknowledge'})
 
     def reset_dmc(self):
-        print('reset dmc')
+        logger.info('reset dmc')
         self.scu_put('/devices/command',
             {'path': 'acu.dish_management_controller.reset'})
 
     def activate_dmc(self):
-        print('activate dmc')
+        logger.info('activate dmc')
         self.scu_put('/devices/command',
             {'path': 'acu.dish_management_controller.activate'})
 
     def deactivate_dmc(self):
-        print('deactivate dmc')
+        logger.info('deactivate dmc')
         self.scu_put('/devices/command',
             {'path': 'acu.dish_management_controller.deactivate'})
 
     def move_to_band(self, position):
         bands = {'Band 1': 1, 'Band 2': 2, 'Band 3': 3, 'Band 4': 4, 'Band 5a': 5, 'Band 5b': 6, 'Band 5c': 7}
-        print('move to band:', position)
+        logger.info('move to band:', position)
         if not(isinstance(position, str)):
             self.scu_put('/devices/command',
             {'path': 'acu.dish_management_controller.move_to_band',
@@ -418,7 +427,7 @@ class scu():
              'params': {'action': bands[position]}})
 
     def abs_azel(self, az_angle, el_angle):
-        print('abs az: {:.4f} el: {:.4f}'.format(az_angle, el_angle))
+        logger.info('abs az: {:.4f} el: {:.4f}'.format(az_angle, el_angle))
         self.scu_put('/devices/command',
             {'path': 'acu.dish_management_controller.slew_to_abs_pos',
              'params': {'new_azimuth_absolute_position_set_point': az_angle,
@@ -426,36 +435,36 @@ class scu():
 
     #commands to ACU
     def activate_az(self):
-        print('act azimuth')
+        logger.info('act azimuth')
         self.scu_put('/devices/command',
             {'path': 'acu.elevation.activate'})
 
     def activate_el(self):
-        print('activate elevation')
+        logger.info('activate elevation')
         self.scu_put('/devices/command',
             {'path': 'acu.elevation.activate'})
 
     def deactivate_el(self):
-        print('deactivate elevation')
+        logger.info('deactivate elevation')
         self.scu_put('/devices/command',
             {'path': 'acu.elevation.deactivate'})
 
     def abs_azimuth(self, az_angle, az_vel):
-        print('abs az: {:.4f} vel: {:.4f}'.format(az_angle, az_vel))
+        logger.info('abs az: {:.4f} vel: {:.4f}'.format(az_angle, az_vel))
         self.scu_put('/devices/command',
             {'path': 'acu.azimuth.slew_to_abs_pos',
              'params': {'new_axis_absolute_position_set_point': az_angle,
               'new_axis_speed_set_point_for_this_move': az_vel}})
 
     def abs_elevation(self, el_angle, el_vel):
-        print('abs el: {:.4f} vel: {:.4f}'.format(el_angle, el_vel))
+        logger.info('abs el: {:.4f} vel: {:.4f}'.format(el_angle, el_vel))
         self.scu_put('/devices/command',
             {'path': 'acu.elevation.slew_to_abs_pos',
              'params': {'new_axis_absolute_position_set_point': el_angle,
               'new_axis_speed_set_point_for_this_move': el_vel}})
 
     def load_static_offset(self, az_offset, el_offset):
-        print('offset az: {:.4f} el: {:.4f}'.format(az_offset, el_offset))
+        logger.info('offset az: {:.4f} el: {:.4f}'.format(az_offset, el_offset))
         self.scu_put('/devices/command',
             {'path': 'acu.tracking_controller.load_static_tracking_offsets.',
              'params': {'azimuth_tracking_offset': az_offset,
@@ -464,7 +473,7 @@ class scu():
 
 
     def load_program_track(self, load_type, entries, t=[0]*50, az=[0]*50, el=[0]*50):
-        print(load_type)
+        logger.info(load_type)
         LOAD_TYPES = {
             'LOAD_NEW' : 1,
             'LOAD_ADD' : 2,
@@ -513,12 +522,12 @@ class scu():
                                   'track_mode': AZ_EL }})
 
     def acu_ska_track(self, BODY):
-        print('acu ska track')
+        logger.info('acu ska track')
         self.scu_put('/acuska/programTrack',
                 data = BODY)
 
     def acu_ska_track_stoploadingtable(self):
-        print('acu ska track stop loading table')
+        logger.info('acu ska track stop loading table')
         self.scu_put('/acuska/stopLoadingTable')
 
     def format_tt_line(self, t, az,  el, capture_flag = 1, parallactic_angle = 0.0):
@@ -540,15 +549,15 @@ class scu():
         r=self.scu_get('/devices/statusValue',
               {'path': sensor})
         data = r.json()['value']
-        #print('value: ', data)
+        #logger.info('value: ', data)
         return(data)
 
     def status_finalValue(self, sensor):
-        #print('get status finalValue: ', sensor)
+        #logger.info('get status finalValue: ', sensor)
         r=self.scu_get('/devices/statusValue',
               {'path': sensor})
         data = r.json()['finalValue']
-        #print('finalValue: ', data)
+        #logger.info('finalValue: ', data)
         return(data)
 
     def commandMessageFields(self, commandPath):
@@ -581,7 +590,7 @@ class scu():
         or
         create_logger('HN_TILT_TEST', hn_tilt_sensors)
         '''
-        print('create logger')
+        logger.info('create logger')
         r=self.scu_put('/datalogging/config',
               {'name': config_name,
                'paths': sensor_list})
@@ -589,24 +598,24 @@ class scu():
 
     '''unusual does not take json but params'''
     def start_logger(self, filename):
-        print('start logger: ', filename)
+        logger.info('start logger: ', filename)
         r=self.scu_put('/datalogging/start',
               params='configName=' + filename)
         return(r)
 
     def stop_logger(self):
-        print('stop logger')
+        logger.info('stop logger')
         r=self.scu_put('/datalogging/stop')
         return(r)
 
     def logger_state(self):
-#        print('logger state ')
+#        logger.info('logger state ')
         r=self.scu_get('/datalogging/currentState')
-        #print(r.json()['state'])
+        #logger.info(r.json()['state'])
         return(r.json()['state'])
 
     def logger_configs(self):
-        print('logger configs ')
+        logger.info('logger configs ')
         r=self.scu_get('/datalogging/configs')
         return(r)
 
@@ -614,7 +623,7 @@ class scu():
         '''
         GET last session
         '''
-        print('Last sessions ')
+        logger.info('Last sessions ')
         r=self.scu_get('/datalogging/lastSession')
         session = (r.json()['uuid'])
         return(session)
@@ -623,7 +632,7 @@ class scu():
         '''
         GET all sessions
         '''
-        print('logger sessions ')
+        logger.info('logger sessions ')
         r=self.scu_get('/datalogging/sessions')
         return(r)
 
@@ -633,7 +642,7 @@ class scu():
         Usage:
         session_query('16')
         '''
-        print('logger sessioN query id ')
+        logger.info('logger sessioN query id ')
         r=self.scu_get('/datalogging/session',
              {'id': id})
         return(r)
@@ -645,7 +654,7 @@ class scu():
         Usage:
         session_delete('16')
         '''
-        print('delete session ')
+        logger.info('delete session ')
         r=self.scu_delete('/datalogging/session',
              params= 'id='+id)
         return(r)
@@ -658,7 +667,7 @@ class scu():
         Usage:
         session_rename('16','koos')
         '''
-        print('rename session ')
+        logger.info('rename session ')
         r=self.scu_put('/datalogging/session',
              params = {'id': id,
                 'name' : new_name})
@@ -673,7 +682,7 @@ class scu():
         export_session('16',1000)
         or export_session('16',1000).text
         '''
-        print('export session ')
+        logger.info('export session ')
         r=self.scu_get('/datalogging/exportSession',
              params = {'id': id,
                 'interval_ms' : interval_ms})
@@ -682,7 +691,7 @@ class scu():
     #sorted_sessions not working yet
 
     def sorted_sessions(self, isDescending = 'True', startValue = '1', endValue = '25', sortBy = 'Name', filterType='indexSpan'):
-        print('sorted sessions')
+        logger.info('sorted sessions')
         r=self.scu_get('/datalogging/sortedSessions',
              {'isDescending': isDescending,
               'startValue': startValue,
@@ -703,18 +712,18 @@ class scu():
         or export_session('16',1000).text
         '''
         from pathlib import Path
-        print('Attempt export and save of session: {} at rate {:.0f} ms'.format(session, interval_ms))
+        logger.info('Attempt export and save of session: {} at rate {:.0f} ms'.format(session, interval_ms))
         if session == 'last':
             #get all logger sessions, may be many
             r=self.logger_sessions()
             #[-1] for end of list, and ['uuid'] to get id of last session in list
             session = self.last_session()
         file_txt = self.export_session(session, interval_ms).text
-        print('Session id: {} '.format(session))
+        logger.info('Session id: {} '.format(session))
         file_time = str(int(time.time()))
         file_name = str(filename + '_' + file_time + '.csv')
         file_path = Path.cwd()  / 'output' / file_name
-        print('Log file location:', file_path)
+        logger.info('Log file location:', file_path)
         f = open(file_path, 'a+')
         f.write(file_txt)
         f.close()
@@ -731,19 +740,19 @@ class scu():
         or export_session('16',1000).text
         '''
         from pathlib import Path
-        print('Attempt export and save of session: {} at rate {:.0f} ms'.format(session, interval_ms))
+        logger.info('Attempt export and save of session: {} at rate {:.0f} ms'.format(session, interval_ms))
         if session == 'last':
             #get all logger sessions, may be many
             r=self.logger_sessions()
             #[-1] for end of list, and ['uuid'] to get id of last session in list
             session = self.last_session()
         file_txt = self.export_session(session, interval_ms).text
-        print('Session id: {} '.format(session))
+        logger.info('Session id: {} '.format(session))
 ##        file_time = str(int(time.time()))
         file_time = str(int(start))
         file_name = str(filename + '_' + file_time + '.csv')
         file_path = Path.cwd()  / 'output' / file_name
-        print('Log file location:', file_path)
+        logger.info('Log file location:', file_path)
         f = open(file_path, 'a+')
         f.write(file_txt)
         f.close()
@@ -759,16 +768,16 @@ class scu():
         or export_session('16',1000).text
         '''
         from pathlib import Path
-        print('Attempt export and save of session: {} at rate {:.0f} ms'.format(session, interval_ms))
+        logger.info('Attempt export and save of session: {} at rate {:.0f} ms'.format(session, interval_ms))
         if session == 'last':
             #get all logger sessions, may be many
             r=self.logger_sessions()
             session = self.last_session()
         file_txt = self.export_session(session, interval_ms).text
-        print('Session id: {} '.format(session))
+        logger.info('Session id: {} '.format(session))
         file_name = str(filename + '.csv')
         file_path = Path.cwd()  / 'output' / file_name
-        print('Log file location:', file_path)
+        logger.info('Log file location:', file_path)
         f = open(file_path, 'a+')
         f.write(file_txt)
         f.close()
@@ -777,24 +786,24 @@ class scu():
 
     #wait seconds, wait value, wait finalValue
     def wait_duration(self, seconds):
-        print('  wait for {:.1f}s'.format(seconds), end="")
+        logger.info('  wait for {:.1f}s'.format(seconds), end="")
         time.sleep(seconds)
-        print(' done *')
+        logger.info(' done *')
 
     def wait_value(self, sensor, value):
-        print('wait until sensor: {} == value {}'.format(sensor, value))
+        logger.info('wait until sensor: {} == value {}'.format(sensor, value))
         while status_Value(sensor) != value:
             time.sleep(1)
-        print(' done *')
+        logger.info(' done *')
 
     def wait_finalValue(self, sensor, value):
-        print('wait until sensor: {} == value {}'.format(sensor, value))
+        logger.info('wait until sensor: {} == value {}'.format(sensor, value))
         while status_finalValue(sensor) != value:
             time.sleep(1)
-        print(' {} done *'.format(value))
+        logger.info(' {} done *'.format(value))
 
     #Simplified track table functions
 
 
 if __name__ == '__main__':
-   print("main")
+   logger.info("main")
