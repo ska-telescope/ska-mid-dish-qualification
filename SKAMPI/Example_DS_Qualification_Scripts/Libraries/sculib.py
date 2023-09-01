@@ -17,7 +17,7 @@
 import time
 import json
 import asyncio, threading, asyncua, logging, queue
-from typing import Union
+from typing import Union, Any
 
 logging.basicConfig(level = logging.INFO)
 logger = logging.getLogger('sculib')
@@ -208,39 +208,39 @@ hn_opcua_tilt_sensors = [
 'Time.DscTime'
 ]
 
-async def handle_exception(e):
+async def handle_exception(e: Exception) -> None:
     logger.error(f'*** Exception caught\n{e}')
 
-def create_command_function(node, event_loop):
+def create_command_function(node: asyncua.Node, event_loop: asyncio.AbstractEventLoop):
     call = asyncio.run_coroutine_threadsafe(node.get_parent(), event_loop).result().call_method
     id = f'{node.nodeid.NamespaceIndex}:{asyncio.run_coroutine_threadsafe(node.read_display_name(), event_loop).result().Text}'
-    def fn(*args):
+    def fn(*args) -> Any:
         try:
             return asyncio.run_coroutine_threadsafe(call(id, *args), event_loop).result()
         except Exception as e:
             asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
     return fn
 
-def create_rw_attribute(node, event_loop):
+def create_rw_attribute(node: asyncua.Node, event_loop: asyncio.AbstractEventLoop):
     class opc_ua_rw_attribute:
         @property
-        def value(self):
+        def value(self) -> Any:
             try:
                 return asyncio.run_coroutine_threadsafe(node.get_value(), event_loop).result()
             except Exception as e:
                 asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
         @value.setter
-        def value(self, _value):
+        def value(self, _value: Any) -> None:
             try:
                 asyncio.run_coroutine_threadsafe(node.set_value(_value), event_loop).result()
             except Exception as e:
                 asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
     return opc_ua_rw_attribute()
 
-def create_ro_attribute(node, event_loop):
+def create_ro_attribute(node: asyncua.Node, event_loop: asyncio.AbstractEventLoop):
     class opc_ua_ro_attribute:
         @property
-        def value(self):
+        def value(self) -> Any:
             try:
                 return asyncio.run_coroutine_threadsafe(node.get_value(), event_loop).result()
             except Exception as e:
@@ -248,9 +248,10 @@ def create_ro_attribute(node, event_loop):
     return opc_ua_ro_attribute()
 
 class SubscriptionHandler:
-    def __init__(self, subscription_queue: queue.Queue, nodes: dict):
+    def __init__(self, subscription_queue: queue.Queue, nodes: dict) -> None:
         self.subscription_queue = subscription_queue
-    def datachange_notification(self, node: asyncua.Node, value, data):
+        self.nodes = nodes
+    def datachange_notification(self, node: asyncua.Node, value: Any, data: asyncua.ua.DataChangeNotification) -> None:
         """
         Callback for an asyncua subscription.
         This method will be called when an asyncua.Client receives a data change
@@ -262,7 +263,7 @@ class SubscriptionHandler:
         value_for_queue = {'name': name, 'node': node, 'value': value, 'source_timestamp': source_timestamp, 'server_timestamp': server_timestamp, 'data': data}
         self.subscription_queue.put(value_for_queue, block = True, timeout = 0.1)
 
-class scu():
+class scu:
     """
     Small ibrary that eases the pain when connecting to an OPC UA server and calling methods on it, reading or writing attributes.
     HOW TO
@@ -322,7 +323,7 @@ class scu():
     *** Exception caught
     "User does not have permission to perform the requested operation."(BadUserAccessDenied)
     """
-    def __init__(self, host: str = 'localhost', port: int = 4840, endpoint: str = '', namespace: str = 'http://skao.int/DS_ICD/', timeout: float = 10.0):
+    def __init__(self, host: str = 'localhost', port: int = 4840, endpoint: str = '', namespace: str = 'http://skao.int/DS_ICD/', timeout: float = 10.0) -> None:
         logger.info('Initialising sculib. This will take about 10s...')
         self.init_called = False
         self.host = host
@@ -342,7 +343,7 @@ class scu():
         self.init_called = True
         logger.info('Initialising sculib done.')
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.unsubscribe_all()
         self.disconnect()
         if self.event_loop_thread is not None:
@@ -359,7 +360,7 @@ class scu():
         asyncio.set_event_loop(event_loop)
         event_loop.run_forever()
 
-    def create_and_start_asyncio_event_loop(self):
+    def create_and_start_asyncio_event_loop(self) -> None:
         event_loop = asyncio.new_event_loop()
         self.event_loop_thread = threading.Thread(target = self.run_event_loop, args = (event_loop,), name = f'asyncio event loop for sculib instance {self.__class__.__name__}', daemon = True,)
         self.event_loop_thread.start()
@@ -383,7 +384,7 @@ class scu():
         self.disconnect()
         self.connect()
 
-    def populate_node_dicts(self):
+    def populate_node_dicts(self) -> None:
         # Create three dicts:
         # nodes, attributes, commands
         # nodes: Contains the entire uasync.Node-tree from and including
