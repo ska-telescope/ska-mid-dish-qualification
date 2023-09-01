@@ -248,7 +248,7 @@ def create_ro_attribute(node, event_loop):
     return opc_ua_ro_attribute()
 
 class SubscriptionHandler:
-    def __init__(self, subscription_queue: queue.Queue):
+    def __init__(self, subscription_queue: queue.Queue, nodes: dict):
         self.subscription_queue = subscription_queue
     def datachange_notification(self, node: asyncua.Node, value, data):
         """
@@ -256,7 +256,12 @@ class SubscriptionHandler:
         This method will be called when an asyncua.Client receives a data change
         message from an OPC UA server.
         """
-        self.subscription_queue.put({node, value, data}, block = True, timeout = 0.1)
+        name = self.nodes[node]
+        source_timestamp = data.monitored_item.Value.SourceTimestamp.timestamp()
+        server_timestamp = data.monitored_item.Value.ServerTimestamp.timestamp()
+        value_for_queue = {'name': name, 'node': node, 'value': value, 'source_timestamp': source_timestamp, 'server_timestamp': server_timestamp, 'data': data}
+        self.subscription_queue.put(value_for_queue, block = True, timeout = 0.1)
+
 class scu():
     """
     Small ibrary that eases the pain when connecting to an OPC UA server and calling methods on it, reading or writing attributes.
@@ -397,8 +402,11 @@ class scu():
         nodes.update({'PLC_PRG': plc_prg})
         # Now store the three dicts as members.
         self.nodes = nodes
+        self.nodes_reversed = {v: k for k, v in nodes.items()}
         self.attributes = attributes
+        self.attributes_reversed = {v: k for k, v in attributes.items()}
         self.commands = commands
+        self.commands_reversed = {v: k for k, v in commands.items()}
 
     def generate_full_node_name(self, node: asyncua.Node, node_name_separator: str = '.', stop_at_node_name: str = 'PLC_PRG') -> str:
         nodes = asyncio.run_coroutine_threadsafe(node.get_path(), self.event_loop).result()
