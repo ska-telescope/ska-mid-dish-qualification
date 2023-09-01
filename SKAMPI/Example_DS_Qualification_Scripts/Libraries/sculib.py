@@ -492,9 +492,10 @@ class scu:
         subscription = self.subscriptions.pop(id)
         _ = asyncio.run_coroutine_threadsafe(subscription['subscription'].unsubscribe(subscription['handle']), self.event_loop).result()
 
-    def unsubscribe_all(self):
-        for id in self.subscriptions.keys:
-            self.unsubscribe(id)
+    def unsubscribe_all(self) -> None:
+        while len(self.subscriptions) > 0:
+            id, subscription = self.subscriptions.popitem()
+            _ = asyncio.run_coroutine_threadsafe(subscription['subscription'].unsubscribe(subscription['handle']), self.event_loop).result()
 
     def get_subscription_values(self) -> list[dict]:
         values = []
