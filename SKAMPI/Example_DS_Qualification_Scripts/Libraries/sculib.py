@@ -2,7 +2,7 @@
 
 #Author: P.P.A. Kotze
 #Date: 1/9/2020
-#Version: 
+#Version:
 #0.1 Initial
 #0.2 Update after feedback and correction from HN email dated 1/8/2020
 #0.3 Rework scu_get and scu_put to simplify
@@ -11,14 +11,12 @@
 #0.6 1/10/2020 added load track tables and start table tracking also as debug added 'field' command for old scu
 #HN: 13/05/2021 Changed the way file name is defined by defining a start time
 ##: 07/10/2021 Added new "save_session14" where file time is no longer added to the file name in this library, but expected to be passed as part of "filename" string argument from calling script.
+# 2023-08-31, Thomas Juerges Refactored the basic access mechanics for an OPC UA server.
 
 #Import of Python available libraries
 import time
-import requests
 import json
-
-#scu_ip = '10.96.64.10'
-port = '8080'
+import asyncua, asyncio
 
 #define some preselected sensors for recording into a logfile
 hn_feed_indexer_sensors=[
@@ -97,10 +95,184 @@ hn_tilt_sensors=[
 ]
 
 class scu():
-    def __init__(self):
-        self.ip = 'localhost'
-        self.port = '8080'
+    """
+    Small ibrary that eases the pain when connecting to an OPC UA server and calling methods on it, reading or writing attributes.
+    HOW TO
+    ------
+    # Import the library:
+    import sculib
+    # Instantiate an scu object. I provide here the defaults which can be
+    # overwritten by specifying the named parameter.
+    scu = sculib.scu(host = 'localhost', port = 4840, endpoint = '', namespace = 'http://skao.int/DS_ICD/', timeout = 10.0)
+    # MANDATORY: Initialise and populate the internal bookkeeping.
+    await scu.init()
+    # Done.
+
+    # All nodes from and including the PLC_PRG node are stored in the nodes dictionary:
+    print(f'{scu.nodes}')
+    scu.get_node_list()
+
+    # You will notice that the keys map the hierarchy in the OPC UA server to a
+    # "dotted" notation. If, for example, in the PLC_PRG node hierarchy a node
+    # "PLC_PRG -> Management -> Slew2AbsAzEl" exists, the then key for this node
+    # will be "Management.Slew2AbsAzEl".
+    #
+    # The methods from the PLC_PRG node on can easily be accessed through the
+    # commands dictionary:
+    print(f'{scu.commands}')
+    scu.get_command_list()
+
+    # Attributes are just the same, again from the PLC_PRG node on:
+    print(f'{scu.attributes}')
+    scu.get_attribute_list()
+
+    # How to call a command?
+    # First check the ICD for the name of the command and which parameters are
+    # required for it. Note that checking for the correctness of the parameters
+    # is not done here but in the PLC's OPC UA server.
+    #
+    # Fetch the command from the commands dictionary:
+    cmd = scu.commands['Management.Slew2AbsAzEl']
+    # The command will come with everything you'll need to call it. The call is
+    # as simple as:
+    result = await scu.commands['COMMAND_NAME'](YOUR_PARAMETERS)
+    # For instance to slew to a new position:
+    az = 182.0; el = 21.8; az_v = 1.2; el_v = 2.1
+    result = await scu.commands['Management.Slew2AbsAzEl'](az, el, az_v, el_v)
+
+    # Reading an attribute is equally simple:
+    value = scu.attributes['Azimuth.p_Set']()
+    """
+    def __init__(self, host: str = 'localhost', port: int = 4840, endpoint: str = '', namespace: str = 'http://skao.int/DS_ICD/', timeout: float = 10.0):
+        self.init_called = False
+        self.host = host
+        self.port = port
+        self.endpoint = endpoint
+        self.namespace = namespace
+        self.timeout = timeout
         self.debug = True
+
+    async def init(self):
+        if self.init_called is False:
+            connection = await self.connect(self.host, self.port, self.endpoint, self.timeout)
+            await connection.load_data_type_definitions()
+            self.ns_idx = await self.get_namespace_index(self.namespace, connection)
+            await self.populate_node_dicts(connection)
+            self.connection = connection
+            self.init_called = True
+        else:
+            print('*** ERROR: The init function must be called only once!\n\tAdvice: If the current scu instance is "foo", then call "await foo.exit(); del foo" and create a new instance of scu.')
+
+    async def populate_node_dicts(self, connection):
+        # Create three dicts:
+        # nodes, attributes, commands
+        # nodes: Contains the entire uasync.Node-tree from and including
+        #   the 'PLC_PRG' node.
+        # attributes: Contains the attributes in the uasync.Node-tree from
+        #   the 'PLC_PRG' node on. The values are callables that return the
+        #   current value.
+        # {Key = Name as in the node hierarchy, value = the uasync.Node}
+        # commands: Contains all callable methods in the uasync.Node-tree
+        #   from the 'PLC_PRG' node on. The values are callables which
+        #   just require the expected parameters.
+        plc_prg = await connection.nodes.objects.get_child([f'{self.ns_idx}:Logic', f'{self.ns_idx}:Application', f'{self.ns_idx}:PLC_PRG'])
+        nodes, attributes, commands = await self.get_sub_nodes(plc_prg)
+        # Small fix for the key of the top level node 'PLC_PRG'.
+        plc_prg = nodes.pop('')
+        nodes.update({'PLC_PRG': plc_prg})
+        # Now store the three dicts as members.
+        self.nodes = nodes
+        self.attributes = attributes
+        self.commands = commands
+
+    async def exit(self):
+        await self.disconnect()
+        self.init_called = False
+
+    async def connect(self, host: str, port: int, endpoint: str, timeout: float) -> None:
+        opc_ua_server = f'opc.tcp://{host}:{port}{endpoint}'
+        connection = asyncua.Client(opc_ua_server, timeout)
+        await connection.connect()
+        self.opc_ua_server = opc_ua_server
+        return connection
+
+    async def disconnect(self) -> None:
+        connection = self.connection
+        self.connection = None
+        if connection is not None:
+            await connection.disconnect()
+
+    async def get_namespace_index(self, namespace: str, connection) -> int:
+        return await connection.get_namespace_index(namespace)
+
+    async def connection_reset(self) -> None:
+        # Allow a reconnection by resetting the self.init_called_flag.
+        self.init_called = False
+        await self.disconnect()
+        await self.init()
+
+    async def generate_full_node_name(self, node: asyncua.Node, node_name_separator: str = '.', stop_at_node_name: str = 'PLC_PRG') -> str:
+        nodes = await node.get_path()
+        nodes.reverse()
+        node_name = ''
+        for parent_node in nodes:
+            parent_node_name = f'{(await parent_node.read_display_name()).Text}'
+            if parent_node_name == stop_at_node_name:
+                break
+            else:
+                node_name = f'{parent_node_name}{node_name_separator}{node_name}'
+        return node_name.strip('.')
+
+    def create_command_function(self, call, id):
+        async def fn(*args):
+            result = await call(id, *args)
+            return result
+        return fn
+
+    async def get_sub_nodes(self, node: asyncua.Node, node_name_separator: str = '.') -> (dict, dict, dict):
+        nodes = {}
+        attributes = {}
+        commands = {}
+        node_name = await self.generate_full_node_name(node)
+        # Do not add the InputArgument and OutputArgument nodes.
+        if node_name.endswith('.InputArguments', node_name.rfind('.')) is True or node_name.endswith('.OutputArguments', node_name.rfind('.')) is True:
+            return nodes, attributes, commands
+        else:
+            nodes[node_name] = node
+        node_class = (await node.read_node_class()).value
+        # node_class = 1: Normal node with children
+        # node_class = 2: Attribute
+        # node_class = 4: Method
+        if node_class == 1:
+            children = await node.get_children()
+            child_nodes = {}
+            for child in children:
+                child_nodes, child_attributes, child_commands = await self.get_sub_nodes(child)
+                nodes.update(child_nodes)
+                attributes.update(child_attributes)
+                commands.update(child_commands)
+        elif node_class == 2:
+            # An attribute. Add it to the attributes dict.
+            attributes[node_name] = node.get_value
+        elif node_class == 4:
+            # A command. Add it to the commands dict.
+            call = (await node.get_parent()).call_method
+            id = f'{node.nodeid.NamespaceIndex}:{(await node.read_display_name()).Text}'
+            commands[node_name] = self.create_command_function(call, id)
+        return nodes, attributes, commands
+
+    def get_node_list(self) -> None:
+        print('Available nodes:')
+        for key in self.nodes.keys():
+            print(f'\t{key}')
+    def get_command_list(self) -> None:
+        print('Available commands:')
+        for key in self.commands.keys():
+            print(f'\t{key}')
+    def get_attribute_list(self) -> None:
+        print('Available attributes:')
+        for key in self.attributes.keys():
+            print(f'\t{key}')
 
     #Direct SCU webapi functions based on urllib PUT/GET
     def feedback(self, r):
@@ -119,7 +291,7 @@ class scu():
 
     #	def scu_get(device, params = {}, r_ip = self.ip, r_port = port):
     def scu_get(self, device, params = {}):
-        '''This is a generic GET command into http: scu port + folder 
+        '''This is a generic GET command into http: scu port + folder
         with params=payload'''
         URL = 'http://' + self.ip + ':' + self.port + device
         r = requests.get(url = URL, params = params)
@@ -127,7 +299,7 @@ class scu():
         return(r)
 
     def scu_put(self, device, payload = {}, params = {}, data=''):
-        '''This is a generic PUT command into http: scu port + folder 
+        '''This is a generic PUT command into http: scu port + folder
         with json=payload'''
         URL = 'http://' + self.ip + ':' + self.port + device
         r = requests.put(url = URL, json = payload, params = params, data = data)
@@ -135,7 +307,7 @@ class scu():
         return(r)
 
     def scu_delete(self, device, payload = {}, params = {}):
-        '''This is a generic DELETE command into http: scu port + folder 
+        '''This is a generic DELETE command into http: scu port + folder
         with params=payload'''
         URL = 'http://' + self.ip + ':' + self.port + device
         r = requests.delete(url = URL, json = payload, params = params)
@@ -149,7 +321,7 @@ class scu():
         #1 get #2 release
         print('command authority: ', action)
         authority={'Get': 1, 'Release': 2}
-        self.scu_put('/devices/command', 
+        self.scu_put('/devices/command',
             {'path': 'acu.command_arbiter.authority',
             'params': {'action': authority[action]}})
 
@@ -161,7 +333,7 @@ class scu():
 
     def reset_dmc(self):
         print('reset dmc')
-        self.scu_put('/devices/command', 
+        self.scu_put('/devices/command',
             {'path': 'acu.dish_management_controller.reset'})
 
     def activate_dmc(self):
@@ -171,7 +343,7 @@ class scu():
 
     def deactivate_dmc(self):
         print('deactivate dmc')
-        self.scu_put('/devices/command', 
+        self.scu_put('/devices/command',
             {'path': 'acu.dish_management_controller.deactivate'})
 
     def move_to_band(self, position):
@@ -185,7 +357,7 @@ class scu():
             self.scu_put('/devices/command',
             {'path': 'acu.dish_management_controller.move_to_band',
              'params': {'action': bands[position]}})
-            
+
     def abs_azel(self, az_angle, el_angle):
         print('abs az: {:.4f} el: {:.4f}'.format(az_angle, el_angle))
         self.scu_put('/devices/command',
@@ -196,17 +368,17 @@ class scu():
     #commands to ACU
     def activate_az(self):
         print('act azimuth')
-        self.scu_put('/devices/command', 
+        self.scu_put('/devices/command',
             {'path': 'acu.elevation.activate'})
 
     def activate_el(self):
         print('activate elevation')
-        self.scu_put('/devices/command', 
+        self.scu_put('/devices/command',
             {'path': 'acu.elevation.activate'})
 
     def deactivate_el(self):
         print('deactivate elevation')
-        self.scu_put('/devices/command', 
+        self.scu_put('/devices/command',
             {'path': 'acu.elevation.deactivate'})
 
     def abs_azimuth(self, az_angle, az_vel):
@@ -214,14 +386,14 @@ class scu():
         self.scu_put('/devices/command',
             {'path': 'acu.azimuth.slew_to_abs_pos',
              'params': {'new_axis_absolute_position_set_point': az_angle,
-              'new_axis_speed_set_point_for_this_move': az_vel}})    
+              'new_axis_speed_set_point_for_this_move': az_vel}})
 
     def abs_elevation(self, el_angle, el_vel):
         print('abs el: {:.4f} vel: {:.4f}'.format(el_angle, el_vel))
         self.scu_put('/devices/command',
             {'path': 'acu.elevation.slew_to_abs_pos',
              'params': {'new_axis_absolute_position_set_point': el_angle,
-              'new_axis_speed_set_point_for_this_move': el_vel}}) 
+              'new_axis_speed_set_point_for_this_move': el_vel}})
 
     def load_static_offset(self, az_offset, el_offset):
         print('offset az: {:.4f} el: {:.4f}'.format(az_offset, el_offset))
@@ -231,25 +403,25 @@ class scu():
                         'elevation_tracking_offset': el_offset}})     #Track table commands
 
 
-    
+
     def load_program_track(self, load_type, entries, t=[0]*50, az=[0]*50, el=[0]*50):
-        print(load_type)    
+        print(load_type)
         LOAD_TYPES = {
-            'LOAD_NEW' : 1, 
-            'LOAD_ADD' : 2, 
+            'LOAD_NEW' : 1,
+            'LOAD_ADD' : 2,
             'LOAD_RESET' : 3}
-        
+
         #table selector - to tidy for future use
         ptrackA = 11
-        
+
         TABLE_SELECTOR =  {
             'pTrackA' : 11,
             'pTrackB' : 12,
             'oTrackA' : 21,
             'oTrackB' : 22}
-        
+
         #funny thing is SCU wants 50 entries, even for LOAD RESET! or if you send less then you have to pad the table
-       
+
         if entries != 50:
             padding = 50 - entries
             t  += [0] * padding
@@ -280,16 +452,16 @@ class scu():
                                   'start_time_mjd': start_time,
                                   'interpol_mode': SPLINE,
                                   'track_mode': AZ_EL }})
-    
+
     def acu_ska_track(self, BODY):
         print('acu ska track')
-        self.scu_put('/acuska/programTrack', 
+        self.scu_put('/acuska/programTrack',
                 data = BODY)
-        
+
     def acu_ska_track_stoploadingtable(self):
         print('acu ska track stop loading table')
         self.scu_put('/acuska/stopLoadingTable')
-        
+
     def format_tt_line(self, t, az,  el, capture_flag = 1, parallactic_angle = 0.0):
         '''something will provide a time, az and el as minimum
         time must alread be absolute time desired in mjd format
@@ -301,12 +473,12 @@ class scu():
         body = ''
         for i in range(len(t)):
             body += self.format_tt_line(t[i], az[i], el[i])
-        return(body)        
+        return(body)
 
     #status get functions goes here
-    
+
     def status_Value(self, sensor):
-        r=self.scu_get('/devices/statusValue', 
+        r=self.scu_get('/devices/statusValue',
               {'path': sensor})
         data = r.json()['value']
         #print('value: ', data)
@@ -314,32 +486,32 @@ class scu():
 
     def status_finalValue(self, sensor):
         #print('get status finalValue: ', sensor)
-        r=self.scu_get('/devices/statusValue', 
+        r=self.scu_get('/devices/statusValue',
               {'path': sensor})
         data = r.json()['finalValue']
         #print('finalValue: ', data)
         return(data)
 
     def commandMessageFields(self, commandPath):
-        r=self.scu_get('/devices/commandMessageFields', 
+        r=self.scu_get('/devices/commandMessageFields',
               {'path': commandPath})
         return(r)
 
     def statusMessageField(self, statusPath):
-        r=self.scu_get('/devices/statusMessageFields', 
+        r=self.scu_get('/devices/statusMessageFields',
               {'deviceName': statusPath})
         return(r)
-    
+
     #ppak added 1/10/2020 as debug for onsite SCU version
     #but only info about sensor, value itself is murky?
     def field(self, sensor):
         #old field method still used on site
-        r=self.scu_get('/devices/field', 
+        r=self.scu_get('/devices/field',
               {'path': sensor})
         #data = r.json()['value']
         data = r.json()
         return(data)
-    
+
     #logger functions goes here
 
     def create_logger(self, config_name, sensor_list):
@@ -347,11 +519,11 @@ class scu():
         PUT create a config for logging
         Usage:
         create_logger('HN_INDEX_TEST', hn_feed_indexer_sensors)
-        or 
+        or
         create_logger('HN_TILT_TEST', hn_tilt_sensors)
         '''
         print('create logger')
-        r=self.scu_put('/datalogging/config', 
+        r=self.scu_put('/datalogging/config',
               {'name': config_name,
                'paths': sensor_list})
         return(r)
@@ -387,7 +559,7 @@ class scu():
         r=self.scu_get('/datalogging/lastSession')
         session = (r.json()['uuid'])
         return(session)
-    
+
     def logger_sessions(self):
         '''
         GET all sessions
@@ -426,10 +598,10 @@ class scu():
         Works in browser display only, reverts when browser refreshed!
         Usage:
         session_rename('16','koos')
-        '''    
+        '''
         print('rename session ')
         r=self.scu_put('/datalogging/session',
-             params = {'id': id, 
+             params = {'id': id,
                 'name' : new_name})
         return(r)
 
@@ -437,14 +609,14 @@ class scu():
     def export_session(self, id, interval_ms=1000):
         '''
         EXPORT specific session - by id and with interval
-        output r.text could be directed to be saved to file 
-        Usage: 
+        output r.text could be directed to be saved to file
+        Usage:
         export_session('16',1000)
-        or export_session('16',1000).text 
+        or export_session('16',1000).text
         '''
         print('export session ')
         r=self.scu_get('/datalogging/exportSession',
-             params = {'id': id, 
+             params = {'id': id,
                 'interval_ms' : interval_ms})
         return(r)
 
@@ -467,9 +639,9 @@ class scu():
         Default interval is 1s
         Default is last recorded session
         if specified no error checking to see if it exists
-        Usage: 
+        Usage:
         export_session('16',1000)
-        or export_session('16',1000).text 
+        or export_session('16',1000).text
         '''
         from pathlib import Path
         print('Attempt export and save of session: {} at rate {:.0f} ms'.format(session, interval_ms))
@@ -483,7 +655,7 @@ class scu():
         file_time = str(int(time.time()))
         file_name = str(filename + '_' + file_time + '.csv')
         file_path = Path.cwd()  / 'output' / file_name
-        print('Log file location:', file_path)    
+        print('Log file location:', file_path)
         f = open(file_path, 'a+')
         f.write(file_txt)
         f.close()
@@ -495,9 +667,9 @@ class scu():
         Default interval is 1s
         Default is last recorded session
         if specified no error checking to see if it exists
-        Usage: 
+        Usage:
         export_session('16',1000)
-        or export_session('16',1000).text 
+        or export_session('16',1000).text
         '''
         from pathlib import Path
         print('Attempt export and save of session: {} at rate {:.0f} ms'.format(session, interval_ms))
@@ -512,20 +684,20 @@ class scu():
         file_time = str(int(start))
         file_name = str(filename + '_' + file_time + '.csv')
         file_path = Path.cwd()  / 'output' / file_name
-        print('Log file location:', file_path)    
+        print('Log file location:', file_path)
         f = open(file_path, 'a+')
         f.write(file_txt)
         f.close()
-        
+
     def save_session14(self, filename, interval_ms=1000, session = 'last'):
         '''
         Save session data as CSV after EXPORTing it
         Default interval is 1s
         Default is last recorded session
         if specified no error checking to see if it exists
-        Usage: 
+        Usage:
         export_session('16',1000)
-        or export_session('16',1000).text 
+        or export_session('16',1000).text
         '''
         from pathlib import Path
         print('Attempt export and save of session: {} at rate {:.0f} ms'.format(session, interval_ms))
@@ -537,12 +709,12 @@ class scu():
         print('Session id: {} '.format(session))
         file_name = str(filename + '.csv')
         file_path = Path.cwd()  / 'output' / file_name
-        print('Log file location:', file_path)    
+        print('Log file location:', file_path)
         f = open(file_path, 'a+')
         f.write(file_txt)
         f.close()
-        
-    #Simplified one line commands particular to test section being peformed 
+
+    #Simplified one line commands particular to test section being peformed
 
     #wait seconds, wait value, wait finalValue
     def wait_duration(self, seconds):
@@ -560,10 +732,10 @@ class scu():
         print('wait until sensor: {} == value {}'.format(sensor, value))
         while status_finalValue(sensor) != value:
             time.sleep(1)
-        print(' {} done *'.format(value))  
+        print(' {} done *'.format(value))
 
     #Simplified track table functions
-    
+
 
 if __name__ == '__main__':
    print("main")
