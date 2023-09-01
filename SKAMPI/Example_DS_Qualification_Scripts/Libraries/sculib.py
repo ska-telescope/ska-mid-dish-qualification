@@ -59,6 +59,72 @@ hn_feed_indexer_sensors=[
 'acu.general_management_and_controller.current_phase_3'
 ]
 
+# OPC UA equivalent for the above listed hh_feed_indexer_sensors
+# NOTE: These attributes/sensros are currently missing:
+# *** general_management_and_controller.state
+# *** time.act_time_source
+# *** time.internal_time
+# *** time.external_ptp
+# Helper code that I used:
+# lower = {}
+# for i in scu.attributes.keys():
+#     lower = i.tolower()
+#     lower[lower] = i
+# s = "hn_opcua_feed_indexer_sensors = ["
+# for i in sculib.feed_indexer_sensors:
+#     name = i.replace('acu.', '')
+#     name = name.replace('feed_indexer', 'feedindexer')
+#     a = None
+#     try:
+#         u = lower[name]
+#         s += f"\n'{u}',"
+#     except KeyError as e:
+#         print(f'*** {name}')
+# s += f"\n]"
+# print(f'{s}')
+# s = "hn_opcua_tilt_sensors = ["
+# for i in sculib.hn_tilt_sensors:
+#     name = i.replace('acu.', '')
+#     name = name.replace('feed_indexer', 'feedindexer')
+#     a = None
+#     try:
+#         u = lower[name]
+#         s += f"\n'{u}',"
+#     except KeyError as e:
+#         print(f'*** {name}')
+# s += f"\n]"
+# print(f'{s}')
+hn_opcua_feed_indexer_sensors = [
+'Azimuth.AxisState',
+'Azimuth.p_Set',
+'Azimuth.p_Act',
+'Azimuth.v_Act',
+'Elevation.AxisState',
+'Elevation.p_Set',
+'Elevation.p_Act',
+'Elevation.v_Act',
+'FeedIndexer.AxisState',
+'FeedIndexer.MotorOne.mActTorq',
+'FeedIndexer.MotorOne.mActVelocity',
+'FeedIndexer.MotorTwo.mActTorq',
+'FeedIndexer.MotorTwo.mActVelocity',
+'FeedIndexer.p_Set',
+'FeedIndexer.p_Shape',
+'FeedIndexer.p_Act',
+'FeedIndexer.v_Shape',
+'FeedIndexer.v_Act',
+'Management.ManagementStatus.FiPos',
+'Management.ManagementStatus.PowerStatus.ActPwrCnsm',
+'Management.ManagementStatus.PowerStatus.CurrentPh1',
+'Management.ManagementStatus.PowerStatus.CurrentPh2',
+'Management.ManagementStatus.PowerStatus.CurrentPh3',
+'Management.ManagementStatus.PowerStatus.PowerFactor',
+'Management.ManagementStatus.PowerStatus.VoltagePh1',
+'Management.ManagementStatus.PowerStatus.VoltagePh2',
+'Management.ManagementStatus.PowerStatus.VoltagePh3',
+'Time.DscTime'
+]
+
 #hn_tilt_sensors is equivalent to "Servo performance"
 hn_tilt_sensors=[
 'acu.time.act_time_source',
@@ -100,6 +166,47 @@ hn_tilt_sensors=[
 'acu.pointing.incl_corr_val_el'
 ]
 
+hn_opcua_tilt_sensors = [
+'Azimuth.AxisState',
+'Azimuth.p_Set',
+'Azimuth.p_Act',
+'Azimuth.v_Act',
+'Elevation.AxisState',
+'Elevation.p_Set',
+'Elevation.p_Act',
+'Elevation.v_Act',
+'Management.ManagementStatus.FiPos',
+'Management.ManagementStatus.PowerStatus.ActPwrCnsm',
+'Management.ManagementStatus.PowerStatus.CurrentPh1',
+'Management.ManagementStatus.PowerStatus.CurrentPh2',
+'Management.ManagementStatus.PowerStatus.CurrentPh3',
+'Management.ManagementStatus.PowerStatus.PowerFactor',
+'Management.ManagementStatus.PowerStatus.VoltagePh1',
+'Management.ManagementStatus.PowerStatus.VoltagePh2',
+'Management.ManagementStatus.PowerStatus.VoltagePh3',
+'Management.ManagementStatus.TempHumidStatus.TempPSC_Inlet',
+'Management.ManagementStatus.TempHumidStatus.TempPSC_Outlet',
+'Pointing.ActAmbTemp_East',
+'Pointing.ActAmbTemp_South',
+'Pointing.ActAmbTemp_West',
+'Pointing.TiltCorrVal_Az',
+'Pointing.TiltCorrVal_El',
+'Pointing.TiltTemp_One',
+'Pointing.TiltXArcsec_One',
+'Pointing.TiltXArcsec_Two',
+'Pointing.TiltXFilt_One',
+'Pointing.TiltXFilt_Two',
+'Pointing.TiltXRaw_One',
+'Pointing.TiltXRaw_Two',
+'Pointing.TiltXTemp_Two',
+'Pointing.TiltYArcsec_One',
+'Pointing.TiltYArcsec_Two',
+'Pointing.TiltYFilt_One',
+'Pointing.TiltYFilt_Two',
+'Pointing.TiltYRaw_One',
+'Pointing.TiltYRaw_Two',
+'Time.DscTime'
+]
 
 async def handle_exception(e):
     logger.error(f'*** Exception caught\n{e}')
