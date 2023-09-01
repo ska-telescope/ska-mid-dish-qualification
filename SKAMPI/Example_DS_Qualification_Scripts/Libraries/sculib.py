@@ -473,15 +473,16 @@ class scu:
             info += f'{key}\n'
         logger.info(info)
 
-    def subscribe(self, attributes: Union[str, list[str]], period: int) -> int:
-        if self.subscription_handler is None:
-            self.subscription_handler = SubscriptionHandler(self.subscription_queue)
+    def subscribe(self, attributes: Union[str, list[str]] = hn_opcua_tilt_sensors, period: int = 100, data_queue: queue.Queue = None) -> int:
+        if data_queue is None:
+            data_queue = self.subscription_queue
+        subscription_handler = SubscriptionHandler(data_queue, self.nodes_reversed)
         if not isinstance(attributes, list):
             attributes = [attributes,]
         nodes = []
         for attribute in attributes:
             nodes.append(self.nodes[attribute])
-        subscription = asyncio.run_coroutine_threadsafe(self.connection.create_subscription(period, self.subscription_handler), self.event_loop).result()
+        subscription = asyncio.run_coroutine_threadsafe(self.connection.create_subscription(period, subscription_handler), self.event_loop).result()
         handle = asyncio.run_coroutine_threadsafe(subscription.subscribe_data_change(nodes), self.event_loop).result()
         id = time.clock_gettime_ns(time.CLOCK_MONOTONIC)
         self.subscriptions[id] = {'handle': handle, 'nodes': nodes, 'subscription': subscription}
