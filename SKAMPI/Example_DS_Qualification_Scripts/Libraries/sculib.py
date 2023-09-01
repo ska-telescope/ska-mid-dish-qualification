@@ -16,7 +16,8 @@
 #Import of Python available libraries
 import time
 import json
-import asyncio, threading, asyncua, logging
+import asyncio, threading, asyncua, logging, queue
+from typing import Union
 
 logging.basicConfig(level = logging.INFO)
 logger = logging.getLogger('sculib')
@@ -140,13 +141,15 @@ def create_ro_attribute(node, event_loop):
     return opc_ua_ro_attribute()
 
 class SubscriptionHandler:
+    def __init__(self, subscription_queue: queue.Queue):
+        self.subscription_queue = subscription_queue
     def datachange_notification(self, node: asyncua.Node, value, data):
         """
-        Callback for asyncua Subscription.
-        This method will be called when the Client received a data change message from the Server.
+        Callback for an asyncua subscription.
+        This method will be called when an asyncua.Client receives a data change
+        message from an OPC UA server.
         """
-        logger.info(f'datachange_notification: {node} = {val}')
-
+        self.subscription_queue.put({node, value, data}, block = True, timeout = 0.1)
 class scu():
     """
     Small ibrary that eases the pain when connecting to an OPC UA server and calling methods on it, reading or writing attributes.
@@ -217,6 +220,9 @@ class scu():
         self.timeout = timeout
         self.event_loop = None
         self.event_loop_thread = None
+        self.subscription_handler = None
+        self.subscriptions = {}
+        self.subscription_queue = queue.Queue()
         self.create_and_start_asyncio_event_loop()
         self.connection = self.connect(self.host, self.port, self.endpoint, self.timeout)
         self.populate_node_dicts()
@@ -225,6 +231,7 @@ class scu():
         logger.info('Initialising sculib done.')
 
     def __del__(self):
+        self.unsubscribe_all()
         self.disconnect()
         if self.event_loop_thread is not None:
             # Signal the event loop thread to stop.
@@ -349,6 +356,28 @@ class scu():
         for key in self.attributes.keys():
             info += f'{key}\n'
         logger.info(info)
+
+    def subscribe(self, attributes: Union[str, list[str]], period: int) -> int:
+        if self.subscription_handler is None:
+            self.subscription_handler = SubscriptionHandler(self.subscription_queue)
+        if not isinstance(attributes, list):
+            attributes = [attributes,]
+        nodes = []
+        for attribute in attributes:
+            nodes.append(self.nodes[attribute])
+        subscription = asyncio.run_coroutine_threadsafe(self.connection.create_subscription(period, self.subscription_handler), self.event_loop).result()
+        handle = asyncio.run_coroutine_threadsafe(subscription.subscribe_data_change(nodes), self.event_loop).result()
+        id = time.clock_gettime_ns(time.CLOCK_MONOTONIC)
+        self.subscriptions[id] = {'handle': handle, 'nodes': nodes, 'subscription': subscription}
+        return id
+
+    def unsubscribe(self, id: int) -> None:
+        subscription = self.subscriptions.pop(id)
+        _ = asyncio.run_coroutine_threadsafe(subscription['subscription'].unsubscribe(subscription['handle']), self.event_loop).result()
+
+    def unsubscribe_all(self):
+        for id in self.subscriptions.keys:
+            self.unsubscribe(id)
 
     #Direct SCU webapi functions based on urllib PUT/GET
     def feedback(self, r):
