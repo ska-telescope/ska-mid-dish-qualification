@@ -139,6 +139,14 @@ def create_ro_attribute(node, event_loop):
                 asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
     return opc_ua_ro_attribute()
 
+class SubscriptionHandler:
+    def datachange_notification(self, node: asyncua.Node, value, data):
+        """
+        Callback for asyncua Subscription.
+        This method will be called when the Client received a data change message from the Server.
+        """
+        logger.info(f'datachange_notification: {node} = {val}')
+
 class scu():
     """
     Small ibrary that eases the pain when connecting to an OPC UA server and calling methods on it, reading or writing attributes.
