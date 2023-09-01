@@ -465,7 +465,7 @@ class scu:
     def get_command_list(self) -> None:
         info = ''
         for key in self.commands.keys():
-            logger.info(f'{key}\n')
+            info += f'{key}\n'
         logger.info(info)
     def get_attribute_list(self) -> None:
         info = ''
