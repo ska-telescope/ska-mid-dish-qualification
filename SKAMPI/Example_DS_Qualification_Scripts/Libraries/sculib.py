@@ -379,6 +379,12 @@ class scu():
         for id in self.subscriptions.keys:
             self.unsubscribe(id)
 
+    def get_subscription_values(self) -> list[dict]:
+        values = []
+        while not self.subscription_queue.empty():
+            values.append(self.subscription_queue.get(block = False, timeout = 0.1))
+        return values
+
     #Direct SCU webapi functions based on urllib PUT/GET
     def feedback(self, r):
         if self.debug == True:
