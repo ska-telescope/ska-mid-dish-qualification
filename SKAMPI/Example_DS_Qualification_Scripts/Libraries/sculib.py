@@ -16,7 +16,7 @@
 #Import of Python available libraries
 import time
 import json
-import asyncua, asyncio
+import asyncio, threading, asyncua
 
 #define some preselected sensors for recording into a logfile
 hn_feed_indexer_sensors=[
@@ -94,6 +94,45 @@ hn_tilt_sensors=[
 'acu.pointing.incl_corr_val_el'
 ]
 
+async def handle_exception(e):
+    print(f'*** Exception caught\n{e}')
+
+def create_command_function(node, event_loop):
+    call = asyncio.run_coroutine_threadsafe(node.get_parent(), event_loop).result().call_method
+    id = f'{node.nodeid.NamespaceIndex}:{asyncio.run_coroutine_threadsafe(node.read_display_name(), event_loop).result().Text}'
+    def fn(*args):
+        try:
+            return asyncio.run_coroutine_threadsafe(call(id, *args), event_loop).result()
+        except Exception as e:
+            asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
+    return fn
+
+def create_rw_attribute(node, event_loop):
+    class opc_ua_rw_attribute:
+        @property
+        def value(self):
+            try:
+                return asyncio.run_coroutine_threadsafe(node.get_value(), event_loop).result()
+            except Exception as e:
+                asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
+        @value.setter
+        def value(self, _value):
+            try:
+                asyncio.run_coroutine_threadsafe(node.set_value(_value), event_loop).result()
+            except Exception as e:
+                asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
+    return opc_ua_rw_attribute()
+
+def create_ro_attribute(node, event_loop):
+    class opc_ua_ro_attribute:
+        @property
+        def value(self):
+            try:
+                return asyncio.run_coroutine_threadsafe(node.get_value(), event_loop).result()
+            except Exception as e:
+                asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
+    return opc_ua_ro_attribute()
+
 class scu():
     """
     Small ibrary that eases the pain when connecting to an OPC UA server and calling methods on it, reading or writing attributes.
@@ -104,66 +143,114 @@ class scu():
     # Instantiate an scu object. I provide here the defaults which can be
     # overwritten by specifying the named parameter.
     scu = sculib.scu(host = 'localhost', port = 4840, endpoint = '', namespace = 'http://skao.int/DS_ICD/', timeout = 10.0)
-    # MANDATORY: Initialise and populate the internal bookkeeping.
-    await scu.init()
     # Done.
 
     # All nodes from and including the PLC_PRG node are stored in the nodes dictionary:
-    print(f'{scu.nodes}')
     scu.get_node_list()
 
-    # You will notice that the keys map the hierarchy in the OPC UA server to a
-    # "dotted" notation. If, for example, in the PLC_PRG node hierarchy a node
-    # "PLC_PRG -> Management -> Slew2AbsAzEl" exists, the then key for this node
-    # will be "Management.Slew2AbsAzEl".
+    # You will notice that the keys in the nodes dictionary map the hierarchy
+    # in the OPC UA server to a "dotted" notation. If, for example, in the
+    # PLC_PRG node hierarchy a node "PLC_PRG -> Management -> Slew2AbsAzEl"
+    # exists, the then key for this node will be "Management.Slew2AbsAzEl".
+
+    # Therefore nodes can easily be accessed by their hierarchical name.
+    node = scu.nodes['Tracking.TrackStatus.tr_initOk']
+
+    # Every value in the dictionary exposes the full OPC UA functionality for a
+    # node.
+    # NOTE: When accessing nodes directly, it is mandatory to await any calls.
+    node_name = (await (node.read_display_name()).Text
+
     #
-    # The methods from the PLC_PRG node on can easily be accessed through the
-    # commands dictionary:
-    print(f'{scu.commands}')
+    # The methods that are below the PLC_PRG node's hierarchy can be accessed
+    # through the commands dictionary:
     scu.get_command_list()
 
-    # Attributes are just the same, again from the PLC_PRG node on:
-    print(f'{scu.attributes}')
-    scu.get_attribute_list()
+    # Again, each command has a name that is directly mapped from the location
+    # of the command in the hierarchy below the PLC_PRG node.
+    # When you want to call a command, please check the ICD for the parameters
+    # that the commands expects. Checking for the correctness of the parameters
+    # is not done here in sculib but in the PLC's OPC UA server.
+    # Once the parameters are in order, calling a command is really simple:
+    result = scu.commands['COMMAND_NAME'](YOUR_PARAMETERS)
 
-    # How to call a command?
-    # First check the ICD for the name of the command and which parameters are
-    # required for it. Note that checking for the correctness of the parameters
-    # is not done here but in the PLC's OPC UA server.
-    #
-    # Fetch the command from the commands dictionary:
-    cmd = scu.commands['Management.Slew2AbsAzEl']
-    # The command will come with everything you'll need to call it. The call is
-    # as simple as:
-    result = await scu.commands['COMMAND_NAME'](YOUR_PARAMETERS)
-    # For instance to slew to a new position:
+    # For instance, command the PLC to slew to a new position:
     az = 182.0; el = 21.8; az_v = 1.2; el_v = 2.1
-    result = await scu.commands['Management.Slew2AbsAzEl'](az, el, az_v, el_v)
+    result = scu.commands['Management.Slew2AbsAzEl'](az, el, az_v, el_v)
 
-    # Reading an attribute is equally simple:
-    value = scu.attributes['Azimuth.p_Set']()
+    # The OPC UA server also provides read-writeable and read-only variables,
+    # commonly called in OPC UA "attributes". An attribute's value can easily
+    # be read:
+    scu.nodes['Azimuth.p_Set'].value
+
+    # If an attribute is writable, then a simple assignment does the trick:
+    scu.nodes['Azimuth.p_Set'].value = 1.2345
+
+    # In case an attribute is not writeable, the OPC UA server will report an
+    # error:
+    scu.attributes['Azimuth.p_Set'].value = 10
+
+    *** Exception caught
+    "User does not have permission to perform the requested operation."(BadUserAccessDenied)
     """
     def __init__(self, host: str = 'localhost', port: int = 4840, endpoint: str = '', namespace: str = 'http://skao.int/DS_ICD/', timeout: float = 10.0):
+        print('Initialising sculib. This will take about 10s...')
         self.init_called = False
         self.host = host
         self.port = port
         self.endpoint = endpoint
         self.namespace = namespace
         self.timeout = timeout
+        self.event_loop = None
+        self.event_loop_thread = None
+        self.create_and_start_asyncio_event_loop()
+        self.connection = self.connect(self.host, self.port, self.endpoint, self.timeout)
+        self.populate_node_dicts()
         self.debug = True
+        self.init_called = True
+        print('Initialising sculib done.')
 
-    async def init(self):
-        if self.init_called is False:
-            connection = await self.connect(self.host, self.port, self.endpoint, self.timeout)
-            await connection.load_data_type_definitions()
-            self.ns_idx = await self.get_namespace_index(self.namespace, connection)
-            await self.populate_node_dicts(connection)
-            self.connection = connection
-            self.init_called = True
-        else:
-            print('*** ERROR: The init function must be called only once!\n\tAdvice: If the current scu instance is "foo", then call "await foo.exit(); del foo" and create a new instance of scu.')
+    def __del__(self):
+        self.disconnect()
+        if self.event_loop_thread is not None:
+            # Signal the event loop thread to stop.
+            self.event_loop.call_soon_threadsafe(self.event_loop.stop)
+            # Join the event loop thread once it is done processing tasks.
+            self.event_loop_thread.join()
 
-    async def populate_node_dicts(self, connection):
+    def run_event_loop(self, event_loop: asyncio.AbstractEventLoop) -> None:
+        # The self.event_loop needs to be stored here. Otherwise asyncio
+        # complains that it has the wrong type when scheduling a coroutine.
+        # Sigh.
+        self.event_loop = event_loop
+        asyncio.set_event_loop(event_loop)
+        event_loop.run_forever()
+
+    def create_and_start_asyncio_event_loop(self):
+        event_loop = asyncio.new_event_loop()
+        self.event_loop_thread = threading.Thread(target = self.run_event_loop, args = (event_loop,), name = f'asyncio event loop for sculib instance {self.__class__.__name__}', daemon = True,)
+        self.event_loop_thread.start()
+
+    def connect(self, host: str, port: int, endpoint: str, timeout: float) -> None:
+        opc_ua_server = f'opc.tcp://{host}:{port}{endpoint}'
+        connection = asyncua.Client(opc_ua_server, timeout)
+        _ = asyncio.run_coroutine_threadsafe(connection.connect(), self.event_loop).result()
+        self.opc_ua_server = opc_ua_server
+        _ = asyncio.run_coroutine_threadsafe(connection.load_data_type_definitions(), self.event_loop).result()
+        self.ns_idx = asyncio.run_coroutine_threadsafe(connection.get_namespace_index(self.namespace), self.event_loop).result()
+        return connection
+
+    def disconnect(self) -> None:
+        connection = self.connection
+        self.connection = None
+        if connection is not None:
+            _ = asyncio.run_coroutine_threadsafe(connection.disconnect(), self.event_loop).result()
+
+    def connection_reset(self) -> None:
+        self.disconnect()
+        self.connect()
+
+    def populate_node_dicts(self):
         # Create three dicts:
         # nodes, attributes, commands
         # nodes: Contains the entire uasync.Node-tree from and including
@@ -175,8 +262,8 @@ class scu():
         # commands: Contains all callable methods in the uasync.Node-tree
         #   from the 'PLC_PRG' node on. The values are callables which
         #   just require the expected parameters.
-        plc_prg = await connection.nodes.objects.get_child([f'{self.ns_idx}:Logic', f'{self.ns_idx}:Application', f'{self.ns_idx}:PLC_PRG'])
-        nodes, attributes, commands = await self.get_sub_nodes(plc_prg)
+        plc_prg = asyncio.run_coroutine_threadsafe(self.connection.nodes.objects.get_child([f'{self.ns_idx}:Logic', f'{self.ns_idx}:Application', f'{self.ns_idx}:PLC_PRG']), self.event_loop).result()
+        nodes, attributes, commands = self.get_sub_nodes(plc_prg)
         # Small fix for the key of the top level node 'PLC_PRG'.
         plc_prg = nodes.pop('')
         nodes.update({'PLC_PRG': plc_prg})
@@ -185,80 +272,52 @@ class scu():
         self.attributes = attributes
         self.commands = commands
 
-    async def exit(self):
-        await self.disconnect()
-        self.init_called = False
-
-    async def connect(self, host: str, port: int, endpoint: str, timeout: float) -> None:
-        opc_ua_server = f'opc.tcp://{host}:{port}{endpoint}'
-        connection = asyncua.Client(opc_ua_server, timeout)
-        await connection.connect()
-        self.opc_ua_server = opc_ua_server
-        return connection
-
-    async def disconnect(self) -> None:
-        connection = self.connection
-        self.connection = None
-        if connection is not None:
-            await connection.disconnect()
-
-    async def get_namespace_index(self, namespace: str, connection) -> int:
-        return await connection.get_namespace_index(namespace)
-
-    async def connection_reset(self) -> None:
-        # Allow a reconnection by resetting the self.init_called_flag.
-        self.init_called = False
-        await self.disconnect()
-        await self.init()
-
-    async def generate_full_node_name(self, node: asyncua.Node, node_name_separator: str = '.', stop_at_node_name: str = 'PLC_PRG') -> str:
-        nodes = await node.get_path()
+    def generate_full_node_name(self, node: asyncua.Node, node_name_separator: str = '.', stop_at_node_name: str = 'PLC_PRG') -> str:
+        nodes = asyncio.run_coroutine_threadsafe(node.get_path(), self.event_loop).result()
         nodes.reverse()
         node_name = ''
         for parent_node in nodes:
-            parent_node_name = f'{(await parent_node.read_display_name()).Text}'
+            parent_node_name = f'{asyncio.run_coroutine_threadsafe(parent_node.read_display_name(), self.event_loop).result().Text}'
             if parent_node_name == stop_at_node_name:
                 break
             else:
                 node_name = f'{parent_node_name}{node_name_separator}{node_name}'
         return node_name.strip('.')
 
-    def create_command_function(self, call, id):
-        async def fn(*args):
-            result = await call(id, *args)
-            return result
-        return fn
-
-    async def get_sub_nodes(self, node: asyncua.Node, node_name_separator: str = '.') -> (dict, dict, dict):
+    def get_sub_nodes(self, node: asyncua.Node, node_name_separator: str = '.') -> (dict, dict, dict):
         nodes = {}
         attributes = {}
         commands = {}
-        node_name = await self.generate_full_node_name(node)
+        node_name = self.generate_full_node_name(node)
         # Do not add the InputArgument and OutputArgument nodes.
         if node_name.endswith('.InputArguments', node_name.rfind('.')) is True or node_name.endswith('.OutputArguments', node_name.rfind('.')) is True:
             return nodes, attributes, commands
         else:
             nodes[node_name] = node
-        node_class = (await node.read_node_class()).value
+        node_class = asyncio.run_coroutine_threadsafe(node.read_node_class(), self.event_loop).result().value
         # node_class = 1: Normal node with children
         # node_class = 2: Attribute
         # node_class = 4: Method
         if node_class == 1:
-            children = await node.get_children()
+            children = asyncio.run_coroutine_threadsafe(node.get_children(), self.event_loop).result()
             child_nodes = {}
             for child in children:
-                child_nodes, child_attributes, child_commands = await self.get_sub_nodes(child)
+                child_nodes, child_attributes, child_commands = self.get_sub_nodes(child)
                 nodes.update(child_nodes)
                 attributes.update(child_attributes)
                 commands.update(child_commands)
         elif node_class == 2:
             # An attribute. Add it to the attributes dict.
-            attributes[node_name] = node.get_value
+            # attributes[node_name] = node.get_value
+            #
+            # Check if RO or RW and call the respective creator functions.
+            # if node.figure_out_if_RW_or_RO is RW:
+            attributes[node_name] = create_rw_attribute(node, self.event_loop)
+            #else:
+            # attributes[node_name] = create_ro_attribute(node, self.event_loop)
         elif node_class == 4:
             # A command. Add it to the commands dict.
-            call = (await node.get_parent()).call_method
-            id = f'{node.nodeid.NamespaceIndex}:{(await node.read_display_name()).Text}'
-            commands[node_name] = self.create_command_function(call, id)
+            commands[node_name] = create_command_function(node, self.event_loop)
         return nodes, attributes, commands
 
     def get_node_list(self) -> None:
