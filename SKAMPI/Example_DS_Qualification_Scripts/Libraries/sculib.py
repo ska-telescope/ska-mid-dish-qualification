@@ -462,16 +462,19 @@ class scu:
         for key in self.nodes.keys():
             info += f'{key}\n'
         logger.info(info)
+        return list(self.nodes.keys())
     def get_command_list(self) -> None:
         info = ''
         for key in self.commands.keys():
             info += f'{key}\n'
         logger.info(info)
+        return list(self.commands.keys())
     def get_attribute_list(self) -> None:
         info = ''
         for key in self.attributes.keys():
             info += f'{key}\n'
         logger.info(info)
+        return list(self.attributes.keys())
 
     def subscribe(self, attributes: Union[str, list[str]] = hn_opcua_tilt_sensors, period: int = 100, data_queue: queue.Queue = None) -> int:
         if data_queue is None:
