@@ -53,7 +53,8 @@ SKAO Team Wombat is developing this project:
 * Ulrik Pedersen
 
 ## License
-Copyright 2020 SKA Observatory - see LICENSE file for details.
+Copyright 2020 SARAO - see LICENSE file for details.
+Copyright 2023 SARAO and SKA Observatory
 
 ## Project status
 This project is in development.
