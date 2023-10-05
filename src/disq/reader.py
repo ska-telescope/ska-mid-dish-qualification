@@ -13,17 +13,20 @@ class Reader:
         fo = h5py.File(self.file, "r", libver="latest")
         group = fo[node]
 
-        print(group["Value"].shape)
-        # Numpy arrays of length 1 numpy arrays, what in the world...?
+        """
+        # List comprehensions are faster than append-for because they have a different method than .append() with less overhead than calling an entire function.
+        # This introduces way more overhead, no way comprehensions are faster for this use case.
+        self._x = [
+            data
+            for data in group["SourceTimestamp"]
+            if datetime.fromtimestamp(data) >= start
+            and datetime.fromtimestamp(data) <= stop
+        ]
+        """
         self._srctimestamps = group["SourceTimestamp"][:]
         self._values = group["Value"][:]
+        fo.close()
 
-        """
-        print(self._srctimestamps)
-        print(self._values)
-        print(type(self._values))
-        print(type(self._values[0]))
-        """
         self._x = []
         self._y = []
 
@@ -33,7 +36,6 @@ class Reader:
                 self._x.append(time)
                 self._y.append(self._values[i])
 
-        fo.close()
         print("Data range start:", start)
         print("Data range stop:", stop)
 

@@ -13,10 +13,33 @@ class Logger:
     """Logger for DiSQ software."""
 
     # Constants
-    _FLUSH_DOUBLE = 1024
+    _MAX_ENUM_STR_LEN_BYTES = 64
+    _CHUNK_SIZE_BYTES = 4096
+    _CHUNK_DOUBLE = 4096 / 8  # 512
+    _CHUNK_BOOL = 4096 / 1
+    _CHUNK_ENUM = 4096 / 4  # 1024
+    _CHUNKS_PER_FLUSH = 2
+    _FLUSH_DOUBLE = _CHUNK_DOUBLE * _CHUNKS_PER_FLUSH
+    _FLUSH_BOOL = _CHUNK_BOOL * _CHUNKS_PER_FLUSH
+    _FLUSH_ENUM = _CHUNK_ENUM * _CHUNKS_PER_FLUSH
     _FLUSH_PERIOD_MSECS = 5000
     _QUEUE_GET_TIMEOUT_SECS = 0.01
     _COMPLETION_LOOP_TIMEOUT_SECS = 0.01
+    _hdf5_type_from_value_type = {
+        "double": "f8",  # 64 bit double numpy type
+        "bool": "?",
+        "enum": "u4",  # 32 bit unsigned integer numpy type
+    }
+    _chunks_from_value_type = {
+        "double": _CHUNK_DOUBLE,
+        "bool": _CHUNK_BOOL,
+        "enum": _CHUNK_ENUM,
+    }
+    _flush_from_value_type = {
+        "double": _FLUSH_DOUBLE,
+        "bool": _FLUSH_BOOL,
+        "enum": _FLUSH_ENUM,
+    }
 
     _nodes = None
     _stop_logging = threading.Event()
@@ -45,6 +68,17 @@ class Logger:
             self.hll = high_level_library
 
         self._available_attributes = self.hll.get_attribute_list()
+
+    def _get_value_type_from_node_name(self, node):
+        # TODO delete this and use HLL instead
+        d = {
+            "MockData.sine_value": "double",
+            "MockData.cosine_value": "double",
+            "MockData.increment": "double",
+            "MockData.decrement": "double",
+            "MockData.bool": "bool",
+        }
+        return d[node]
 
     def add_nodes(self, nodes, period):
         """Add a node or list of nodes with desired period to be subscribed to.
@@ -78,17 +112,6 @@ class Logger:
 
             self._nodes[node] = period
 
-    def _get_type_from_node_name(self, node):
-        # TODO delete this method and use HLL instead
-        d = {
-            "MockData.sine_value": "f8",
-            "MockData.cosine_value": "f8",
-            "MockData.increment": "f8",
-            "MockData.decrement": "f8",
-            "MockData.bool": "?",
-        }
-        return d[node]
-
     def start(self):
         if self._start_invoked:
             warnings.warn("WARNING: start() can only be invoked once per object.")
@@ -114,36 +137,49 @@ class Logger:
         for node in self._nodes:
             # One group per node containing a single dataset for each of SourceTimestamp, Value.
             group = self.file_object.create_group(node)
-            # TODO double check chunk sizes. Also adjust per type?
             # Zeroeth dataset is always source timestamp which must be an 8 byte float as HDF5 does not support Python datetime.
             time_dataset = group.create_dataset(
                 "SourceTimestamp",
                 dtype="f8",
                 shape=(0,),
-                chunks=True,
+                chunks=(self._CHUNK_DOUBLE,),
                 maxshape=(None,),
             )
             time_dataset.attrs.create(
                 "Info", "Source Timestamp; time since Unix epoch."
             )
 
-            value_type = self._get_type_from_node_name(node)  # TODO use HLL instead
+            # TODO use HLL instead
+            value_type = self._get_value_type_from_node_name(node)
+            dtype = self._hdf5_type_from_value_type[value_type]
+            value_chunks = self._chunks_from_value_type[value_type]
             value_dataset = group.create_dataset(
-                "Value", dtype=value_type, shape=(0,), chunks=True, maxshape=(None,)
+                "Value",
+                dtype=dtype,
+                shape=(0,),
+                chunks=(value_chunks,),
+                maxshape=(None,),
             )
             value_dataset.attrs.create(
                 "Info", "Node Value, index matches SourceTimestamp dataset."
             )
+            value_dataset.attrs.create("Type", value_type)
+            if value_type == "enum":
+                # TODO add attribute of comma separated enumfields
+                pass
 
             # While here create cache structure per node.
-            # Node name : [data point count, [timestamp 1, timestamp 2, ...], [value 1, value 2, ...]]
-            #                                 ^ list indices match for data points ^
-            self._cache[node] = [0, [], []]
+            # Node name : [total data point count, type string,
+            # current data point count, [timestamp 1, timestamp 2, ...], [value 1, value 2, ...]]
+            #                            ^ list indices match for data points ^
+            self._cache[node] = [0, value_type, 0, [], []]
 
         # No magic numbers
-        self._count_idx = 0
-        self._timestamp_idx = 1
-        self._value_idx = 2
+        self._total_count_idx = 0
+        self._type_idx = 1
+        self._count_idx = 2
+        self._timestamp_idx = 3
+        self._value_idx = 4
 
         # HDF5 structure created, can now enter SWMR mode
         self.file_object.swmr_mode = True
@@ -190,7 +226,13 @@ class Logger:
         group["Value"].flush()
 
         # Cache has been written to file so clear it
-        self._cache[node] = [0, [], []]
+        self._cache[node] = [
+            self._cache[node][self._total_count_idx],
+            self._cache[node][self._type_idx],
+            0,
+            [],
+            [],
+        ]
 
     def _log(self):
         next_flush_interval = datetime.now() + timedelta(
@@ -212,12 +254,19 @@ class Logger:
                 )
                 self._cache[node][self._value_idx].append(datapoint["value"])
                 self._cache[node][self._count_idx] += 1
+                self._cache[node][self._total_count_idx] += 1
 
-                # Write to file when cache reaches predefined number of data points
-                # TODO figure out cache sizes for different data types. Might need to get type from HLL?
-                if self._cache[node][self._count_idx] >= self._FLUSH_DOUBLE:
+                # Write to file when cache reaches multiple of chunk size for value type
+                # TODO currently if chunks per flush is 1 and flush period is 5 seconds even the
+                # largest type (double) will not reach a full chunk at a subscription rate of 20hz
+                if (
+                    self._cache[node][self._total_count_idx]
+                    % self._flush_from_value_type[self._cache[node][self._type_idx]]
+                    == 0
+                ):
                     self._write_cache_to_group(node)
 
+            # Write to file at least every self._FLUSH_PERIOD_MSECS
             if next_flush_interval < datetime.now():
                 for cache_node, cache in self._cache.items():
                     if cache[self._count_idx] > 0:
@@ -226,6 +275,7 @@ class Logger:
                 next_flush_interval += timedelta(milliseconds=self._FLUSH_PERIOD_MSECS)
 
         # Subscriptions have been stopped so clear remaining queue, do a final flush, and close file.
+        # TODO queue is no longer increasing so do we need to worry about flush rate?
         while not self.queue.empty():
             datapoint = self.queue.get(block=True, timeout=self._QUEUE_GET_TIMEOUT_SECS)
             self._data_count += 1
@@ -236,6 +286,7 @@ class Logger:
             )
             self._cache[node][self._value_idx].append(datapoint["value"])
             self._cache[node][self._count_idx] += 1
+            self._cache[node][self._total_count_idx] += 1
 
         for cache_node, cache in self._cache.items():
             if cache[self._count_idx] > 0:
