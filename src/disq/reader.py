@@ -11,16 +11,27 @@ class Reader:
 
     def fill(self, node, start, stop):
         fo = h5py.File(self.file, "r", libver="latest")
-        dataset = fo[node]
+        group = fo[node]
 
-        self.data = [[], []]
+        print(group["Value"].shape)
+        # Numpy arrays of length 1 numpy arrays, what in the world...?
+        self._srctimestamps = group["SourceTimestamp"][:]
+        self._values = group["Value"][:]
 
-        for i in range(0, dataset.len()):
-            tup = dataset[i][0]
-            tup_time = datetime.fromisoformat(tup[0].decode("utf-8"))
-            if tup_time >= start and tup_time <= stop:
-                self.data[0].append(tup_time)
-                self.data[1].append(tup[1])
+        """
+        print(self._srctimestamps)
+        print(self._values)
+        print(type(self._values))
+        print(type(self._values[0]))
+        """
+        self._x = []
+        self._y = []
+
+        for i in range(0, len(self._srctimestamps)):
+            time = datetime.fromtimestamp(self._srctimestamps[i])
+            if time >= start and time <= stop:
+                self._x.append(time)
+                self._y.append(self._values[i])
 
         fo.close()
         print("Data range start:", start)
@@ -28,7 +39,7 @@ class Reader:
 
     def plot(self):
         fig, ax = plt.subplots()
-        plt.scatter(self.data[0], self.data[1], marker="x", c="k")
+        plt.scatter(self._x, self._y, marker="x", c="k")
         ax.set_axisbelow(True)
         ax.xaxis.set_major_formatter(dates.DateFormatter("%Y-%m-%dT%H:%M:%S.%f"))
         ax.xaxis.set_minor_locator(ticker.AutoMinorLocator(10))
@@ -37,3 +48,12 @@ class Reader:
         plt.grid(visible=True, which="major", c="dimgrey")
         plt.grid(visible=True, which="minor")
         plt.show()
+
+
+if __name__ == "__main__":
+    reader = Reader("src/disq/delme/2023-10-05_11-08-24.hdf5")
+    start = datetime.fromtimestamp(1696495948.075715)
+    stop = datetime.fromtimestamp(1696495954.026438)
+    print(start, stop)
+    reader.fill("MockData.sine_value", start, stop)
+    reader.plot()

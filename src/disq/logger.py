@@ -1,6 +1,7 @@
 import h5py
 import threading
 import queue
+import os
 from datetime import datetime, timedelta
 import warnings
 from time import sleep
@@ -13,8 +14,8 @@ class Logger:
 
     # Constants
     _FLUSH_DOUBLE = 1024
-    _FLUSH_PERIOD_MSECS = 200000
-    _QUEUE_GET_TIMEOUT_SECS = 0.01  # TODO improve artificial timeout
+    _FLUSH_PERIOD_MSECS = 5000
+    _QUEUE_GET_TIMEOUT_SECS = 0.01
     _COMPLETION_LOOP_TIMEOUT_SECS = 0.01
 
     _nodes = None
@@ -28,23 +29,12 @@ class Logger:
     def __init__(
         self, file_name: str = None, high_level_library=None, server=None, port=None
     ):
-        if file_name is not None:
-            self.file = file_name
-        else:
-            self.file = "delme/" + datetime.utcnow().strftime(
-                "%Y-%m-%d_%H-%M-%S"
-            )  # TODO remove/change "delme/", update time to be when start() is called?
-
-        self.file = self.file + ".hdf5"
+        self.file = file_name
         self._thread = threading.Thread(
             group=None, target=self._log, name="Logger internal thread"
         )
         self.queue = queue.Queue(maxsize=0)
         self._data_count = 0
-        print("File name:", self.file)
-        self.file_object = h5py.File(
-            self.file, "w", libver="latest"
-        )  # TODO this can't create a directory for some reason so create file with normal python file write
 
         if high_level_library is None:
             if server is None:
@@ -107,28 +97,53 @@ class Logger:
         self._start_invoked = True
         self._stop_logging.clear()
         self.logging_complete.clear()
-        for node in self._nodes:
-            # Datasets simply created at root group and named after node.
-            # TODO double check chunk sizes. Also adjust per type?
-            # First tuple element is always source timestamp, a 26 character string in ISO 8601 format.
-            value_type = self._get_type_from_node_name(node)  # TODO use HLL instead
-            dataset = self.file_object.create_dataset(
-                node,
-                dtype=[
-                    ("SourceTimestamp", h5py.string_dtype(encoding="utf-8", length=26)),
-                    ("Value", value_type),
-                ],
-                shape=(0, 1),
-                chunks=True,
-                maxshape=(None, 1),
+
+        if self.file is None:
+            # TODO Timezones
+            self.file = (
+                "results/" + datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S") + ".hdf5"
             )
-            dataset.attrs.create("First tuple element", "Source Timestamp.")
-            dataset.attrs.create("Second tuple element", "Node Value.")
+
+        basedir = os.path.dirname(self.file)
+        if not os.path.exists(basedir):
+            os.makedirs(basedir)
+
+        print("Writing data to file:", self.file)
+        self.file_object = h5py.File(self.file, "w", libver="latest")
+
+        for node in self._nodes:
+            # One group per node containing a single dataset for each of SourceTimestamp, Value.
+            group = self.file_object.create_group(node)
+            # TODO double check chunk sizes. Also adjust per type?
+            # Zeroeth dataset is always source timestamp which must be an 8 byte float as HDF5 does not support Python datetime.
+            time_dataset = group.create_dataset(
+                "SourceTimestamp",
+                dtype="f8",
+                shape=(0,),
+                chunks=True,
+                maxshape=(None,),
+            )
+            time_dataset.attrs.create(
+                "Info", "Source Timestamp; time since Unix epoch."
+            )
+
+            value_type = self._get_type_from_node_name(node)  # TODO use HLL instead
+            value_dataset = group.create_dataset(
+                "Value", dtype=value_type, shape=(0,), chunks=True, maxshape=(None,)
+            )
+            value_dataset.attrs.create(
+                "Info", "Node Value, index matches SourceTimestamp dataset."
+            )
 
             # While here create cache structure per node.
-            # Node name : [data point count, [(timestamp 1, value 1), (timestamp 2, value 2), ...]]
-            #                                 ^ SourceTimestamp-Value tuples
-            self._cache[node] = [0, []]
+            # Node name : [data point count, [timestamp 1, timestamp 2, ...], [value 1, value 2, ...]]
+            #                                 ^ list indices match for data points ^
+            self._cache[node] = [0, [], []]
+
+        # No magic numbers
+        self._count_idx = 0
+        self._timestamp_idx = 1
+        self._value_idx = 2
 
         # HDF5 structure created, can now enter SWMR mode
         self.file_object.swmr_mode = True
@@ -159,11 +174,23 @@ class Logger:
         self.stop_time = datetime.utcnow()
         self._stop_logging.set()
 
-    def _write_values_to_dataset(self, dataset, count, values):
-        curr_len = dataset.len()
-        dataset.resize(curr_len + count, axis=0)
-        dataset[-count:, 0] = values
-        dataset.flush()
+    def _write_cache_to_group(self, node):
+        """Write the cache to the matching group for the given node."""
+        group = self.file_object[node]
+        cache = self._cache[node]
+        # Dataset lengths will always match as they are only written here
+        curr_len = group["SourceTimestamp"].len()
+
+        group["SourceTimestamp"].resize(curr_len + cache[self._count_idx], axis=0)
+        group["SourceTimestamp"][-cache[self._count_idx] :] = cache[self._timestamp_idx]
+        group["SourceTimestamp"].flush()
+
+        group["Value"].resize(curr_len + cache[self._count_idx], axis=0)
+        group["Value"][-cache[self._count_idx] :] = cache[self._value_idx]
+        group["Value"].flush()
+
+        # Cache has been written to file so clear it
+        self._cache[node] = [0, [], []]
 
     def _log(self):
         next_flush_interval = datetime.now() + timedelta(
@@ -178,60 +205,48 @@ class Logger:
                 pass
             else:
                 self._data_count += 1
-                # TODO source timestamp is UTC, check this is okay
-                self._cache[datapoint["name"]][1].append(
-                    (
-                        datapoint["source_timestamp"].isoformat(
-                            timespec="microseconds"
-                        ),
-                        datapoint["value"],
-                    )
+                node = datapoint["name"]
+                # TODO timezones
+                self._cache[node][self._timestamp_idx].append(
+                    datapoint["source_timestamp"].timestamp()
                 )
-                self._cache[datapoint["name"]][0] += 1
+                self._cache[node][self._value_idx].append(datapoint["value"])
+                self._cache[node][self._count_idx] += 1
 
                 # Write to file when cache reaches predefined number of data points
                 # TODO figure out cache sizes for different data types. Might need to get type from HLL?
-                if self._cache[datapoint["name"]][0] >= self._FLUSH_DOUBLE:
-                    self._write_values_to_dataset(
-                        self.file_object[datapoint["name"]],
-                        self._cache[datapoint["name"]][0],
-                        self._cache[datapoint["name"]][1],
-                    )
-                    # Elegant reset has to be done here due to python "pass by assignment"/"call by object"
-                    self._cache[datapoint["name"]] = [0, []]
+                if self._cache[node][self._count_idx] >= self._FLUSH_DOUBLE:
+                    self._write_cache_to_group(node)
 
             if next_flush_interval < datetime.now():
-                for node, cache in self._cache.items():
-                    if cache[0] > 0:
-                        self._write_values_to_dataset(
-                            self.file_object[node], cache[0], cache[1]
-                        )
-                        self._cache[node] = [0, []]
+                for cache_node, cache in self._cache.items():
+                    if cache[self._count_idx] > 0:
+                        self._write_cache_to_group(cache_node)
 
                 next_flush_interval += timedelta(milliseconds=self._FLUSH_PERIOD_MSECS)
 
         # Subscriptions have been stopped so clear remaining queue, do a final flush, and close file.
         while not self.queue.empty():
             datapoint = self.queue.get(block=True, timeout=self._QUEUE_GET_TIMEOUT_SECS)
-            # TODO source timestamp is UTC, check this is okay
-            self._cache[datapoint["name"]][1].append(
-                (datapoint["source_timestamp"], datapoint["value"])
+            self._data_count += 1
+            node = datapoint["name"]
+            # TODO timezones
+            self._cache[node][self._timestamp_idx].append(
+                datapoint["source_timestamp"].timestamp()
             )
-            self._cache[datapoint["name"]][0] += 1
+            self._cache[node][self._value_idx].append(datapoint["value"])
+            self._cache[node][self._count_idx] += 1
 
-        for node, cache in self._cache.items():
-            if cache[0] > 0:
-                self._write_values_to_dataset(
-                    self.file_object[node], cache[0], cache[1]
-                )
-                self._cache[node] = [0, []]
+        for cache_node, cache in self._cache.items():
+            if cache[self._count_idx] > 0:
+                self._write_cache_to_group(cache_node)
 
         self.file_object.close()
         print("Logger received", self._data_count, "data points.")
         self.logging_complete.set()
 
     def wait_for_completion(self):
-        """Wait for logging to complete."""
+        """Wait for logging thread to complete."""
         if not self._start_invoked:
             warnings.warn(
                 "WARNING: cannot wait for logging to complete if start() has not been invoked."
