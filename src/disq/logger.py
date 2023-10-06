@@ -51,7 +51,11 @@ class Logger:
     logging_complete = threading.Event()
 
     def __init__(
-        self, file_name: str = None, high_level_library=None, server=None, port=None
+        self,
+        file_name: str = None,
+        high_level_library: sculib.scu = None,
+        server: str = None,
+        port: str = None,
     ):
         self.file = file_name
         self._thread = threading.Thread(
@@ -86,8 +90,8 @@ class Logger:
         # TODO delete this and use HLL instead
         return "StartUp,Standby,Locked,Estop,Stowed,Locked_Stowed,Activating,Deactivation,Standstill,Stop,Slew,Jog,Track"
 
-    def add_nodes(self, nodes, period):
-        """Add a node or list of nodes with desired period to be subscribed to.
+    def add_nodes(self, nodes: list[str], period: int):
+        """Add a node or list of nodes with desired period in miliseconds to be subscribed to.
         Subsequent calls with the same node will overwrite the period."""
         if self._start_invoked:
             warnings.warn(
@@ -129,6 +133,7 @@ class Logger:
             self._nodes[node] = period
 
     def start(self):
+        """Start logging the nodes added by add_nodes(). Creates and uses a thread internally."""
         if self._start_invoked:
             warnings.warn("WARNING: start() can only be invoked once per object.")
             return
@@ -220,13 +225,15 @@ class Logger:
         self._thread.start()
 
     def stop(self):
+        """Stop logging. Ends the addition of new server data to internal queue
+        and signals the logging thread to clear the remaining queued items."""
         for id in self._subscription_ids:
             self.hll.unsubscribe(id)
 
         self.stop_time = datetime.utcnow()
         self._stop_logging.set()
 
-    def _write_cache_to_group(self, node):
+    def _write_cache_to_group(self, node: str):
         """Write the cache to the matching group for the given node."""
         group = self.file_object[node]
         cache = self._cache[node]
@@ -313,7 +320,7 @@ class Logger:
         self.logging_complete.set()
 
     def wait_for_completion(self):
-        """Wait for logging thread to complete."""
+        """Wait for logging thread to write all data from the internal queue to file."""
         if not self._start_invoked:
             warnings.warn(
                 "WARNING: cannot wait for logging to complete if start() has not been invoked."

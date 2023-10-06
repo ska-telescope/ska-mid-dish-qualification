@@ -9,10 +9,11 @@ import plotly.graph_objects as graph_obj  # TODO add to disq modules
 class Reader:
     _type = None
 
-    def __init__(self, file):
+    def __init__(self, file: str):
         self.file = file
 
-    def fill(self, node, start, stop):
+    def fill(self, node: str, start: datetime, stop: datetime):
+        """Retreive datapoints from file for given node between start and stop times"""
         fo = h5py.File(self.file, "r", libver="latest")
         group = fo[node]
 
@@ -50,6 +51,8 @@ class Reader:
                     self._y.append(self._values[i])
 
     def plot(self):
+        """Plot the fetched data. Creates a graph for type "double" or a table for types
+        "bool" and "enum"."""
         match self._type:
             case "double":
                 fig, ax = plt.subplots()
