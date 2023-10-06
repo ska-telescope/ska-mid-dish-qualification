@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import warnings
 from time import sleep
 
+# TODO proper disq import
 import sculib
 
 
@@ -75,10 +76,15 @@ class Logger:
             "MockData.sine_value": "double",
             "MockData.cosine_value": "double",
             "MockData.increment": "double",
-            "MockData.decrement": "double",
+            "MockData.decrement": "bad",
             "MockData.bool": "bool",
+            "MockData.enum": "enum",
         }
         return d[node]
+
+    def _get_enum_string(self, node):
+        # TODO delete this and use HLL instead
+        return "StartUp,Standby,Locked,Estop,Stowed,Locked_Stowed,Activating,Deactivation,Standstill,Stop,Slew,Jog,Track"
 
     def add_nodes(self, nodes, period):
         """Add a node or list of nodes with desired period to be subscribed to.
@@ -97,6 +103,16 @@ class Logger:
                 print(
                     '"' + node + '"',
                     "not available as an attribute on the server, skipping.",
+                )
+                continue
+
+            type = self._get_value_type_from_node_name(node)
+            if type not in self._hdf5_type_from_value_type.keys():
+                print(
+                    "Unsupported type for",
+                    '"' + node + '":' + '"' + type + '";',
+                    "skipping. Nodes must be of type",
+                    '"bool"/"double"/"enum".',
                 )
                 continue
 
@@ -165,8 +181,8 @@ class Logger:
             )
             value_dataset.attrs.create("Type", value_type)
             if value_type == "enum":
-                # TODO add attribute of comma separated enumfields
-                pass
+                # TODO use HLL instead
+                value_dataset.attrs.create("Enumerations", self._get_enum_string(node))
 
             # While here create cache structure per node.
             # Node name : [total data point count, type string,
