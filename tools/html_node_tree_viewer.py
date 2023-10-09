@@ -1,45 +1,69 @@
 import asyncio
 import asyncua
+import typing
 
 
 class treeViewer:
+    node_tree = {}
+
     def __init__(self, server):
         self.server = "opc.tcp://" + server
         print("self.server =", self.server)
         self.client = asyncua.client.client.Client(url=self.server)
 
-    async def read_server(self):
+    async def _get_name_ns_id(self, node: asyncua.common.node.Node):
+        """Return the display name and ns_id string of a node."""
+        name = await node.read_display_name()
+        node_ns_string = "ns=" + str(node.nodeid.NamespaceIndex)
+        if isinstance(node.nodeid.Identifier, int):
+            child_ns_id_string = node_ns_string + ";i=" + str(node.nodeid.Identifier)
+        elif isinstance(node.nodeid.Identifier, str):
+            child_ns_id_string = node_ns_string + ";s=" + node.nodeid.Identifier
+        else:
+            print(
+                "ERROR: Id is not an int or string for ns",
+                node.nodeid.NamespaceIndex,
+                "id",
+                node.nodeid.Identifier,
+            )
+
+        return (name.Text, child_ns_id_string)
+
+    async def read_server(self, start_node: str = None):
+        """Read the node tree for the server into self.node_tree starting from
+        start_node or the server root node if start_node is None."""
         await self.client.connect()
 
-        node = self.client.get_root_node()
-        qualified_name = await node.read_browse_name()
-        name = qualified_name.Name
-        id = node.nodeid.Identifier
-        self.node_tree = {}
-        self.node_tree[(name, id)] = await self._node_children_recursive_search(id)
+        if start_node is not None:
+            node = self.client.get_node(start_node)
+        else:
+            node = self.client.get_root_node()
+
+        name, ns_id = await self._get_name_ns_id(node)
+        self.node_tree[(name, ns_id)] = await self._node_children_recursive_search(
+            ns_id
+        )
 
         await self.client.disconnect()
 
-    async def _node_children_recursive_search(self, node_id):
+    async def _node_children_recursive_search(self, node_id: str):
+        """Recursively generate name-ns_id tuple to child nodes dictionaries."""
         node = self.client.get_node(node_id)
         children = await node.get_children()
         children_dict = {}
 
         for child in children:
-            child_qname = await child.read_display_name()
-            child_ns_id_string = (
-                "ns="
-                + str(child.nodeid.NamespaceIndex)
-                + ";i="
-                + str(child.nodeid.Identifier)
-            )
+            child_name, child_ns_id = await self._get_name_ns_id(child)
             children_dict[
-                (child_qname.Text, child_ns_id_string)
-            ] = await self._node_children_recursive_search(child_ns_id_string)
+                (child_name, child_ns_id)
+            ] = await self._node_children_recursive_search(child_ns_id)
 
         return children_dict
 
-    def generate_html(self, file_name):
+    def generate_html(self, file_name: str):
+        """Generate a HTML file called file_name with a collapsible structure from
+        the node tree dict self.node_tree. Not very interesting unless read_server is
+        run first."""
         with open(file_name, "w") as file:
             file.write(" <!DOCTYPE html>\n")
             file.write("<html>\n")
@@ -123,7 +147,8 @@ class treeViewer:
             file.write("</body>\n")
             file.write("</html> \n")
 
-    def _html_tree_recursive(self, tree_dict, file):
+    def _html_tree_recursive(self, tree_dict: dict, file: typing.TextIO):
+        """Recursively populate HTML treeUL."""
         for node, children in tree_dict.items():
             if children:
                 file.write(
@@ -142,9 +167,9 @@ class treeViewer:
 
 
 if __name__ == "__main__":
-    # viewer = treeViewer(
-    # "0.0.0.0:4840" + "/OPCUA/SimpleServer"
-    # )  # "/OPCUA/SimpleServer" for the CETC (prosys) server
-    viewer = treeViewer("0.0.0.0:4840")
-    asyncio.run(viewer.read_server())
-    viewer.generate_html("karoo_display_name_node_tree.html")
+    viewer = treeViewer(
+        "0.0.0.0:4840" + "/OPCUA/SimpleServer"
+    )  # "/OPCUA/SimpleServer" for the CETC (prosys) server
+    # viewer = treeViewer("0.0.0.0:4840")
+    asyncio.run(viewer.read_server("ns=0;i=23470"))
+    viewer.generate_html("test_node_tree.html")
