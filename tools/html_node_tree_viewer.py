@@ -21,20 +21,21 @@ class treeViewer:
         await self.client.disconnect()
 
     async def _node_children_recursive_search(self, node_id):
-        # Client.get_node() needs to be prompted that the string is supposed to be a string and not an int in a string.
-        if isinstance(node_id, str):
-            node_id = "s=" + node_id
-
         node = self.client.get_node(node_id)
         children = await node.get_children()
         children_dict = {}
 
         for child in children:
-            child_qname = await child.read_browse_name()
-            child_id = child.nodeid.Identifier
+            child_qname = await child.read_display_name()
+            child_ns_id_string = (
+                "ns="
+                + str(child.nodeid.NamespaceIndex)
+                + ";i="
+                + str(child.nodeid.Identifier)
+            )
             children_dict[
-                (child_qname.Name, child_id)
-            ] = await self._node_children_recursive_search(child_id)
+                (child_qname.Text, child_ns_id_string)
+            ] = await self._node_children_recursive_search(child_ns_id_string)
 
         return children_dict
 
@@ -141,8 +142,9 @@ class treeViewer:
 
 
 if __name__ == "__main__":
-    viewer = treeViewer(
-        "0.0.0.0:4840" + "/OPCUA/SimpleServer"
-    )  # "/OPCUA/SimpleServer" for the CETC (prosys) server
+    # viewer = treeViewer(
+    # "0.0.0.0:4840" + "/OPCUA/SimpleServer"
+    # )  # "/OPCUA/SimpleServer" for the CETC (prosys) server
+    viewer = treeViewer("0.0.0.0:4840")
     asyncio.run(viewer.read_server())
-    viewer.generate_html("cetc_node_tree.html")
+    viewer.generate_html("karoo_display_name_node_tree.html")
