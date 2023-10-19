@@ -69,5 +69,8 @@ target/
 .venv*
 venv*
 
+# dot-env files
+.env
+
 # further build artifacts
 lockfiles/
