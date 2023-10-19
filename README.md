@@ -45,6 +45,15 @@ The resulting `.whl` package can be found in the `dist/` direcotory and be insta
 ## Usage
 The DiSQ software is intended to be used either as a ready-made GUI application or for more advanced users as a library in Jupyter notebooks. See the examples directory for, well, examples.
 
+# Environment
+The following environment variables can be used to modify default parameter values. The recommended way to manage these configurations are to drop a `.env` file in the current working directory. The default settings can be modified:
+
+```ini
+DISQ_OPCUA_SERVER_URI=opc.tcp://127.0.0.1:4840/dish-structure/server/
+DISQ_OPCUA_SERVER_NAMESPACE=http://skao.int/DS_ICD/
+DISQ_OPCUA_SUBSCRIPTION_PERIOD_MS=100
+```
+
 ## Authors and acknowledgment
 SKAO Team Wombat is developing this project:
 

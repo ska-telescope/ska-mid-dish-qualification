@@ -11,7 +11,14 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 description = "SKAO MID Dish Structure Qualification (DiSQ) software"
-dependencies = ["asyncua"]
+dependencies = [
+    "asyncua",
+    "PyQt6==6.4.2",
+    "pyqt6-tools",
+    "python-dotenv",
+    "qasync"
+] 
+
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.md"
@@ -32,7 +39,7 @@ dev = [
 ]
 
 [project.scripts]
-DiSQ = "disq.__main__:main"
+disq-gui = "disq.mvcmain:main"
 
 [project.urls]
 GitLab = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
