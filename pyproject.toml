@@ -11,9 +11,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 description = "SKAO MID Dish Structure Qualification (DiSQ) software"
-dependencies = [
-    "asyncua",
-] 
+dependencies = ["asyncua"]
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.md"
@@ -69,6 +67,8 @@ extend-ignore = [
 max-line-length = 88 # Respect black's line length (default 88),
 exclude = [".tox", ".venv"]
 
+[tool.black] # See https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-format
+force-exclude = "sculib.py|cam_sensors.py" # RegEx - Exclude formatting the legacy code
 
 [tool.pytest.ini_options]
 # Run pytest with all our checkers, and don't spam us with massive tracebacks on error
