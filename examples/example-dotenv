@@ -1,0 +1,5 @@
+# Rename this file to .env and place it in your working directory
+# Modify the default values as needed:
+DISQ_OPCUA_SERVER_URI=opc.tcp://127.0.0.1:4840/dish-structure/server/
+DISQ_OPCUA_SERVER_NAMESPACE=http://skao.int/DS_ICD/
+DISQ_OPCUA_SUBSCRIPTION_PERIOD_MS=100

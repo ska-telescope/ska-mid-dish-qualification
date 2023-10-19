@@ -22,7 +22,7 @@ class MainView(QtWidgets.QMainWindow):
         self.status_bar.addWidget(self.cmd_status_label)
 
         # Set the server URI from environment variable if defined
-        server_uri:str|None = os.environ.get("OPCUA_SERVER_URI", None)
+        server_uri:str|None = os.environ.get("DISQ_OPCUA_SERVER_URI", None)
         self.input_server_uri:QtWidgets.QLineEdit
         self.input_server_uri.setText(server_uri)
         self.btn_server_connect:QtWidgets.QPushButton

@@ -23,14 +23,13 @@ class Model(QObject):
     command_response = pyqtSignal(str)
 
     def __init__(self, 
-                 namespace: str = "http://skao.int/DS_ICD/",
                  parent: QObject | None = None) -> None:
         super().__init__(parent)
         self._client:Client|None = None
-        self._namespace = namespace
+        self._namespace = str(os.getenv("DISQ_OPCUA_SERVER_NAMESPACE", "http://skao.int/DS_ICD/"))
         self._namespace_index: int|None = None
         self._subscriptions = []
-        self.subscription_rate_ms = int(os.getenv("OPCUA_SUBSCRIPTION_PERIOD_MS", 100))
+        self.subscription_rate_ms = int(os.getenv("DISQ_OPCUA_SUBSCRIPTION_PERIOD_MS", 100))
 
 
     async def connect(self, server_uri:str,):
