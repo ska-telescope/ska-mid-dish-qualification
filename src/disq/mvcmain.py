@@ -9,6 +9,7 @@ from disq.view import MainView
 from disq.model import Model
 from disq.controller import Controller
 
+
 async def async_main():
     def close_future(future, loop):
         print("close_future")
@@ -40,6 +41,7 @@ async def async_main():
 
     return True
 
+
 def main():
     # Workaround a little bug with qasync and python 3.11:
     # as described here: https://github.com/CabbageDevelopment/qasync/issues/68
@@ -53,5 +55,6 @@ def main():
     else:
         qasync.run(async_main())
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()

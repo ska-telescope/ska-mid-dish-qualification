@@ -6,8 +6,11 @@ from qasync import asyncSlot, asyncClose
 
 from disq import model, controller
 
+
 class MainView(QtWidgets.QMainWindow):
-    def __init__(self, model:model.Model, controller:controller.Controller, *args, **kwargs):
+    def __init__(
+        self, model: model.Model, controller: controller.Controller, *args, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         # Load the UI from the XML .ui file
         ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
@@ -15,17 +18,17 @@ class MainView(QtWidgets.QMainWindow):
         self.setWindowTitle("DiSQ GUI")
 
         # Add a label widget to the status bar for command/response status
-        # The QT Designer doesn't allow us to add this label so we have to do it here
+        # The QT Designer doesn't allow us to add this label so we have to do it here
         self.cmd_status_label = QtWidgets.QLabel("command status: ")
         self.status_bar = QtWidgets.QStatusBar()
         self.setStatusBar(self.status_bar)
         self.status_bar.addWidget(self.cmd_status_label)
 
         # Set the server URI from environment variable if defined
-        server_uri:str|None = os.environ.get("DISQ_OPCUA_SERVER_URI", None)
-        self.input_server_uri:QtWidgets.QLineEdit
+        server_uri: str | None = os.environ.get("DISQ_OPCUA_SERVER_URI", None)
+        self.input_server_uri: QtWidgets.QLineEdit
         self.input_server_uri.setText(server_uri)
-        self.btn_server_connect:QtWidgets.QPushButton
+        self.btn_server_connect: QtWidgets.QPushButton
         self.btn_server_connect.setFocus()
 
         # Keep a reference to model and controller
@@ -33,7 +36,9 @@ class MainView(QtWidgets.QMainWindow):
         self.controller = controller
 
         # Connect widgets and slots to the Controller
-        self.controller.command_response_status.connect(self.command_response_status_update)
+        self.controller.command_response_status.connect(
+            self.command_response_status_update
+        )
         self.controller.server_connected.connect(self.server_connected_event)
         self.controller.server_disconnected.connect(self.server_disconnected_event)
 
@@ -42,7 +47,9 @@ class MainView(QtWidgets.QMainWindow):
 
         # Listen for Model event signals
 
-        self.findChild(QtWidgets.QPushButton, name="pushButton_slew2abs").clicked.connect(self.slew2abs_button_clicked)
+        self.findChild(
+            QtWidgets.QPushButton, name="pushButton_slew2abs"
+        ).clicked.connect(self.slew2abs_button_clicked)
 
     @property
     def opcua_widgets(self) -> list:
@@ -52,13 +59,13 @@ class MainView(QtWidgets.QMainWindow):
         all_widgets = self.findChildren(QtWidgets.QLineEdit)
         opcua_widget_updates = []
         for wgt in all_widgets:
-            if 'opcua' in wgt.dynamicPropertyNames():
+            if "opcua" in wgt.dynamicPropertyNames():
                 print(f"OPCUA widget: {wgt.property('opcua')}")
-                opcua_widget_updates.append((wgt.property('opcua'), wgt.setText))
+                opcua_widget_updates.append((wgt.property("opcua"), wgt.setText))
         # list of tuples with (name, callback)
         # opcua_widget_updates = [(w, w.setText) for w in widgets_opcua_property]
         return opcua_widget_updates
-        
+
     @asyncClose
     async def closeEvent(self, event):
         print("closing event")
@@ -93,18 +100,19 @@ class MainView(QtWidgets.QMainWindow):
 
     @asyncSlot()
     async def slew2abs_button_clicked(self):
-        args = [float(str_input) for str_input in [
-            self.lineEdit_azimuth_position_demand.text(),
-            self.lineEdit_elevation_position_demand.text(),
-            self.lineEdit_azimuth_velocity_demand.text(),
-            self.lineEdit_elevation_velocity_demand.text()
-        ]]
+        args = [
+            float(str_input)
+            for str_input in [
+                self.lineEdit_azimuth_position_demand.text(),
+                self.lineEdit_elevation_position_demand.text(),
+                self.lineEdit_azimuth_velocity_demand.text(),
+                self.lineEdit_elevation_velocity_demand.text(),
+            ]
+        ]
         print(f"args: {args}")
         await self.controller.command_slew2abs(*args)
 
-
     @asyncSlot(str)
-    async def command_response_status_update(self, status:str):
+    async def command_response_status_update(self, status: str):
         """Update the main window status bar with a status update"""
         self.cmd_status_label.setText(status)
-
