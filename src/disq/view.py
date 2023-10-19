@@ -1,4 +1,5 @@
 import os
+from importlib import resources
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import uic
 from qasync import asyncSlot, asyncClose
@@ -9,8 +10,9 @@ class MainView(QtWidgets.QMainWindow):
     def __init__(self, model:model.Model, controller:controller.Controller, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Load the UI from the XML .ui file
-        uic.loadUi("dishstructure_mvc.ui", self)
-        self.setWindowTitle("Dish Structure")
+        ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
+        uic.loadUi(ui_xml_filename, self)
+        self.setWindowTitle("DiSQ GUI")
 
         # Add a label widget to the status bar for command/response status
         # The QT Designer doesn't allow us to add this label so we have to do it here
