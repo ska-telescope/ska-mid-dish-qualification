@@ -5,9 +5,9 @@ import qasync
 from qasync import QApplication
 import sys
 
-from view import MainView
-from model import Model
-from controller import Controller
+from disq.view import MainView
+from disq.model import Model
+from disq.controller import Controller
 
 async def async_main():
     def close_future(future, loop):
@@ -55,4 +55,3 @@ def main():
 
 if __name__=="__main__":
     main()
-    

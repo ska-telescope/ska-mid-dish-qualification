@@ -3,8 +3,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import uic
 from qasync import asyncSlot, asyncClose
 
-import model
-import controller
+from disq import model, controller
 
 class MainView(QtWidgets.QMainWindow):
     def __init__(self, model:model.Model, controller:controller.Controller, *args, **kwargs):

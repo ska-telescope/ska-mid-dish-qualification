@@ -1,6 +1,6 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 from qasync import asyncSlot
-import model
+from disq import model
 
 class Controller(QObject):
     command_response_status = pyqtSignal(str)
