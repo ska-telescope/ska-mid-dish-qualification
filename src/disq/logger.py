@@ -188,6 +188,7 @@ class Logger:
                 period_dict[period] = []
                 period_dict[period].append(node)
 
+        # Start to fill queue
         self.start_time = datetime.utcnow()
         for period, attributes in period_dict.items():
             self._subscription_ids.append(
@@ -311,6 +312,14 @@ class Logger:
 
         self.file_object.close()
         app_logger.info(f"Logger received {self._data_count} data points.")
+        self.file_object = h5py.File(self.file, "a", libver="latest")
+        self.file_object.attrs.create(
+            "Start time", self.start_time.isoformat(timespec="microseconds")
+        )
+        self.file_object.attrs.create(
+            "Stop time", self.stop_time.isoformat(timespec="microseconds")
+        )
+        self.file_object.close()
         self.logging_complete.set()
 
     def wait_for_completion(self):
