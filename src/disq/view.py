@@ -1,10 +1,10 @@
 import os
 from importlib import resources
-from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6 import uic
-from qasync import asyncSlot, asyncClose
 
-from disq import model, controller
+from PyQt6 import QtCore, QtWidgets, uic
+from qasync import asyncClose, asyncSlot
+
+from disq import controller, model
 
 
 class MainView(QtWidgets.QMainWindow):
@@ -52,18 +52,20 @@ class MainView(QtWidgets.QMainWindow):
         ).clicked.connect(self.slew2abs_button_clicked)
 
     @property
-    def opcua_widgets(self) -> list:
-        """Return a list of of all 'opcua_' widgets and their update method in a tuple (name:str, update:callable)"""
+    def opcua_widgets(self) -> dict:
+        """Return a dict of of all 'opcua_' widgets and their update method
+        {name: callback}"""
         # re = QtCore.QRegularExpression("opcua_")
         # opcua_widgets = self.findChildren(QtWidgets.QLineEdit, re)
         all_widgets = self.findChildren(QtWidgets.QLineEdit)
-        opcua_widget_updates = []
+        opcua_widget_updates: dict = {}
         for wgt in all_widgets:
             if "opcua" in wgt.dynamicPropertyNames():
                 print(f"OPCUA widget: {wgt.property('opcua')}")
-                opcua_widget_updates.append((wgt.property("opcua"), wgt.setText))
-        # list of tuples with (name, callback)
-        # opcua_widget_updates = [(w, w.setText) for w in widgets_opcua_property]
+                opcua_widget_updates.update({wgt.property("opcua"): wgt.setText})
+        # dict with (key, value) where the key is the name of the "opcua" widget
+        # property (dot-notated OPC-UA parameter name) and value is the callback method
+        # to update the widget
         return opcua_widget_updates
 
     @asyncClose
@@ -75,7 +77,7 @@ class MainView(QtWidgets.QMainWindow):
         print("server connected event")
         le: QtWidgets.QLineEdit = self.input_server_uri
         pb: QtWidgets.QPushButton = self.btn_server_connect
-        await self.controller.subscribe_opcua_updates(self.opcua_widgets)
+        self.controller.subscribe_opcua_updates(self.opcua_widgets)
         pb.setText("Disconnect")
         le.setDisabled(True)
 
@@ -87,16 +89,17 @@ class MainView(QtWidgets.QMainWindow):
         pb.setText("Connect")
         le.setEnabled(True)
 
-    @asyncSlot()
-    async def connect_button_clicked(self):
+    # @asyncSlot() # remember async
+    @QtCore.pyqtSlot()
+    def connect_button_clicked(self):
         """Setup a connection to the server"""
         print("BTN CLICKED")
         le: QtWidgets.QLineEdit = self.input_server_uri
         server_uri = le.text()
-        if not await self.controller.is_server_connected():
-            await self.controller.connect_server(server_uri)
+        if not self.controller.is_server_connected():
+            self.controller.connect_server(server_uri)
         else:
-            await self.controller.disconnect_server()
+            self.controller.disconnect_server()
 
     @asyncSlot()
     async def slew2abs_button_clicked(self):

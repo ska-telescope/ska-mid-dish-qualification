@@ -16,8 +16,8 @@ dependencies = [
     "PyQt6==6.4.2",
     "pyqt6-tools",
     "python-dotenv",
-    "qasync"
-] 
+    "qasync",
+]
 
 dynamic = ["version"]
 license.file = "LICENSE"
@@ -65,6 +65,10 @@ ignore_missing_imports = true # Ignore missing stubs in imported modules
 float_to_top = true
 profile = "black"
 
+[tool.pylint."MESSAGES CONTROL"]
+disable = ["missing-docstring"]
+ignore = ["sculib.py"]
+
 [tool.flake8]
 extend-ignore = [
     "E203", # See https://github.com/PyCQA/pycodestyle/issues/373
@@ -72,7 +76,7 @@ extend-ignore = [
     "F722", # allow Annotated[typ, some_func("some string")]
 ]
 max-line-length = 88 # Respect black's line length (default 88),
-exclude = [".tox", ".venv"]
+exclude = [".tox", ".venv", "sculib.py"]
 
 [tool.black] # See https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-format
 force-exclude = "sculib.py|cam_sensors.py" # RegEx - Exclude formatting the legacy code

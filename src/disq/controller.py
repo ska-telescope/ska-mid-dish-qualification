@@ -1,5 +1,6 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 from qasync import asyncSlot
+
 from disq import model
 
 
@@ -8,9 +9,9 @@ class Controller(QObject):
     server_connected = pyqtSignal()
     server_disconnected = pyqtSignal()
 
-    def __init__(self, model: model.Model, parent: QObject | None = None) -> None:
+    def __init__(self, mvc_model: model.Model, parent: QObject | None = None) -> None:
         super().__init__(parent)
-        self.model = model
+        self._model = mvc_model
 
     def command_response_str(
         self, command: str, return_code: int, return_msg: str
@@ -19,13 +20,13 @@ class Controller(QObject):
         self.command_response_status.emit(result)
         return result
 
-    async def is_server_connected(self) -> bool:
-        return await self.model.is_connected()
+    def is_server_connected(self) -> bool:
+        return self._model.is_connected()
 
-    async def connect_server(self, server_uri):
-        self.command_response_status.emit(f"Connecting to server...")
+    def connect_server(self, server_uri):
+        self.command_response_status.emit("Connecting to server...")
         try:
-            await self.model.connect(server_uri)
+            self._model.connect(server_uri)
         except OSError as e:
             self.command_response_status.emit(
                 f"Unable to connect to server. Error: {e}"
@@ -34,28 +35,21 @@ class Controller(QObject):
         self.command_response_status.emit(f"Connected to server: {server_uri}")
         self.server_connected.emit()
 
-    async def disconnect_server(self):
-        await self.model.disconnect()
-        self.command_response_status.emit(f"Disconnected from server")
+    def disconnect_server(self):
+        self._model.disconnect()
+        self.command_response_status.emit("Disconnected from server")
         self.server_disconnected.emit()
 
-    @asyncSlot(str)
-    async def on_input_server_uri(self, server_uri):
-        print(f"Server: {server_uri}")
-        self._server_uri = server_uri
+    # @asyncSlot(str)
+    # async def on_input_server_uri(self, server_uri):
+    #     print(f"Server: {server_uri}")
+    #     self._server_uri = server_uri
 
-    # @asyncSlot()
-    # async def connect_model(self):
-    #     await self.model.connect(self._server_uri)
-    #     # TODO: emit connected event - the view then requests subscriptions
-
-    async def subscribe_opcua_updates(self, registrations: list):
-        """Subscribe to the requested OPC UA variable data updates with the given callbacks
-
-        registrations is a list of tuples with (UI name, callback method)"""
-        # TODO: asynchronous call register_monitor and gather all futures..
-        for name, callback in registrations:
-            await self.model.register_monitor(name, callback)
+    def subscribe_opcua_updates(self, registrations: dict):
+        """Subscribe to the requested OPC UA variable data updates with the given
+        callback. registrations is a dictionary with key:UI name value:callback method
+        """
+        self._model.register_event_updates(registrations=registrations)
 
     async def command_slew2abs(
         self,
@@ -67,7 +61,7 @@ class Controller(QObject):
         print("Command: slew2abs")
         cmd = "Slew2AbsAzEl"
         self.command_response_status.emit(f'Command: "{cmd}"...')
-        retcode, retmsg = await self.model.call_method(
+        retcode, retmsg = self._model.call_method(
             "Management",
             cmd,
             azimuth_position,
@@ -77,29 +71,25 @@ class Controller(QObject):
         )
         self.command_response_str(cmd, retcode, retmsg)
 
-    asyncSlot()
-
+    @asyncSlot()
     async def command_activate(self):
         cmd = "Activate"
         axis_select_arg = "AzEl"
         await self.issue_command(cmd, axis_select_arg)
 
-    asyncSlot()
-
+    @asyncSlot()
     async def command_deactivate(self):
         cmd = "DeActivate"
         axis_select_arg = "AzEl"
         await self.issue_command(cmd, axis_select_arg)
 
-    asyncSlot()
-
+    @asyncSlot()
     async def command_stop(self):
         cmd = "Stow"
         axis_select_arg = "AzEl"
         await self.issue_command(cmd, axis_select_arg)
 
-    asyncSlot()
-
+    @asyncSlot()
     async def command_stow(self):
         cmd = "Stow"
         await self.issue_command(cmd, True)  # argument to stow or not...
@@ -107,5 +97,5 @@ class Controller(QObject):
     async def issue_command(self, cmd: str, *args):
         print(f"Command: {cmd}  args: {[*args]}")
         self.command_response_status.emit(f"Issuing command: '{cmd} ...")
-        retcode, retmsg = await self.model.call_method("Management", cmd, *args)
+        retcode, retmsg = await self._model.call_method("Management", cmd, *args)
         self.command_response_str(cmd, retcode, retmsg)
