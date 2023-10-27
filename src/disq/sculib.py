@@ -18,6 +18,7 @@ import enum
 import json
 import logging
 import queue
+import sys
 import threading
 
 #Import of Python available libraries
@@ -399,7 +400,12 @@ class scu:
             # The CETC simulator V1 returns a faulty DscCmdAuthorityEnumType,
             # where the entry for 3 has no name.
             pass
-        self.ns_idx = asyncio.run_coroutine_threadsafe(connection.get_namespace_index(self.namespace), self.event_loop).result()
+        try:
+            self.ns_idx = asyncio.run_coroutine_threadsafe(connection.get_namespace_index(self.namespace), self.event_loop).result()
+        except ValueError as e:
+            namespaces = asyncio.run_coroutine_threadsafe(connection.get_namespace_array(), self.event_loop).result()
+            logger.error(f'*** Exception caught while trying to access the requested namespace "{self.namespace}" on the OPC UA server. Will NOT continue with the normal operation but list the available namespaces here for future reference:\n{namespaces}')
+            sys.exit(0)
         return connection
 
     def disconnect(self) -> None:
