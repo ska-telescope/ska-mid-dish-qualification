@@ -16,8 +16,8 @@ dependencies = [
     "PyQt6==6.4.2",
     "pyqt6-tools",
     "python-dotenv",
-    "qasync"
-] 
+    "qasync>=0.62.0",
+]
 
 dynamic = ["version"]
 license.file = "LICENSE"
