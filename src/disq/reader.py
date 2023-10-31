@@ -1,9 +1,9 @@
 import h5py
 from datetime import datetime
-import matplotlib.pyplot as plt  # TODO add matplotlib to disq modules
+import matplotlib.pyplot as plt
 import matplotlib.dates as dates
 import matplotlib.ticker as ticker
-import plotly.graph_objects as graph_obj  # TODO add to disq modules
+import plotly.graph_objects as graph_obj
 
 
 class Reader:

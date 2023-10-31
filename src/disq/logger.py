@@ -6,8 +6,7 @@ from datetime import datetime, timedelta
 import warnings
 from time import sleep
 
-# TODO proper disq import
-import sculib
+from disq import sculib
 
 
 class Logger:
