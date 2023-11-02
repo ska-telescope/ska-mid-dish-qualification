@@ -79,3 +79,6 @@ venv.bak/
 
 # further build artifacts
 lockfiles/
+
+# Test outputs
+tests/output_files/
