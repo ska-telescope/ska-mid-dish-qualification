@@ -3,10 +3,13 @@ import threading
 import queue
 import os
 from datetime import datetime, timedelta
-import warnings
 from time import sleep
+import logging
 
 from disq import sculib
+
+app_logger = logging.getLogger("hdf5_logger")
+app_logger.setLevel(logging.DEBUG)
 
 
 class Logger:
@@ -73,7 +76,7 @@ class Logger:
 
         self._available_attributes = self.hll.get_attribute_list()
 
-    def _get_value_type_from_node_name(self, node):
+    def _get_value_type_from_node_name(self, node: str) -> str:
         # TODO delete this and use HLL instead
         d = {
             "MockData.sine_value": "double",
@@ -85,7 +88,7 @@ class Logger:
         }
         return d[node]
 
-    def _get_enum_string(self, node):
+    def _get_enum_string(self, node: str) -> str:
         # TODO delete this and use HLL instead
         return "StartUp,Standby,Locked,Estop,Stowed,Locked_Stowed,Activating,Deactivation,Standstill,Stop,Slew,Jog,Track"
 
@@ -93,7 +96,7 @@ class Logger:
         """Add a node or list of nodes with desired period in miliseconds to be subscribed to.
         Subsequent calls with the same node will overwrite the period."""
         if self._start_invoked:
-            warnings.warn(
+            app_logger.warning(
                 "WARNING: nodes cannot be added after start() has been invoked."
             )
             return
@@ -103,57 +106,28 @@ class Logger:
 
         for node in list(nodes):
             if node not in self._available_attributes:
-                print(
-                    '"' + node + '"',
-                    "not available as an attribute on the server, skipping.",
+                app_logger.info(
+                    f'"{node}" not available as an attribute on the server, skipping.'
                 )
                 continue
 
             type = self._get_value_type_from_node_name(node)
             if type not in self._hdf5_type_from_value_type.keys():
-                print(
-                    "Unsupported type for",
-                    '"' + node + '":' + '"' + type + '";',
-                    "skipping. Nodes must be of type",
-                    '"bool"/"double"/"enum".',
+                app_logger.info(
+                    f'Unsupported type for "{node}": "{type}"; skipping. Nodes must be'
+                    f' of type "bool"/"double"/"enum".'
                 )
                 continue
 
             if node in self._nodes:
-                print(
-                    "Updating period for node",
-                    node,
-                    "from",
-                    self._nodes[node],
-                    "to",
-                    str(period) + ".",
+                app_logger.info(
+                    f"Updating period for node {node} from {self._nodes[node]} to "
+                    f"{period}."
                 )
 
             self._nodes[node] = period
 
-    def start(self):
-        """Start logging the nodes added by add_nodes(). Creates and uses a thread internally."""
-        if self._start_invoked:
-            warnings.warn("WARNING: start() can only be invoked once per object.")
-            return
-
-        self._start_invoked = True
-        self._stop_logging.clear()
-        self.logging_complete.clear()
-
-        if self.file is None:
-            # TODO Timezones
-            self.file = (
-                "results/" + datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S") + ".hdf5"
-            )
-
-        basedir = os.path.dirname(self.file)
-        if not os.path.exists(basedir):
-            os.makedirs(basedir)
-
-        print("Writing data to file:", self.file)
-        self.file_object = h5py.File(self.file, "w", libver="latest")
-
+    def _build_hdf5_structure(self):
         for node in self._nodes:
             # One group per node containing a single dataset for each of SourceTimestamp, Value.
             group = self.file_object.create_group(node)
@@ -204,6 +178,7 @@ class Logger:
         # HDF5 structure created, can now enter SWMR mode
         self.file_object.swmr_mode = True
 
+    def _subscribe_to_nodes(self):
         # Sort added nodes into lists per period
         period_dict = {}
         for node, period in self._nodes.items():
@@ -220,6 +195,31 @@ class Logger:
                     attributes=attributes, period=period, data_queue=self.queue
                 )
             )
+
+    def start(self):
+        """Start logging the nodes added by add_nodes(). Creates and uses a thread internally."""
+        if self._start_invoked:
+            app_logger.warn("WARNING: start() can only be invoked once per object.")
+            return
+
+        self._start_invoked = True
+        self._stop_logging.clear()
+        self.logging_complete.clear()
+
+        if self.file is None:
+            self.file = (
+                "results/" + datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S") + ".hdf5"
+            )
+
+        basedir = os.path.dirname(self.file)
+        if basedir != "" and not os.path.exists(basedir):
+            os.makedirs(basedir)
+
+        app_logger.info(f"Writing data to file: {self.file}")
+        self.file_object = h5py.File(self.file, "w", libver="latest")
+        self._build_hdf5_structure()
+
+        self._subscribe_to_nodes()
 
         self._thread.start()
 
@@ -270,7 +270,6 @@ class Logger:
             else:
                 self._data_count += 1
                 node = datapoint["name"]
-                # TODO timezones
                 self._cache[node][self._timestamp_idx].append(
                     datapoint["source_timestamp"].timestamp()
                 )
@@ -279,8 +278,6 @@ class Logger:
                 self._cache[node][self._total_count_idx] += 1
 
                 # Write to file when cache reaches multiple of chunk size for value type
-                # TODO currently if chunks per flush is 1 and flush period is 5 seconds even the
-                # largest type (double) will not reach a full chunk at a subscription rate of 20hz
                 if (
                     self._cache[node][self._total_count_idx]
                     % self._flush_from_value_type[self._cache[node][self._type_idx]]
@@ -297,12 +294,10 @@ class Logger:
                 next_flush_interval += timedelta(milliseconds=self._FLUSH_PERIOD_MSECS)
 
         # Subscriptions have been stopped so clear remaining queue, do a final flush, and close file.
-        # TODO queue is no longer increasing so do we need to worry about flush rate?
         while not self.queue.empty():
             datapoint = self.queue.get(block=True, timeout=self._QUEUE_GET_TIMEOUT_SECS)
             self._data_count += 1
             node = datapoint["name"]
-            # TODO timezones
             self._cache[node][self._timestamp_idx].append(
                 datapoint["source_timestamp"].timestamp()
             )
@@ -315,20 +310,22 @@ class Logger:
                 self._write_cache_to_group(cache_node)
 
         self.file_object.close()
-        print("Logger received", self._data_count, "data points.")
+        app_logger.info(f"Logger received {self._data_count} data points.")
         self.logging_complete.set()
 
     def wait_for_completion(self):
         """Wait for logging thread to write all data from the internal queue to file."""
         if not self._start_invoked:
-            warnings.warn(
-                "WARNING: cannot wait for logging to complete if start() has not been invoked."
+            app_logger.warn(
+                "WARNING: cannot wait for logging to complete if start() has not been "
+                "invoked."
             )
             return
 
         if not self._stop_logging:
-            warnings.warn(
-                "WARNING: cannot wait for logging to complete if stop() has not been invoked."
+            app_logger.warn(
+                "WARNING: cannot wait for logging to complete if stop() has not been "
+                "invoked."
             )
             return
 
