@@ -15,6 +15,8 @@ app_logger.setLevel(logging.DEBUG)
 class Logger:
     """Logger for DiSQ software."""
 
+    _TEST = False
+
     # Constants
     _MAX_ENUM_STR_LEN_BYTES = 64
     _CHUNK_SIZE_BYTES = 4096
@@ -191,6 +193,9 @@ class Logger:
         # Start to fill queue
         self.start_time = datetime.utcnow()
         for period, attributes in period_dict.items():
+            if self._TEST:
+                continue
+
             self._subscription_ids.append(
                 self.hll.subscribe(
                     attributes=attributes, period=period, data_queue=self.queue
