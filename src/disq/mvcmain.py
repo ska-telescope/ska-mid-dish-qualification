@@ -42,19 +42,5 @@ async def async_main():
     return True
 
 
-def main():
-    # Workaround a little bug with qasync and python 3.11:
-    # as described here: https://github.com/CabbageDevelopment/qasync/issues/68
-    if sys.version_info.major == 3 and sys.version_info.minor == 11:
-        with qasync._set_event_loop_policy(qasync.DefaultQEventLoopPolicy()):
-            runner = asyncio.runners.Runner()
-            try:
-                runner.run(async_main())
-            finally:
-                runner.close()
-    else:
-        qasync.run(async_main())
-
-
 if __name__ == "__main__":
-    main()
+    qasync.run(async_main())
