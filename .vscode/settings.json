@@ -11,5 +11,8 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.formatOnSave": true
-    }
+    },
+    "pylint.args": [
+        "--extension-pkg-whitelist=PyQt6"
+    ]
 }
