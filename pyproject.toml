@@ -11,13 +11,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 description = "SKAO MID Dish Structure Qualification (DiSQ) software"
-dependencies = [
-    "asyncua",
-    "PyQt6==6.4.2",
-    "pyqt6-tools",
-    "python-dotenv",
-    "qasync>=0.62.0",
-]
+dependencies = ["asyncua", "PyQt6==6.4.2", "pyqt6-tools", "python-dotenv"]
 
 dynamic = ["version"]
 license.file = "LICENSE"

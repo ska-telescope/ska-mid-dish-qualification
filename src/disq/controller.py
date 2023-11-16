@@ -1,5 +1,4 @@
-from PyQt6.QtCore import QObject, pyqtSignal
-from qasync import asyncSlot
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 from disq import model
 
@@ -40,18 +39,13 @@ class Controller(QObject):
         self.command_response_status.emit("Disconnected from server")
         self.server_disconnected.emit()
 
-    # @asyncSlot(str)
-    # async def on_input_server_uri(self, server_uri):
-    #     print(f"Server: {server_uri}")
-    #     self._server_uri = server_uri
-
     def subscribe_opcua_updates(self, registrations: dict):
         """Subscribe to the requested OPC UA variable data updates with the given
         callback. registrations is a dictionary with key:UI name value:callback method
         """
         self._model.register_event_updates(registrations=registrations)
 
-    async def command_slew2abs(
+    def command_slew2abs(
         self,
         azimuth_position: float,
         elevation_position: float,
@@ -71,31 +65,31 @@ class Controller(QObject):
         )
         self.command_response_str(cmd, retcode, retmsg)
 
-    @asyncSlot()
-    async def command_activate(self):
+    @pyqtSlot()
+    def command_activate(self):
         cmd = "Activate"
         axis_select_arg = "AzEl"
-        await self.issue_command(cmd, axis_select_arg)
+        self.issue_command(cmd, axis_select_arg)
 
-    @asyncSlot()
-    async def command_deactivate(self):
+    @pyqtSlot()
+    def command_deactivate(self):
         cmd = "DeActivate"
         axis_select_arg = "AzEl"
-        await self.issue_command(cmd, axis_select_arg)
+        self.issue_command(cmd, axis_select_arg)
 
-    @asyncSlot()
-    async def command_stop(self):
+    @pyqtSlot()
+    def command_stop(self):
         cmd = "Stow"
         axis_select_arg = "AzEl"
-        await self.issue_command(cmd, axis_select_arg)
+        self.issue_command(cmd, axis_select_arg)
 
-    @asyncSlot()
-    async def command_stow(self):
+    @pyqtSlot()
+    def command_stow(self):
         cmd = "Stow"
-        await self.issue_command(cmd, True)  # argument to stow or not...
+        self.issue_command(cmd, True)  # argument to stow or not...
 
-    async def issue_command(self, cmd: str, *args):
+    def issue_command(self, cmd: str, *args):
         print(f"Command: {cmd}  args: {[*args]}")
         self.command_response_status.emit(f"Issuing command: '{cmd} ...")
-        retcode, retmsg = await self._model.call_method("Management", cmd, *args)
+        retcode, retmsg = self._model.call_method("Management", cmd, *args)
         self.command_response_str(cmd, retcode, retmsg)

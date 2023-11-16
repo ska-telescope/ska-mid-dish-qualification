@@ -2,7 +2,6 @@ import os
 from importlib import resources
 
 from PyQt6 import QtCore, QtWidgets, uic
-from qasync import asyncClose, asyncSlot
 
 from disq import controller, model
 
@@ -12,6 +11,7 @@ class MainView(QtWidgets.QMainWindow):
         self, model: model.Model, controller: controller.Controller, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
+        self._opcua_widgets: dict = {}
         # Load the UI from the XML .ui file
         ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
         uic.loadUi(ui_xml_filename, self)
@@ -46,15 +46,20 @@ class MainView(QtWidgets.QMainWindow):
         pb.clicked.connect(self.connect_button_clicked)
 
         # Listen for Model event signals
+        self.model.data_received.connect(self.event_update)
 
-        self.findChild(
+        pb_slew2abs: QtWidgets.QPushButton = self.findChild(
             QtWidgets.QPushButton, name="pushButton_slew2abs"
-        ).clicked.connect(self.slew2abs_button_clicked)
+        )
+        pb_slew2abs.clicked.connect(self.slew2abs_button_clicked)
 
     @property
     def opcua_widgets(self) -> dict:
         """Return a dict of of all 'opcua_' widgets and their update method
         {name: callback}"""
+        # First check for cached values
+        if (len(self._opcua_widgets)) > 0:
+            return self._opcua_widgets
         # re = QtCore.QRegularExpression("opcua_")
         # opcua_widgets = self.findChildren(QtWidgets.QLineEdit, re)
         all_widgets = self.findChildren(QtWidgets.QLineEdit)
@@ -66,14 +71,28 @@ class MainView(QtWidgets.QMainWindow):
         # dict with (key, value) where the key is the name of the "opcua" widget
         # property (dot-notated OPC-UA parameter name) and value is the callback method
         # to update the widget
+        self._opcua_widgets = opcua_widget_updates
         return opcua_widget_updates
 
-    @asyncClose
-    async def closeEvent(self, event):
-        print("closing event")
+    @QtCore.pyqtSlot(dict)
+    def event_update(self, event: dict) -> None:
+        print(f"View: data update: {event['name']} value={event['value']}")
+        # The event update dict contains:
+        # { 'name': name, 'node': node, 'value': value,
+        #   'source_timestamp': source_timestamp,
+        #   'server_timestamp': server_timestamp,
+        #   'data': data
+        # }
+        val = event["value"]
+        if isinstance(val, float):
+            str_val = "{:.3f}".format(val)
+        else:
+            str_val = str(val)
+        _widget_update_func = self.opcua_widgets[event["name"]]
+        _widget_update_func(str_val)
 
-    @asyncSlot()
-    async def server_connected_event(self):
+    @QtCore.pyqtSlot()
+    def server_connected_event(self):
         print("server connected event")
         le: QtWidgets.QLineEdit = self.input_server_uri
         pb: QtWidgets.QPushButton = self.btn_server_connect
@@ -81,15 +100,14 @@ class MainView(QtWidgets.QMainWindow):
         pb.setText("Disconnect")
         le.setDisabled(True)
 
-    @asyncSlot()
-    async def server_disconnected_event(self):
+    @QtCore.pyqtSlot()
+    def server_disconnected_event(self):
         print("server disconnected event")
         le: QtWidgets.QLineEdit = self.input_server_uri
         pb: QtWidgets.QPushButton = self.btn_server_connect
         pb.setText("Connect")
         le.setEnabled(True)
 
-    # @asyncSlot() # remember async
     @QtCore.pyqtSlot()
     def connect_button_clicked(self):
         """Setup a connection to the server"""
@@ -101,8 +119,8 @@ class MainView(QtWidgets.QMainWindow):
         else:
             self.controller.disconnect_server()
 
-    @asyncSlot()
-    async def slew2abs_button_clicked(self):
+    @QtCore.pyqtSlot()
+    def slew2abs_button_clicked(self):
         args = [
             float(str_input)
             for str_input in [
@@ -113,9 +131,9 @@ class MainView(QtWidgets.QMainWindow):
             ]
         ]
         print(f"args: {args}")
-        await self.controller.command_slew2abs(*args)
+        self.controller.command_slew2abs(*args)
 
-    @asyncSlot(str)
-    async def command_response_status_update(self, status: str):
+    @QtCore.pyqtSlot(str)
+    def command_response_status_update(self, status: str):
         """Update the main window status bar with a status update"""
         self.cmd_status_label.setText(status)
