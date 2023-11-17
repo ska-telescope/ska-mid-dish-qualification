@@ -102,7 +102,7 @@ class Model(QObject):
         else:
             print("Model: WARNING register_event_updates: scu is None!?!?!")
 
-    def run_opcua_command(self, command: str, args: tuple = ()) -> str:
+    def run_opcua_command(self, command: str, *args) -> tuple:
         if self._scu is not None:
             result = self._scu.commands[command](*args)
         else:

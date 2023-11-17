@@ -12,8 +12,10 @@ class Controller(QObject):
         super().__init__(parent)
         self._model = mvc_model
 
-    def command_response_str(self, command: str, result: str) -> str:
-        r = f'Command "{command}" response: {result}'
+    def command_response_str(
+        self, command: str, result_code: int, result_msg: str
+    ) -> str:
+        r = f'Command "{command}" response: ({result_code}) "{result_msg}"'
         self.command_response_status.emit(r)
         return r
 
@@ -50,19 +52,18 @@ class Controller(QObject):
         azimuth_velocity: float,
         elevation_velocity: float,
     ):
-        print("Command: slew2abs")
         cmd = "Management.Slew2AbsAzEl"
-        self.command_response_status.emit(f'Command: "{cmd}"...')
-        result = self._model.run_opcua_command(
+        desc = f"Command: {cmd}  args: {azimuth_position}, {elevation_position}, {azimuth_velocity}, {elevation_velocity}"
+        print(desc)
+        self.command_response_status.emit(desc)
+        result_code, result_msg = self._model.run_opcua_command(
             cmd,
-            (
-                azimuth_position,
-                elevation_position,
-                azimuth_velocity,
-                elevation_velocity,
-            ),
+            azimuth_position,
+            elevation_position,
+            azimuth_velocity,
+            elevation_velocity,
         )
-        self.command_response_str(cmd, result)
+        self.command_response_str(cmd, result_code, result_msg)
 
     @pyqtSlot()
     def command_activate(self):
@@ -85,10 +86,10 @@ class Controller(QObject):
     @pyqtSlot(bool)
     def command_stow(self, stow: bool = True):
         cmd = "Management.Stow"
-        self.issue_command(cmd, (stow,))  # argument to stow or not...
+        self.issue_command(cmd, stow)  # argument to stow or not...
 
     def issue_command(self, cmd: str, *args):
-        print(f"Command: {cmd}  args: {[*args]}")
-        self.command_response_status.emit(f"Issuing command: '{cmd}({[*args]})")
-        result = self._model.run_opcua_command(cmd, *args)
-        self.command_response_str(cmd, result)
+        print(f"Command: {cmd}  args: {args}")
+        self.command_response_status.emit(f"Issuing command: {cmd} {args}")
+        result_code, result_msg = self._model.run_opcua_command(cmd, *args)
+        self.command_response_str(cmd, result_code, result_msg)
