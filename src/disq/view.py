@@ -48,10 +48,22 @@ class MainView(QtWidgets.QMainWindow):
         # Listen for Model event signals
         self.model.data_received.connect(self.event_update)
 
-        pb_slew2abs: QtWidgets.QPushButton = self.findChild(
-            QtWidgets.QPushButton, name="pushButton_slew2abs"
-        )
-        pb_slew2abs.clicked.connect(self.slew2abs_button_clicked)
+        # pb_slew2abs: QtWidgets.QPushButton = self.findChild(
+        #     QtWidgets.QPushButton, name="pushButton_slew2abs"
+        # )
+        # pb_slew2abs.clicked.connect(self.slew2abs_button_clicked)
+        self.pushButton_slew2abs: QtWidgets.QPushButton
+        self.pushButton_slew2abs.clicked.connect(self.slew2abs_button_clicked)
+        self.pushButton_stop: QtWidgets.QPushButton
+        self.pushButton_stop.clicked.connect(self.stop_button_clicked)
+        self.pushButton_stow: QtWidgets.QPushButton
+        self.pushButton_stow.clicked.connect(self.stow_button_clicked)
+        self.pushButton_unstow: QtWidgets.QPushButton
+        self.pushButton_unstow.clicked.connect(self.unstow_button_clicked)
+        self.pushButton_activate: QtWidgets.QPushButton
+        self.pushButton_activate.clicked.connect(self.activate_button_clicked)
+        self.pushButton_deactivate: QtWidgets.QPushButton
+        self.pushButton_deactivate.clicked.connect(self.deactivate_button_clicked)
 
     @cached_property
     def opcua_widgets(self) -> dict:
@@ -129,6 +141,26 @@ class MainView(QtWidgets.QMainWindow):
         ]
         print(f"args: {args}")
         self.controller.command_slew2abs(*args)
+
+    @QtCore.pyqtSlot()
+    def stop_button_clicked(self):
+        self.controller.command_stop()
+
+    @QtCore.pyqtSlot()
+    def stow_button_clicked(self):
+        self.controller.command_stow()
+
+    @QtCore.pyqtSlot()
+    def unstow_button_clicked(self):
+        self.controller.command_stow(False)
+
+    @QtCore.pyqtSlot()
+    def activate_button_clicked(self):
+        self.controller.command_activate()
+
+    @QtCore.pyqtSlot()
+    def deactivate_button_clicked(self):
+        self.controller.command_deactivate()
 
     @QtCore.pyqtSlot(str)
     def command_response_status_update(self, status: str):

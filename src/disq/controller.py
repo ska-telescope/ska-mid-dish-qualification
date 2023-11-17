@@ -12,12 +12,10 @@ class Controller(QObject):
         super().__init__(parent)
         self._model = mvc_model
 
-    def command_response_str(
-        self, command: str, return_code: int, return_msg: str
-    ) -> str:
-        result = f'Command "{command}" response: {return_msg} ({return_code})'
-        self.command_response_status.emit(result)
-        return result
+    def command_response_str(self, command: str, result: str) -> str:
+        r = f'Command "{command}" response: {result}'
+        self.command_response_status.emit(r)
+        return r
 
     def is_server_connected(self) -> bool:
         return self._model.is_connected()
@@ -53,43 +51,44 @@ class Controller(QObject):
         elevation_velocity: float,
     ):
         print("Command: slew2abs")
-        cmd = "Slew2AbsAzEl"
+        cmd = "Management.Slew2AbsAzEl"
         self.command_response_status.emit(f'Command: "{cmd}"...')
-        retcode, retmsg = self._model.call_method(
-            "Management",
+        result = self._model.run_opcua_command(
             cmd,
-            azimuth_position,
-            elevation_position,
-            azimuth_velocity,
-            elevation_velocity,
+            (
+                azimuth_position,
+                elevation_position,
+                azimuth_velocity,
+                elevation_velocity,
+            ),
         )
-        self.command_response_str(cmd, retcode, retmsg)
+        self.command_response_str(cmd, result)
 
     @pyqtSlot()
     def command_activate(self):
-        cmd = "Activate"
+        cmd = "Management.Activate"
         axis_select_arg = "AzEl"
         self.issue_command(cmd, axis_select_arg)
 
     @pyqtSlot()
     def command_deactivate(self):
-        cmd = "DeActivate"
+        cmd = "Management.DeActivate"
         axis_select_arg = "AzEl"
         self.issue_command(cmd, axis_select_arg)
 
     @pyqtSlot()
     def command_stop(self):
-        cmd = "Stow"
+        cmd = "Management.Stop"
         axis_select_arg = "AzEl"
         self.issue_command(cmd, axis_select_arg)
 
-    @pyqtSlot()
-    def command_stow(self):
-        cmd = "Stow"
-        self.issue_command(cmd, True)  # argument to stow or not...
+    @pyqtSlot(bool)
+    def command_stow(self, stow: bool = True):
+        cmd = "Management.Stow"
+        self.issue_command(cmd, (stow,))  # argument to stow or not...
 
     def issue_command(self, cmd: str, *args):
         print(f"Command: {cmd}  args: {[*args]}")
-        self.command_response_status.emit(f"Issuing command: '{cmd} ...")
-        retcode, retmsg = self._model.call_method("Management", cmd, *args)
-        self.command_response_str(cmd, retcode, retmsg)
+        self.command_response_status.emit(f"Issuing command: '{cmd}({[*args]})")
+        result = self._model.run_opcua_command(cmd, *args)
+        self.command_response_str(cmd, result)
