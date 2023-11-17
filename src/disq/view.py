@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 from importlib import resources
 
 from PyQt6 import QtCore, QtWidgets, uic
@@ -11,7 +12,6 @@ class MainView(QtWidgets.QMainWindow):
         self, model: model.Model, controller: controller.Controller, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self._opcua_widgets: dict = {}
         # Load the UI from the XML .ui file
         ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
         uic.loadUi(ui_xml_filename, self)
@@ -53,13 +53,10 @@ class MainView(QtWidgets.QMainWindow):
         )
         pb_slew2abs.clicked.connect(self.slew2abs_button_clicked)
 
-    @property
+    @cached_property
     def opcua_widgets(self) -> dict:
         """Return a dict of of all 'opcua_' widgets and their update method
         {name: callback}"""
-        # First check for cached values
-        if (len(self._opcua_widgets)) > 0:
-            return self._opcua_widgets
         # re = QtCore.QRegularExpression("opcua_")
         # opcua_widgets = self.findChildren(QtWidgets.QLineEdit, re)
         all_widgets = self.findChildren(QtWidgets.QLineEdit)
@@ -71,7 +68,6 @@ class MainView(QtWidgets.QMainWindow):
         # dict with (key, value) where the key is the name of the "opcua" widget
         # property (dot-notated OPC-UA parameter name) and value is the callback method
         # to update the widget
-        self._opcua_widgets = opcua_widget_updates
         return opcua_widget_updates
 
     @QtCore.pyqtSlot(dict)
@@ -88,6 +84,7 @@ class MainView(QtWidgets.QMainWindow):
             str_val = "{:.3f}".format(val)
         else:
             str_val = str(val)
+        # Get the widget update method from the dict of opcua widgets
         _widget_update_func = self.opcua_widgets[event["name"]]
         _widget_update_func(str_val)
 

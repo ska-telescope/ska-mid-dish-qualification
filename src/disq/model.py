@@ -88,16 +88,3 @@ class Model(QObject):
             data_queue=self._event_queue,
         )
         self._event_registrations = registrations
-
-    def _handle_event_updates(self, queue: Queue) -> None:
-        running: bool = True
-        while running:
-            _event: dict = queue.get()
-            # The event update dict contains:
-            # { 'name': name, 'node': node, 'value': value,
-            #   'source_timestamp': source_timestamp,
-            #   'server_timestamp': server_timestamp,
-            #   'data': data
-            # }
-            _widget_update_func = self._event_registrations[_event["name"]]
-            _widget_update_func(_event["value"])
