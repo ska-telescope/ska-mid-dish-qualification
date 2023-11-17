@@ -1,5 +1,5 @@
 import os
-from queue import Queue
+from queue import Empty, Queue
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
@@ -21,20 +21,30 @@ from disq.sculib import scu
 
 
 class QueuePollThread(QThread):
-    def __init__(self, queue, signal) -> None:
+    def __init__(self, signal) -> None:
         super().__init__()
-        self.queue: Queue = queue
+        self.queue: Queue = Queue()
         self.signal = signal
+        self._running = False
 
     def run(self) -> None:
+        self._running = True
         print(
-            f"QueuePollThread: Starting queue poll thread {QThread.currentThread()}({int(QThread.currentThreadId())})"
+            "QueuePollThread: Starting queue poll thread"
+            f"{QThread.currentThread()}({int(QThread.currentThreadId())})"
         )
-        while True:
-            print("QueuePollThread: Waiting for data")
-            data = self.queue.get()
+        while self._running:
+            try:
+                data = self.queue.get(timeout=0.2)
+            except Empty:
+                continue
             print(f"QueuePollThread: Got data: {data}")
             self.signal.emit(data)
+
+    def stop(self) -> None:
+        self._running = False
+        if not self.wait(1):
+            self.terminate()
 
 
 class Model(QObject):
@@ -53,9 +63,7 @@ class Model(QObject):
         self.subscription_rate_ms = int(
             os.getenv("DISQ_OPCUA_SUBSCRIPTION_PERIOD_MS", "100")
         )
-        self._event_registrations: dict = {}
-        self._event_queue: Queue = Queue()
-        self._poll_thread = QueuePollThread(self._event_queue, self.data_received)
+        self._event_q_poller: QueuePollThread | None = None
 
     def connect(
         self,
@@ -66,7 +74,6 @@ class Model(QObject):
         print(f"Connected to server on URI: {self._scu.connection.server_url.geturl()}")
         print("Getting node list")
         self._scu.get_node_list()
-        self._poll_thread.start()
 
     def disconnect(self):
         if self._scu is not None:
@@ -74,7 +81,8 @@ class Model(QObject):
             self._scu.disconnect()
             del self._scu
             self._scu = None
-            self._poll_thread.exit()
+            self._event_q_poller.stop()
+            self._event_q_poller = None
 
     def is_connected(self) -> bool:
         return (
@@ -82,9 +90,14 @@ class Model(QObject):
         )  # TODO: MAJOR assumption here: OPC-UA is connected if scu is instantiated...
 
     def register_event_updates(self, registrations: dict) -> None:
-        _ = self._scu.subscribe(
-            list(registrations.keys()),
-            period=self.subscription_rate_ms,
-            data_queue=self._event_queue,
-        )
-        self._event_registrations = registrations
+        self._event_q_poller = QueuePollThread(self.data_received)
+        self._event_q_poller.start()
+
+        if self._scu is not None:
+            _ = self._scu.subscribe(
+                list(registrations.keys()),
+                period=self.subscription_rate_ms,
+                data_queue=self._event_q_poller.queue,
+            )
+        else:
+            print("Model: WARNING register_event_updates: scu is None!?!?!")
