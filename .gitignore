@@ -76,6 +76,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+notes/
 
 # further build artifacts
 lockfiles/

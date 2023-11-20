@@ -1,46 +1,21 @@
-import asyncio
 from dotenv import load_dotenv
-import functools
-import qasync
-from qasync import QApplication
-import sys
+from PyQt6.QtWidgets import QApplication
 
-from disq.view import MainView
-from disq.model import Model
 from disq.controller import Controller
+from disq.model import Model
+from disq.view import MainView
 
 
-async def async_main():
-    def close_future(future, loop):
-        print("close_future")
-        loop.call_later(10, future.cancel)
-        future.cancel()
-
-    loop = asyncio.get_event_loop()
-    asyncio.set_event_loop(loop)
-    future = asyncio.Future()
-
+def main():
     load_dotenv()
-
-    app = QApplication.instance()
-    if hasattr(app, "aboutToQuit"):
-        getattr(app, "aboutToQuit").connect(
-            functools.partial(close_future, future, loop)
-        )
-
+    app = QApplication([])
     # Create our M, V and C...
     model = Model()
     controller = Controller(model)
     main_view = MainView(model, controller)
     main_view.show()
-
-    try:
-        await future
-    except asyncio.exceptions.CancelledError:
-        print("Quitting")
-
-    return True
+    app.exec()
 
 
 if __name__ == "__main__":
-    qasync.run(async_main())
+    main()
