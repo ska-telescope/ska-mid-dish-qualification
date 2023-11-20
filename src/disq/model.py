@@ -1,6 +1,7 @@
 import os
 from queue import Empty, Queue
 
+from asyncua import ua
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
 from disq.sculib import scu
@@ -103,8 +104,19 @@ class Model(QObject):
             print("Model: WARNING register_event_updates: scu is None!?!?!")
 
     def run_opcua_command(self, command: str, *args) -> tuple:
-        if self._scu is not None:
-            result = self._scu.commands[command](*args)
+        if self._scu is None:
+            raise RuntimeError("server not connected")
+        if command in [
+            "Management.Stop",
+            "Management.Activate",
+            "Management.DeActivate",
+            "Management.Reset",
+        ]:
+            # Commands that take a single AxisSelectType parameter input
+            arg = ua.AxisSelectType[args[0]]
+            print(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
+            result = self._scu.commands[command](arg)
         else:
-            print("Model: WARNING run_opcua_command: scu is None!?!?!")
+            # Commands that take none or more parameters of base types like float, bool, etc.
+            result = self._scu.commands[command](*args)
         return result
