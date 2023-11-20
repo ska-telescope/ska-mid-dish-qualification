@@ -1,110 +1,122 @@
-import typing, os
-from PyQt6.QtCore import QObject, pyqtSignal
-from asyncua import Client, ua, Node
-from enum import Enum
+import os
+from queue import Empty, Queue
+
+from asyncua import ua
+from PyQt6.QtCore import QObject, QThread, pyqtSignal
+
+from disq.sculib import scu
+
+# class SubscriptionHandler:
+#     def __init__(self, callback_method: callable, ui_name: str) -> None:
+#         self.callback_method = callback_method
+#         self.ui_name = ui_name
+
+#     async def datachange_notification(self, node: Node, val, data):
+#         if type(val) == float:
+#             str_val = "{:.3f}".format(val)
+#         elif type(val) == Enum:
+#             str_val = val.name
+#         else:
+#             str_val = str(val)
+#         self.callback_method(str_val)
 
 
-class SubscriptionHandler:
-    def __init__(self, callback_method: callable, ui_name: str) -> None:
-        self.callback_method = callback_method
-        self.ui_name = ui_name
+class QueuePollThread(QThread):
+    def __init__(self, signal) -> None:
+        super().__init__()
+        self.queue: Queue = Queue()
+        self.signal = signal
+        self._running = False
 
-    async def datachange_notification(self, node: Node, val, data):
-        if type(val) == float:
-            str_val = "{:.3f}".format(val)
-        elif type(val) == Enum:
-            str_val = val.name
-        else:
-            str_val = str(val)
-        self.callback_method(str_val)
+    def run(self) -> None:
+        self._running = True
+        print(
+            "QueuePollThread: Starting queue poll thread"
+            f"{QThread.currentThread()}({int(QThread.currentThreadId())})"
+        )
+        while self._running:
+            try:
+                data = self.queue.get(timeout=0.2)
+            except Empty:
+                continue
+            print(f"QueuePollThread: Got data: {data}")
+            self.signal.emit(data)
+
+    def stop(self) -> None:
+        self._running = False
+        if not self.wait(1):
+            self.terminate()
 
 
 class Model(QObject):
     # define signals here
     command_response = pyqtSignal(str)
+    data_received = pyqtSignal(dict)
 
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
-        self._client: Client | None = None
+        self._scu: scu | None = None
         self._namespace = str(
             os.getenv("DISQ_OPCUA_SERVER_NAMESPACE", "http://skao.int/DS_ICD/")
         )
         self._namespace_index: int | None = None
-        self._subscriptions = []
+        self._subscriptions: list = []
         self.subscription_rate_ms = int(
-            os.getenv("DISQ_OPCUA_SUBSCRIPTION_PERIOD_MS", 100)
+            os.getenv("DISQ_OPCUA_SUBSCRIPTION_PERIOD_MS", "100")
         )
+        self._event_q_poller: QueuePollThread | None = None
 
-    async def connect(
+    def connect(
         self,
         server_uri: str,
     ):
-        self._client = Client(server_uri)
-        await self._client.connect()
-        await self._client.load_data_type_definitions()  # Needed to load OPC UA datatypes in the ua module
-        self._namespace_index = await self._client.get_namespace_index(self._namespace)
+        print(f"Connecting to server: {server_uri}")
+        self._scu = scu(host=server_uri, namespace=self._namespace)
+        print(f"Connected to server on URI: {self._scu.connection.server_url.geturl()}")
+        print("Getting node list")
+        self._scu.get_node_list()
 
-    async def disconnect(self):
-        await self._client.disconnect()
+    def disconnect(self):
+        if self._scu is not None:
+            self._scu.unsubscribe_all()
+            self._scu.disconnect()
+            del self._scu
+            self._scu = None
+            self._event_q_poller.stop()
+            self._event_q_poller = None
 
-    async def is_connected(self) -> bool:
-        connected = True
-        try:
-            await self._client.check_connection()
-        except:
-            print("======NOT CONNECTED======")
-            connected = False
-        return connected
+    def is_connected(self) -> bool:
+        return (
+            self._scu is not None
+        )  # TODO: MAJOR assumption here: OPC-UA is connected if scu is instantiated...
 
-    @property
-    def plc_prog_path(self):
-        """Return a list of the PLC_PRG path elements (display names)"""
-        return [
-            f"{self._namespace_index}:{path}"
-            for path in ["Logic", "Application", "PLC_PRG"]
-        ]
+    def register_event_updates(self, registrations: dict) -> None:
+        self._event_q_poller = QueuePollThread(self.data_received)
+        self._event_q_poller.start()
 
-    def get_node_browse_name(self, display_name: str | list):
-        """Return a nodes browse name, including the namespace index number"""
-        if type(display_name) == str:
-            return f"{self._namespace_index}:{display_name}"
-        elif type(display_name) == list:
-            return [f"{self._namespace_index}:{dname}" for dname in display_name]
-
-    async def register_monitor(self, ui_name: str, monitor_callback: callable):
-        """Register a callback and start subscription to data changes on the named variable
-
-        ui_name is the UI string name form
-        monitor_callback is a callback method that the subscription must call with the update
-        """
-        monitor_callback("registering...")
-        # opcua_node_path:list = self.plc_prog_path + self.get_node_browse_name(self.ui_name_to_opcua_name(ui_name))
-        opcua_node_path: list = self.plc_prog_path + self.get_node_browse_name(
-            ui_name.split("/")
-        )
-        print("Registering OPC-UA node: ", opcua_node_path)
-
-        try:
-            opcua_node = await self._client.nodes.objects.get_child(opcua_node_path)
-        except ua.UaError as e:
-            print(
-                f'WARNING: no OPCUA object named "{ui_name}" found on server. Skipping subscription. ERROR: {e}'
+        if self._scu is not None:
+            _ = self._scu.subscribe(
+                list(registrations.keys()),
+                period=self.subscription_rate_ms,
+                data_queue=self._event_q_poller.queue,
             )
-            return
-        handler = SubscriptionHandler(monitor_callback, ui_name)
-        subscription = await self._client.create_subscription(
-            self.subscription_rate_ms, handler
-        )
-        await subscription.subscribe_data_change(opcua_node)
-        self._subscriptions.append(subscription)
+        else:
+            print("Model: WARNING register_event_updates: scu is None!?!?!")
 
-    async def call_method(
-        self, object_name: str, method_name: str, *args: typing.Any
-    ) -> tuple:
-        obj_browse_path = self.plc_prog_path + [self.get_node_browse_name(object_name)]
-        method_browse_name = self.get_node_browse_name(method_name)
-        print(f"Object: {obj_browse_path} method: {method_browse_name}")
-        obj = await self._client.nodes.objects.get_child(obj_browse_path)
-        return_code = await obj.call_method(method_browse_name, *args)
-        return_msg = ua.CmdResponseType(return_code).name
-        return return_code, return_msg
+    def run_opcua_command(self, command: str, *args) -> tuple:
+        if self._scu is None:
+            raise RuntimeError("server not connected")
+        if command in [
+            "Management.Stop",
+            "Management.Activate",
+            "Management.DeActivate",
+            "Management.Reset",
+        ]:
+            # Commands that take a single AxisSelectType parameter input
+            arg = ua.AxisSelectType[args[0]]
+            print(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
+            result = self._scu.commands[command](arg)
+        else:
+            # Commands that take none or more parameters of base types like float, bool, etc.
+            result = self._scu.commands[command](*args)
+        return result
