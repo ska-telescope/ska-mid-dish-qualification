@@ -18,6 +18,7 @@ import json
 import logging
 import queue
 import threading
+import enum
 
 #Import of Python available libraries
 import time
@@ -28,7 +29,7 @@ import asyncua
 logging.basicConfig(level = logging.INFO)
 logger = logging.getLogger('sculib')
 # Make the ua client less chatty
-logging.getLogger("asyncua").setLevel(logging.INFO)
+logging.getLogger("asyncua").setLevel(logging.WARNING)
 
 #define some preselected sensors for recording into a logfile
 hn_feed_indexer_sensors=[
@@ -392,7 +393,7 @@ class scu:
         connection = asyncua.Client(opc_ua_server, timeout)
         _ = asyncio.run_coroutine_threadsafe(connection.connect(), self.event_loop).result()
         self.opc_ua_server = opc_ua_server
-        _ = asyncio.run_coroutine_threadsafe(connection.load_data_type_definitions(), self.event_loop).result()
+        self.custom_types = asyncio.run_coroutine_threadsafe(connection.load_data_type_definitions(), self.event_loop).result()
         self.ns_idx = asyncio.run_coroutine_threadsafe(connection.get_namespace_index(self.namespace), self.event_loop).result()
         return connection
 
@@ -511,13 +512,9 @@ class scu:
         if dt_name == "Boolean" or dt_name == "Double":
             return dt_name
         
-        supertypes = asyncio.run_coroutine_threadsafe(asyncua.common.ua_utils.get_node_supertypes(dt_node), self.event_loop).result()
-        for super in supertypes:
-            super_node = self.connection.get_node(super)
-            super_node_info = asyncio.run_coroutine_threadsafe(super_node.read_browse_name(), self.event_loop).result()
-            super_node_name = super_node_info.Name
-            if super_node_name == "Enumeration":
-                return super_node_name
+        if dt_name in self.custom_types:
+            if issubclass(self.custom_types[dt_name], enum.Enum):
+                return "Enumeration"
 
         return "Unknown"
     
