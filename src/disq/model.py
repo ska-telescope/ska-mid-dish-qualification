@@ -1,3 +1,4 @@
+import logging
 import os
 from queue import Empty, Queue
 
@@ -6,6 +7,7 @@ from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
 from disq.sculib import scu
 
+logger = logging.getLogger("gui.model")
 # class SubscriptionHandler:
 #     def __init__(self, callback_method: callable, ui_name: str) -> None:
 #         self.callback_method = callback_method
@@ -30,7 +32,7 @@ class QueuePollThread(QThread):
 
     def run(self) -> None:
         self._running = True
-        print(
+        logger.debug(
             "QueuePollThread: Starting queue poll thread"
             f"{QThread.currentThread()}({int(QThread.currentThreadId())})"
         )
@@ -39,7 +41,7 @@ class QueuePollThread(QThread):
                 data = self.queue.get(timeout=0.2)
             except Empty:
                 continue
-            print(f"QueuePollThread: Got data: {data}")
+            logger.debug(f"QueuePollThread: Got data: {data['name']} = {data['value']}")
             self.signal.emit(data)
 
     def stop(self) -> None:
@@ -70,10 +72,12 @@ class Model(QObject):
         self,
         server_uri: str,
     ):
-        print(f"Connecting to server: {server_uri}")
+        logger.debug(f"Connecting to server: {server_uri}")
         self._scu = scu(host=server_uri, namespace=self._namespace)
-        print(f"Connected to server on URI: {self._scu.connection.server_url.geturl()}")
-        print("Getting node list")
+        logger.debug(
+            f"Connected to server on URI: {self._scu.connection.server_url.geturl()}"
+        )
+        logger.debug("Getting node list")
         self._scu.get_node_list()
 
     def disconnect(self):
@@ -101,7 +105,7 @@ class Model(QObject):
                 data_queue=self._event_q_poller.queue,
             )
         else:
-            print("Model: WARNING register_event_updates: scu is None!?!?!")
+            logger.warning("Model: register_event_updates: scu is None!?!?!")
 
     def run_opcua_command(self, command: str, *args) -> tuple:
         if self._scu is None:
@@ -114,7 +118,7 @@ class Model(QObject):
         ]:
             # Commands that take a single AxisSelectType parameter input
             arg = ua.AxisSelectType[args[0]]
-            print(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
+            logger.debug(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
             result = self._scu.commands[command](arg)
         else:
             # Commands that take none or more parameters of base types like float, bool, etc.

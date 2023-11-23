@@ -18,6 +18,7 @@ dependencies = [
     "python-dotenv",
     "matplotlib",
     "plotly",
+    "pyyaml",
 ]
 
 dynamic = ["version"]

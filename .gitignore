@@ -72,7 +72,7 @@ target/
 .env
 .venv
 env/
-venv/
+*venv/
 ENV/
 env.bak/
 venv.bak/
@@ -80,3 +80,6 @@ notes/
 
 # further build artifacts
 lockfiles/
+
+# developers own logging config
+disq_logging_config.yaml

@@ -1,3 +1,4 @@
+import logging
 import os
 from functools import cached_property
 from importlib import resources
@@ -5,6 +6,8 @@ from importlib import resources
 from PyQt6 import QtCore, QtWidgets, uic
 
 from disq import controller, model
+
+logger = logging.getLogger("gui.view")
 
 
 class MainView(QtWidgets.QMainWindow):
@@ -75,7 +78,7 @@ class MainView(QtWidgets.QMainWindow):
         opcua_widget_updates: dict = {}
         for wgt in all_widgets:
             if "opcua" in wgt.dynamicPropertyNames():
-                print(f"OPCUA widget: {wgt.property('opcua')}")
+                logger.debug(f"OPCUA widget: {wgt.property('opcua')}")
                 opcua_widget_updates.update({wgt.property("opcua"): wgt.setText})
         # dict with (key, value) where the key is the name of the "opcua" widget
         # property (dot-notated OPC-UA parameter name) and value is the callback method
@@ -84,7 +87,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(dict)
     def event_update(self, event: dict) -> None:
-        print(f"View: data update: {event['name']} value={event['value']}")
+        logger.debug(f"View: data update: {event['name']} value={event['value']}")
         # The event update dict contains:
         # { 'name': name, 'node': node, 'value': value,
         #   'source_timestamp': source_timestamp,
@@ -102,7 +105,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def server_connected_event(self):
-        print("server connected event")
+        logger.debug("server connected event")
         le: QtWidgets.QLineEdit = self.input_server_uri
         pb: QtWidgets.QPushButton = self.btn_server_connect
         self.controller.subscribe_opcua_updates(self.opcua_widgets)
@@ -111,7 +114,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def server_disconnected_event(self):
-        print("server disconnected event")
+        logger.debug("server disconnected event")
         le: QtWidgets.QLineEdit = self.input_server_uri
         pb: QtWidgets.QPushButton = self.btn_server_connect
         pb.setText("Connect")
@@ -120,7 +123,7 @@ class MainView(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def connect_button_clicked(self):
         """Setup a connection to the server"""
-        print("BTN CLICKED")
+        logger.debug("BTN CLICKED")
         le: QtWidgets.QLineEdit = self.input_server_uri
         server_uri = le.text()
         if not self.controller.is_server_connected():
@@ -139,7 +142,7 @@ class MainView(QtWidgets.QMainWindow):
                 self.lineEdit_elevation_velocity_demand.text(),
             ]
         ]
-        print(f"args: {args}")
+        logger.debug(f"args: {args}")
         self.controller.command_slew2abs(*args)
 
     @QtCore.pyqtSlot()
