@@ -1,13 +1,32 @@
 from disq import logger as log
+from disq import sculib
 from datetime import datetime, timedelta
 import h5py
 import os
 import random
 import subprocess
 import logging
+import time
+
+
+class stub_scu(sculib.scu):
+    """
+    High level library stub class (no real subscriptions).
+    """
+
+    subscriptions = {}
+
+    def subscribe(self, attributes=None, period=None, data_queue=None) -> int:
+        id = time.clock_gettime_ns(time.CLOCK_MONOTONIC)
+        self.subscriptions[id] = {}
+        return id
+
+    def unsubscribe(self, id: int) -> None:
+        _ = self.subscriptions.pop(id)
+
 
 """
-Tests in this file expect an OPCUA server to be running, even if data is not being
+Some tests in this file expect an OPCUA server to be running, even if data is not being
 gathered from the server. Specifically the custom server available in the
 ska-mid-dish-simulators repo on branch wom-133-custom-nodes-for-pretty-graphs
 """
@@ -75,8 +94,8 @@ def test_performance():
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
     test_start = datetime.now()
-    logger = log.Logger(file_name=output_file)
-    logger._TEST = True
+    hll = stub_scu()
+    logger = log.Logger(file_name=output_file, high_level_library=hll)
     logger.add_nodes(nodes, 50)
 
     logger.start()
@@ -169,8 +188,8 @@ def test_start(caplog):
     file name, and that it cannot be invoked twice, logging the correct messages.
     """
     output_file = "output_files/start.hdf5"
-    logger = log.Logger(file_name=output_file)
-    logger._TEST = True
+    hll = stub_scu()
+    logger = log.Logger(file_name=output_file, high_level_library=hll)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
     logger.add_nodes(nodes, 100)
     logger.start()
@@ -199,8 +218,8 @@ def test_stop():
     Test the stop() method. Check _stop_logging is being set.
     """
     output_file = "output_files/stop.hdf5"
-    logger = log.Logger(file_name=output_file)
-    logger._TEST = True
+    hll = stub_scu()
+    logger = log.Logger(file_name=output_file, high_level_library=hll)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
     logger.add_nodes(nodes, 100)
     logger.start()
@@ -216,8 +235,8 @@ def test_write_cache_to_group():
     output file.
     """
     output_file = "output_files/_write_cache_to_group.hdf5"
-    logger = log.Logger(file_name=output_file)
-    logger._TEST = True
+    hll = stub_scu()
+    logger = log.Logger(file_name=output_file, high_level_library=hll)
     nodes = ["MockData.increment"]
     logger.add_nodes(nodes, 100)
     logger.file_object = h5py.File(output_file, "w", libver="latest")
@@ -258,8 +277,8 @@ def test_log():
     output_file = "output_files/_log.hdf5"
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
-    logger = log.Logger(file_name=output_file)
-    logger._TEST = True
+    hll = stub_scu()
+    logger = log.Logger(file_name=output_file, high_level_library=hll)
     logger.add_nodes(nodes, 50)
 
     logger.start()

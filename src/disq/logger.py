@@ -9,13 +9,11 @@ import logging
 from disq import sculib
 
 app_logger = logging.getLogger("hdf5_logger")
-app_logger.setLevel(logging.DEBUG)
+app_logger.setLevel(logging.INFO)
 
 
 class Logger:
     """Logger for DiSQ software."""
-
-    _TEST = False
 
     # Constants
     _MAX_ENUM_STR_LEN_BYTES = 64
@@ -50,7 +48,6 @@ class Logger:
     _stop_logging = threading.Event()
     _start_invoked = False
     _cache = {}
-    _subscription_ids = []
 
     logging_complete = threading.Event()
 
@@ -77,6 +74,7 @@ class Logger:
             self.hll = high_level_library
 
         self._available_attributes = self.hll.get_attribute_list()
+        self._subscription_ids = []
 
     def _get_value_type_from_node_name(self, node: str) -> str:
         # TODO delete this and use HLL instead
@@ -225,9 +223,6 @@ class Logger:
         # Start to fill queue
         self.start_time = datetime.utcnow()
         for period, attributes in period_dict.items():
-            if self._TEST:
-                continue
-
             self._subscription_ids.append(
                 self.hll.subscribe(
                     attributes=attributes, period=period, data_queue=self.queue
