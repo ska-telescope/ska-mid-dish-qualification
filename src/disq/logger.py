@@ -9,7 +9,7 @@ import logging
 from disq import sculib
 
 app_logger = logging.getLogger("hdf5_logger")
-app_logger.setLevel(logging.DEBUG)
+app_logger.setLevel(logging.INFO)
 
 
 class Logger:
@@ -48,7 +48,6 @@ class Logger:
     _stop_logging = threading.Event()
     _start_invoked = False
     _cache = {}
-    _subscription_ids = []
 
     logging_complete = threading.Event()
 
@@ -75,6 +74,7 @@ class Logger:
             self.hll = high_level_library
 
         self._available_attributes = self.hll.get_attribute_list()
+        self._subscription_ids = []
 
     def _get_value_type_from_node_name(self, node: str) -> str:
         # TODO delete this and use HLL instead
@@ -85,6 +85,38 @@ class Logger:
             "MockData.decrement": "bad",
             "MockData.bool": "bool",
             "MockData.enum": "enum",
+            "MockData.enum_stress6": "enum",
+            "MockData.enum_stress7": "enum",
+            "MockData.enum_stress8": "enum",
+            "MockData.enum_stress9": "enum",
+            "MockData.enum_stress10": "enum",
+            "MockData.enum_stress11": "enum",
+            "MockData.enum_stress12": "enum",
+            "MockData.enum_stress13": "enum",
+            "MockData.enum_stress14": "enum",
+            "MockData.enum_stress15": "enum",
+            "MockData.enum_stress16": "enum",
+            "MockData.enum_stress17": "enum",
+            "MockData.enum_stress18": "enum",
+            "MockData.enum_stress19": "enum",
+            "MockData.enum_stress20": "enum",
+            "MockData.enum_stress21": "enum",
+            "MockData.enum_stress22": "enum",
+            "MockData.enum_stress23": "enum",
+            "MockData.enum_stress24": "enum",
+            "MockData.enum_stress25": "enum",
+            "MockData.enum_stress26": "enum",
+            "MockData.enum_stress27": "enum",
+            "MockData.enum_stress28": "enum",
+            "MockData.enum_stress29": "enum",
+            "MockData.enum_stress30": "enum",
+            "MockData.enum_stress31": "enum",
+            "MockData.enum_stress32": "enum",
+            "MockData.enum_stress33": "enum",
+            "MockData.enum_stress34": "enum",
+            "MockData.enum_stress35": "enum",
+            "MockData.enum_stress36": "enum",
+            "MockData.enum_stress37": "enum",
         }
         return d[node]
 
@@ -200,7 +232,7 @@ class Logger:
     def start(self):
         """Start logging the nodes added by add_nodes(). Creates and uses a thread internally."""
         if self._start_invoked:
-            app_logger.warn("WARNING: start() can only be invoked once per object.")
+            app_logger.warning("WARNING: start() can only be invoked once per object.")
             return
 
         self._start_invoked = True
@@ -285,15 +317,24 @@ class Logger:
                     == 0
                 ):
                     self._write_cache_to_group(node)
+                    app_logger.debug(
+                        f"Number of items in queue (cache write): {self.queue.qsize()}"
+                    )
 
             # Write to file at least every self._FLUSH_PERIOD_MSECS
             if next_flush_interval < datetime.now():
                 for cache_node, cache in self._cache.items():
                     if cache[self._count_idx] > 0:
                         self._write_cache_to_group(cache_node)
+                app_logger.debug(
+                    f"Number of items in queue (flush write): {self.queue.qsize()}"
+                )
 
                 next_flush_interval += timedelta(milliseconds=self._FLUSH_PERIOD_MSECS)
 
+        app_logger.debug(
+            f"Number of items in queue (final write): {self.queue.qsize()}"
+        )
         # Subscriptions have been stopped so clear remaining queue, do a final flush, and close file.
         while not self.queue.empty():
             datapoint = self.queue.get(block=True, timeout=self._QUEUE_GET_TIMEOUT_SECS)
@@ -320,19 +361,23 @@ class Logger:
             "Stop time", self.stop_time.isoformat(timespec="microseconds")
         )
         self.file_object.close()
+        app_logger.debug(
+            f"File start time: {self.start_time} and stop time: {self.stop_time}"
+        )
+
         self.logging_complete.set()
 
     def wait_for_completion(self):
         """Wait for logging thread to write all data from the internal queue to file."""
         if not self._start_invoked:
-            app_logger.warn(
+            app_logger.warning(
                 "WARNING: cannot wait for logging to complete if start() has not been "
                 "invoked."
             )
             return
 
-        if not self._stop_logging:
-            app_logger.warn(
+        if not self._stop_logging.is_set():
+            app_logger.warning(
                 "WARNING: cannot wait for logging to complete if stop() has not been "
                 "invoked."
             )
