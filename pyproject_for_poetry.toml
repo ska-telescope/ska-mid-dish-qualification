@@ -1,0 +1,123 @@
+[tool.poetry]
+name = "DiSQ"
+version = "0.1.0"
+description = "SKAO MID Dish Structure Qualification (DiSQ) software"
+authors = [
+    "Oliver Skivington <oliver.skivington@criticalsoftware.com>",
+    "Thomas Juerges <thomas.juerges@skao.int>",
+    "Ulrik Pedersen <ukp@observatorysciences.co.uk>",
+]
+license = "BSD-3-Clause"
+readme = "README.md"
+homepage = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
+
+[tool.poetry.extras]
+ipython = ["ipython"]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification/-/issues"
+
+[tool.poetry.dependencies]
+python = "~3.11"
+asyncua = "^1.0.0"
+PyQt6 = "^6.4.0"
+pyqt6-tools = "^6.4.0"
+python-dotenv = "^1.0.0"
+# matplotlib and plotly are only used in the reader class.
+matplotlib = "^3.8.0"
+plotly = "^5.18.0"
+pyyaml = "^6.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=6.2.5,<7.0.0"
+assertpy = "^1.1"
+flake8 = "^5.0.4"
+isort = "^5.10.1"
+black = "^22.10.0"
+pylint = "^2.15.5"
+mypy = "^1.4.1"
+pytest-cov = "^4.0.0"
+flake8-isort = "^6.1.0"
+Flake8-pyproject = "^1.1"
+pipdeptree = "^2.10.2"
+tox-direct = "^0.4"
+types-mock = "^5.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = 'ska'
+url = 'https://artefact.skatelescope.org/repository/pypi-all/simple'
+priority = "default"
+
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "supplemental"
+
+[tool.poetry.scripts]
+disq-gui = "disq.mvcmain:main"
+
+[tool.setuptools_scm]
+write_to = "src/disq/_version.py"
+
+[tool.mypy]
+ignore_missing_imports = true # Ignore missing stubs in imported modules
+
+[tool.isort]
+float_to_top = true
+profile = "black"
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = ["missing-docstring"]
+ignore = ["sculib.py"]
+
+[tool.flake8]
+extend-ignore = [
+    "E203", # See https://github.com/PyCQA/pycodestyle/issues/373
+    "F811", # support typing.overload decorator
+    "F722", # allow Annotated[typ, some_func("some string")]
+]
+max-line-length = 88 # Respect black's line length (default 88),
+exclude = [".tox", ".venv", "sculib.py"]
+
+[tool.black] # See https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-format
+force-exclude = "sculib.py|cam_sensors.py" # RegEx - Exclude formatting the legacy code
+
+[tool.pytest.ini_options]
+# Run pytest with all our checkers, and don't spam us with massive tracebacks on error
+addopts = """
+    --tb=native -vv --doctest-modules --doctest-glob="*.rst"
+    """
+# https://iscinumpy.gitlab.io/post/bound-version-constraints/#watch-for-warnings
+filterwarnings = "error"
+# Doctest python code in docs, python code in src docstrings, test functions in tests
+testpaths = "docs src tests"
+
+[tool.coverage.run]
+data_file = "/tmp/disq.coverage"
+
+[tool.coverage.paths]
+# Tests are run from installed location, map back to the src directory
+source = ["src", "**/site-packages/"]
+
+# tox must currently be configured via an embedded ini string
+# See: https://github.com/tox-dev/tox/issues/999
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+skipsdist=True
+
+[testenv:{mypy,pytest}]
+# Don't create a virtualenv for the command, requires tox-direct plugin
+direct = True
+passenv = *
+allowlist_externals =
+    pytest
+    mypy
+commands =
+    pytest: pytest --cov=disq --cov-report term --cov-report xml:cov.xml {posargs}
+    mypy: mypy src tests {posargs}
+"""
