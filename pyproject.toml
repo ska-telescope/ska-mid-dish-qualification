@@ -16,9 +16,10 @@ dependencies = [
     "PyQt6==6.4.2",
     "pyqt6-tools",
     "python-dotenv",
+    # matplotlib and plotly are only used in the reader class.
     "matplotlib",
-    "plotly",
-]
+    "plotly"
+] 
 
 dynamic = ["version"]
 license.file = "LICENSE"
