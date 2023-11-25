@@ -1,5 +1,6 @@
 import logging
 import os
+from functools import cached_property
 from queue import Empty, Queue
 
 from asyncua import ua
@@ -124,3 +125,10 @@ class Model(QObject):
             # Commands that take none or more parameters of base types like float, bool, etc.
             result = self._scu.commands[command](*args)
         return result
+
+    @cached_property
+    def opcua_enum_types(self) -> dict:
+        return {
+            "AxisStateType": ua.AxisStateType,
+            "StowPinStatusType": ua.StowPinStatusType,
+        }

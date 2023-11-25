@@ -70,38 +70,112 @@ class MainView(QtWidgets.QMainWindow):
 
     @cached_property
     def opcua_widgets(self) -> dict:
-        """Return a dict of of all 'opcua_' widgets and their update method
-        {name: callback}"""
+        """Return a dict of of all 'opcua' widgets and their update method
+        {name: (widget, func)}"""
         # re = QtCore.QRegularExpression("opcua_")
         # opcua_widgets = self.findChildren(QtWidgets.QLineEdit, re)
-        all_widgets = self.findChildren(QtWidgets.QLineEdit)
+        all_widgets: list[QtWidgets.QLineEdit] = self.findChildren(QtWidgets.QLineEdit)
         opcua_widget_updates: dict = {}
         for wgt in all_widgets:
-            if "opcua" in wgt.dynamicPropertyNames():
-                logger.debug(f"OPCUA widget: {wgt.property('opcua')}")
-                opcua_widget_updates.update({wgt.property("opcua"): wgt.setText})
+            if "opcua" not in wgt.dynamicPropertyNames():
+                # Skip all the non-opcua widgets
+                continue
+
+            opcua_parameter_name: str = wgt.property("opcua")
+            opcua_widget_update_func = (
+                self._update_opcua_text_widget
+            )  # the default update callback
+            logger.debug("OPCUA widget: %s", opcua_parameter_name)
+
+            if "opcua_type" in wgt.dynamicPropertyNames():
+                opcua_type = wgt.property("opcua_type")
+                if opcua_type == "Boolean":
+                    opcua_widget_update_func = self._update_opcua_boolean_widget
+                else:
+                    opcua_widget_update_func = self._update_opcua_enum_widget
+                logger.debug("OPCUA widget type: %s", opcua_type)
+            opcua_widget_updates.update(
+                {opcua_parameter_name: (wgt, opcua_widget_update_func)}
+            )
         # dict with (key, value) where the key is the name of the "opcua" widget
-        # property (dot-notated OPC-UA parameter name) and value is the callback method
-        # to update the widget
+        # property (dot-notated OPC-UA parameter name) and value is a tuple with
+        # the widget and a callback method to update the widget
         return opcua_widget_updates
 
     @QtCore.pyqtSlot(dict)
     def event_update(self, event: dict) -> None:
         logger.debug(f"View: data update: {event['name']} value={event['value']}")
-        # The event update dict contains:
-        # { 'name': name, 'node': node, 'value': value,
-        #   'source_timestamp': source_timestamp,
-        #   'server_timestamp': server_timestamp,
-        #   'data': data
-        # }
+        # Get the widget update method from the dict of opcua widgets
+        _widget = self.opcua_widgets[event["name"]][0]
+        _widget_update_func = self.opcua_widgets[event["name"]][1]
+        _widget_update_func(_widget, event)
+
+    def _update_opcua_text_widget(
+        self, widget: QtWidgets.QLineEdit, event: dict
+    ) -> None:
+        """Update the text of the widget with the event value
+
+        The event update dict contains:
+        { 'name': name, 'node': node, 'value': value,
+          'source_timestamp': source_timestamp,
+          'server_timestamp': server_timestamp,
+          'data': data }
+        """
         val = event["value"]
         if isinstance(val, float):
             str_val = "{:.3f}".format(val)
         else:
             str_val = str(val)
-        # Get the widget update method from the dict of opcua widgets
-        _widget_update_func = self.opcua_widgets[event["name"]]
-        _widget_update_func(str_val)
+        widget.setText(str_val)
+
+    def _update_opcua_enum_widget(self, widget: QtWidgets.QLineEdit, event: dict):
+        """Update the text of the widget with the event data
+
+        The Event data is an OPC-UA Enum type. The value arrives as an integer and
+        it is converted to a string here before updating the text of the widget.
+
+        The event update dict contains:
+        { 'name': name, 'node': node, 'value': value,
+          'source_timestamp': source_timestamp,
+          'server_timestamp': server_timestamp,
+          'data': data }
+        """
+        opcua_type: str = widget.property("opcua_type")
+        OpcuaEnum: type = self.model.opcua_enum_types[opcua_type]
+
+        val = OpcuaEnum(event["value"])
+        str_val = val.name
+        widget.setText(str_val)
+
+    def _update_opcua_boolean_widget(
+        self, widget: QtWidgets.QLineEdit, event: dict
+    ) -> None:
+        """Update the background colour of the widget to reflect the boolean state of the OPC-UA parameter
+
+        The event udpdate 'value' field can take 3 states:
+         - None: the OPC-UA parameter is not defined. Colour background grey/disabled.
+         - True: the OPC-UA parameter is True. Colour background light green (LED on).
+         - False: the OPC-UA parameter is False. Colour background dark green (LED off).
+        """
+        logger.debug(f"Boolean OPCUA update: {event}")
+        # TODO: modify background colour of widget (LED style on/off) to reflect the boolean state
+        led_colours = {
+            "red": {True: "rgb(255, 0, 0)", False: "rgb(128, 0, 0)"},
+            "green": {True: "rgb(10, 250, 0)", False: "rgb(10, 80, 0)"},
+            "yellow": {True: "rgb(250, 255, 0)", False: "rgb(180, 180, 45)"},
+            "orange": {True: "rgb(255, 185, 35)", False: "rgb(180, 135, 35)"},
+        }
+        if event["value"] is None:
+            widget.setEnabled(False)
+            # widget.setStyleSheet("background-color: rgb(128, 128, 128);")
+        else:
+            led_colour = "green"  # default colour
+            if "led_colour" in widget.dynamicPropertyNames():
+                led_colour = widget.property("led_colour")
+            widget.setEnabled(True)
+            widget.setStyleSheet(
+                f"background-color: {led_colours[led_colour][event['value']]};"
+            )
 
     @QtCore.pyqtSlot()
     def server_connected_event(self):
