@@ -8,8 +8,7 @@ import logging
 
 from disq import sculib
 
-app_logger = logging.getLogger("hdf5_logger")
-app_logger.setLevel(logging.DEBUG)
+app_logger = logging.getLogger("datalog")
 
 
 class Logger:
