@@ -912,6 +912,9 @@
         <layout class="QGridLayout" name="gridLayout_6">
          <item row="0" column="0">
           <widget class="QPushButton" name="pushButton_take_auth">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Take Authority</string>
            </property>
@@ -932,6 +935,9 @@
          </item>
          <item row="0" column="2">
           <widget class="QPushButton" name="pushButton_interlock_ack">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Interlock Ack</string>
            </property>
@@ -939,6 +945,9 @@
          </item>
          <item row="1" column="0">
           <widget class="QPushButton" name="pushButton_release_auth">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Release Authority</string>
            </property>
@@ -959,6 +968,9 @@
          </item>
          <item row="1" column="2">
           <widget class="QPushButton" name="pushButton_reset">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Reset</string>
            </property>
@@ -995,6 +1007,9 @@
          </item>
          <item row="0" column="2">
           <widget class="QComboBox" name="combo_cmd_arg">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="opcua_type" stdset="0">
             <string>AxisSelectType</string>
            </property>
@@ -1272,6 +1287,9 @@
         <layout class="QGridLayout" name="gridLayout_9">
          <item row="0" column="0">
           <widget class="QPushButton" name="pushButton_recording_start">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Start Recording</string>
            </property>
@@ -1279,6 +1297,9 @@
          </item>
          <item row="0" column="1">
           <widget class="QPushButton" name="pushButton_recording_stop">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Stop Recording</string>
            </property>
@@ -1286,6 +1307,9 @@
          </item>
          <item row="0" column="2">
           <widget class="QLineEdit" name="lineEdit_recording_status">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>55</width>
@@ -1311,6 +1335,9 @@
          </item>
          <item row="1" column="0" colspan="3">
           <widget class="QLineEdit" name="lineEdit_recording_file">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
