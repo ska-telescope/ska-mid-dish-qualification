@@ -182,7 +182,10 @@ class MainView(QtWidgets.QMainWindow):
         logger.debug("server connected event")
         le: QtWidgets.QLineEdit = self.input_server_uri
         pb: QtWidgets.QPushButton = self.btn_server_connect
+        lbl: QtWidgets.QLabel = self.label_connection_status
+        lbl.setText("Subscribing to OPC-UA updates...")
         self.controller.subscribe_opcua_updates(self.opcua_widgets)
+        lbl.setText(f"Connected to: {self.model.get_server_uri()}")
         pb.setText("Disconnect")
         le.setDisabled(True)
 
@@ -191,18 +194,23 @@ class MainView(QtWidgets.QMainWindow):
         logger.debug("server disconnected event")
         le: QtWidgets.QLineEdit = self.input_server_uri
         pb: QtWidgets.QPushButton = self.btn_server_connect
+        lbl: QtWidgets.QLabel = self.label_connection_status
+        lbl.setText("Status: disconnected")
         pb.setText("Connect")
         le.setEnabled(True)
 
     @QtCore.pyqtSlot()
     def connect_button_clicked(self):
         """Setup a connection to the server"""
-        logger.debug("BTN CLICKED")
         le: QtWidgets.QLineEdit = self.input_server_uri
         server_uri = le.text()
         if not self.controller.is_server_connected():
+            logging.debug(f"connecting to server: %s", server_uri)
+            lbl: QtWidgets.QLabel = self.label_connection_status
+            lbl.setText("connecting...")
             self.controller.connect_server(server_uri)
         else:
+            logging.debug(f"disconnecting from server")
             self.controller.disconnect_server()
 
     @QtCore.pyqtSlot()

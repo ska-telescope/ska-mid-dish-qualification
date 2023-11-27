@@ -75,11 +75,14 @@ class Model(QObject):
     ):
         logger.debug(f"Connecting to server: {server_uri}")
         self._scu = scu(host=server_uri, namespace=self._namespace)
-        logger.debug(
-            f"Connected to server on URI: {self._scu.connection.server_url.geturl()}"
-        )
+        logger.debug(f"Connected to server on URI: {self.get_server_uri()}")
         logger.debug("Getting node list")
         self._scu.get_node_list()
+
+    def get_server_uri(self) -> str:
+        if self._scu is None:
+            return ""
+        return self._scu.connection.server_url.geturl()
 
     def disconnect(self):
         if self._scu is not None:

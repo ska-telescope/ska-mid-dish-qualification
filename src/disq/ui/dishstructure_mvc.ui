@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1532</width>
-    <height>828</height>
+    <width>1524</width>
+    <height>827</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -27,7 +27,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_6">
-    <item row="0" column="0" colspan="2">
+    <item row="0" column="0" colspan="3">
      <widget class="QGroupBox" name="groupBox_server">
       <property name="maximumSize">
        <size>
@@ -72,12 +72,12 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_server_uri">
+        <widget class="QLabel" name="label_connection_status">
          <property name="text">
           <string>Status:</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -1889,7 +1889,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1532</width>
+     <width>1524</width>
      <height>24</height>
     </rect>
    </property>
