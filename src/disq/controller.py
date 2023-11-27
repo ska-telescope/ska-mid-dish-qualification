@@ -92,8 +92,12 @@ class Controller(QObject):
         cmd = "Management.Stow"
         self.issue_command(cmd, stow)  # argument to stow or not...
 
+    def command_move2band(self, band: str):
+        cmd = "Management.Move2Band"
+        self.issue_command(cmd, band)
+
     def issue_command(self, cmd: str, *args):
         logger.debug(f"Command: {cmd}  args: {args}")
         self.command_response_status.emit(f"Issuing command: {cmd} {args}")
         result_code, result_msg = self._model.run_opcua_command(cmd, *args)
-        self.command_response_str(cmd, result_code, result_msg)
+        self.command_response_str(f"{cmd}{args}", result_code, result_msg)

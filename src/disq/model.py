@@ -124,6 +124,10 @@ class Model(QObject):
             arg = ua.AxisSelectType[args[0]]
             logger.debug(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
             result = self._scu.commands[command](arg)
+        elif command == "Management.Move2Band":
+            arg = ua.BandType[args[0]]
+            logger.debug(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
+            result = self._scu.commands[command](arg)
         else:
             # Commands that take none or more parameters of base types like float, bool, etc.
             result = self._scu.commands[command](*args)

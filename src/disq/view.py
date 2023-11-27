@@ -67,6 +67,38 @@ class MainView(QtWidgets.QMainWindow):
         self.pushButton_activate.clicked.connect(self.activate_button_clicked)
         self.pushButton_deactivate: QtWidgets.QPushButton
         self.pushButton_deactivate.clicked.connect(self.deactivate_button_clicked)
+        self.pushButton_Band1: QtWidgets.QPushButton
+        self.pushButton_Band1.clicked.connect(
+            lambda: self.move2band_button_clicked("Band_1")
+        )
+        self.pushButton_Band2: QtWidgets.QPushButton
+        self.pushButton_Band2.clicked.connect(
+            lambda: self.move2band_button_clicked("Band_2")
+        )
+        self.pushButton_Band3: QtWidgets.QPushButton
+        self.pushButton_Band3.clicked.connect(
+            lambda: self.move2band_button_clicked("Band_3")
+        )
+        self.pushButton_Band4: QtWidgets.QPushButton
+        self.pushButton_Band4.clicked.connect(
+            lambda: self.move2band_button_clicked("Band_4")
+        )
+        self.pushButton_Band5a: QtWidgets.QPushButton
+        self.pushButton_Band5a.clicked.connect(
+            lambda: self.move2band_button_clicked("Band_5a")
+        )
+        self.pushButton_Band5b: QtWidgets.QPushButton
+        self.pushButton_Band5b.clicked.connect(
+            lambda: self.move2band_button_clicked("Band_5b")
+        )
+        self.pushButton_Band6: QtWidgets.QPushButton
+        self.pushButton_Band6.clicked.connect(
+            lambda: self.move2band_button_clicked("Band_6")
+        )
+        self.pushButton_Band_optical: QtWidgets.QPushButton
+        self.pushButton_Band_optical.clicked.connect(
+            lambda: self.move2band_button_clicked("Optical")
+        )
 
     @cached_property
     def opcua_widgets(self) -> dict:
@@ -251,3 +283,8 @@ class MainView(QtWidgets.QMainWindow):
     def command_response_status_update(self, status: str):
         """Update the main window status bar with a status update"""
         self.cmd_status_label.setText(status)
+
+    @QtCore.pyqtSlot(str)
+    def move2band_button_clicked(self, band: str):
+        """Move to the given band"""
+        self.controller.command_move2band(band)
