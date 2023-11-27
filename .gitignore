@@ -83,3 +83,6 @@ lockfiles/
 
 # developers own logging config
 disq_logging_config.yaml
+
+# Test outputs
+tests/output_files/
