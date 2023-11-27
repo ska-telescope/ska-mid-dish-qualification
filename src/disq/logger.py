@@ -29,19 +29,19 @@ class Logger:
     _QUEUE_GET_TIMEOUT_SECS = 0.01
     _COMPLETION_LOOP_TIMEOUT_SECS = 0.01
     _hdf5_type_from_value_type = {
-        "double": "f8",  # 64 bit double numpy type
-        "bool": "?",
-        "enum": "u4",  # 32 bit unsigned integer numpy type
+        "Double": "f8",  # 64 bit double numpy type
+        "Boolean": "?",
+        "Enumeration": "u4",  # 32 bit unsigned integer numpy type
     }
     _chunks_from_value_type = {
-        "double": _CHUNK_DOUBLE,
-        "bool": _CHUNK_BOOL,
-        "enum": _CHUNK_ENUM,
+        "Double": _CHUNK_DOUBLE,
+        "Boolean": _CHUNK_BOOL,
+        "Enumeration": _CHUNK_ENUM,
     }
     _flush_from_value_type = {
-        "double": _FLUSH_DOUBLE,
-        "bool": _FLUSH_BOOL,
-        "enum": _FLUSH_ENUM,
+        "Double": _FLUSH_DOUBLE,
+        "Boolean": _FLUSH_BOOL,
+        "Enumeration": _FLUSH_ENUM,
     }
 
     _nodes = None
@@ -76,54 +76,6 @@ class Logger:
         self._available_attributes = self.hll.get_attribute_list()
         self._subscription_ids = []
 
-    def _get_value_type_from_node_name(self, node: str) -> str:
-        # TODO delete this and use HLL instead
-        d = {
-            "MockData.sine_value": "double",
-            "MockData.cosine_value": "double",
-            "MockData.increment": "double",
-            "MockData.decrement": "bad",
-            "MockData.bool": "bool",
-            "MockData.enum": "enum",
-            "MockData.enum_stress6": "enum",
-            "MockData.enum_stress7": "enum",
-            "MockData.enum_stress8": "enum",
-            "MockData.enum_stress9": "enum",
-            "MockData.enum_stress10": "enum",
-            "MockData.enum_stress11": "enum",
-            "MockData.enum_stress12": "enum",
-            "MockData.enum_stress13": "enum",
-            "MockData.enum_stress14": "enum",
-            "MockData.enum_stress15": "enum",
-            "MockData.enum_stress16": "enum",
-            "MockData.enum_stress17": "enum",
-            "MockData.enum_stress18": "enum",
-            "MockData.enum_stress19": "enum",
-            "MockData.enum_stress20": "enum",
-            "MockData.enum_stress21": "enum",
-            "MockData.enum_stress22": "enum",
-            "MockData.enum_stress23": "enum",
-            "MockData.enum_stress24": "enum",
-            "MockData.enum_stress25": "enum",
-            "MockData.enum_stress26": "enum",
-            "MockData.enum_stress27": "enum",
-            "MockData.enum_stress28": "enum",
-            "MockData.enum_stress29": "enum",
-            "MockData.enum_stress30": "enum",
-            "MockData.enum_stress31": "enum",
-            "MockData.enum_stress32": "enum",
-            "MockData.enum_stress33": "enum",
-            "MockData.enum_stress34": "enum",
-            "MockData.enum_stress35": "enum",
-            "MockData.enum_stress36": "enum",
-            "MockData.enum_stress37": "enum",
-        }
-        return d[node]
-
-    def _get_enum_string(self, node: str) -> str:
-        # TODO delete this and use HLL instead
-        return "StartUp,Standby,Locked,Estop,Stowed,Locked_Stowed,Activating,Deactivation,Standstill,Stop,Slew,Jog,Track"
-
     def add_nodes(self, nodes: list[str], period: int):
         """Add a node or list of nodes with desired period in miliseconds to be subscribed to.
         Subsequent calls with the same node will overwrite the period."""
@@ -143,11 +95,11 @@ class Logger:
                 )
                 continue
 
-            type = self._get_value_type_from_node_name(node)
+            type = self.hll.get_attribute_data_type(node)
             if type not in self._hdf5_type_from_value_type.keys():
                 app_logger.info(
                     f'Unsupported type for "{node}": "{type}"; skipping. Nodes must be'
-                    f' of type "bool"/"double"/"enum".'
+                    f' of type "Boolean"/"Double"/"Enumeration".'
                 )
                 continue
 
@@ -175,8 +127,7 @@ class Logger:
                 "Info", "Source Timestamp; time since Unix epoch."
             )
 
-            # TODO use HLL instead
-            value_type = self._get_value_type_from_node_name(node)
+            value_type = self.hll.get_attribute_data_type(node)
             dtype = self._hdf5_type_from_value_type[value_type]
             value_chunks = self._chunks_from_value_type[value_type]
             value_dataset = group.create_dataset(
@@ -190,9 +141,10 @@ class Logger:
                 "Info", "Node Value, index matches SourceTimestamp dataset."
             )
             value_dataset.attrs.create("Type", value_type)
-            if value_type == "enum":
-                # TODO use HLL instead
-                value_dataset.attrs.create("Enumerations", self._get_enum_string(node))
+            if value_type == "Enumeration":
+                value_dataset.attrs.create(
+                    "Enumerations", ",".join(self.hll.get_enum_strings(node))
+                )
 
             # While here create cache structure per node.
             # Node name : [total data point count, type string,
