@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1524</width>
-    <height>827</height>
+    <height>881</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,8 +26,8 @@
    <string>DiSQ GUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_6">
-    <item row="0" column="0" colspan="3">
+   <layout class="QGridLayout" name="gridLayout_10">
+    <item row="0" column="0" colspan="2">
      <widget class="QGroupBox" name="groupBox_server">
       <property name="maximumSize">
        <size>
@@ -262,6 +262,18 @@
        </item>
        <item row="1" column="1">
         <widget class="QLineEdit" name="lineEdit_system">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="focusPolicy">
           <enum>Qt::NoFocus</enum>
          </property>
@@ -275,7 +287,10 @@
           <string>system</string>
          </property>
          <property name="opcua" stdset="0">
-          <string>THISMUSTWARN</string>
+          <string>Management.ManagementStatus.DscState</string>
+         </property>
+         <property name="opcua_type" stdset="0">
+          <string>DscStateType</string>
          </property>
         </widget>
        </item>
@@ -619,13 +634,13 @@
             <string>system</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>THISMUSTWARN</string>
+            <string>Management.ManagementStatus.WarningStatus.waHatchPscRoof</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
            </property>
            <property name="led_colour" stdset="0">
-            <string>red</string>
+            <string>orange</string>
            </property>
           </widget>
          </item>
@@ -778,7 +793,7 @@
             <string>system</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>THISMUSTWARN</string>
+            <string>Management.ManagementStatus.WarningStatus.waDoorPSC</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -890,6 +905,69 @@
     <item row="2" column="0">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
+       <widget class="QGroupBox" name="groupBox_commands_2">
+        <property name="title">
+         <string>Authority Status</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton_take_auth">
+           <property name="text">
+            <string>Take Authority</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <spacer name="horizontalSpacer_26">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>59</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pushButton_interlock_ack">
+           <property name="text">
+            <string>Interlock Ack</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="pushButton_release_auth">
+           <property name="text">
+            <string>Release Authority</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <spacer name="horizontalSpacer_28">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>59</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="pushButton_reset">
+           <property name="text">
+            <string>Reset</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="QGroupBox" name="groupBox_commands">
         <property name="title">
          <string>Commands</string>
@@ -998,8 +1076,8 @@
          <string>Slew</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_7">
-         <item row="0" column="0">
-          <spacer name="horizontalSpacer_2">
+         <item row="3" column="0">
+          <spacer name="horizontalSpacer_7">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -1011,30 +1089,6 @@
            </property>
           </spacer>
          </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Position demand [deg]</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Velocity [deg/s]</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Elevation</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QLineEdit" name="lineEdit_elevation_position_demand">
            <property name="alignment">
@@ -1042,6 +1096,13 @@
            </property>
            <property name="placeholderText">
             <string>position</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Velocity [deg/s]</string>
            </property>
           </widget>
          </item>
@@ -1055,23 +1116,26 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Azimuth</string>
+         <item row="3" column="2">
+          <spacer name="horizontalSpacer_8">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>142</width>
+             <height>20</height>
+            </size>
            </property>
-          </widget>
+          </spacer>
          </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="lineEdit_azimuth_position_demand">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Elevation</string>
+           </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="placeholderText">
-            <string>position</string>
            </property>
           </widget>
          </item>
@@ -1085,8 +1149,25 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <spacer name="horizontalSpacer_7">
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Position demand [deg]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_azimuth_position_demand">
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -1105,25 +1186,145 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="2">
-          <spacer name="horizontalSpacer_8">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Azimuth</string>
            </property>
-           <property name="sizeHint" stdset="0">
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_commands_3">
+        <property name="title">
+         <string>Bands</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_8">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton_Band1">
+           <property name="text">
+            <string>Band 1</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="pushButton_Band2">
+           <property name="text">
+            <string>Band 2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pushButton_Band3">
+           <property name="text">
+            <string>Band 3</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QPushButton" name="pushButton_Band4">
+           <property name="text">
+            <string>Band 4</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="pushButton_Band5a">
+           <property name="text">
+            <string>Band 5a</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="pushButton_Band5b">
+           <property name="text">
+            <string>Band 5b</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="pushButton_Band6">
+           <property name="text">
+            <string>Band 6</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QPushButton" name="pushButton_Band_optical">
+           <property name="text">
+            <string>Optical</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_commands_4">
+        <property name="title">
+         <string>Bands</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_9">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton_recording_start">
+           <property name="text">
+            <string>Start Recording</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="pushButton_recording_stop">
+           <property name="text">
+            <string>Stop Recording</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLineEdit" name="lineEdit_recording_status">
+           <property name="minimumSize">
             <size>
-             <width>142</width>
-             <height>20</height>
+             <width>55</width>
+             <height>0</height>
             </size>
            </property>
-          </spacer>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>green</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="3">
+          <widget class="QLineEdit" name="lineEdit_recording_file">
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string>file</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
       </item>
      </layout>
     </item>
-    <item row="2" column="1" rowspan="2">
+    <item row="2" column="1">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QGroupBox" name="groupBox_elevation">
@@ -1865,19 +2066,6 @@
        <size>
         <width>491</width>
         <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="3" column="0">
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>288</height>
        </size>
       </property>
      </spacer>

@@ -133,5 +133,6 @@ class Model(QObject):
     def opcua_enum_types(self) -> dict:
         return {
             "AxisStateType": ua.AxisStateType,
+            "DscStateType": ua.DscStateType,
             "StowPinStatusType": ua.StowPinStatusType,
         }
