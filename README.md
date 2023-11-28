@@ -45,13 +45,22 @@ The resulting `.whl` package can be found in the `dist/` direcotory and be insta
 ## Usage
 The DiSQ software is intended to be used either as a ready-made GUI application or for more advanced users as a library in Jupyter notebooks. See the examples directory for, well, examples.
 
-# Environment
+### Environment
 The following environment variables can be used to modify default parameter values. The recommended way to manage these configurations are to drop a `.env` file in the current working directory. The default settings can be modified:
 
 ```ini
 DISQ_OPCUA_SERVER_URI=opc.tcp://127.0.0.1:4840/dish-structure/server/
 DISQ_OPCUA_SERVER_NAMESPACE=http://skao.int/DS_ICD/
 DISQ_OPCUA_SUBSCRIPTION_PERIOD_MS=100
+```
+
+### Application Logs
+DiSQ uses Python logging to log and output or record debug/info/warning/error messages. The logging comes pre-configured in `src/disq/default_logging_config.py` but this default configuration can be overridden by a custom configuration if a file named `disq_logging_config.yaml` is found in the current working directory (CWD) when starting the app. 
+
+To tweak the default configuration, for example to switch to debug level, simply copy and rename the default logging config and make the required modifications to the copy:
+
+```shell
+cp src/disq/default_logging_config.py disq_logging_config.yaml
 ```
 
 ## Authors and acknowledgment
