@@ -18,8 +18,9 @@ dependencies = [
     "python-dotenv",
     # matplotlib and plotly are only used in the reader class.
     "matplotlib",
-    "plotly"
-] 
+    "plotly",
+    "pyyaml",
+]
 
 dynamic = ["version"]
 license.file = "LICENSE"

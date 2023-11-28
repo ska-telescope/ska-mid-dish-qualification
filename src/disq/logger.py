@@ -1,15 +1,15 @@
-import h5py
-import threading
-import queue
+import logging
 import os
+import queue
+import threading
 from datetime import datetime, timedelta
 from time import sleep
-import logging
+
+import h5py
 
 from disq import sculib
 
-app_logger = logging.getLogger("hdf5_logger")
-app_logger.setLevel(logging.INFO)
+app_logger = logging.getLogger("datalog")
 
 
 class Logger:

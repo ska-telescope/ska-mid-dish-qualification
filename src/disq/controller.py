@@ -1,6 +1,10 @@
+import logging
+
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 from disq import model
+
+logger = logging.getLogger("gui.controller")
 
 
 class Controller(QObject):
@@ -54,7 +58,7 @@ class Controller(QObject):
     ):
         cmd = "Management.Slew2AbsAzEl"
         desc = f"Command: {cmd}  args: {azimuth_position}, {elevation_position}, {azimuth_velocity}, {elevation_velocity}"
-        print(desc)
+        logger.debug(desc)
         self.command_response_status.emit(desc)
         result_code, result_msg = self._model.run_opcua_command(
             cmd,
@@ -89,7 +93,7 @@ class Controller(QObject):
         self.issue_command(cmd, stow)  # argument to stow or not...
 
     def issue_command(self, cmd: str, *args):
-        print(f"Command: {cmd}  args: {args}")
+        logger.debug(f"Command: {cmd}  args: {args}")
         self.command_response_status.emit(f"Issuing command: {cmd} {args}")
         result_code, result_msg = self._model.run_opcua_command(cmd, *args)
         self.command_response_str(cmd, result_code, result_msg)
