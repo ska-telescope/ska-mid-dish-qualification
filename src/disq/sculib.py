@@ -20,6 +20,7 @@ import logging.config
 import os
 import queue
 import threading
+import enum
 
 #Import of Python available libraries
 import time
@@ -522,6 +523,38 @@ class scu:
         logger.debug(info)
         return list(self.attributes.keys())
 
+    def get_attribute_data_type(self, attribute: str) -> str:
+        """
+        Get the data type for the given node. Returns "Boolean"/"Double"/"Enumeration",
+        for the respective types or "Unknown" for a not yet known type.
+        """
+        node = self.nodes[attribute]
+        dt_id = asyncio.run_coroutine_threadsafe(node.read_data_type(), self.event_loop).result()
+        dt_node = self.connection.get_node(dt_id)
+        dt_node_info = asyncio.run_coroutine_threadsafe(dt_node.read_browse_name(), self.event_loop).result()
+        dt_name = dt_node_info.Name
+        if dt_name == "Boolean" or dt_name == "Double":
+            return dt_name
+        
+        # load_data_type_definitions() called in connect() adds new classes to the asyncua.ua module.
+        if dt_name in dir(asyncua.ua):
+            if issubclass(getattr(asyncua.ua, dt_name), enum.Enum):
+                return "Enumeration"
+
+        return "Unknown"
+    
+    def get_enum_strings(self, enum_node: str) -> list[str]:
+        """
+        Get a list of enumeration strings where the index of the list matches the enum value.
+        enum_node MUST be the name of an Enumeration type node (see get_attribute_data_type()).
+        """
+        node = self.nodes[enum_node]
+        dt_id = asyncio.run_coroutine_threadsafe(node.read_data_type(), self.event_loop).result()
+        dt_node = self.connection.get_node(dt_id)
+        dt_node_def = asyncio.run_coroutine_threadsafe(dt_node.read_data_type_definition(), self.event_loop).result()
+        
+        return [Field.Name if Field.Value == index else logger.error("Enum fields out of order") for index, Field in enumerate(dt_node_def.Fields)]
+        
     def subscribe(self, attributes: Union[str, list[str]] = hn_opcua_tilt_sensors, period: int = 100, data_queue: queue.Queue = None) -> int:
         if data_queue is None:
             data_queue = self.subscription_queue

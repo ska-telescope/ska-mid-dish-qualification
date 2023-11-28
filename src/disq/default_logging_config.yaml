@@ -7,7 +7,7 @@ formatters:
   error:
     format: "%(asctime)s - %(filename)012s:%(lineno)d - %(levelname)s %(name)s: %(message)s"
   debug:
-    format: "%(asctime)s %(filename)012s:%(lineno)4d - %(name)12s - %(levelname)7s %(funcName)s(): %(message)s"
+    format: "%(asctime)s %(filename)012s:%(lineno)04d - %(name)12s - %(levelname)7s %(funcName)s(): %(message)s"
 
 handlers:
   console:
