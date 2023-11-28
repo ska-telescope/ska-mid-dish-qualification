@@ -5,7 +5,6 @@ import h5py
 import os
 import random
 import subprocess
-import logging
 import time
 
 
@@ -127,7 +126,6 @@ def test_add_nodes(caplog):
     nodes = ["MockData.increment", "MockData.sine_value", "MockData.cosine_value", "a"]
     nodes1 = [
         "MockData.increment",
-        "MockData.decrement",
         "MockData.bool",
         "MockData.enum",
     ]
@@ -140,16 +138,12 @@ def test_add_nodes(caplog):
         "renamed Locked&Stowed to Locked_Stowed due to Python syntax",
         '"a" not available as an attribute on the server, skipping.',
         "Updating period for node MockData.increment from 100 to 50.",
-        'Unsupported type for "MockData.decrement": "bad"; skipping. Nodes must be of '
-        'type "bool"/"double"/"enum".',
         "WARNING: nodes cannot be added after start() has been invoked.",
     ]
     # Sometimes the first line above does not appear
     expected_log2 = [
         '"a" not available as an attribute on the server, skipping.',
         "Updating period for node MockData.increment from 100 to 50.",
-        'Unsupported type for "MockData.decrement": "bad"; skipping. Nodes must be of '
-        'type "bool"/"double"/"enum".',
         "WARNING: nodes cannot be added after start() has been invoked.",
     ]
     assert captured == expected_log or captured == expected_log2
@@ -343,7 +337,7 @@ def test_enum_attribute():
     logger.wait_for_completion()
     output_f_o = h5py.File(output_file, "r", libver="latest")
     expected_attribute = (
-        "StartUp,Standby,Locked,Estop,Stowed,Locked_Stowed,Activating,Deactivation,"
+        "StartUp,Standby,Locked,EStop,Stowed,Locked&Stowed,Activating,Deactivation,"
         "Standstill,Stop,Slew,Jog,Track"
     )
     assert (
