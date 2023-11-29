@@ -40,6 +40,7 @@ Developers can also build a distributable package wheel using the [`build`](http
 
 ```
 git clone git@gitlab.com:ska-telescope/ska-mid-dish-qualification.git
+cd ska-mid-dish-qualification
 python3 -m venv venv
 source venv/bin/activate
 python3 -m pip install build
