@@ -10,6 +10,49 @@ from disq import controller, model
 logger = logging.getLogger("gui.view")
 
 
+class RecordingConfigDialog(QtWidgets.QDialog):
+    def __init__(self, parent=None, attributes: list[str] = []):
+        super().__init__(parent)
+
+        self.setWindowTitle("Recording Configuration")
+
+        QBtn = (
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
+        )
+
+        self.btn_box = QtWidgets.QDialogButtonBox(QBtn)
+        self.btn_box.accepted.connect(self.accept_selection)
+        self.btn_box.rejected.connect(self.reject)
+
+        self.vbox_layout = QtWidgets.QVBoxLayout()
+        message = QtWidgets.QLabel(
+            "Select all the OPC-UA attributes to record from the list and click OK"
+        )
+        self.vbox_layout.addWidget(message)
+
+        self.list_widget = QtWidgets.QListWidget()
+        self.list_widget.setSelectionMode(
+            QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
+        )
+        self.list_widget.resize(300, 120)
+        for attr in attributes:
+            self.list_widget.addItem(attr)
+        self.vbox_layout.addWidget(self.list_widget)
+
+        self.vbox_layout.addWidget(self.btn_box)
+        self.setLayout(self.vbox_layout)
+        self.config_parameters: list[str] = []
+
+    @QtCore.pyqtSlot()
+    def accept_selection(self):
+        logger.debug("Recording config dialog accepted")
+        self.config_parameters = [
+            item.text() for item in self.list_widget.selectedItems()
+        ]
+        self.accept()
+
+
 class MainView(QtWidgets.QMainWindow):
     def __init__(
         self, model: model.Model, controller: controller.Controller, *args, **kwargs
@@ -108,6 +151,11 @@ class MainView(QtWidgets.QMainWindow):
         self.pushButton_recording_stop.clicked.connect(self.controller.recording_stop)
         self.controller.recording_status.connect(self.recording_status_update)
 
+        self.pushButton_recording_config: QtWidgets.QPushButton
+        self.pushButton_recording_config.clicked.connect(
+            self.recording_config_button_clicked
+        )
+
     @cached_property
     def opcua_widgets(self) -> dict:
         """Return a dict of of all 'opcua' widgets and their update method
@@ -171,6 +219,7 @@ class MainView(QtWidgets.QMainWindow):
         self.pushButton_recording_stop.setEnabled(enable)
         self.lineEdit_recording_file.setEnabled(enable)
         self.lineEdit_recording_status.setEnabled(enable)
+        self.pushButton_recording_config.setEnabled(enable)
 
     @QtCore.pyqtSlot(bool)
     def recording_status_update(self, status: bool):
@@ -183,6 +232,7 @@ class MainView(QtWidgets.QMainWindow):
             )
             self.pushButton_recording_start.setEnabled(False)
             self.pushButton_recording_stop.setEnabled(True)
+            self.pushButton_recording_config.setEnabled(False)
         else:
             self.lineEdit_recording_status.setText("Stopped")
             self.lineEdit_recording_status.setStyleSheet(
@@ -190,6 +240,7 @@ class MainView(QtWidgets.QMainWindow):
             )
             self.pushButton_recording_start.setEnabled(True)
             self.pushButton_recording_stop.setEnabled(False)
+            self.pushButton_recording_config.setEnabled(True)
 
     @QtCore.pyqtSlot(dict)
     def event_update(self, event: dict) -> None:
@@ -299,13 +350,24 @@ class MainView(QtWidgets.QMainWindow):
         le: QtWidgets.QLineEdit = self.input_server_uri
         server_uri = le.text()
         if not self.controller.is_server_connected():
-            logger.debug(f"connecting to server: %s", server_uri)
+            logger.debug("connecting to server: %s", server_uri)
             lbl: QtWidgets.QLabel = self.label_connection_status
             lbl.setText("connecting...")
             self.controller.connect_server(server_uri)
         else:
-            logger.debug(f"disconnecting from server")
+            logger.debug("disconnecting from server")
             self.controller.disconnect_server()
+
+    @QtCore.pyqtSlot()
+    def recording_config_button_clicked(self):
+        """Open the recording configuration dialog"""
+        dialog = RecordingConfigDialog(self, self.model.opcua_attributes)
+        if dialog.exec():
+            logger.debug("Recording config dialog accepted")
+            logger.debug(f"Selected: {dialog.config_parameters}")
+            self.controller.recording_config = dialog.config_parameters
+        else:
+            logger.debug("Recording config dialog cancelled")
 
     @QtCore.pyqtSlot()
     def slew2abs_button_clicked(self):

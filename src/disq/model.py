@@ -62,6 +62,7 @@ class Model(QObject):
         super().__init__(parent)
         self._scu: scu | None = None
         self._data_logger: Logger | None = None
+        self._recording_config: list[str] = []
         self._namespace = str(
             os.getenv("DISQ_OPCUA_SERVER_NAMESPACE", "http://skao.int/DS_ICD/")
         )
@@ -144,6 +145,13 @@ class Model(QObject):
             "StowPinStatusType": ua.StowPinStatusType,
         }
 
+    @cached_property
+    def opcua_attributes(self) -> list[str]:
+        if self._scu is None:
+            return []
+        result = self._scu.attributes.keys()
+        return result
+
     def start_recording(self, filename: Path) -> None:
         if self._scu is None:
             raise RuntimeError("Server not connected")
@@ -152,11 +160,7 @@ class Model(QObject):
         logger.debug(f"Creating Logger and file: {filename.absolute()}")
         self._data_logger = Logger(str(filename.absolute()), self._scu)
         self._data_logger.add_nodes(
-            [
-                "Azimuth.p_Act",
-                "Elevation.p_Act",
-                "Management.ManagementStatus.DscState",
-            ],
+            self.recording_config,
             period=50,
         )
         self._data_logger.start()
@@ -168,3 +172,11 @@ class Model(QObject):
             self._data_logger.stop()
             self._data_logger.wait_for_completion()
             self._data_logger = None
+
+    @property
+    def recording_config(self) -> list[str]:
+        return self._recording_config
+
+    @recording_config.setter
+    def recording_config(self, config: list[str]) -> None:
+        self._recording_config = config

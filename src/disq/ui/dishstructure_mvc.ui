@@ -1324,30 +1324,43 @@
       <item>
        <widget class="QGroupBox" name="groupBox_commands_4">
         <property name="title">
-         <string>Bands</string>
+         <string>Recording</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_9">
-         <item row="0" column="0">
-          <widget class="QPushButton" name="pushButton_recording_start">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Start Recording</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="1">
           <widget class="QPushButton" name="pushButton_recording_stop">
            <property name="enabled">
             <bool>false</bool>
            </property>
            <property name="text">
-            <string>Stop Recording</string>
+            <string>Stop</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton_recording_start">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Start</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="4">
+          <widget class="QLineEdit" name="lineEdit_recording_file">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string>file</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
           <widget class="QLineEdit" name="lineEdit_recording_status">
            <property name="enabled">
             <bool>false</bool>
@@ -1375,16 +1388,13 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0" colspan="3">
-          <widget class="QLineEdit" name="lineEdit_recording_file">
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pushButton_recording_config">
            <property name="enabled">
             <bool>false</bool>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-           <property name="placeholderText">
-            <string>file</string>
+           <property name="text">
+            <string>Configure</string>
            </property>
           </widget>
          </item>

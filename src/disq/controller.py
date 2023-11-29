@@ -144,3 +144,11 @@ class Controller(QObject):
         self._model.stop_recording()
         self.emit_ui_status_message("INFO", "Recording stopped")
         self.recording_status.emit(False)
+
+    @property
+    def recording_config(self) -> list[str]:
+        return self._model.recording_config
+
+    @recording_config.setter
+    def recording_config(self, config: list[str]) -> None:
+        self._model.recording_config = config
