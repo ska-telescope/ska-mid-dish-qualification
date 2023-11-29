@@ -99,6 +99,7 @@ class MainView(QtWidgets.QMainWindow):
         self.pushButton_Band_optical.clicked.connect(
             lambda: self.move2band_button_clicked("Optical")
         )
+        self.disable_opcua_widgets()
 
     @cached_property
     def opcua_widgets(self) -> dict:
@@ -133,6 +134,31 @@ class MainView(QtWidgets.QMainWindow):
         # property (dot-notated OPC-UA parameter name) and value is a tuple with
         # the widget and a callback method to update the widget
         return opcua_widget_updates
+
+    @cached_property
+    def all_opcua_widgets(self) -> list:
+        all_widgets: list[QtWidgets.QObject] = self.findChildren(
+            (QtWidgets.QLineEdit, QtWidgets.QPushButton)
+        )
+        logger.debug("====all widgets: %s", str(all_widgets))
+        opcua_widgets: list[QtWidgets.QObject] = []
+        for wgt in all_widgets:
+            property_names: list[QtCore.QByteArray] = wgt.dynamicPropertyNames()
+            for property_name in property_names:
+                if property_name.startsWith(QtCore.QByteArray("opcua".encode())):
+                    opcua_widgets.append(wgt)
+                    break
+        return opcua_widgets
+
+    def enable_opcua_widgets(self):
+        """Enable all the OPC-UA widgets"""
+        for widget in self.all_opcua_widgets:
+            widget.setEnabled(True)
+
+    def disable_opcua_widgets(self):
+        """Disable all the OPC-UA widgets"""
+        for widget in self.all_opcua_widgets:
+            widget.setEnabled(False)
 
     @QtCore.pyqtSlot(dict)
     def event_update(self, event: dict) -> None:
@@ -189,7 +215,7 @@ class MainView(QtWidgets.QMainWindow):
          - True: the OPC-UA parameter is True. Colour background light green (LED on).
          - False: the OPC-UA parameter is False. Colour background dark green (LED off).
         """
-        logger.debug(f"Boolean OPCUA update: {event}")
+        logger.debug(f"Boolean OPCUA update: {event['name']} value={event['value']}")
         # TODO: modify background colour of widget (LED style on/off) to reflect the boolean state
         led_colours = {
             "red": {True: "rgb(255, 0, 0)", False: "rgb(128, 0, 0)"},
@@ -199,7 +225,7 @@ class MainView(QtWidgets.QMainWindow):
         }
         if event["value"] is None:
             widget.setEnabled(False)
-            # widget.setStyleSheet("background-color: rgb(128, 128, 128);")
+            widget.setStyleSheet("border-color: white;")
         else:
             led_colour = "green"  # default colour
             if "led_colour" in widget.dynamicPropertyNames():
@@ -207,6 +233,7 @@ class MainView(QtWidgets.QMainWindow):
             widget.setEnabled(True)
             widget.setStyleSheet(
                 f"background-color: {led_colours[led_colour][event['value']]};"
+                "border-color: black;"
             )
 
     @QtCore.pyqtSlot()
@@ -220,10 +247,12 @@ class MainView(QtWidgets.QMainWindow):
         lbl.setText(f"Connected to: {self.model.get_server_uri()}")
         pb.setText("Disconnect")
         le.setDisabled(True)
+        self.enable_opcua_widgets()
 
     @QtCore.pyqtSlot()
     def server_disconnected_event(self):
         logger.debug("server disconnected event")
+        self.disable_opcua_widgets()
         le: QtWidgets.QLineEdit = self.input_server_uri
         pb: QtWidgets.QPushButton = self.btn_server_connect
         lbl: QtWidgets.QLabel = self.label_connection_status
