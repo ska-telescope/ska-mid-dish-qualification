@@ -36,9 +36,15 @@ Then install as an ["editable" development installation](https://pip.pypa.io/en/
 
 ```pip install -e .[dev]```
 
-Developers can also build a distributable package wheel using the [`build`](https://pypa-build.readthedocs.io/en/stable/) module:
+Developers can also build a distributable package wheel using the [`build`](https://pypa-build.readthedocs.io/en/stable/) module. It is recommended to do this in a completely fresh clone and fresh virtualenv:
 
-```python -m build --wheel```
+```
+git clone git@gitlab.com:ska-telescope/ska-mid-dish-qualification.git
+python3 -m venv venv
+source venv/bin/activate
+python3 -m pip install build
+python3 -m build --wheel
+```
 
 The resulting `.whl` package can be found in the `dist/` direcotory and be installed with `pip install <packagename>.whl`
 
