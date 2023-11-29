@@ -6,16 +6,28 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>808</width>
-    <height>638</height>
+    <width>1524</width>
+    <height>881</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1600</width>
+    <height>1000</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>DiSQ GUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <item>
+   <layout class="QGridLayout" name="gridLayout_10">
+    <item row="0" column="0" colspan="2">
      <widget class="QGroupBox" name="groupBox_server">
       <property name="maximumSize">
        <size>
@@ -60,6 +72,16 @@
         </widget>
        </item>
        <item>
+        <widget class="QLabel" name="label_connection_status">
+         <property name="text">
+          <string>Status:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="horizontalSpacer_5">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -75,22 +97,188 @@
       </layout>
      </widget>
     </item>
-    <item>
+    <item row="1" column="0" colspan="3">
      <widget class="QGroupBox" name="groupBox_status">
       <property name="maximumSize">
        <size>
-        <width>16777215</width>
+        <width>1500</width>
         <height>100</height>
        </size>
       </property>
       <property name="title">
        <string>Status</string>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <spacer name="horizontalSpacer_10">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_18">
+         <property name="text">
+          <string>System</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_19">
+         <property name="text">
+          <string>Emergency Stop</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <spacer name="horizontalSpacer_18">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>13</width>
+           <height>18</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="4">
+        <widget class="QLabel" name="label_20">
+         <property name="text">
+          <string>Safety Lock-out</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <spacer name="horizontalSpacer_20">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>13</width>
+           <height>18</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="6">
+        <widget class="QLabel" name="label_21">
+         <property name="text">
+          <string>Hatch Open/Closed</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="7">
+        <spacer name="horizontalSpacer_22">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>13</width>
+           <height>18</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="8">
+        <widget class="QLabel" name="label_22">
+         <property name="text">
+          <string>Door Open/Closed</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="9">
+        <spacer name="horizontalSpacer_24">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>13</width>
+           <height>18</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="10">
+        <widget class="QLabel" name="label_23">
+         <property name="text">
+          <string>Stow Pin</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="11">
+        <spacer name="horizontalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>13</width>
+           <height>18</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0">
+        <spacer name="horizontalSpacer_11">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="1">
         <widget class="QLineEdit" name="lineEdit_system">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="focusPolicy">
           <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
          <property name="readOnly">
           <bool>true</bool>
@@ -99,31 +287,613 @@
           <string>system</string>
          </property>
          <property name="opcua" stdset="0">
-          <string>THISMUSTWARN</string>
+          <string>Management.ManagementStatus.DscState</string>
+         </property>
+         <property name="opcua_type" stdset="0">
+          <string>DscStateType</string>
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QLineEdit" name="lineEdit_estop">
+       <item row="1" column="2">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetFixedSize</enum>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>Pedestal</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>replace 4 LED</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Safety.EstopPed</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>red</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_7">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>HHP</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Safety.EstopHHP</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>red</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_8">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>Indexer</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>replace 4 LED</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Safety.EstopFi</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>red</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_9">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>TurnHead</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>replace 4 LED</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Safety.EStopTurnHead</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>red</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="3">
+        <spacer name="horizontalSpacer_17">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>13</width>
+           <height>17</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="4">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetFixedSize</enum>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_3">
+           <property name="minimumSize">
+            <size>
+             <width>55</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>Azim</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>replace 3 LED</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Safety.STO_Az</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>red</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_10">
+           <property name="minimumSize">
+            <size>
+             <width>55</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>Elev</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>replace 3 LED</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Safety.STO_El</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>red</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_11">
+           <property name="minimumSize">
+            <size>
+             <width>55</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>Indexer</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>replace 3 LED</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Safety.STO_Fi</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>red</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="5">
+        <spacer name="horizontalSpacer_19">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>13</width>
+           <height>17</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="6">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetFixedSize</enum>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_4">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>PSC Roof</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>system</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Management.ManagementStatus.WarningStatus.waHatchPscRoof</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>orange</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_12">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>Az Bearing</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>system</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Safety.HatchAzBearing</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>red</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_13">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>TurnHead</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>system</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Safety.HatchTurnHeadRoof</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>red</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="7">
+        <spacer name="horizontalSpacer_21">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>13</width>
+           <height>17</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="8">
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetFixedSize</enum>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_5">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>Pedestal</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>system</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Management.ManagementStatus.WarningStatus.waDoorPED</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>orange</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_14">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>PSC</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>system</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Management.ManagementStatus.WarningStatus.waDoorPSC</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>orange</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_system_15">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>EMISC</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>system</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Management.ManagementStatus.WarningStatus.waDoorEMISC</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>orange</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="9">
+        <spacer name="horizontalSpacer_23">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>13</width>
+           <height>17</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="10">
+        <widget class="QLineEdit" name="lineEdit_system_6">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="focusPolicy">
           <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
          <property name="placeholderText">
-          <string>estop</string>
+          <string>system</string>
+         </property>
+         <property name="opcua" stdset="0">
+          <string>Safety.StowPinStatus</string>
+         </property>
+         <property name="opcua_type" stdset="0">
+          <string>StowPinStatusType</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item row="1" column="11">
         <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>326</width>
+           <width>20</width>
            <height>20</height>
           </size>
          </property>
@@ -132,155 +902,510 @@
       </layout>
      </widget>
     </item>
-    <item>
-     <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="0" rowspan="2">
-       <widget class="QGroupBox" name="groupBox_commands">
+    <item row="2" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QGroupBox" name="groupBox_commands_2">
         <property name="title">
-         <string>Commands</string>
+         <string>Authority Status</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <widget class="QPushButton" name="pushButton_activate">
-             <property name="text">
-              <string>Activate</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="pushButton_stop">
-             <property name="text">
-              <string>Stop</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QPushButton" name="pushButton_stow">
-             <property name="text">
-              <string>Stow</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QPushButton" name="pushButton_deactivate">
-             <property name="text">
-              <string>De-Activate</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QPushButton" name="pushButton_slew2abs">
-             <property name="text">
-              <string>Slew2Abs</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QPushButton" name="pushButton_unstow">
-             <property name="text">
-              <string>Un-Stow</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton_take_auth">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Take Authority</string>
+           </property>
+          </widget>
          </item>
-         <item>
-          <layout class="QGridLayout" name="gridLayout_2">
-           <item row="1" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Elevation</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="lineEdit_azimuth_position_demand">
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="placeholderText">
-              <string>position</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>Position demand [deg]</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Azimuth</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QLineEdit" name="lineEdit_elevation_velocity_demand">
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="placeholderText">
-              <string>velocity</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>Velocity [deg/s]</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEdit_elevation_position_demand">
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="placeholderText">
-              <string>position</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="2">
-            <widget class="QLineEdit" name="lineEdit_azimuth_velocity_demand">
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="placeholderText">
-              <string>velocity</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>98</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
+         <item row="0" column="1">
+          <spacer name="horizontalSpacer_26">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>59</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pushButton_interlock_ack">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Interlock Ack</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="pushButton_release_auth">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Release Authority</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <spacer name="horizontalSpacer_28">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>59</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="pushButton_reset">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Reset</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item>
+       <widget class="QGroupBox" name="groupBox_commands">
+        <property name="title">
+         <string>Commands</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton_activate">
+           <property name="text">
+            <string>Activate</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Activate</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <spacer name="horizontalSpacer_14">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>60</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="2">
+          <widget class="QComboBox" name="combo_cmd_arg">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>AxisSelectType</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <spacer name="horizontalSpacer_12">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>59</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="4">
+          <widget class="QPushButton" name="pushButton_stow">
+           <property name="text">
+            <string>Stow</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Stow</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="pushButton_deactivate">
+           <property name="text">
+            <string>De-Activate</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.DeActivate</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <spacer name="horizontalSpacer_15">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>60</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="pushButton_stop">
+           <property name="text">
+            <string>Stop</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Stop</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <spacer name="horizontalSpacer_13">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>59</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="4">
+          <widget class="QPushButton" name="pushButton_unstow">
+           <property name="text">
+            <string>Un-Stow</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Stow</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>Slew</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7">
+         <item row="3" column="0">
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>142</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_elevation_position_demand">
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Velocity [deg/s]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLineEdit" name="lineEdit_elevation_velocity_demand">
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <spacer name="horizontalSpacer_8">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>142</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Elevation</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLineEdit" name="lineEdit_azimuth_velocity_demand">
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Position demand [deg]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_azimuth_position_demand">
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>142</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="3" column="1">
+          <widget class="QPushButton" name="pushButton_slew2abs">
+           <property name="text">
+            <string>Slew2Abs</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Slew2Abs</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Azimuth</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_commands_3">
+        <property name="title">
+         <string>Bands</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_8">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton_Band1">
+           <property name="text">
+            <string>Band 1</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Move2Band</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="pushButton_Band2">
+           <property name="text">
+            <string>Band 2</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Move2Band</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pushButton_Band3">
+           <property name="text">
+            <string>Band 3</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Move2Band</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QPushButton" name="pushButton_Band4">
+           <property name="text">
+            <string>Band 4</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Move2Band</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="pushButton_Band5a">
+           <property name="text">
+            <string>Band 5a</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Move2Band</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="pushButton_Band5b">
+           <property name="text">
+            <string>Band 5b</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Move2Band</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="pushButton_Band6">
+           <property name="text">
+            <string>Band 6</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Move2Band</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QPushButton" name="pushButton_Band_optical">
+           <property name="text">
+            <string>Optical</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Move2Band</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_commands_4">
+        <property name="title">
+         <string>Recording</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_9">
+         <item row="0" column="1">
+          <widget class="QPushButton" name="pushButton_recording_stop">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Stop</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton_recording_start">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Start</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="4">
+          <widget class="QLineEdit" name="lineEdit_recording_file">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string>file</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLineEdit" name="lineEdit_recording_status">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>55</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>green</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pushButton_recording_config">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Configure</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="1">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
        <widget class="QGroupBox" name="groupBox_elevation">
         <property name="title">
          <string>Elevation</string>
@@ -484,12 +1609,46 @@
            <property name="opcua" stdset="0">
             <string>Elevation.AxisState</string>
            </property>
+           <property name="opcua_type" stdset="0">
+            <string>AxisStateType</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLineEdit" name="lineEdit_system_16">
+           <property name="minimumSize">
+            <size>
+             <width>55</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Elevation.AxisMoving</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>green</string>
+           </property>
           </widget>
          </item>
         </layout>
        </widget>
       </item>
-      <item row="1" column="1" rowspan="2">
+      <item>
        <widget class="QGroupBox" name="groupBox_azimuth">
         <property name="title">
          <string>Azimuth</string>
@@ -650,6 +1809,9 @@
            <property name="opcua" stdset="0">
             <string>Azimuth.AxisState</string>
            </property>
+           <property name="opcua_type" stdset="0">
+            <string>AxisStateType</string>
+           </property>
           </widget>
          </item>
          <item row="3" column="0">
@@ -695,33 +1857,294 @@
            </property>
           </widget>
          </item>
+         <item row="0" column="2">
+          <widget class="QLineEdit" name="lineEdit_system_17">
+           <property name="minimumSize">
+            <size>
+             <width>55</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Azimuth.AxisMoving</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>green</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
-      <item row="2" column="0">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+      <item>
+       <widget class="QGroupBox" name="groupBox_azimuth_2">
+        <property name="title">
+         <string>Indexer</string>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>268</width>
-          <height>28</height>
-         </size>
-        </property>
-       </spacer>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="4" column="2">
+          <widget class="QLineEdit" name="opcua_Azimuth_v_Shape_2">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.v_Shape</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLineEdit" name="opcua_Azimuth_v_SetMax_2">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.v_SetMax</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="label_17">
+           <property name="text">
+            <string>Position [deg]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_p_Act_2">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.p_Act</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_24">
+           <property name="text">
+            <string>Velocity [deg/s]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLineEdit" name="opcua_Azimuth_v_Act_2">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.v_Act</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_p_Dev_2">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.p_Dev</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_25">
+           <property name="text">
+            <string>Set:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_p_Set_2">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.p_Set</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_AxisState_2">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>status</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.AxisState</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>AxisStateType</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_26">
+           <property name="text">
+            <string>Actual:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_27">
+           <property name="text">
+            <string>Deviation:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <spacer name="horizontalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>88</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_28">
+           <property name="text">
+            <string>Status:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLineEdit" name="lineEdit_system_18">
+           <property name="minimumSize">
+            <size>
+             <width>55</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.AxisMoving</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>green</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
      </layout>
     </item>
-    <item>
-     <spacer name="verticalSpacer_2">
+    <item row="2" column="2">
+     <spacer name="horizontalSpacer_16">
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Horizontal</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>408</width>
-        <height>18</height>
+        <width>491</width>
+        <height>20</height>
        </size>
       </property>
      </spacer>
@@ -733,8 +2156,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>808</width>
-     <height>21</height>
+     <width>1524</width>
+     <height>24</height>
     </rect>
    </property>
   </widget>
@@ -747,7 +2170,6 @@
   <tabstop>lineEdit_elevation_velocity_demand</tabstop>
   <tabstop>lineEdit_azimuth_position_demand</tabstop>
   <tabstop>lineEdit_azimuth_velocity_demand</tabstop>
-  <tabstop>pushButton_slew2abs</tabstop>
   <tabstop>pushButton_activate</tabstop>
   <tabstop>pushButton_stop</tabstop>
   <tabstop>pushButton_stow</tabstop>
@@ -766,7 +2188,6 @@
   <tabstop>opcua_Azimuth_p_Dev</tabstop>
   <tabstop>opcua_Azimuth_v_Shape</tabstop>
   <tabstop>lineEdit_system</tabstop>
-  <tabstop>lineEdit_estop</tabstop>
  </tabstops>
  <resources/>
  <connections/>
