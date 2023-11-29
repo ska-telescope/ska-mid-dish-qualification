@@ -71,9 +71,24 @@ class MainView(QtWidgets.QMainWindow):
         self.status_bar.addWidget(self.cmd_status_label)
 
         # Set the server URI from environment variable if defined
-        server_uri: str | None = os.environ.get("DISQ_OPCUA_SERVER_ADDRESS", None)
-        self.input_server_uri: QtWidgets.QLineEdit
-        self.input_server_uri.setText(server_uri)
+        server_address: str | None = os.environ.get("DISQ_OPCUA_SERVER_ADDRESS", None)
+        if server_address is not None:
+            self.input_server_address: QtWidgets.QLineEdit
+            self.input_server_address.setText(server_address)
+        server_port: str | None = os.environ.get("DISQ_OPCUA_SERVER_PORT", None)
+        if server_port is not None:
+            self.input_server_port: QtWidgets.QLineEdit
+            self.input_server_port.setText(server_port)
+        server_endpoint: str | None = os.environ.get("DISQ_OPCUA_SERVER_ENDPOINT", None)
+        if server_endpoint is not None:
+            self.input_server_endpoint: QtWidgets.QLineEdit
+            self.input_server_endpoint.setText(server_endpoint)
+        server_namespace: str | None = os.environ.get(
+            "DISQ_OPCUA_SERVER_NAMESPACE", None
+        )
+        if server_namespace is not None:
+            self.input_server_namespace: QtWidgets.QLineEdit
+            self.input_server_namespace.setText(server_namespace)
         self.btn_server_connect: QtWidgets.QPushButton
         self.btn_server_connect.setFocus()
 
@@ -221,6 +236,14 @@ class MainView(QtWidgets.QMainWindow):
         self.lineEdit_recording_status.setEnabled(enable)
         self.pushButton_recording_config.setEnabled(enable)
 
+    def enable_server_widgets(self, enable: bool = True):
+        self.input_server_address.setEnabled(enable)
+        self.input_server_port.setEnabled(enable)
+        self.input_server_endpoint.setEnabled(enable)
+        self.input_server_namespace.setEnabled(enable)
+        self.btn_server_connect.setEnabled(not enable)
+        self.btn_server_connect.setText("Connect" if enable else "Disconnect")
+
     @QtCore.pyqtSlot(bool)
     def recording_status_update(self, status: bool):
         """Update the recording status"""
@@ -321,14 +344,11 @@ class MainView(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def server_connected_event(self):
         logger.debug("server connected event")
-        le: QtWidgets.QLineEdit = self.input_server_uri
-        pb: QtWidgets.QPushButton = self.btn_server_connect
         lbl: QtWidgets.QLabel = self.label_connection_status
         lbl.setText("Subscribing to OPC-UA updates...")
         self.controller.subscribe_opcua_updates(self.opcua_widgets)
         lbl.setText(f"Connected to: {self.model.get_server_uri()}")
-        pb.setText("Disconnect")
-        le.setDisabled(True)
+        self.enable_server_widgets(False)
         self.enable_opcua_widgets()
         self.enable_data_logger_widgets(True)
 
@@ -337,23 +357,24 @@ class MainView(QtWidgets.QMainWindow):
         logger.debug("server disconnected event")
         self.disable_opcua_widgets()
         self.enable_data_logger_widgets(False)
-        le: QtWidgets.QLineEdit = self.input_server_uri
-        pb: QtWidgets.QPushButton = self.btn_server_connect
         lbl: QtWidgets.QLabel = self.label_connection_status
         lbl.setText("Status: disconnected")
-        pb.setText("Connect")
-        le.setEnabled(True)
+        self.enable_server_widgets(True)
 
     @QtCore.pyqtSlot()
     def connect_button_clicked(self):
         """Setup a connection to the server"""
-        le: QtWidgets.QLineEdit = self.input_server_uri
-        server_uri = le.text()
         if not self.controller.is_server_connected():
-            logger.debug("connecting to server: %s", server_uri)
+            connect_details = {
+                "address": self.input_server_address.text(),
+                "port": self.input_server_port.text(),
+                "endpoint": self.input_server_endpoint.text(),
+                "namespace": self.input_server_namespace.text(),
+            }
+            logger.debug("connecting to server: %s", connect_details)
             lbl: QtWidgets.QLabel = self.label_connection_status
             lbl.setText("connecting...")
-            self.controller.connect_server(server_uri)
+            self.controller.connect_server(connect_details)
         else:
             logger.debug("disconnecting from server")
             self.controller.disconnect_server()

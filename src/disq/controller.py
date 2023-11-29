@@ -44,14 +44,23 @@ class Controller(QObject):
     def is_server_connected(self) -> bool:
         return self._model.is_connected()
 
-    def connect_server(self, server_uri):
+    def connect_server(self, connection_details: dict):
         self.ui_status_message.emit("Connecting to server...")
         try:
-            self._model.connect(server_uri)
+            connection_details["port"] = int(connection_details["port"].strip())
+        except ValueError:
+            self.ui_status_message.emit(
+                f"Invalid port number, should be integer: {connection_details['port']}"
+            )
+            return
+        try:
+            self._model.connect(connection_details)
         except OSError as e:
             self.ui_status_message.emit(f"Unable to connect to server. Error: {e}")
             return
-        self.ui_status_message.emit(f"Connected to server: {server_uri}")
+        self.ui_status_message.emit(
+            f"Connected to server: {self._model.get_server_uri()}"
+        )
         self.server_connected.emit()
 
     def disconnect_server(self):

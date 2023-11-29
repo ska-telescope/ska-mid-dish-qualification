@@ -76,17 +76,15 @@ class Model(QObject):
         )
         self._event_q_poller: QueuePollThread | None = None
 
-    def connect(
-        self,
-        server_uri: str,
-    ):
-        logger.debug(f"Connecting to server: {server_uri}")
+    def connect(self, connect_details: dict) -> None:
+        logger.debug("Connecting to server: %s", connect_details)
         self._scu = scu(
-            host=server_uri,
-            namespace=self._namespace,
-            endpoint=self._endpoint,
+            host=connect_details["address"],
+            port=connect_details["port"],
+            namespace=connect_details["namespace"],
+            endpoint=connect_details["endpoint"],
         )
-        logger.debug(f"Connected to server on URI: {self.get_server_uri()}")
+        logger.debug("Connected to server on URI: %s", self.get_server_uri())
         logger.debug("Getting node list")
         self._scu.get_node_list()
 
