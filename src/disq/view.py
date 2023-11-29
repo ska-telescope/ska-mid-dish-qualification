@@ -309,15 +309,21 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def slew2abs_button_clicked(self):
-        args = [
-            float(str_input)
-            for str_input in [
-                self.lineEdit_azimuth_position_demand.text(),
-                self.lineEdit_elevation_position_demand.text(),
-                self.lineEdit_azimuth_velocity_demand.text(),
-                self.lineEdit_elevation_velocity_demand.text(),
-            ]
+        text_widget_args = [
+            self.lineEdit_azimuth_position_demand.text(),
+            self.lineEdit_elevation_position_demand.text(),
+            self.lineEdit_azimuth_velocity_demand.text(),
+            self.lineEdit_elevation_velocity_demand.text(),
         ]
+        try:
+            args = [float(str_input) for str_input in text_widget_args]
+        except ValueError as e:
+            logger.error(f"Error converting slew2abs args to float: {e}")
+            self.controller.emit_ui_status_message(
+                "ERROR",
+                f"Slew2Abs invalid arguments. Could not convert to number: {text_widget_args}",
+            )
+            return
         logger.debug(f"args: {args}")
         self.controller.command_slew2abs(*args)
 
