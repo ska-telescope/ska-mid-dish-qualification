@@ -1,11 +1,13 @@
 import logging
 import os
 from functools import cached_property
+from pathlib import Path
 from queue import Empty, Queue
 
 from asyncua import ua
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
+from disq.logger import Logger
 from disq.sculib import scu
 
 logger = logging.getLogger("gui.model")
@@ -59,6 +61,7 @@ class Model(QObject):
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
         self._scu: scu | None = None
+        self._data_logger: Logger | None = None
         self._namespace = str(
             os.getenv("DISQ_OPCUA_SERVER_NAMESPACE", "http://skao.int/DS_ICD/")
         )
@@ -140,3 +143,27 @@ class Model(QObject):
             "DscStateType": ua.DscStateType,
             "StowPinStatusType": ua.StowPinStatusType,
         }
+
+    def start_recording(self, filename: Path) -> None:
+        if self._scu is None:
+            raise RuntimeError("Server not connected")
+        if self._data_logger is not None:
+            raise RuntimeError("Data logger already exist")
+        logger.debug(f"Creating Logger and file: {filename.absolute()}")
+        self._data_logger = Logger(str(filename.absolute()), self._scu)
+        self._data_logger.add_nodes(
+            [
+                "Azimuth.p_Act",
+                "Elevation.p_Act",
+                "Management.ManagementStatus.DscState",
+            ],
+            period=50,
+        )
+        self._data_logger.start()
+        logger.debug("Logger recording started")
+
+    def stop_recording(self) -> None:
+        if self._data_logger is not None:
+            logger.debug("stopping recording")
+            self._data_logger.stop()
+            self._data_logger = None

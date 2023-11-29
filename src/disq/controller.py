@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
@@ -11,6 +12,7 @@ class Controller(QObject):
     command_response_status = pyqtSignal(str)
     server_connected = pyqtSignal()
     server_disconnected = pyqtSignal()
+    recording_status = pyqtSignal(bool)
 
     def __init__(self, mvc_model: model.Model, parent: QObject | None = None) -> None:
         super().__init__(parent)
@@ -101,3 +103,32 @@ class Controller(QObject):
         self.command_response_status.emit(f"Issuing command: {cmd} {args}")
         result_code, result_msg = self._model.run_opcua_command(cmd, *args)
         self.command_response_str(f"{cmd}{args}", result_code, result_msg)
+
+    @pyqtSlot(str)
+    def recording_start(self, filename: str):
+        """Start recording"""
+        fname = Path(filename)
+        logger.debug(f"Recording to file: {fname.absolute()}")
+        if fname.exists():
+            msg = f"⛔️ Not recording. Data file already exists: {fname.absolute()}"
+            self.command_response_status.emit(msg)
+            logger.warning(msg)
+            return
+        try:
+            self._model.start_recording(fname)
+        except RuntimeError as e:
+            msg = f"Unable to start recording: {e}"
+            logger.warning(msg)
+            self.command_response_status.emit(msg)
+            return
+        self.command_response_status.emit(
+            f"▶️ Recording started to file: {fname.absolute()}"
+        )
+        self.recording_status.emit(True)
+
+    @pyqtSlot()
+    def recording_stop(self):
+        """Stop recording"""
+        self._model.stop_recording()
+        self.command_response_status.emit("Recording stopped")
+        self.recording_status.emit(False)

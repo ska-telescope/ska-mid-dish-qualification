@@ -101,6 +101,15 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.disable_opcua_widgets()
 
+        self.pushButton_recording_start: QtWidgets.QPushButton
+        self.lineEdit_recording_file: QtWidgets.QLineEdit
+        self.pushButton_recording_start.clicked.connect(
+            lambda: self.controller.recording_start(self.lineEdit_recording_file.text())
+        )
+        self.pushButton_recording_stop: QtWidgets.QPushButton
+        self.pushButton_recording_stop.clicked.connect(self.controller.recording_stop)
+        self.controller.recording_status.connect(self.recording_status_update)
+
     @cached_property
     def opcua_widgets(self) -> dict:
         """Return a dict of of all 'opcua' widgets and their update method
@@ -140,7 +149,6 @@ class MainView(QtWidgets.QMainWindow):
         all_widgets: list[QtWidgets.QObject] = self.findChildren(
             (QtWidgets.QLineEdit, QtWidgets.QPushButton)
         )
-        logger.debug("====all widgets: %s", str(all_widgets))
         opcua_widgets: list[QtWidgets.QObject] = []
         for wgt in all_widgets:
             property_names: list[QtCore.QByteArray] = wgt.dynamicPropertyNames()
@@ -159,6 +167,31 @@ class MainView(QtWidgets.QMainWindow):
         """Disable all the OPC-UA widgets"""
         for widget in self.all_opcua_widgets:
             widget.setEnabled(False)
+
+    def enable_data_logger_widgets(self, enable: bool = True):
+        self.pushButton_recording_start.setEnabled(enable)
+        self.pushButton_recording_stop.setEnabled(enable)
+        self.lineEdit_recording_file.setEnabled(enable)
+        self.lineEdit_recording_status.setEnabled(enable)
+
+    @QtCore.pyqtSlot(bool)
+    def recording_status_update(self, status: bool):
+        """Update the recording status"""
+        self.lineEdit_recording_status: QtWidgets.QLineEdit
+        if status:
+            self.lineEdit_recording_status.setText("Recording")
+            self.lineEdit_recording_status.setStyleSheet(
+                "background-color: rgb(10, 250, 0);"
+            )
+            self.pushButton_recording_start.setEnabled(False)
+            self.pushButton_recording_stop.setEnabled(True)
+        else:
+            self.lineEdit_recording_status.setText("Stopped")
+            self.lineEdit_recording_status.setStyleSheet(
+                "background-color: rgb(10, 80, 0);"
+            )
+            self.pushButton_recording_start.setEnabled(True)
+            self.pushButton_recording_stop.setEnabled(False)
 
     @QtCore.pyqtSlot(dict)
     def event_update(self, event: dict) -> None:
@@ -248,11 +281,13 @@ class MainView(QtWidgets.QMainWindow):
         pb.setText("Disconnect")
         le.setDisabled(True)
         self.enable_opcua_widgets()
+        self.enable_data_logger_widgets(True)
 
     @QtCore.pyqtSlot()
     def server_disconnected_event(self):
         logger.debug("server disconnected event")
         self.disable_opcua_widgets()
+        self.enable_data_logger_widgets(False)
         le: QtWidgets.QLineEdit = self.input_server_uri
         pb: QtWidgets.QPushButton = self.btn_server_connect
         lbl: QtWidgets.QLabel = self.label_connection_status
@@ -266,12 +301,12 @@ class MainView(QtWidgets.QMainWindow):
         le: QtWidgets.QLineEdit = self.input_server_uri
         server_uri = le.text()
         if not self.controller.is_server_connected():
-            logging.debug(f"connecting to server: %s", server_uri)
+            logger.debug(f"connecting to server: %s", server_uri)
             lbl: QtWidgets.QLabel = self.label_connection_status
             lbl.setText("connecting...")
             self.controller.connect_server(server_uri)
         else:
-            logging.debug(f"disconnecting from server")
+            logger.debug(f"disconnecting from server")
             self.controller.disconnect_server()
 
     @QtCore.pyqtSlot()
