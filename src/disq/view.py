@@ -39,9 +39,7 @@ class MainView(QtWidgets.QMainWindow):
         self.controller = controller
 
         # Connect widgets and slots to the Controller
-        self.controller.command_response_status.connect(
-            self.command_response_status_update
-        )
+        self.controller.ui_status_message.connect(self.command_response_status_update)
         self.controller.server_connected.connect(self.server_connected_event)
         self.controller.server_disconnected.connect(self.server_disconnected_event)
 

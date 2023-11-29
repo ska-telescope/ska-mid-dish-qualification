@@ -9,7 +9,7 @@ logger = logging.getLogger("gui.controller")
 
 
 class Controller(QObject):
-    command_response_status = pyqtSignal(str)
+    ui_status_message = pyqtSignal(str)
     server_connected = pyqtSignal()
     server_disconnected = pyqtSignal()
     recording_status = pyqtSignal(bool)
@@ -22,27 +22,41 @@ class Controller(QObject):
         self, command: str, result_code: int, result_msg: str
     ) -> str:
         r = f'Command "{command}" response: ({result_code}) "{result_msg}"'
-        self.command_response_status.emit(r)
+        self.ui_status_message.emit(r)
         return r
+
+    def emit_ui_status_message(self, severity: str, message: str):
+        """Emit a status message to the UI. Severity is one of: INFO, WARNING, ERROR"""
+        sevr_symbol = ""
+        if severity == "INFO":
+            sevr_symbol = "ℹ️"
+            logger.info("UI status msg: %s %s", sevr_symbol, message)
+        elif severity == "WARNING":
+            sevr_symbol = "⚠️"
+            logger.warning("UI status msg: %s %s", sevr_symbol, message)
+        elif severity == "ERROR":
+            sevr_symbol = "⛔️"
+            logger.error("UI status msg: %s %s", sevr_symbol, message)
+        else:
+            logger.debug(message)
+        self.ui_status_message.emit(f"{sevr_symbol} {message}")
 
     def is_server_connected(self) -> bool:
         return self._model.is_connected()
 
     def connect_server(self, server_uri):
-        self.command_response_status.emit("Connecting to server...")
+        self.ui_status_message.emit("Connecting to server...")
         try:
             self._model.connect(server_uri)
         except OSError as e:
-            self.command_response_status.emit(
-                f"Unable to connect to server. Error: {e}"
-            )
+            self.ui_status_message.emit(f"Unable to connect to server. Error: {e}")
             return
-        self.command_response_status.emit(f"Connected to server: {server_uri}")
+        self.ui_status_message.emit(f"Connected to server: {server_uri}")
         self.server_connected.emit()
 
     def disconnect_server(self):
         self._model.disconnect()
-        self.command_response_status.emit("Disconnected from server")
+        self.ui_status_message.emit("Disconnected from server")
         self.server_disconnected.emit()
 
     def subscribe_opcua_updates(self, registrations: dict):
@@ -61,7 +75,7 @@ class Controller(QObject):
         cmd = "Management.Slew2AbsAzEl"
         desc = f"Command: {cmd}  args: {azimuth_position}, {elevation_position}, {azimuth_velocity}, {elevation_velocity}"
         logger.debug(desc)
-        self.command_response_status.emit(desc)
+        self.ui_status_message.emit(desc)
         result_code, result_msg = self._model.run_opcua_command(
             cmd,
             azimuth_position,
@@ -100,7 +114,7 @@ class Controller(QObject):
 
     def issue_command(self, cmd: str, *args):
         logger.debug(f"Command: {cmd}  args: {args}")
-        self.command_response_status.emit(f"Issuing command: {cmd} {args}")
+        self.ui_status_message.emit(f"Issuing command: {cmd} {args}")
         result_code, result_msg = self._model.run_opcua_command(cmd, *args)
         self.command_response_str(f"{cmd}{args}", result_code, result_msg)
 
@@ -111,18 +125,16 @@ class Controller(QObject):
         logger.debug(f"Recording to file: {fname.absolute()}")
         if fname.exists():
             msg = f"⛔️ Not recording. Data file already exists: {fname.absolute()}"
-            self.command_response_status.emit(msg)
-            logger.warning(msg)
+            self.emit_ui_status_message("WARNING", msg)
             return
         try:
             self._model.start_recording(fname)
         except RuntimeError as e:
             msg = f"Unable to start recording: {e}"
-            logger.warning(msg)
-            self.command_response_status.emit(msg)
+            self.emit_ui_status_message("WARNING", msg)
             return
-        self.command_response_status.emit(
-            f"▶️ Recording started to file: {fname.absolute()}"
+        self.emit_ui_status_message(
+            "INFO", f"▶️ Recording started to file: {fname.absolute()}"
         )
         self.recording_status.emit(True)
 
@@ -130,5 +142,5 @@ class Controller(QObject):
     def recording_stop(self):
         """Stop recording"""
         self._model.stop_recording()
-        self.command_response_status.emit("Recording stopped")
+        self.emit_ui_status_message("INFO", "Recording stopped")
         self.recording_status.emit(False)
