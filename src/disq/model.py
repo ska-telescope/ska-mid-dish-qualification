@@ -66,6 +66,9 @@ class Model(QObject):
         self._namespace = str(
             os.getenv("DISQ_OPCUA_SERVER_NAMESPACE", "http://skao.int/DS_ICD/")
         )
+        self._endpoint = str(
+            os.getenv("DISQ_OPCUA_SERVER_ENDPOINT", "/dish-structure/server")
+        )
         self._namespace_index: int | None = None
         self._subscriptions: list = []
         self.subscription_rate_ms = int(
@@ -78,7 +81,11 @@ class Model(QObject):
         server_uri: str,
     ):
         logger.debug(f"Connecting to server: {server_uri}")
-        self._scu = scu(host=server_uri, namespace=self._namespace)
+        self._scu = scu(
+            host=server_uri,
+            namespace=self._namespace,
+            endpoint=self._endpoint,
+        )
         logger.debug(f"Connected to server on URI: {self.get_server_uri()}")
         logger.debug("Getting node list")
         self._scu.get_node_list()
