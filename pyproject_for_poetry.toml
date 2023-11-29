@@ -11,9 +11,6 @@ license = "BSD-3-Clause"
 readme = "README.md"
 homepage = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
 
-[tool.poetry.extras]
-ipython = ["ipython"]
-
 [tool.poetry.urls]
 "Bug Tracker" = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification/-/issues"
 
