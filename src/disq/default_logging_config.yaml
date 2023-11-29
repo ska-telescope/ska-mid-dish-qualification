@@ -5,9 +5,9 @@ formatters:
   standard:
     format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   error:
-    format: "%(asctime)s - %(filename)012s:%(lineno)d - %(levelname)s %(name)s: %(message)s"
+    format: "%(asctime)s - %(filename)014s:%(lineno)d - %(levelname)s %(name)s: %(message)s"
   debug:
-    format: "%(asctime)s %(filename)012s:%(lineno)04d - %(name)12s - %(levelname)7s %(funcName)s(): %(message)s"
+    format: "%(asctime)s %(filename)014s:%(lineno)04d - %(name)12s - %(levelname)7s: %(message)s"
 
 handlers:
   console:
@@ -20,7 +20,7 @@ handlers:
     class: logging.handlers.RotatingFileHandler
     level: INFO
     formatter: standard
-    filename: /tmp/info.log
+    filename: disq-info.log
     maxBytes: 10485760 # 10MB
     backupCount: 20
     encoding: utf8
