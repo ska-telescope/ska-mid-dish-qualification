@@ -166,4 +166,5 @@ class Model(QObject):
         if self._data_logger is not None:
             logger.debug("stopping recording")
             self._data_logger.stop()
+            self._data_logger.wait_for_completion()
             self._data_logger = None
