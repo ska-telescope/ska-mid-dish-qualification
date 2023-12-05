@@ -24,6 +24,7 @@ python-dotenv = "^1.0.0"
 matplotlib = "^3.8.0"
 plotly = "^5.18.0"
 pyyaml = "^6.0.0"
+h5py = "^3.10.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=6.2.5,<7.0.0"
