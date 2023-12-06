@@ -62,10 +62,15 @@ upload-job:
     - virtualenv venv
     - source venv/bin/activate
     - pip install twine
+    - echo "VERSION=${VERSION}" > version.env
+    - echo "WHEELFILE=${WHEELFILE}" >> version.env
   script:
     - |
       echo "Package registry url: ${PACKAGE_REGISTRY_URL}"
       TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${PACKAGE_REGISTRY_URL} dist/*
+  artifacts:
+    reports: 
+      dotenv: version.env
 
 release-job:
   stage: release
