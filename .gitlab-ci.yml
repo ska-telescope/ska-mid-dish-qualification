@@ -12,7 +12,7 @@ stages:
 # only cache local items.
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DiSQ"
+  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi"
 
 # https://pip.pypa.io/en/stable/topics/caching/
 cache:
@@ -51,32 +51,41 @@ test-install-job:
   
 upload-job:
   stage: upload
-  image: curlimages/curl:latest
   #rules:
   #  - if: $CI_COMMIT_TAG
   needs:
     - job: build-job
       artifacts: true
-  cache: []
+  before_script:
+    - python --version ; pip --version  # For debugging
+    - pip install virtualenv
+    - virtualenv venv
+    - source venv/bin/activate
+    - pip install twine
   script:
     - |
       echo "Package registry url: ${PACKAGE_REGISTRY_URL}"
-      echo "wheelfile: ${WHEELFILE}"
-      echo "version: " ${VERSION}
-      curl -s --fail-with-body --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file dist/${WHEELFILE} ${PACKAGE_REGISTRY_URL}/${VERSION}/${WHEELFILE}
+      TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${PACKAGE_REGISTRY_URL} dist/*
 
 release-job:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
-  rules:
-    - if: $CI_COMMIT_TAG                 # Run this job when a tag is created
+  #rules:
+  #  - if: $CI_COMMIT_TAG                 # Run this job when a tag is created
   needs:
-    - job: build-job
+    - job: upload-job
       artifacts: true
   cache: []
   script:
     - echo "running release_job"
     - ls -alh dist/
   release:                               # See https://docs.gitlab.com/ee/ci/yaml/#release for available properties
-    tag_name: '$CI_COMMIT_TAG'
-    description: '$CI_COMMIT_TAG'
+    tag_name: '${CI_COMMIT_TAG}'
+    description: 'Release ${VERSION}'
+    ref: '${CI_COMMIT_SHA}'
+    assets:
+      links:
+        - name: 'DiSQ'
+          url: '${PACKAGE_REGISTRY_URL}'
+          filepath: '${WHEELFILE}' # optional
+          link_type: 'package' # optional
