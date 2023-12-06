@@ -29,15 +29,15 @@ build-job:
     - pip install build
     - python -m build --wheel
     - ls -alh dist/
+  artifacts:
+    paths:
+      - dist/*
 
 test-install-job:
   stage: test
   script:
     - pip install -e .[dev]
     # run the command here
-  artifacts:
-    paths:
-      - build/*
 
 release-job:
   stage: release
