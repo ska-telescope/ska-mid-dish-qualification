@@ -12,7 +12,7 @@ stages:
 # only cache local items.
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DiSQ/${CI_COMMIT_TAG}"
+  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DiSQ"
 
 # https://pip.pypa.io/en/stable/topics/caching/
 cache:
@@ -31,6 +31,7 @@ build-job:
     - pip install build
     - python -m build --wheel
     - echo "WHEELFILE=`ls dist`" > wheel.env
+    - echo "VERSION=`git describe --dirty`" >> wheel.env
   artifacts:
     paths:
       - dist/DiSQ*.whl
@@ -60,9 +61,8 @@ upload-job:
     - |
       echo "Package registry url: ${PACKAGE_REGISTRY_URL}"
       echo "wheelfile: ${WHEELFILE}"
-      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file dist/${WHEELFILE} ${PACKAGE_REGISTRY_URL}/${WHEELFILE}
-
-
+      echo "version: " ${VERSION}
+      curl --fail-with-body --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file dist/${WHEELFILE} ${PACKAGE_REGISTRY_URL}/${VERSION}/${WHEELFILE}
 
 release-job:
   stage: release
