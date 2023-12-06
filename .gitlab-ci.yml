@@ -57,12 +57,13 @@ upload-job:
   needs:
     - job: build-job
       artifacts: true
+  cache: []
   script:
     - |
       echo "Package registry url: ${PACKAGE_REGISTRY_URL}"
       echo "wheelfile: ${WHEELFILE}"
       echo "version: " ${VERSION}
-      curl --fail-with-body --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file dist/${WHEELFILE} ${PACKAGE_REGISTRY_URL}/${VERSION}/${WHEELFILE}
+      curl -s --fail-with-body --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file dist/${WHEELFILE} ${PACKAGE_REGISTRY_URL}/${VERSION}/${WHEELFILE}
 
 release-job:
   stage: release
@@ -72,6 +73,7 @@ release-job:
   needs:
     - job: build-job
       artifacts: true
+  cache: []
   script:
     - echo "running release_job"
     - ls -alh dist/
