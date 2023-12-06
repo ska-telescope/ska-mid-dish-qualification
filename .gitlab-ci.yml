@@ -84,8 +84,8 @@ release-job:
   script:
     - echo "running release_job"
   release:                               # See https://docs.gitlab.com/ee/ci/yaml/#release for available properties
-    tag_name: '${VERSION}'
-    description: 'Release ${VERSION}'
+    tag_name: '0.1.2-alpha'
+    description: 'Release 0.1.2-alpha TESTING CI'
     ref: '${CI_COMMIT_SHA}'
     assets:
       links:
