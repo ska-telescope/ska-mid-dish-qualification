@@ -84,12 +84,12 @@ release-job:
   script:
     - echo "running release_job"
   release:                               # See https://docs.gitlab.com/ee/ci/yaml/#release for available properties
-    tag_name: '0.1.2-alpha'
-    description: 'Release 0.1.2-alpha TESTING CI'
+    tag_name: '0.1.3-alpha'
+    description: 'Release 0.1.3-alpha TESTING CI'
     ref: '${CI_COMMIT_SHA}'
     assets:
       links:
-        - name: 'DiSQ'
-          url: '${PACKAGE_REGISTRY_URL}/simple'
-          #filepath: '/${WHEELFILE}' # optional
+        - name: '${WHEELFILE}'
+          url: '${PACKAGE_REGISTRY_URL}/simple/disq/${WHEELFILE}'
+          # filepath: '/disq/${WHEELFILE}' # optional
           link_type: 'package' # optional
