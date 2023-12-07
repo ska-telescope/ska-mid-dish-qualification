@@ -91,5 +91,5 @@ release-job:
       links:
         - name: 'DiSQ'
           url: '${PACKAGE_REGISTRY_URL}/simple'
-          filepath: '/${WHEELFILE}' # optional
+          #filepath: '/${WHEELFILE}' # optional
           link_type: 'package' # optional
