@@ -59,7 +59,7 @@ upload-generic-job:
       artifacts: true
   cache: []
   before_script:
-    - echo "VERSION=${$CI_COMMIT_TAG}" > version.env
+    - echo "VERSION=${CI_COMMIT_TAG}" > version.env
     - echo "WHEELFILE=${WHEELFILE}" >> version.env
   script:
     - |
