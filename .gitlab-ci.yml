@@ -12,7 +12,7 @@ stages:
 # only cache local items.
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PACKAGE_REGISTRY_PYPI_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi/simple"
+  PACKAGE_REGISTRY_PYPI_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi"
   PACKAGE_REGISTRY_GENERIC_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic"
 
 # https://pip.pypa.io/en/stable/topics/caching/
