@@ -32,7 +32,6 @@ build-job:
     - pip install build
     - python -m build --wheel
     - echo "WHEELFILE=`ls dist`" > wheel.env
-    - echo "VERSION=`git describe --dirty`" >> wheel.env
   artifacts:
     paths:
       - dist/DiSQ*.whl
@@ -49,53 +48,35 @@ test-install-job:
   script:
     - pip install -e .[dev]
     # run the command here
-  
-upload-pypi-job:
-  stage: upload
-  #rules:
-  #  - if: $CI_COMMIT_TAG
-  needs:
-    - job: build-job
-      artifacts: true
-  before_script:
-    - python --version ; pip --version  # For debugging
-    - pip install virtualenv
-    - virtualenv venv
-    - source venv/bin/activate
-    - pip install twine
-    - echo "VERSION=${VERSION}" > version.env
-    - echo "WHEELFILE=${WHEELFILE}" >> version.env
-  script:
-    - |
-      echo "Package registry url: ${PACKAGE_REGISTRY_PYPI_URL}"
-      TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${PACKAGE_REGISTRY_PYPI_URL} dist/*
-  artifacts:
-    reports: 
-      dotenv: version.env
 
 upload-generic-job:
   stage: upload
   image: curlimages/curl:latest
-  #rules:
-  #  - if: $CI_COMMIT_TAG
+  rules:
+    - if: $CI_COMMIT_TAG
   needs:
     - job: build-job
       artifacts: true
+  cache: []
   before_script:
-    - echo "VERSION=${VERSION}" > version.env
+    - echo "VERSION=${$CI_COMMIT_TAG}" > version.env
     - echo "WHEELFILE=${WHEELFILE}" >> version.env
   script:
     - |
       echo "Package registry url: ${PACKAGE_REGISTRY_GENERIC_URL}"
       echo "wheelfile: ${WHEELFILE}"
-      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file dist/${WHEELFILE} ${PACKAGE_REGISTRY_GENERIC_URL}/DiSQ/${WHEELFILE}
+      ls dist/
+      curl -s --fail-with-body --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file dist/${WHEELFILE} ${PACKAGE_REGISTRY_GENERIC_URL}/DiSQ/${WHEELFILE}
+  artifacts:
+    reports:
+      dotenv: version.env
 
 
 release-job:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
-  #rules:
-  #  - if: $CI_COMMIT_TAG                 # Run this job when a tag is created
+  rules:
+   - if: $CI_COMMIT_TAG                 # Run this job when a tag is created
   needs:
     - job: upload-generic-job
       artifacts: true
@@ -103,8 +84,8 @@ release-job:
   script:
     - echo "running release_job"
   release:                               # See https://docs.gitlab.com/ee/ci/yaml/#release for available properties
-    tag_name: '0.1.4-alpha'
-    description: 'Release 0.1.4-alpha TESTING CI'
+    tag_name: '${CI_COMMIT_TAG}'
+    description: 'Release ${CI_COMMIT_TAG} TESTING CI'
     ref: '${CI_COMMIT_SHA}'
     assets:
       links:
