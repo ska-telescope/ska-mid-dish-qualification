@@ -177,8 +177,9 @@ class Model(QObject):
             except AttributeError:
                 missing_types.append(opcua_type)
         if missing_types:
-            logger.error(
-                "OPC-UA server does not implement the following types %s",
+            logger.warning(
+                "OPC-UA server does not implement the following Enumerated types "
+                "as expected: %s",
                 str(missing_types),
             )
         return result
