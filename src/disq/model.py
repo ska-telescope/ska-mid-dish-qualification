@@ -130,11 +130,31 @@ class Model(QObject):
             "Management.Reset",
         ]:
             # Commands that take a single AxisSelectType parameter input
-            arg = ua.AxisSelectType[args[0]]
+            try:
+                arg = ua.AxisSelectType[args[0]]
+            except AttributeError:
+                logger.warning(
+                    "OPC-UA server has no 'AxisSelectType' enum. Attempting a guess."
+                )
+                arg = {"Az": 0, "El": 1, "Fi": 2, "AzEl": 3}[args[0]]
             logger.debug(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
             result = self._scu.commands[command](arg)
         elif command == "Management.Move2Band":
-            arg = ua.BandType[args[0]]
+            try:
+                arg = ua.BandType[args[0]]
+            except AttributeError:
+                logger.warning(
+                    "OPC-UA server has no 'BandType' enum. Attempting a guess."
+                )
+                arg = {
+                    "Band_1": 0,
+                    "Band_2": 1,
+                    "Band_3": 2,
+                    "Band_4": 3,
+                    "Band_5a": 4,
+                    "Band_5b": 5,
+                    "Optical": 6,
+                }[args[0]]
             logger.debug(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
             result = self._scu.commands[command](arg)
         else:
@@ -144,11 +164,25 @@ class Model(QObject):
 
     @cached_property
     def opcua_enum_types(self) -> dict:
-        return {
-            "AxisStateType": ua.AxisStateType,
-            "DscStateType": ua.DscStateType,
-            "StowPinStatusType": ua.StowPinStatusType,
-        }
+        result = {}
+        missing_types = []
+        for opcua_type in [
+            "AxisStateType",
+            "DscStateType",
+            "StowPinStatusType",
+            "AxisSelectType",
+        ]:
+            try:
+                result.update({opcua_type: getattr(ua, opcua_type)})
+            except AttributeError:
+                missing_types.append(opcua_type)
+        if missing_types:
+            logger.warning(
+                "OPC-UA server does not implement the following Enumerated types "
+                "as expected: %s",
+                str(missing_types),
+            )
+        return result
 
     @cached_property
     def opcua_attributes(self) -> list[str]:
