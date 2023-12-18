@@ -13,6 +13,7 @@ class Serval:
     def __init__(self):
         self.config = None
         self.xml = None
+        self.sculib_like = {}
         self.missing = []
         self.extra = []
         self.plc_prg_string = "1:PLC_PRG"
@@ -32,7 +33,7 @@ class Serval:
 
         return None
 
-    def _get_children_from_xml_element_recursive(self, element: ET.Element):
+    def _get_children_from_xml_element_recursive(self, element: ET.Element, path):
         children_node_strings = []
 
         for ele in element.iter():
@@ -49,14 +50,36 @@ class Serval:
         for child_string in children_node_strings:
             child_ele = self._get_element_from_node_string(child_string)
             if child_ele is not None:
+                name = self._get_browse_name_from_xml_element(child_ele)
+                name_stripped = name.split(":")[1]
                 children[child_ele] = {
-                    "browse_name": self._get_browse_name_from_xml_element(child_ele),
+                    "browse_name": name,
                     "children": self._get_children_from_xml_element_recursive(
-                        child_ele
+                        child_ele, path + name_stripped + "."
                     ),
                 }
+                self.sculib_like[path + name_stripped] = None
 
         return children
+
+    def _walk_xml_tree_missing_recursive(self, children, path):
+        for child in children:
+            name = path + children[child]["browse_name"].split(":")[1]
+            self.missing.append(name)
+            self._walk_xml_tree_missing_recursive(
+                children[child]["children"], name + "."
+            )
+
+    def _check_sculib_against_xml_recursive(self, entry, path):
+        name = path + entry["browse_name"].split(":")[1]
+        if name in self.hll.nodes:
+            for child in entry["children"]:
+                self._check_sculib_against_xml_recursive(
+                    entry["children"][child], name + "."
+                )
+        else:
+            self.missing.append(name)
+            self._walk_xml_tree_missing_recursive(entry["children"], name + ".")
 
     def validate(self, xml_file: str, server_config: str):
         print(f"Using xml file: {xml_file}, and config file: {server_config}")
@@ -87,12 +110,13 @@ class Serval:
         # self.xml_tree = {
         #    plc_prg: {
         #        "browse_name": self._get_browse_name_from_xml_element(plc_prg),
-        #        "children": self._get_children_from_xml_element_recursive(plc_prg),
+        #        "children": self._get_children_from_xml_element_recursive(plc_prg, ""),
         #    }
         # }
         # sculib does not include plc_prg in nodes
-        self.xml_tree = self._get_children_from_xml_element_recursive(plc_prg)
-        # extras for development
+        self.xml_tree = self._get_children_from_xml_element_recursive(plc_prg, "")
+        self.sculib_like["PLC_PRG"] = None
+        # extras for testing during development <
         axis_select_type = None
         for element in root.iter():
             if "BrowseName" in element.attrib:
@@ -123,6 +147,7 @@ class Serval:
                 },
             }
         )
+        # >
         # print(self.xml_tree)
 
         self.hll = sculib.scu(
@@ -132,32 +157,22 @@ class Serval:
             namespace=self.config["connection"]["namespace"],
         )
         # print(self.hll.nodes)
+        # Find missing nodes
         for input_node in self.xml_tree:
             self._check_sculib_against_xml_recursive(self.xml_tree[input_node], "")
 
-        print("OPCUA Server is missing the following nodes:")
+        print("OPCUA Server is missing the following nodes under the PLC_PRG node:")
         for node in self.missing:
             print(node)
 
-    def _check_sculib_against_xml_recursive(self, entry, path):
-        name = path + entry["browse_name"].split(":")[1]
-        if name in self.hll.nodes:
-            print(f"found node for {name}")
-            for child in entry["children"]:
-                self._check_sculib_against_xml_recursive(
-                    entry["children"][child], name + "."
-                )
-        else:
-            self.missing.append(name)
-            self._walk_xml_tree_missing_recursive(entry["children"], name + ".")
+        # Find extra nodes
+        for node in self.hll.nodes:
+            if node not in self.sculib_like:
+                self.extra.append(node)
 
-    def _walk_xml_tree_missing_recursive(self, children, path):
-        for child in children:
-            name = path + children[child]["browse_name"].split(":")[1]
-            self.missing.append(name)
-            self._walk_xml_tree_missing_recursive(
-                children[child]["children"], name + "."
-            )
+        print("OPCUA Server has the following extra nodes under the PLC_PRG node:")
+        for node in self.extra:
+            print(node)
 
 
 if __name__ == "__main__":
