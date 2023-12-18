@@ -117,6 +117,7 @@ class Serval:
         self.xml_tree = self._get_children_from_xml_element_recursive(plc_prg, "")
         self.sculib_like["PLC_PRG"] = None
         # extras for testing during development <
+        """
         axis_select_type = None
         for element in root.iter():
             if "BrowseName" in element.attrib:
@@ -147,6 +148,7 @@ class Serval:
                 },
             }
         )
+        """
         # >
         # print(self.xml_tree)
 
