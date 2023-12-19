@@ -304,11 +304,20 @@ class MainView(QtWidgets.QMainWindow):
           'data': data }
         """
         opcua_type: str = widget.property("opcua_type")
-        OpcuaEnum: type = self.model.opcua_enum_types[opcua_type]
-
-        val = OpcuaEnum(event["value"])
-        str_val = val.name
-        widget.setText(str_val)
+        int_val = int(event["value"])
+        try:
+            OpcuaEnum: type = self.model.opcua_enum_types[opcua_type]
+        except KeyError:
+            logger.warning(
+                "OPC-UA Enum type '%s' not found. Using integer value instead.",
+                opcua_type,
+            )
+            str_val = str(int_val)
+        else:
+            val = OpcuaEnum(int_val)
+            str_val = val.name
+        finally:
+            widget.setText(str_val)
 
     def _update_opcua_boolean_widget(
         self, widget: QtWidgets.QLineEdit, event: dict

@@ -14,8 +14,6 @@
 # 2023-08-31, Thomas Juerges Refactored the basic access mechanics for an OPC UA server.
 
 import asyncio
-import asyncua
-import cryptography
 import enum
 import logging
 import logging.config
@@ -24,11 +22,13 @@ import queue
 import sys
 import threading
 import time
-import yaml
-
 from importlib import resources
 from pathlib import Path
 from typing import Any, Union
+
+import asyncua
+import cryptography
+import yaml
 
 logger = logging.getLogger('sculib')
 
@@ -240,7 +240,8 @@ hn_opcua_tilt_sensors = [
 ]
 
 async def handle_exception(e: Exception) -> None:
-    logger.error(f'*** Exception caught\n{e}')
+    logger.exception(f'*** Exception caught: {e}')
+
 
 def create_command_function(node: asyncua.Node, event_loop: asyncio.AbstractEventLoop):
     call = asyncio.run_coroutine_threadsafe(node.get_parent(), event_loop).result().call_method
@@ -249,8 +250,11 @@ def create_command_function(node: asyncua.Node, event_loop: asyncio.AbstractEven
         try:
             return_code = asyncio.run_coroutine_threadsafe(call(id, *args), event_loop).result()
             return_msg:str = ""
-            if return_code is not None:
+            if hasattr(asyncua.ua, 'CmdResponseType') and return_code is not None:
+                # The asyncua library has a CmdResponseType enum ONLY if the opcua server implements the type
                 return_msg = asyncua.ua.CmdResponseType(return_code).name
+            else:
+                return_msg = str(return_code)
         except Exception as e:
             e.add_note(f'Command: {id} args: {args}')
             asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
@@ -408,18 +412,21 @@ class scu:
             # Join the event loop thread once it is done processing tasks.
             self.event_loop_thread.join()
 
-    def run_event_loop(self, event_loop: asyncio.AbstractEventLoop) -> None:
+    def run_event_loop(self, event_loop: asyncio.AbstractEventLoop, thread_started_event: threading.Event) -> None:
         # The self.event_loop needs to be stored here. Otherwise asyncio
         # complains that it has the wrong type when scheduling a coroutine.
         # Sigh.
         self.event_loop = event_loop
         asyncio.set_event_loop(event_loop)
+        thread_started_event.set()  # Signal that the event loop thread has started
         event_loop.run_forever()
 
     def create_and_start_asyncio_event_loop(self) -> None:
         event_loop = asyncio.new_event_loop()
-        self.event_loop_thread = threading.Thread(target = self.run_event_loop, args = (event_loop,), name = f'asyncio event loop for sculib instance {self.__class__.__name__}', daemon = True,)
+        thread_started_event = threading.Event()
+        self.event_loop_thread = threading.Thread(target = self.run_event_loop, args = (event_loop, thread_started_event), name = f'asyncio event loop for sculib instance {self.__class__.__name__}', daemon = True,)
         self.event_loop_thread.start()
+        thread_started_event.wait(5.0)  # Wait for the event loop thread to start
 
     def set_up_encryption(self, connection, user: str, pw: str) -> None:
         # this is generated if it does not exist

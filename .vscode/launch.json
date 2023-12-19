@@ -11,6 +11,14 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false
+        },
+        {
+            "name": "DiSQ GUI",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/disq/mvcmain.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }
