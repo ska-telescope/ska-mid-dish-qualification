@@ -177,7 +177,7 @@ class Serval:
             print(node)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         prog="Dish Structure Server Validator",
         description="Validates an OPCUA server against an XML.",
@@ -209,3 +209,7 @@ if __name__ == "__main__":
 
     validator = Serval()
     validator.validate(xml, config)
+
+
+if __name__ == "__main__":
+    main()
