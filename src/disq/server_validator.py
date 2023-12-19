@@ -1,11 +1,13 @@
 import argparse
 import os
-import sys
-import yaml
-import xml.etree.ElementTree as ET
-import xml.etree
-import asyncua
 import re
+import sys
+import xml.etree
+import xml.etree.ElementTree as ET
+
+import asyncua
+import yaml
+
 from disq import sculib
 
 
