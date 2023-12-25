@@ -21,6 +21,7 @@ dependencies = [
     "matplotlib",
     "plotly",
     "pyyaml",
+    "platformdirs",
 ]
 
 dynamic = ["version"]
