@@ -1,36 +1,32 @@
 import h5py
 from datetime import datetime
+import matplotlib.axes as axes  # Entire import just for typehints
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 
-def format_coord(self, x, y):
-    """Return a format string formatting the *x*, *y* coordinates."""
-    return "x={} y={}".format(
-        "???" if x is None else self.format_xdata(x),
-        "???" if y is None else self.format_ydata(y),
-    )
+def make_format(current: axes.Axes, other: axes.Axes, current_lab: str, other_lab: str):
+    """
+    Used for replacing the format_coord method of an matplotlib.axes object.
+    """
 
-
-def make_format(current, other):
-    # current and other are axes
     def format_coord(x, y):
         # x, y are data coordinates
         # convert to display coords
         display_coord = current.transData.transform((x, y))
         inv = other.transData.inverted()
         # convert back to data coords with respect to ax
-        ax_coord = inv.transform(display_coord)
-        coords = [ax_coord, (x, y)]
-        # print(coords)
-        return "Left: {:<40}    Right: {:<}".format(
+        x1, y1 = inv.transform(display_coord)
+        return "{}: {:<}    {}: {:<}".format(
+            other_lab,
             "(x={}, y={})".format(
-                "???" if x is None else other.format_xdata(coords[0][0]),
-                "???" if y is None else other.format_ydata(coords[0][1]),
+                "???" if x1 is None else other.format_xdata(x1),
+                "???" if y1 is None else other.format_ydata(y1),
             ),
+            current_lab,
             "(x={}, y={})".format(
-                "???" if x is None else current.format_xdata(coords[1][0]),
-                "???" if y is None else current.format_ydata(coords[1][1]),
+                "???" if x is None else current.format_xdata(x),
+                "???" if y is None else current.format_ydata(y),
             ),
         )
 
@@ -54,10 +50,9 @@ def categorical_ydata(labels: list[str]):
 
 
 class Grapher:
-    _y1_colour = "red"
-    _y2_colour = "blue"
-    _y1_marker = "x"
-    _y2_marker = "*"
+    _axis_colour = ("red", "blue")
+    _axis_marker = ("x", "*")
+    _axis_legend_location = ("lower left", "lower right")
     _grid_lines = True
     _dash_sequence = (3, 5)
 
@@ -72,6 +67,54 @@ class Grapher:
             for node in f.keys():
                 print(node)
 
+    def _get_hdf5_data(self, fo: h5py.File, node: str, start: datetime, stop: datetime):
+        dts = []
+        data = []
+        for i in range(fo[node]["SourceTimestamp"].len()):
+            dt = datetime.fromtimestamp(fo[node]["SourceTimestamp"][i])
+            if dt > start:
+                if dt < stop:
+                    dts.append(dt)
+                    data.append(fo[node]["Value"][i])
+                else:
+                    # Datapointes are store chronologically; stop here.
+                    break
+
+        type = fo[node]["Value"].attrs["Type"]
+        categories = []
+        if type == "bool":
+            categories = ["False", "True"]
+        if type == "enum":
+            categories = fo[node]["Value"].attrs["Enumerations"].split(",")
+
+        return (dts, data, categories)
+
+    def _build_axis(
+        self,
+        node: str,
+        axis: axes.Axes,
+        x: list[datetime],
+        y: list,
+        num: int,
+        categories: list[str],
+    ):
+        axis.plot(
+            x,
+            y,
+            color=self._axis_colour[num],
+            label=node,
+            marker=self._axis_marker[num],
+        )
+        if len(categories) > 0:
+            axis.set_yticks(ticks=range(len(categories)), labels=categories)
+            axis.format_ydata = categorical_ydata(categories)
+
+        axis.legend(
+            bbox_to_anchor=(0, 1.02, 1, 0.2),
+            loc=self._axis_legend_location[num],
+            borderaxespad=0,
+        )
+
     def graph(
         self,
         file: str,
@@ -84,16 +127,7 @@ class Grapher:
         axis (time). Start and stop are datetime strings in ISO format (e.g.
         YYYY-MM-DDThh:mm:ss). If the start or stop times are not given, the
         graph will default to the full time range of the input file."""
-        start_dt = None
-        stop_dt = None
-        y1_dt = []
-        y1_data = []
-        y1_type = None
-        y1_categories = []
-        y2_dt = []
-        y2_data = []
-        y2_type = None
-        y2_categories = []
+        # Get data from HDF5 file
         with h5py.File(file, "r") as f:
             if start is None:
                 start = f.attrs["Start time"]
@@ -103,76 +137,27 @@ class Grapher:
             start_dt = datetime.fromisoformat(start)
             stop_dt = datetime.fromisoformat(stop)
 
-            for i in range(f[node1]["SourceTimestamp"].len()):
-                dt = datetime.fromtimestamp(f[node1]["SourceTimestamp"][i])
-                if dt > start_dt:
-                    if dt < stop_dt:
-                        y1_dt.append(dt)
-                        y1_data.append(f[node1]["Value"][i])
-                    else:
-                        # Datapoints are stored chronologically; stop here.
-                        break
-
-            y1_type = f[node1]["Value"].attrs["Type"]
-            if y1_type == "bool":
-                y1_categories = ["False", "True"]
-            if y1_type == "enum":
-                y1_categories = f[node1]["Value"].attrs["Enumerations"].split(",")
+            y1_dts, y1_data, y1_categories = self._get_hdf5_data(
+                f, node1, start_dt, stop_dt
+            )
 
             if node2 is not None:
-                for i in range(f[node2]["SourceTimestamp"].len()):
-                    dt = datetime.fromtimestamp(f[node2]["SourceTimestamp"][i])
-                    if dt > start_dt:
-                        if dt < stop_dt:
-                            y2_dt.append(dt)
-                            y2_data.append(f[node2]["Value"][i])
-                        else:
-                            # Datapoints are stored chronologically; stop here.
-                            break
+                y2_dts, y2_data, y2_categories = self._get_hdf5_data(
+                    f, node2, start_dt, stop_dt
+                )
 
-                y2_type = f[node2]["Value"].attrs["Type"]
-                if y2_type == "bool":
-                    y2_categories = ["False", "True"]
-                if y2_type == "enum":
-                    y2_categories = f[node2]["Value"].attrs["Enumerations"].split(",")
-
-        fig, y1 = plt.subplots()
+        # Build graph
+        fig, y1 = plt.subplots(figsize=(12, 4.8))
         y1.xaxis.set_major_formatter(mdates.DateFormatter("%y-%m-%d %H:%M:%S.%f"))
-        y1.plot(
-            y1_dt, y1_data, color=self._y1_colour, label=node1, marker=self._y1_marker
-        )
-        if len(y1_categories) > 0:
-            y1.set_yticks(ticks=range(len(y1_categories)), labels=y1_categories)
-            y1.format_ydata = categorical_ydata(y1_categories)
-
-        y1.legend(
-            bbox_to_anchor=(0, 1.02, 1, 0.2),
-            loc="lower left",
-            borderaxespad=0,
-        )
+        self._build_axis(node1, y1, y1_dts, y1_data, 0, y1_categories)
 
         if node2 is not None:
             y2 = y1.twinx()
-            y2.plot(
-                y2_dt,
-                y2_data,
-                color=self._y2_colour,
-                label=node2,
-                marker=self._y2_marker,
-            )
-            if len(y2_categories) > 0:
-                y2.set_yticks(ticks=range(len(y2_categories)), labels=y2_categories)
-                y2.format_ydata = categorical_ydata(y2_categories)
+            self._build_axis(node2, y2, y2_dts, y2_data, 1, y2_categories)
 
-            y2.legend(
-                bbox_to_anchor=(0, 1.02, 1, 0.2),
-                loc="lower right",
-                borderaxespad=0,
-            )
+            y2.format_coord = make_format(y2, y1, node2, node1)
 
-            y2.format_coord = make_format(y2, y1)
-
-        fig.autofmt_xdate(rotation=90)
+        fig.autofmt_xdate(rotation=20)
         plt.grid(
             visible=self._grid_lines,
             which="major",
@@ -181,12 +166,3 @@ class Grapher:
         )
         plt.tight_layout()
         plt.show()
-
-
-if __name__ == "__main__":
-    my_grapher = Grapher()
-    my_grapher.graph(
-        "results/2023-10-13_16-48-37.hdf5",
-        "MockData.sine_value",
-        "MockData.enum",
-    )
