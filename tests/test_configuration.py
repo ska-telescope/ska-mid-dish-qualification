@@ -38,6 +38,6 @@ def test_get_configuration():
     # Test with the test file disq.ini
     config = get_configurations("disq.ini")
     assert config is not None
-    assert config["DEFAULT"]["server_port"] == "4840"
+    assert config["DEFAULT"]["port"] == "4840"
     assert "opcua_server.cetc54_simulator" in config.sections()
     assert "opcua_server.karoo_simulator" in config.sections()
