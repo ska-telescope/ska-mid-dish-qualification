@@ -27,6 +27,35 @@ class Serval:
         64: "DataType",
         128: "View",
     }
+    opcua_attribute_ids = {
+        "NodeId": 1,
+        "NodeClass": 2,
+        "BrowseName": 3,
+        "DisplayName": 4,
+        "Description": 5,
+        "WriteMask": 6,
+        "UserWriteMask": 7,
+        "IsAbstract": 8,
+        "Symmetric": 9,
+        "InverseName": 10,
+        "ContainsNoLoops": 11,
+        "EventNotifier": 12,
+        "Value": 13,
+        "DataType": 14,
+        "ValueRank": 15,
+        "ArrayDimensions": 16,
+        "AccessLevel": 17,
+        "UserAccessLevel": 18,
+        "MinimumSamplingInterval": 19,
+        "Historizing": 20,
+        "Executable": 21,
+        "UserExecutable": 22,
+        "DataTypeDefinition": 23,
+        "RolePermissions": 24,
+        "UserRolePermissions": 25,
+        "AccessRestrictions": 26,
+        "AccessLevelEx": 27,
+    }
 
     def __init__(self):
         self.config = None
@@ -125,6 +154,30 @@ class Serval:
 
         return (name, node_class, children)
 
+    def _get_param_type_tuple(self, node_id: asyncua.ua.uatypes.NodeId) -> tuple:
+        print("node_id =", node_id)
+        param_type = self.server.get_attribute_data_type(node_id)
+        if param_type == "Enumeration":
+            return (param_type, ",".join(self.server.get_enum_strings(node_id)))
+
+        return (param_type,)
+
+    def _get_method_info(self, node: asyncua.Node) -> dict:
+        params = (
+            asyncio.run_coroutine_threadsafe(
+                node.read_attribute(self.opcua_attribute_ids["Value"]), self.event_loop
+            )
+            .result()
+            .Value.Value
+        )
+        args = {}
+        for param in params:
+            print("param =", param)
+            args[param.Name] = self._get_param_type_tuple(param.DataType)
+
+        print("args =", args)
+        return args
+
     def _read_data_type_tuple(self, sculib_path: str) -> tuple:
         type = self.server.get_attribute_data_type(sculib_path)
         if type == "Enumeration":
@@ -139,13 +192,17 @@ class Serval:
         short_name = name.Name
         ns_name = f"{name.NamespaceIndex}:{short_name}"
         node_dict[ns_name] = {
-            "object_type": node_class,
-            # "method_params": None,
-            # "method_return": None,
+            "node_class": self.opcua_node_class_names[node_class],
         }
         ancestors.append(name.Name)
         if node_class == 2:
-            if short_name != "InputArguments" and short_name != "OutputArguments":
+            if short_name == "InputArguments":
+                print(ancestors)
+                node_dict[ns_name]["method_params"] = self._get_method_info(node)
+            elif short_name == "OutputArguments":
+                print(ancestors)
+                node_dict[ns_name]["method_return"] = self._get_method_info(node)
+            else:
                 sculib_ancestors = ancestors[1:]  # No "PLC_PRG" in sculib paths
                 sculib_path = ".".join(sculib_ancestors)
                 data_type = self._read_data_type_tuple(sculib_path)
