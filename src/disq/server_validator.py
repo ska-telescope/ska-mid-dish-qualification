@@ -10,7 +10,7 @@ import yaml
 
 import asyncio
 import multiprocessing as mp
-import time
+import pprint
 from disq import sculib
 from disq.serval_internal_server import ServalInternalServer
 
@@ -109,51 +109,69 @@ class Serval:
     def _run_internal_server_wrap(self, xml_file):
         asyncio.run(self._run_internal_server(xml_file))
 
-    async def _read_data_type_tuple(self, node: asyncua.Node) -> tuple:
-        return "temp"
+    def _read_node_name(self, node: asyncua.Node) -> asyncua.ua.uatypes.QualifiedName:
+        return asyncio.run_coroutine_threadsafe(
+            node.read_browse_name(), self.event_loop
+        ).result()
 
-    async def _fill_tree_recursive(self, node: asyncua.Node, tree_nodule: dict):
+    def _get_node_info(self, node: asyncua.Node) -> tuple:
+        name = self._read_node_name(node)
+        node_class = asyncio.run_coroutine_threadsafe(
+            node.read_node_class(), self.event_loop
+        ).result()
+        children = asyncio.run_coroutine_threadsafe(
+            node.get_children(), self.event_loop
+        ).result()
+
+        return (name, node_class, children)
+
+    def _read_data_type_tuple(self, sculib_path: str) -> tuple:
+        type = self.server.get_attribute_data_type(sculib_path)
+        if type == "Enumeration":
+            return (type, ",".join(self.server.get_enum_strings(sculib_path)))
+
+        return (type,)
+
+    def _fill_tree_recursive(self, node: asyncua.Node, ancestors: list[str]) -> dict:
+        node_dict = {}
         # Fill node info
-        info = await asyncio.gather(
-            node.read_browse_name(),
-            node.read_node_class(),
-            self._read_data_type_tuple(node),
-            node.get_children(),
-        )
-
-        # name = await node.read_browse_name()
-        print(f"At node: {info[0]}")
-        # object_type = await node.read_node_class()
-        # data_type = await self._read_data_type_tuple(node)
-        tree_nodule[info[0]] = {
-            "object_type": info[1],
-            "data_type": info[2],
-            "method_params": None,
-            "method_return": None,
+        name, node_class, node_children = self._get_node_info(node)
+        short_name = name.Name
+        ns_name = f"{name.NamespaceIndex}:{short_name}"
+        node_dict[ns_name] = {
+            "object_type": node_class,
+            # "method_params": None,
+            # "method_return": None,
         }
-        # Create hierarchical structure
-        # children = await node.get_children()
-        name_list = []
-        for child in info[3]:
-            child_tree = {}
-            await self._fill_tree_recursive(child, child_tree)
-            child_name = await child.read_browse_name()
-            name_list.append(child_name)
-            tree_nodule[info[0]][child_name] = child_tree
+        ancestors.append(name.Name)
+        if node_class == 2:
+            if short_name != "InputArguments" and short_name != "OutputArguments":
+                sculib_ancestors = ancestors[1:]  # No "PLC_PRG" in sculib paths
+                sculib_path = ".".join(sculib_ancestors)
+                data_type = self._read_data_type_tuple(sculib_path)
+                node_dict[ns_name]["data_type"] = data_type
 
-        print(name_list)
+        # Create hierarchical structure
+        children = {}
+        for child in node_children:
+            children.update(self._fill_tree_recursive(child, ancestors[:]))
+
+        node_dict[ns_name]["children"] = children
+
+        return node_dict
 
     def _scan_opcua_server(
         self, host: str, port: str, endpoint: str, namespace: str
     ) -> dict:
-        server_tree = {}
         # Use sculib for encryption and getting PLC_PRG node.
-        server = sculib.scu(
+        self.server = sculib.scu(
             host=host, port=port, endpoint=endpoint, namespace=namespace
         )
+        self.event_loop = self.server.event_loop
         # Fill tree dict for server
-        asyncio.run(self._fill_tree_recursive(server.plc_prg, server_tree))
+        server_tree = self._fill_tree_recursive(self.server.plc_prg, [])
 
+        self.server.disconnect()
         return server_tree
 
     def validate(self, xml_file: str, server_config: str):
@@ -174,9 +192,8 @@ class Serval:
             "http://skao.int/DS_ICD/",
         )
         internal_server_process.terminate()
-        import json
 
-        print(json.dumps(correct_tree))
+        pprint.pprint(correct_tree, sort_dicts=False)
         internal_server_process.join()
         return
 
