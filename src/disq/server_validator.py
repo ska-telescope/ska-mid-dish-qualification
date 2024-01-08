@@ -9,7 +9,7 @@ import asyncua
 import yaml
 
 import asyncio
-import threading
+import multiprocessing as mp
 import time
 from disq import sculib
 from disq.serval_internal_server import ServalInternalServer
@@ -35,7 +35,7 @@ class Serval:
         self.missing = []
         self.extra = []
         self.plc_prg_string = "1:PLC_PRG"
-        self._stop_internal_server = threading.Event()
+        self.internal_server_started_barrier = mp.Barrier(2)
 
     def _get_browse_name_from_xml_element(self, element: ET.Element):
         browse_name = None
@@ -102,8 +102,8 @@ class Serval:
 
     async def _run_internal_server(self, xml_file: str):
         async with ServalInternalServer(xml_file):
-            while not self._stop_internal_server.is_set():
-                time.sleep(0)  # yield thread
+            self.internal_server_started_barrier.wait()
+            while True:
                 await asyncio.sleep(1)
 
     def _run_internal_server_wrap(self, xml_file):
@@ -114,23 +114,34 @@ class Serval:
 
     async def _fill_tree_recursive(self, node: asyncua.Node, tree_nodule: dict):
         # Fill node info
-        name = await node.read_browse_name()
-        print(f"At node: {name}")
-        object_type = await node.read_node_class()
-        data_type = await self._read_data_type_tuple(node)
-        tree_nodule[name] = {
-            "object_type": object_type,
-            "data_type": data_type,
+        info = await asyncio.gather(
+            node.read_browse_name(),
+            node.read_node_class(),
+            self._read_data_type_tuple(node),
+            node.get_children(),
+        )
+
+        # name = await node.read_browse_name()
+        print(f"At node: {info[0]}")
+        # object_type = await node.read_node_class()
+        # data_type = await self._read_data_type_tuple(node)
+        tree_nodule[info[0]] = {
+            "object_type": info[1],
+            "data_type": info[2],
             "method_params": None,
             "method_return": None,
         }
         # Create hierarchical structure
-        children = await node.get_children()
-        for child in children:
+        # children = await node.get_children()
+        name_list = []
+        for child in info[3]:
             child_tree = {}
             await self._fill_tree_recursive(child, child_tree)
             child_name = await child.read_browse_name()
-            tree_nodule[name][child_name] = child_tree
+            name_list.append(child_name)
+            tree_nodule[info[0]][child_name] = child_tree
+
+        print(name_list)
 
     def _scan_opcua_server(
         self, host: str, port: str, endpoint: str, namespace: str
@@ -148,20 +159,25 @@ class Serval:
     def validate(self, xml_file: str, server_config: str):
         print(f"Using xml file: {xml_file}, and config file: {server_config}")
         # First build tree of correct server
-        self._stop_internal_server.clear()
-        internal_server_thread = threading.Thread(
+        internal_server_process = mp.Process(
             target=self._run_internal_server_wrap,
             args=[xml_file],
-            name="Internal server thread",
+            name="Internal server process",
         )
-        internal_server_thread.start()
+        internal_server_process.start()
+        self.internal_server_started_barrier.wait()
         correct_tree = self._scan_opcua_server(
-            "127.0.0.1", "57344", "/dish-structure/server/", "http://skao.int/DS_ICD/"
+            # "127.0.0.1", "57344", "/dish-structure/server/", "http://skao.int/DS_ICD/"
+            "127.0.0.1",
+            "4840",
+            "/dish-structure/server/",
+            "http://skao.int/DS_ICD/",
         )
-        self._stop_internal_server.set()
+        internal_server_process.terminate()
         import json
 
         print(json.dumps(correct_tree))
+        internal_server_process.join()
         return
 
         # Second build tree of dubious server
