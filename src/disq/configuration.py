@@ -121,8 +121,8 @@ def get_configurations(config_filename: str | None = None) -> configparser.Confi
     Reads the configuration file and returns a ConfigParser object.
 
     Args:
-        config_filename (str, optional): The name of the configuration file. If None, the default
-            configuration file is used.
+        config_filename (str, optional): The name of the configuration file.
+            If None, the default configuration file is used.
 
     Returns:
         configparser.ConfigParser: A ConfigParser object.
@@ -139,20 +139,20 @@ def get_configurations(config_filename: str | None = None) -> configparser.Confi
 
 def get_config_sculib_args(
     config_filename: str | None = None, server_name: str = "DEFAULT"
-) -> dict[str, str]:
+) -> dict[str, str | int]:
     """
     Reads the configuration file and returns a dictionary of SCU library arguments.
 
     Args:
-        config_filename (str, optional): The name of the configuration file. If None, the default
-            configuration file is used.
+        config_filename (str, optional): The name of the configuration file. If None,
+            the default configuration file is used.
         server_name (str, optional): The name of the server to read from the
-            configuration file. Defaults to "DEFAULT" which just picks the first server listed
-            in the .ini file.
+            configuration file. Defaults to "DEFAULT" which just picks the first server
+            listed in the .ini file.
 
     Returns:
-        dict[str, str]: A dictionary containing the SCU library arguments, including the host,
-        port, endpoint, and namespace.
+        dict[str, str | int]: A dictionary containing the SCU library arguments,
+        including the host, port, endpoint, and namespace.
 
     Raises:
         FileNotFoundError: If the specified configuration file is not found.
@@ -164,10 +164,10 @@ def get_config_sculib_args(
     else:
         server_name = f"opcua_server.{server_name}"
     server_config: dict[str, str] = dict(config[server_name])
-    sculib_args = {
-        "host": server_config["host"],
-        "port": server_config["port"],
-        "endpoint": server_config["endpoint"],
-        "namespace": server_config["namespace"],
+    sculib_args: dict[str, str | int] = {
+        "host": str(server_config["host"]),
+        "port": int(server_config["port"]),
+        "endpoint": str(server_config["endpoint"]),
+        "namespace": str(server_config["namespace"]),
     }
     return sculib_args
