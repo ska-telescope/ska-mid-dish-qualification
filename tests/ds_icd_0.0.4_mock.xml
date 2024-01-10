@@ -669,6 +669,7 @@
             <Reference ReferenceType="HasComponent">ns=1;i=5005</Reference>
             <Reference ReferenceType="HasComponent">ns=1;i=5007</Reference>
             <Reference ReferenceType="HasComponent">ns=1;i=5017</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18808</Reference>
         </References>
     </UAObject>
     <UAObject NodeId="ns=1;i=5032" BrowseName="1:Azimuth">
@@ -7067,6 +7068,317 @@
         <References>
             <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5021</Reference>
+        </References>
+    </UAVariable>
+    <UAObject NodeId="ns=2;i=18808" BrowseName="1:MockData">
+        <DisplayName>MockData</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=58</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=5004</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18809</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18810</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18811</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18812</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18813</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18814</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18815</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18816</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18817</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18818</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18819</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18820</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18821</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18822</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18823</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18824</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18825</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18826</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18827</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18828</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18829</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18830</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18831</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18832</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18833</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18834</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18835</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18836</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18837</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18838</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18839</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18840</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18841</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18842</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18843</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18844</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18845</Reference>
+            <Reference ReferenceType="HasComponent">ns=2;i=18846</Reference>
+        </References>
+    </UAObject>
+    <UAVariable DataType="Double" NodeId="ns=2;i=18809" BrowseName="1:sine_value" AccessLevel="3">
+        <DisplayName>sine_value</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=11</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="Double" NodeId="ns=2;i=18810" BrowseName="1:cosine_value" AccessLevel="3">
+        <DisplayName>cosine_value</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=11</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="Double" NodeId="ns=2;i=18811" BrowseName="1:increment" AccessLevel="3">
+        <DisplayName>increment</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=11</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="Double" NodeId="ns=2;i=18812" BrowseName="1:decrement" AccessLevel="3">
+        <DisplayName>decrement</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=11</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="Boolean" NodeId="ns=2;i=18813" BrowseName="1:bool" AccessLevel="3">
+        <DisplayName>bool</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=1</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18814" BrowseName="1:enum" AccessLevel="3">
+        <DisplayName>enum</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18815" BrowseName="1:enum_stress6" AccessLevel="3">
+        <DisplayName>enum_stress6</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18816" BrowseName="1:enum_stress7" AccessLevel="3">
+        <DisplayName>enum_stress7</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18817" BrowseName="1:enum_stress8" AccessLevel="3">
+        <DisplayName>enum_stress8</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18818" BrowseName="1:enum_stress9" AccessLevel="3">
+        <DisplayName>enum_stress9</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18819" BrowseName="1:enum_stress10" AccessLevel="3">
+        <DisplayName>enum_stress10</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18820" BrowseName="1:enum_stress11" AccessLevel="3">
+        <DisplayName>enum_stress11</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18821" BrowseName="1:enum_stress12" AccessLevel="3">
+        <DisplayName>enum_stress12</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18822" BrowseName="1:enum_stress13" AccessLevel="3">
+        <DisplayName>enum_stress13</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18823" BrowseName="1:enum_stress14" AccessLevel="3">
+        <DisplayName>enum_stress14</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18824" BrowseName="1:enum_stress15" AccessLevel="3">
+        <DisplayName>enum_stress15</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18825" BrowseName="1:enum_stress16" AccessLevel="3">
+        <DisplayName>enum_stress16</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18826" BrowseName="1:enum_stress17" AccessLevel="3">
+        <DisplayName>enum_stress17</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18827" BrowseName="1:enum_stress18" AccessLevel="3">
+        <DisplayName>enum_stress18</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18828" BrowseName="1:enum_stress19" AccessLevel="3">
+        <DisplayName>enum_stress19</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18829" BrowseName="1:enum_stress20" AccessLevel="3">
+        <DisplayName>enum_stress20</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18830" BrowseName="1:enum_stress21" AccessLevel="3">
+        <DisplayName>enum_stress21</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18831" BrowseName="1:enum_stress22" AccessLevel="3">
+        <DisplayName>enum_stress22</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18832" BrowseName="1:enum_stress23" AccessLevel="3">
+        <DisplayName>enum_stress23</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18833" BrowseName="1:enum_stress24" AccessLevel="3">
+        <DisplayName>enum_stress24</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18834" BrowseName="1:enum_stress25" AccessLevel="3">
+        <DisplayName>enum_stress25</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18835" BrowseName="1:enum_stress26" AccessLevel="3">
+        <DisplayName>enum_stress26</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18836" BrowseName="1:enum_stress27" AccessLevel="3">
+        <DisplayName>enum_stress27</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18837" BrowseName="1:enum_stress28" AccessLevel="3">
+        <DisplayName>enum_stress28</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18838" BrowseName="1:enum_stress29" AccessLevel="3">
+        <DisplayName>enum_stress29</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18839" BrowseName="1:enum_stress30" AccessLevel="3">
+        <DisplayName>enum_stress30</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18840" BrowseName="1:enum_stress31" AccessLevel="3">
+        <DisplayName>enum_stress31</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18841" BrowseName="1:enum_stress32" AccessLevel="3">
+        <DisplayName>enum_stress32</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18842" BrowseName="1:enum_stress33" AccessLevel="3">
+        <DisplayName>enum_stress33</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18843" BrowseName="1:enum_stress34" AccessLevel="3">
+        <DisplayName>enum_stress34</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18844" BrowseName="1:enum_stress35" AccessLevel="3">
+        <DisplayName>enum_stress35</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18845" BrowseName="1:enum_stress36" AccessLevel="3">
+        <DisplayName>enum_stress36</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="DscStateType" NodeId="ns=2;i=18846" BrowseName="1:enum_stress37" AccessLevel="3">
+        <DisplayName>enum_stress37</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=18808</Reference>
         </References>
     </UAVariable>
     <UAObject SymbolicName="http___skao_int_DS_ICD_" NodeId="ns=1;i=5001" BrowseName="1:http://skao.int/DS_ICD/">

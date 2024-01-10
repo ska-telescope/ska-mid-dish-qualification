@@ -1,18 +1,16 @@
 import argparse
 import os
-import re
 import sys
-import xml.etree
-import xml.etree.ElementTree as ET
-
 import asyncua
 import yaml
-
 import asyncio
 import multiprocessing as mp
 import pprint
+from difflib import SequenceMatcher
 from disq import sculib
 from disq.serval_internal_server import ServalInternalServer
+
+import pickle
 
 
 class Serval:
@@ -65,69 +63,9 @@ class Serval:
         self.extra = []
         self.plc_prg_string = "1:PLC_PRG"
         self.internal_server_started_barrier = mp.Barrier(2)
-
-    def _get_browse_name_from_xml_element(self, element: ET.Element):
-        browse_name = None
-        if "BrowseName" in element.attrib:
-            browse_name = element.attrib["BrowseName"]
-
-        return browse_name
-
-    def _get_element_from_node_string(self, node_string: str):
-        for ele in self.xml.iter():
-            if "NodeId" in ele.attrib:
-                if ele.attrib["NodeId"] == node_string:
-                    return ele
-
-        return None
-
-    def _get_children_from_xml_element_recursive(self, element: ET.Element, path):
-        children_node_strings = []
-
-        for ele in element.iter():
-            if ele.tag == self.xmlns + "Reference":
-                if "ReferenceType" in ele.attrib:
-                    if ele.attrib["ReferenceType"] == "HasComponent":
-                        if (
-                            "IsForward" not in ele.attrib
-                            or ele.attrib["IsForward"] == "true"
-                        ):
-                            children_node_strings.append(ele.text)
-
-        children = {}
-        for child_string in children_node_strings:
-            child_ele = self._get_element_from_node_string(child_string)
-            if child_ele is not None:
-                name = self._get_browse_name_from_xml_element(child_ele)
-                name_stripped = name.split(":")[1]
-                children[child_ele] = {
-                    "browse_name": name,
-                    "children": self._get_children_from_xml_element_recursive(
-                        child_ele, path + name_stripped + "."
-                    ),
-                }
-                self.sculib_like[path + name_stripped] = None
-
-        return children
-
-    def _walk_xml_tree_missing_recursive(self, children, path):
-        for child in children:
-            name = path + children[child]["browse_name"].split(":")[1]
-            self.missing.append(name)
-            self._walk_xml_tree_missing_recursive(
-                children[child]["children"], name + "."
-            )
-
-    def _check_sculib_against_xml_recursive(self, entry, path):
-        name = path + entry["browse_name"].split(":")[1]
-        if name in self.hll.nodes:
-            for child in entry["children"]:
-                self._check_sculib_against_xml_recursive(
-                    entry["children"][child], name + "."
-                )
-        else:
-            self.missing.append(name)
-            self._walk_xml_tree_missing_recursive(entry["children"], name + ".")
+        self.fuzzy_threshold = 0.1
+        self.short_print = False
+        self.spaces_per_indent = 4
 
     async def _run_internal_server(self, xml_file: str):
         async with ServalInternalServer(xml_file):
@@ -155,7 +93,6 @@ class Serval:
         return (name, node_class, children)
 
     def _get_param_type_tuple(self, node_id: asyncua.ua.uatypes.NodeId) -> tuple:
-        print("node_id =", node_id)
         param_type = self.server.get_attribute_data_type(node_id)
         if param_type == "Enumeration":
             return (param_type, ",".join(self.server.get_enum_strings(node_id)))
@@ -172,10 +109,8 @@ class Serval:
         )
         args = {}
         for param in params:
-            print("param =", param)
             args[param.Name] = self._get_param_type_tuple(param.DataType)
 
-        print("args =", args)
         return args
 
     def _read_data_type_tuple(self, sculib_path: str) -> tuple:
@@ -197,10 +132,8 @@ class Serval:
         ancestors.append(name.Name)
         if node_class == 2:
             if short_name == "InputArguments":
-                print(ancestors)
                 node_dict[ns_name]["method_params"] = self._get_method_info(node)
             elif short_name == "OutputArguments":
-                print(ancestors)
                 node_dict[ns_name]["method_return"] = self._get_method_info(node)
             else:
                 sculib_ancestors = ancestors[1:]  # No "PLC_PRG" in sculib paths
@@ -220,6 +153,7 @@ class Serval:
     def _scan_opcua_server(
         self, host: str, port: str, endpoint: str, namespace: str
     ) -> dict:
+        return {}
         # Use sculib for encryption and getting PLC_PRG node.
         self.server = sculib.scu(
             host=host, port=port, endpoint=endpoint, namespace=namespace
@@ -231,6 +165,166 @@ class Serval:
         self.server.disconnect()
         return server_tree
 
+    def _args_match(self, actual_args: dict, expected_args: dict) -> bool:
+        ret = True
+        for param, type in expected_args.items():
+            if param not in actual_args:
+                ret = False
+                break
+
+            if actual_args[param] != type:
+                ret = False
+                break
+
+        return ret
+
+    def _node_children_match(
+        self, actual_children: dict, expected_children: dict, to_fuzzy: list
+    ) -> bool:
+        ret = True
+        for child in actual_children:
+            if child not in expected_children:
+                # Server under test has extra nodes
+                ret = False
+
+        for child in expected_children:
+            if child not in actual_children:
+                # Server under test missing nodes
+                ret = False
+                to_fuzzy.append(child)
+
+        return ret
+
+    def _fuzzy_match(self, actual_siblings: dict, to_fuzzy: list) -> list:
+        possibles = []
+        for expected in to_fuzzy:
+            possible = []
+            for sibling in actual_siblings.keys():
+                ratio = SequenceMatcher(a=expected, b=sibling).ratio()
+                if ratio > self.fuzzy_threshold:
+                    print(sibling)
+                    possible.append(sibling)
+
+            possibles.append({expected: possible})
+
+        print("possibles =", possibles)
+        return possibles
+
+    def _compare(self, actual: dict, expected: dict) -> dict:
+        diff_tree = {}
+        for node, node_info in expected.items():
+            if node in actual:
+                current_diff = {}
+                node_children = {}
+                if node == "0:InputArguments":
+                    current_diff["params_match"] = self._args_match(
+                        actual[node]["method_params"], node_info["method_params"]
+                    )
+                elif node == "0:OutputArguments":
+                    current_diff["return_match"] = self._args_match(
+                        actual[node]["method_return"], node_info["method_return"]
+                    )
+                else:
+                    # check node class matches
+                    current_diff["class_match"] = (
+                        actual[node]["node_class"] == node_info["node_class"]
+                    )
+                    # check data type matches if it is of variable type
+                    if node_info["node_class"] == "Variable":
+                        current_diff["type_match"] = (
+                            actual[node]["data_type"] == node_info["data_type"]
+                        )
+
+                    # check num and name of children
+                    to_fuzzy = []
+                    current_diff["children_match"] = self._node_children_match(
+                        actual[node]["children"], node_info["children"], to_fuzzy
+                    )
+                    if len(to_fuzzy) > 0:
+                        current_diff["fuzzy"] = self._fuzzy_match(
+                            actual[node]["children"], to_fuzzy
+                        )
+                    # recurse children
+                    node_children = self._compare(
+                        actual[node]["children"], node_info["children"]
+                    )
+
+                diff_tree[node] = {"diff": current_diff, "children": node_children}
+
+        return diff_tree
+
+    def _print_full_diff(self, actual: dict, expected: dict, diff: dict, level: int):
+        indent = " " * self.spaces_per_indent * level
+        for node, node_info in expected.items():
+            print(f"{indent}{node}")
+            if node == "0:InputArguments":
+                if diff[node]["diff"]["params_match"]:
+                    params_match = "Match"
+                else:
+                    expected_params = [
+                        (name, type) for name, type in node_info["method_params"]
+                    ]
+                    actual_params = [
+                        (name, type) for name, type in actual[node]["method_params"]
+                    ]
+                    params_match = (
+                        f"Expected: {expected_params}, actual: {actual_params}"
+                    )
+
+                print(f"  {indent}method_params: {params_match}")
+            elif node == "0:OutputArguments":
+                if diff[node]["diff"]["return_match"]:
+                    return_match = "Match"
+                else:
+                    expected_return = [
+                        (name, type) for name, type in node_info["method_return"]
+                    ]
+                    actual_return = [
+                        (name, type) for name, type in actual[node]["method_return"]
+                    ]
+                    return_match = (
+                        f"Expected: {expected_return}, actual: {actual_return}"
+                    )
+
+                print(f"  {indent}method_return: {return_match}")
+            else:
+                if diff[node]["diff"]["class_match"]:
+                    class_match = "Match"
+                else:
+                    class_match = f"Expected: {node_info['node_class']}, actual: {actual[node]['node_class']}"
+
+                print(f"  {indent}node_class: {class_match}")
+                if node_info["node_class"] == "Variable":
+                    if diff[node]["diff"]["type_match"]:
+                        type_match = "Match"
+                    else:
+                        type_match = f"Expected: {node_info['data_type']}, actual: {actual[node]['data_type']}"
+
+                    print(f"  {indent}data_type: {type_match}")
+
+                if diff[node]["diff"]["children_match"]:
+                    children_match = "Match"
+                else:
+                    expected_children = [name for name in node_info["children"].keys()]
+                    actual_children = [name for name in actual[node]["children"].keys()]
+                    if len(diff[node]["diff"]["fuzzy"]) > 0:
+                        fuzzy_children = [
+                            fuzzy for fuzzy in diff[node]["diff"]["fuzzy"]
+                        ]
+                        children_match = f"Expected: {expected_children}, actual: {actual_children}. Possible matches: {fuzzy_children}"
+                    else:
+                        children_match = (
+                            f"Expected: {expected_children}, actual: {actual_children}"
+                        )
+
+                print(f"  {indent}children: {children_match}")
+                self._print_full_diff(
+                    actual[node]["children"],
+                    node_info["children"],
+                    diff[node]["children"],
+                    level + 1,
+                )
+
     def validate(self, xml_file: str, server_config: str):
         print(f"Using xml file: {xml_file}, and config file: {server_config}")
         # First build tree of correct server
@@ -239,115 +333,63 @@ class Serval:
             args=[xml_file],
             name="Internal server process",
         )
-        internal_server_process.start()
-        self.internal_server_started_barrier.wait()
+        # internal_server_process.start()
+        # self.internal_server_started_barrier.wait()
         correct_tree = self._scan_opcua_server(
-            # "127.0.0.1", "57344", "/dish-structure/server/", "http://skao.int/DS_ICD/"
-            "127.0.0.1",
-            "4840",
-            "/dish-structure/server/",
-            "http://skao.int/DS_ICD/",
+            "127.0.0.1", "57344", "/dish-structure/server/", "http://skao.int/DS_ICD/"
         )
-        internal_server_process.terminate()
-
-        pprint.pprint(correct_tree, sort_dicts=False)
-        internal_server_process.join()
-        return
+        # internal_server_process.terminate()
+        # internal_server_process.join()
 
         # Second build tree of dubious server
-        # Third compare the two
         with open(server_config, "r") as f:
             try:
-                self.config = yaml.safe_load(f.read())
+                config = yaml.safe_load(f.read())
             except Exception as e:
                 print(e)
                 sys.exit(
                     f"ERROR: Unable to parse server configuration file {server_config}."
                 )
 
-        print(self.config)
-        self.xml = ET.parse(xml_file)
-        root = self.xml.getroot()
-        self.xmlns = re.split("(^.*})", root.tag)[1]
-        plc_prg = None
-        # Find the PLC_PRG node in the xml
-        for element in root.iter():
-            if "BrowseName" in element.attrib:
-                if element.attrib["BrowseName"] == self.plc_prg_string:
-                    plc_prg = element
-
-        if plc_prg is None:
-            sys.exit(f"ERROR: Could not find PLC_PRG node in input XML")
-
-        # Recursively build input tree from xml
-        # self.xml_tree = {
-        #    plc_prg: {
-        #        "browse_name": self._get_browse_name_from_xml_element(plc_prg),
-        #        "children": self._get_children_from_xml_element_recursive(plc_prg, ""),
-        #    }
-        # }
-        # sculib does not include plc_prg in nodes
-        self.xml_tree = self._get_children_from_xml_element_recursive(plc_prg, "")
-        self.sculib_like["PLC_PRG"] = None
-        # extras for testing during development <
-        """
-        axis_select_type = None
-        for element in root.iter():
-            if "BrowseName" in element.attrib:
-                if element.attrib["BrowseName"] == "1:AxisSelectType":
-                    axis_select_type = element
-        self.xml_tree.update(
-            {
-                root: {
-                    "browse_name": "1:test1",
-                    "children": {
-                        root: {
-                            "browse_name": "1:test2",
-                            "children": {
-                                axis_select_type: {
-                                    "browse_name": "1:test3",
-                                    "children": {},
-                                }
-                            },
-                        }
-                    },
-                },
-                axis_select_type: {
-                    "browse_name": "1:axis1",
-                    "children": {
-                        root: {"browse_name": "1:axis1.1", "children": {}},
-                        axis_select_type: {"browse_name": "1:axis1.2", "children": {}},
-                    },
-                },
-            }
+        dubious_tree = self._scan_opcua_server(
+            config["connection"]["address"],
+            config["connection"]["port"],
+            config["connection"]["endpoint"],
+            config["connection"]["namespace"],
         )
-        """
-        # >
-        # print(self.xml_tree)
+        # Third compare the two
 
-        self.hll = sculib.scu(
-            host=self.config["connection"]["address"],
-            port=self.config["connection"]["port"],
-            endpoint=self.config["connection"]["endpoint"],
-            namespace=self.config["connection"]["namespace"],
-        )
-        # print(self.hll.nodes)
-        # Find missing nodes
-        for input_node in self.xml_tree:
-            self._check_sculib_against_xml_recursive(self.xml_tree[input_node], "")
+        # with open("xml_4_tree.pkl", "wb") as f:
+        # pickle.dump(correct_tree, f)
+        # with open("xml_4_mock_tree.pkl", "wb") as f:
+        # pickle.dump(dubious_tree, f)
 
-        print("OPCUA Server is missing the following nodes under the PLC_PRG node:")
-        for node in self.missing:
-            print(node)
+        if dubious_tree == correct_tree:
+            print("The servers match! No significant differences found.")
+            # return
 
-        # Find extra nodes
-        for node in self.hll.nodes:
-            if node not in self.sculib_like:
-                self.extra.append(node)
+        with open("xml_4_tree.pkl", "rb") as f:
+            correct_tree = pickle.load(f)
+        with open("xml_4_mock_tree.pkl", "rb") as f:
+            dubious_tree = pickle.load(f)
 
-        print("OPCUA Server has the following extra nodes under the PLC_PRG node:")
-        for node in self.extra:
-            print(node)
+        # diff_tree = self._compare(dubious_tree, correct_tree)
+        diff_tree = self._compare(correct_tree, dubious_tree)
+        self.short_print = False
+        if self.short_print:
+            pprint.pprint(diff_tree, sort_dicts=False)
+        else:
+            self._print_full_diff(dubious_tree, correct_tree, diff_tree, 0)
+        # delme_print(diff_tree, correct_tree, dubious_tree)
+
+
+def delme_print(diff, cor, dub):
+    print(">>>>>Diff<<<<<")
+    pprint.pprint(diff, sort_dicts=False)
+    print(">>>>>Correct<<<<<")
+    pprint.pprint(cor, sort_dicts=False)
+    print(">>>>>Dubious<<<<<")
+    pprint.pprint(dub, sort_dicts=False)
 
 
 def main():

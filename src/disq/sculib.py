@@ -612,7 +612,7 @@ class scu:
         dt_node = self.connection.get_node(dt_id)
         dt_node_info = asyncio.run_coroutine_threadsafe(dt_node.read_browse_name(), self.event_loop).result()
         dt_name = dt_node_info.Name
-        instant_types = ["Boolean", "DateTime", "Double", "Float", "String", "UInt16", "UInt32"]
+        instant_types = ["Boolean", "ByteString", "DateTime", "Double", "Float", "String", "UInt16", "UInt32"]
         if dt_name in instant_types:
             return dt_name
 
@@ -621,7 +621,6 @@ class scu:
             if issubclass(getattr(asyncua.ua, dt_name), enum.Enum):
                 return "Enumeration"
 
-        print("unknown type =", dt_name)
         return "Unknown"
 
     def get_enum_strings(self, enum_node: str|asyncua.ua.uatypes.NodeId) -> list[str]:
