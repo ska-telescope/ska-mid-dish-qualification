@@ -55,7 +55,7 @@ class Serval:
         "AccessLevelEx": 27,
     }
 
-    def __init__(self):
+    def __init__(self, include_namespace: bool = False):
         self.config = None
         self.xml = None
         self.sculib_like = {}
@@ -64,6 +64,13 @@ class Serval:
         self.plc_prg_string = "1:PLC_PRG"
         self.internal_server_started_barrier = mp.Barrier(2)
         self.fuzzy_threshold = 0.85
+        self.include_namespace = False
+        if include_namespace:
+            self.in_args = "0:InputArguments"
+            self.out_args = "0:OutputArguments"
+        else:
+            self.in_args = "InputArguments"
+            self.out_args = "OutputArguments"
 
     async def _run_internal_server(self, xml_file: str):
         async with ServalInternalServer(xml_file):
@@ -106,45 +113,52 @@ class Serval:
             .Value.Value
         )
         args = {}
-        for param in params:
-            args[param.Name] = self._get_param_type_tuple(param.DataType)
+        if params is not None:
+            for param in params:
+                args[param.Name] = self._get_param_type_tuple(param.DataType)
 
         return args
 
     def _read_data_type_tuple(self, sculib_path: str) -> tuple:
-        type = self.server.get_attribute_data_type(sculib_path)
-        if type == "Enumeration":
-            return (type, ",".join(self.server.get_enum_strings(sculib_path)))
+        try:
+            data_type = self.server.get_attribute_data_type(sculib_path)
+        except:
+            return ("Node name error",)
+        if data_type == "Enumeration":
+            return (data_type, ",".join(self.server.get_enum_strings(sculib_path)))
 
-        return (type,)
+        return (data_type,)
 
     def _fill_tree_recursive(self, node: asyncua.Node, ancestors: list[str]) -> dict:
         node_dict = {}
         # Fill node info
         name, node_class, node_children = self._get_node_info(node)
         short_name = name.Name
-        ns_name = f"{name.NamespaceIndex}:{short_name}"
-        node_dict[ns_name] = {
+        if self.include_namespace:
+            name = f"{name.NamespaceIndex}:{short_name}"
+        else:
+            name = short_name
+        node_dict[name] = {
             "node_class": self.opcua_node_class_names[node_class],
         }
-        ancestors.append(name.Name)
+        ancestors.append(short_name)
         if node_class == 2:
-            if short_name == "InputArguments":
-                node_dict[ns_name]["method_params"] = self._get_method_info(node)
-            elif short_name == "OutputArguments":
-                node_dict[ns_name]["method_return"] = self._get_method_info(node)
+            if name == self.in_args:
+                node_dict[name]["method_params"] = self._get_method_info(node)
+            elif name == self.out_args:
+                node_dict[name]["method_return"] = self._get_method_info(node)
             else:
                 sculib_ancestors = ancestors[1:]  # No "PLC_PRG" in sculib paths
                 sculib_path = ".".join(sculib_ancestors)
                 data_type = self._read_data_type_tuple(sculib_path)
-                node_dict[ns_name]["data_type"] = data_type
+                node_dict[name]["data_type"] = data_type
 
         # Create hierarchical structure
         children = {}
         for child in node_children:
             children.update(self._fill_tree_recursive(child, ancestors[:]))
 
-        node_dict[ns_name]["children"] = children
+        node_dict[name]["children"] = children
 
         return node_dict
 
@@ -164,12 +178,12 @@ class Serval:
 
     def _args_match(self, actual_args: dict, expected_args: dict) -> bool:
         ret = True
-        for param, type in expected_args.items():
+        for param, data_type in expected_args.items():
             if param not in actual_args:
                 ret = False
                 break
 
-            if actual_args[param] != type:
+            if actual_args[param] != data_type:
                 ret = False
                 break
 
@@ -211,11 +225,11 @@ class Serval:
             if node in actual:
                 current_diff = {}
                 node_children = {}
-                if node == "0:InputArguments":
+                if node == self.in_args:
                     current_diff["params_match"] = self._args_match(
                         actual[node]["method_params"], node_info["method_params"]
                     )
-                elif node == "0:OutputArguments":
+                elif node == self.out_args:
                     current_diff["return_match"] = self._args_match(
                         actual[node]["method_return"], node_info["method_return"]
                     )
@@ -258,36 +272,36 @@ class Serval:
         for node, node_info in expected.items():
             if node in actual:
                 print(f"{indent}{node}")
-                if node == "0:InputArguments":
+                if node == self.in_args:
                     if diff[node]["diff"]["params_match"]:
                         params_match = "Match"
                     else:
                         input_indent = " " * len("  method_params: ")
                         expected_params = [
-                            (name, type)
-                            for name, type in node_info["method_params"].items()
+                            (name, data_type)
+                            for name, data_type in node_info["method_params"].items()
                         ]
                         actual_params = [
-                            (name, type)
-                            for name, type in actual[node]["method_params"].items()
+                            (name, data_type)
+                            for name, data_type in actual[node]["method_params"].items()
                         ]
                         params_match = f"""
 {input_indent}{indent}Expected: {expected_params},
 {input_indent}{indent}  actual: {actual_params}"""
 
                     print(f"  {indent}method_params: {params_match}")
-                elif node == "0:OutputArguments":
+                elif node == self.out_args:
                     if diff[node]["diff"]["return_match"]:
                         return_match = "Match"
                     else:
                         output_indent = " " * len("  method_return: ")
                         expected_return = [
-                            (name, type)
-                            for name, type in node_info["method_return"].items()
+                            (name, data_type)
+                            for name, data_type in node_info["method_return"].items()
                         ]
                         actual_return = [
-                            (name, type)
-                            for name, type in actual[node]["method_return"].items()
+                            (name, data_type)
+                            for name, data_type in actual[node]["method_return"].items()
                         ]
                         return_match = f"""
 {output_indent}{indent}Expected: {expected_return},

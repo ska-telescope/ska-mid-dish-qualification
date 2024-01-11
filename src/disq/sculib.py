@@ -623,6 +623,10 @@ class scu:
 
         return "Unknown"
 
+    def _enum_fields_out_of_order(self, index: int, field: asyncua.ua.uaprotocol_auto.EnumField) -> str:
+        logger.error("Enum fields out of order")
+        return f"ERROR: incorrect index for {field.Name}; expected: {index} actual: {field.Value}"
+
     def get_enum_strings(self, enum_node: str|asyncua.ua.uatypes.NodeId) -> list[str]:
         """
         Get a list of enumeration strings where the index of the list matches the enum value.
@@ -637,7 +641,7 @@ class scu:
         dt_node = self.connection.get_node(dt_id)
         dt_node_def = asyncio.run_coroutine_threadsafe(dt_node.read_data_type_definition(), self.event_loop).result()
 
-        return [Field.Name if Field.Value == index else logger.error("Enum fields out of order") for index, Field in enumerate(dt_node_def.Fields)]
+        return [Field.Name if Field.Value == index else self._enum_fields_out_of_order(index, Field) for index, Field in enumerate(dt_node_def.Fields)]
 
     def subscribe(self, attributes: Union[str, list[str]] = hn_opcua_tilt_sensors, period: int = 100, data_queue: queue.Queue = None) -> int:
         if data_queue is None:
