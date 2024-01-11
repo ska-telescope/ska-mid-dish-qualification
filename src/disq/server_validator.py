@@ -10,8 +10,6 @@ from difflib import SequenceMatcher
 from disq import sculib
 from disq.serval_internal_server import ServalInternalServer
 
-import pickle
-
 
 class Serval:
     opcua_node_class_names = {
@@ -56,12 +54,6 @@ class Serval:
     }
 
     def __init__(self, include_namespace: bool = False):
-        self.config = None
-        self.xml = None
-        self.sculib_like = {}
-        self.missing = []
-        self.extra = []
-        self.plc_prg_string = "1:PLC_PRG"
         self.internal_server_started_barrier = mp.Barrier(2)
         self.fuzzy_threshold = 0.85
         self.include_namespace = False
