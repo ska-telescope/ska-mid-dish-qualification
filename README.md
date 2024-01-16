@@ -52,26 +52,16 @@ The resulting `.whl` package can be found in the `dist/` direcotory and be insta
 ## Usage
 The DiSQ software is intended to be used either as a ready-made GUI application or for more advanced users as a library in Jupyter notebooks. See the examples directory for, well, examples.
 
-### Environment
-The following environment variables can be used to modify default parameter values. The recommended way to manage these configurations are to drop a `.env` file in the current working directory. The default settings can be modified.
+After `pip` installing the package (see above) the GUI can be launched with the `disq-gui` command.
 
-For the "Karoo" simulator, running on your local host (127.0.0.1) use:
+### Configuration
+A configuration file named `disq.ini` can be used to specify a list of servers and their parameters. The user can then select the specific server to connect to from a drop-down menu widget and save having to type in all the server parameters.
 
-```ini
-DISQ_OPCUA_SERVER_ADDRESS=127.0.0.1
-DISQ_OPCUA_SERVER_NAMESPACE=http://skao.int/DS_ICD/
-DISQ_OPCUA_SERVER_ENDPOINT=/dish-structure/server/
-DISQ_OPCUA_SUBSCRIPTION_PERIOD_MS=100
-```
-
-For the "CETC" simulator, running on your local host (127.0.0.1) use:
-
-```ini
-DISQ_OPCUA_SERVER_ADDRESS=127.0.0.1
-DISQ_OPCUA_SERVER_NAMESPACE=CETC54
-DISQ_OPCUA_SERVER_ENDPOINT=/OPCUA/SimpleServer
-DISQ_OPCUA_SUBSCRIPTION_PERIOD_MS=100
-```
+The GUI application will search for the configuration file in the following order:
+* First the current working directory (CWD) is searched for a `disq.ini` file.
+* Then the environment variable `DISQ_CONFIG` is scanned for the existence of a file (any filename)
+* Finally the users data directory is scanned for a `disq.ini` file
+  * This is cross-platform compatible using [platformdirs](https://pypi.org/project/platformdirs/). On Linux `~/.local/share/disq/`
 
 ### Application Logs
 DiSQ uses Python logging to log and output or record debug/info/warning/error messages. The logging comes pre-configured in `src/disq/default_logging_config.py` but this default configuration can be overridden by a custom configuration if a file named `disq_logging_config.yaml` is found in the current working directory (CWD) when starting the app. 
