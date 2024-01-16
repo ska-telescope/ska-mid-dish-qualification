@@ -18,7 +18,10 @@
             "request": "launch",
             "program": "${workspaceFolder}/src/disq/mvcmain.py",
             "console": "integratedTerminal",
-            "justMyCode": false
-        }
+            "justMyCode": false,
+            "env": {
+                "DISQ_CONFIG": "${workspaceFolder}/disq.ini"
+            }
+        },
     ]
 }

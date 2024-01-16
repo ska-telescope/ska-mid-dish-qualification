@@ -3,9 +3,11 @@ from pathlib import Path
 
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
-from disq import model
+from disq import configuration, model
 
 logger = logging.getLogger("gui.controller")
+
+_LOCAL_DIR_CONFIGFILE = "disq.ini"
 
 
 class Controller(QObject):
@@ -40,6 +42,26 @@ class Controller(QObject):
         else:
             logger.debug(message)
         self.ui_status_message.emit(f"{sevr_symbol} {message}")
+
+    def get_config_servers(self) -> list[str]:
+        server_list: list[str] = []
+        try:
+            server_list = configuration.get_config_server_list(
+                config_filename=_LOCAL_DIR_CONFIGFILE
+            )
+        except FileNotFoundError:
+            logger.warning("Unable to find config file")
+        return server_list
+
+    def get_config_server_args(self, server_name: str) -> dict[str, str | int]:
+        server_args: dict[str, str | int] = {}
+        try:
+            server_args = configuration.get_config_sculib_args(
+                config_filename=_LOCAL_DIR_CONFIGFILE, server_name=server_name
+            )
+        except FileNotFoundError:
+            logger.warning("Unable to find config file")
+        return server_args
 
     def is_server_connected(self) -> bool:
         return self._model.is_connected()

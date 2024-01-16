@@ -128,6 +128,9 @@
         </widget>
        </item>
        <item>
+        <widget class="QComboBox" name="dropdown_server_config_select"/>
+       </item>
+       <item>
         <widget class="QPushButton" name="btn_server_connect">
          <property name="text">
           <string>Connect</string>
@@ -2223,7 +2226,7 @@
      <x>0</x>
      <y>0</y>
      <width>1524</width>
-     <height>37</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
