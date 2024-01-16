@@ -143,6 +143,11 @@ class Controller(QObject):
         cmd = "Management.Move2Band"
         self.issue_command(cmd, band)
 
+    def command_take_authority(self, take_command: bool, username: str):
+        cmd = "CommandArbiter.TakeReleaseAuth"
+        # Arguments are: (bool TakeCommand, string Username)
+        self.issue_command(cmd, take_command, username)
+
     def issue_command(self, cmd: str, *args):
         logger.debug(f"Command: {cmd}  args: {args}")
         self.ui_status_message.emit(f"Issuing command: {cmd} {args}")
