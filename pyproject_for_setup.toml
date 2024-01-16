@@ -17,6 +17,7 @@ dependencies = [
     "pyqt6-tools",
     "python-dotenv",
     "h5py",
+    "numpy",
     # matplotlib and plotly are only used in the reader class.
     "matplotlib",
     "plotly",

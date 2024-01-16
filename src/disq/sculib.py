@@ -30,6 +30,8 @@ import asyncua
 import cryptography
 import yaml
 
+import numpy
+
 logger = logging.getLogger('sculib')
 
 def configure_logging(default_log_level: int = logging.INFO) -> None:
@@ -680,6 +682,48 @@ class scu:
             values.append(self.subscription_queue.get(block = False, timeout = 0.1))
         return values
 
+    def load_track_table_file(self, file_name: str) -> numpy.array:
+        """Load a track table file that can be uploaded with the
+        load_program_track command function:
+            positions = self.load_track_table_file(
+                os.getenv('HOME')+'/Downloads/radial.csv')
+            scu.load_program_track(0,
+                len(positions),
+                positions[0:][0],
+                positions[0:][1],
+                positions[0:][2])
+
+        Parameter: File name of the track table file including its path.
+        Returns:
+            numpy.array: 3d numpy array that contains [time offset, az position, el position]
+        """
+        try:
+            lines = []
+            # Load the track table file.
+            with open(file_name, 'r', encoding = "utf-8") as f:
+                lines = f.readlines()
+            # Remove the header line because it does not contain a position.
+            lines.pop(0)
+            # Remove a trailing '\n' and split the cleaned line at every ','.
+            cleaned_lines = [ line.rstrip('\n').split(',') for line in lines ]
+            # Return an array that contains the time offsets and positions.
+            return numpy.array(cleaned_lines, dtype=float)
+        except Exception as e:
+            e.add_note(f'Could not load or convert the track table file "{file_name}".')
+            logger.error(f'{e}')
+            raise e
+
+    def upload_track_table_to_ds(self, file_name: str) -> None:
+        """A convenience function that directly uploads a track table to the
+        dish structure's OPC UA server.
+
+        Args:
+            file_name (str): File name of the track table file including its path.
+        """
+        positions = self.load_track_table_file(file_name)
+        self.load_program_track(0, len(positions), positions[:,0],
+                                positions[:,1], positions[:,2])
+
     #Direct SCU webapi functions based on urllib PUT/GET
     def feedback(self, r):
         logger.error('Not implemented because this function is not needed.')
@@ -828,7 +872,7 @@ class scu:
         logger.info(f'offset az: {az_offset:.4f} el: {el_offset:.4f}')
         return self.commands['Tracking.TrackLoadStaticOff'](az_offset, el_offset)
 
-    def load_program_track(self, load_type, entries, t=[0]*5000, az=[0]*5000, el=[0]*5000):
+    def load_program_track(self, load_type, entries, t: list[float]=[0]*5000, az: list[float]=[0]*5000, el: list[float]=[0]*5000) -> None:
         logger.info(load_type)
 
         # unused
@@ -857,7 +901,7 @@ class scu:
         table = ""
         for index in range(len(t)):
             row = f'{index:03d}:{t[index]},{az[index]},{el[index]};\n'
-            table.append(row)
+            table += row
         logging.debug(f'Track table that will be sent to DS:{table}')
         byte_string = table.encode()
         return self.commands['Tracking.TrackLoadTable'](load_type, entries, byte_string)
