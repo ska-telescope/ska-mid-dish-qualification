@@ -171,3 +171,19 @@ def get_config_sculib_args(
         "namespace": str(server_config["namespace"]),
     }
     return sculib_args
+
+
+def get_config_server_list(config_filename: str | None = None) -> list[str]:
+    """
+    Reads the configuration file and returns a list of server names.
+
+    Args:
+        config_filename (str, optional): The name of the configuration file. If None,
+            the default configuration file is used.
+
+    Returns:
+        list[str]: A list containing the server names.
+    """
+    config: configparser.ConfigParser = get_configurations(config_filename)
+    server_list = [server.split(".")[1] for server in config.sections()]
+    return server_list
