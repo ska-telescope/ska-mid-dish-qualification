@@ -126,6 +126,10 @@ class MainView(QtWidgets.QMainWindow):
         self.pushButton_release_auth.clicked.connect(
             lambda: self.authority_button_clicked(False)
         )
+        self.pushButton_interlock_ack: QtWidgets.QPushButton
+        self.pushButton_interlock_ack.clicked.connect(
+            self.controller.command_interlock_ack
+        )
         # pb_slew2abs: QtWidgets.QPushButton = self.findChild(
         #     QtWidgets.QPushButton, name="pushButton_slew2abs"
         # )
