@@ -1,5 +1,6 @@
 import logging
 import os
+from enum import Enum
 from functools import cached_property
 from importlib import resources
 
@@ -116,6 +117,19 @@ class MainView(QtWidgets.QMainWindow):
         # Listen for Model event signals
         self.model.data_received.connect(self.event_update)
 
+        self.comboBox_authority: QtWidgets.QComboBox
+        self.pushButton_take_auth: QtWidgets.QPushButton
+        self.pushButton_take_auth.clicked.connect(
+            lambda: self.authority_button_clicked(True)
+        )
+        self.pushButton_release_auth: QtWidgets.QPushButton
+        self.pushButton_release_auth.clicked.connect(
+            lambda: self.authority_button_clicked(False)
+        )
+        self.pushButton_interlock_ack: QtWidgets.QPushButton
+        self.pushButton_interlock_ack.clicked.connect(
+            self.controller.command_interlock_ack
+        )
         # pb_slew2abs: QtWidgets.QPushButton = self.findChild(
         #     QtWidgets.QPushButton, name="pushButton_slew2abs"
         # )
@@ -217,7 +231,7 @@ class MainView(QtWidgets.QMainWindow):
     @cached_property
     def all_opcua_widgets(self) -> list:
         all_widgets: list[QtWidgets.QObject] = self.findChildren(
-            (QtWidgets.QLineEdit, QtWidgets.QPushButton)
+            (QtWidgets.QLineEdit, QtWidgets.QPushButton, QtWidgets.QComboBox)
         )
         opcua_widgets: list[QtWidgets.QObject] = []
         for wgt in all_widgets:
@@ -282,6 +296,20 @@ class MainView(QtWidgets.QMainWindow):
         _widget = self.opcua_widgets[event["name"]][0]
         _widget_update_func = self.opcua_widgets[event["name"]][1]
         _widget_update_func(_widget, event)
+
+    def _init_opcua_combo_widgets(self) -> None:
+        """Initialise all the OPC-UA combo widgets"""
+        for widget in self.findChildren(QtWidgets.QComboBox):
+            if "opcua_type" not in widget.dynamicPropertyNames():
+                # Skip all the non-opcua widgets
+                continue
+            opcua_type = str(widget.property("opcua_type"))
+            if opcua_type in self.model.opcua_enum_types:
+                OpcuaEnum: Enum = self.model.opcua_enum_types[opcua_type]
+                enum_strings = [str(e.name) for e in OpcuaEnum]
+                wgt: QtWidgets.QComboBox = widget  # type: ignore  # Explicitly cast to QComboBox
+                wgt.clear()
+                wgt.addItems(enum_strings)
 
     def _update_opcua_text_widget(
         self, widget: QtWidgets.QLineEdit, event: dict
@@ -370,6 +398,7 @@ class MainView(QtWidgets.QMainWindow):
         self.enable_server_widgets(False, connect_button=True)
         self.enable_opcua_widgets()
         self.enable_data_logger_widgets(True)
+        self._init_opcua_combo_widgets()
 
     @QtCore.pyqtSlot()
     def server_disconnected_event(self):
@@ -465,6 +494,13 @@ class MainView(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def deactivate_button_clicked(self):
         self.controller.command_deactivate()
+
+    @QtCore.pyqtSlot(bool)
+    def authority_button_clicked(self, take_command: bool):
+        username = self.comboBox_authority.currentText()
+        self.controller.command_take_authority(
+            take_command=take_command, username=username
+        )
 
     @QtCore.pyqtSlot(str)
     def command_response_status_update(self, status: str):

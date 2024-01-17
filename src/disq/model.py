@@ -171,6 +171,13 @@ class Model(QObject):
             "DscStateType",
             "StowPinStatusType",
             "AxisSelectType",
+            "DscCmdAuthorityType",
+            "BandType",
+            "DscTimeSourceType",
+            "InterpolType",
+            "LoadModeType",
+            "SafetyStateType",
+            "TiltOnType",
         ]:
             try:
                 result.update({opcua_type: getattr(ua, opcua_type)})

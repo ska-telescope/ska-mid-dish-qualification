@@ -139,9 +139,19 @@ class Controller(QObject):
         cmd = "Management.Stow"
         self.issue_command(cmd, stow)  # argument to stow or not...
 
+    @pyqtSlot()
+    def command_interlock_ack(self):
+        cmd = "Safety.InterlockAck"
+        self.issue_command(cmd)
+
     def command_move2band(self, band: str):
         cmd = "Management.Move2Band"
         self.issue_command(cmd, band)
+
+    def command_take_authority(self, take_command: bool, username: str):
+        cmd = "CommandArbiter.TakeReleaseAuth"
+        # Arguments are: (bool TakeCommand, string Username)
+        self.issue_command(cmd, take_command, username)
 
     def issue_command(self, cmd: str, *args):
         logger.debug(f"Command: {cmd}  args: {args}")
