@@ -18,13 +18,23 @@
             "request": "launch",
             "program": "${workspaceFolder}/src/disq/mvcmain.py",
             "console": "integratedTerminal",
-            "justMyCode": false
-        }
+            "justMyCode": false,
+            "env": {
+                "DISQ_CONFIG": "${workspaceFolder}/disq.ini"
+            }
+        },
         {
             "name": "Server Validator",
             "type": "python",
             "request": "launch",
-            "args": ["-x", "tests/ds_icd_0.0.4.xml", "-c", "tests/config_cetc.yaml", ">", "delme"],
+            "args": [
+                "-x",
+                "tests/ds_icd_0.0.4.xml",
+                "-c",
+                "tests/config_cetc.yaml",
+                ">",
+                "delme"
+            ],
             "program": "${workspaceFolder}/src/disq/server_validator.py",
             "console": "integratedTerminal",
             "justMyCode": false

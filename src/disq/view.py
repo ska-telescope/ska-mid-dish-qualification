@@ -96,6 +96,15 @@ class MainView(QtWidgets.QMainWindow):
         self.model = model
         self.controller = controller
 
+        # Populate the server config select (drop-down) box with entries from
+        # configuration file
+        server_list = self.controller.get_config_servers()
+        self.dropdown_server_config_select: QtWidgets.QComboBox
+        self.dropdown_server_config_select.addItems([None] + server_list)
+        self.dropdown_server_config_select.currentTextChanged.connect(
+            self.server_config_select_changed
+        )
+
         # Connect widgets and slots to the Controller
         self.controller.ui_status_message.connect(self.command_response_status_update)
         self.controller.server_connected.connect(self.server_connected_event)
@@ -236,13 +245,14 @@ class MainView(QtWidgets.QMainWindow):
         self.lineEdit_recording_status.setEnabled(enable)
         self.pushButton_recording_config.setEnabled(enable)
 
-    def enable_server_widgets(self, enable: bool = True):
+    def enable_server_widgets(self, enable: bool = True, connect_button: bool = False):
         self.input_server_address.setEnabled(enable)
         self.input_server_port.setEnabled(enable)
         self.input_server_endpoint.setEnabled(enable)
         self.input_server_namespace.setEnabled(enable)
-        self.btn_server_connect.setEnabled(not enable)
-        self.btn_server_connect.setText("Connect" if enable else "Disconnect")
+        if connect_button:
+            self.btn_server_connect.setEnabled(not enable)
+            self.btn_server_connect.setText("Connect" if enable else "Disconnect")
 
     @QtCore.pyqtSlot(bool)
     def recording_status_update(self, status: bool):
@@ -357,7 +367,7 @@ class MainView(QtWidgets.QMainWindow):
         lbl.setText("Subscribing to OPC-UA updates...")
         self.controller.subscribe_opcua_updates(self.opcua_widgets)
         lbl.setText(f"Connected to: {self.model.get_server_uri()}")
-        self.enable_server_widgets(False)
+        self.enable_server_widgets(False, connect_button=True)
         self.enable_opcua_widgets()
         self.enable_data_logger_widgets(True)
 
@@ -368,7 +378,7 @@ class MainView(QtWidgets.QMainWindow):
         self.enable_data_logger_widgets(False)
         lbl: QtWidgets.QLabel = self.label_connection_status
         lbl.setText("Status: disconnected")
-        self.enable_server_widgets(True)
+        self.enable_server_widgets(True, connect_button=True)
 
     @QtCore.pyqtSlot()
     def connect_button_clicked(self):
@@ -387,6 +397,23 @@ class MainView(QtWidgets.QMainWindow):
         else:
             logger.debug("disconnecting from server")
             self.controller.disconnect_server()
+
+    @QtCore.pyqtSlot(str)
+    def server_config_select_changed(self, server_name: str):
+        """User changed server selection in drop-down box. Enable/disable relevant widgets"""
+        logger.debug("server config select changed: %s", server_name)
+        if server_name is None or server_name == "":
+            self.enable_server_widgets(True)
+        else:
+            # Get the server config args from configfile
+            server_config = self.controller.get_config_server_args(server_name)
+            # Populate the widgets with the server config args
+            self.input_server_address.setText(server_config["host"])
+            self.input_server_port.setText(str(server_config["port"]))
+            self.input_server_endpoint.setText(server_config["endpoint"])
+            self.input_server_namespace.setText(server_config["namespace"])
+            # Disable editing of the widgets
+            self.enable_server_widgets(False)
 
     @QtCore.pyqtSlot()
     def recording_config_button_clicked(self):
