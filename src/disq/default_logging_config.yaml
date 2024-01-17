@@ -21,7 +21,7 @@ handlers:
     level: DEBUG
     formatter: debug
     filename: "logs/disq.log"
-    when: "midnight"
+    atTime: "08:00:00"
     # when: "h"
     # maxBytes: 1048576 # 1MB
     backupCount: 20
