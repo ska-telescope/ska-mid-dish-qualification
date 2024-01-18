@@ -5,9 +5,8 @@ import asyncua
 import yaml
 import asyncio
 import multiprocessing as mp
-import pprint
 from difflib import SequenceMatcher
-from disq import sculib
+from disq import sculib, configuration
 from disq.serval_internal_server import ServalInternalServer
 
 
@@ -250,6 +249,7 @@ class Serval:
                         current_diff["fuzzy"] = self._fuzzy_match(
                             actual[node]["children"], to_fuzzy
                         )
+
                     # recurse children
                     node_children = self._compare(
                         actual[node]["children"], node_info["children"]
@@ -259,101 +259,133 @@ class Serval:
 
         return diff_tree
 
-    def print_full_diff(self, actual: dict, expected: dict, diff: dict, level: int):
+    def _print_method_args_mismatch_string(
+        self, indent: str, args_string: str, expected_info: dict, actual_info: dict
+    ):
+        alignment = " " * (len(args_string) + 4)
+        expected_params = [
+            (name, data_type) for name, data_type in expected_info[args_string].items()
+        ]
+        actual_params = [
+            (name, data_type) for name, data_type in actual_info[args_string].items()
+        ]
+        print(
+            f"""  {indent}{args_string}: Expected: {expected_params},
+{alignment}{indent}  actual: {actual_params}"""
+        )
+
+    def print_diff(
+        self,
+        actual: dict,
+        expected: dict,
+        diff: dict,
+        level: int,
+        verbose: bool = False,
+    ):
         indent = " " * len("  Children: ") * level
         for node, node_info in expected.items():
             if node in actual:
-                print(f"{indent}{node}")
+                print(f"{indent}>{node}")
                 if node == self.in_args:
                     if diff[node]["diff"]["params_match"]:
-                        params_match = "Match"
+                        if verbose:
+                            print(f"  {indent}method_params: Match")
                     else:
-                        input_indent = " " * len("  method_params: ")
-                        expected_params = [
-                            (name, data_type)
-                            for name, data_type in node_info["method_params"].items()
-                        ]
-                        actual_params = [
-                            (name, data_type)
-                            for name, data_type in actual[node]["method_params"].items()
-                        ]
-                        params_match = f"""
-{input_indent}{indent}Expected: {expected_params},
-{input_indent}{indent}  actual: {actual_params}"""
+                        self._print_method_args_mismatch_string(
+                            indent, "method_params", node_info, actual[node]
+                        )
 
-                    print(f"  {indent}method_params: {params_match}")
                 elif node == self.out_args:
                     if diff[node]["diff"]["return_match"]:
-                        return_match = "Match"
+                        if verbose:
+                            print(f"  {indent}method_return: Match")
                     else:
-                        output_indent = " " * len("  method_return: ")
-                        expected_return = [
-                            (name, data_type)
-                            for name, data_type in node_info["method_return"].items()
-                        ]
-                        actual_return = [
-                            (name, data_type)
-                            for name, data_type in actual[node]["method_return"].items()
-                        ]
-                        return_match = f"""
-{output_indent}{indent}Expected: {expected_return},
-{output_indent}{indent}  actual: {actual_return}"""
+                        self._print_method_args_mismatch_string(
+                            indent, "method_return", node_info, actual[node]
+                        )
 
-                    print(f"  {indent}method_return: {return_match}")
                 else:
                     if diff[node]["diff"]["class_match"]:
-                        class_match = "Match"
+                        if verbose:
+                            print(f"  {indent}node_class: Match")
                     else:
-                        class_match = f"Expected: {node_info['node_class']}, actual: {actual[node]['node_class']}"
+                        print(
+                            f"  {indent}node_class: Expected: {node_info['node_class']}, actual: {actual[node]['node_class']}"
+                        )
 
-                    print(f"  {indent}node_class: {class_match}")
                     if node_info["node_class"] == "Variable":
                         if diff[node]["diff"]["type_match"]:
-                            type_match = "Match"
+                            if verbose:
+                                print(f"  {indent}data_type: Match")
                         else:
                             try:
                                 actual_type = actual[node]["data_type"]
                             except:
                                 actual_type = "None"
 
-                            type_match = f"Expected: {node_info['data_type']}, actual: {actual_type}"
+                            print(
+                                f"  {indent}data_type: Expected: {node_info['data_type']}, actual: {actual_type}"
+                            )
 
-                        print(f"  {indent}data_type: {type_match}")
-
-                    if diff[node]["diff"]["children_match"]:
-                        children_match = "Match"
-                    else:
-                        children_indent = " " * len("  children: ")
-                        expected_children = [
-                            name for name in node_info["children"].keys()
-                        ]
-                        actual_children = [
-                            name for name in actual[node]["children"].keys()
-                        ]
-                        if "fuzzy" in diff[node]["diff"]:
-                            fuzzy_children = [
-                                fuzzy for fuzzy in diff[node]["diff"]["fuzzy"]
+                    if len(node_info["children"]) > 0:
+                        if diff[node]["diff"]["children_match"]:
+                            if verbose:
+                                print(f"  {indent}children: Match")
+                            else:
+                                print(f"  {indent}children:")
+                        else:
+                            children_indent = " " * len("  children: ")
+                            expected_children = [
+                                name for name in node_info["children"].keys()
                             ]
-                            children_match = f"""
-{children_indent}{indent}Expected: {expected_children},
+                            actual_children = [
+                                name for name in actual[node]["children"].keys()
+                            ]
+                            if "fuzzy" in diff[node]["diff"]:
+                                fuzzy_children = [
+                                    fuzzy for fuzzy in diff[node]["diff"]["fuzzy"]
+                                ]
+                                children_match = f"""Expected: {expected_children},
 {children_indent}{indent}  actual: {actual_children}.
 {children_indent}{indent}Possible matches: {fuzzy_children}"""
-                        else:
-                            children_match = f"""
-{children_indent}{indent}Expected: {expected_children},
+                            else:
+                                children_match = f"""Expected: {expected_children},
 {children_indent}{indent}  actual: {actual_children}"""
 
-                    print(f"  {indent}children: {children_match}")
-                    self.print_full_diff(
+                            print(f"  {indent}children: {children_match}")
+
+                    self.print_diff(
                         actual[node]["children"],
                         node_info["children"],
                         diff[node]["children"],
                         level + 1,
+                        verbose=verbose,
                     )
 
-    def validate(self, xml_file: str, server_config: str) -> (bool, dict, dict, dict):
-        print(f"Using xml file: {xml_file}, and config file: {server_config}")
-        # First build tree of correct server
+    def validate(
+        self, xml_file: str, server_file: str, server_config: str
+    ) -> (bool, dict, dict, dict):
+        if server_file is None:
+            print(
+                f"Using xml file: {xml_file}, and config: {server_config} from "
+                "default configuration."
+            )
+        else:
+            print(
+                f"Using xml file: {xml_file}, and config: {server_config} from "
+                f"{server_file}"
+            )
+
+        # First build tree of dubious server
+        server_args = configuration.get_config_sculib_args(server_file, server_config)
+        actual_tree = self._scan_opcua_server(
+            server_args["host"],
+            server_args["port"],
+            server_args["endpoint"],
+            server_args["namespace"],
+        )
+
+        # Second build tree of correct server
         internal_server_process = mp.Process(
             target=self._run_internal_server_wrap,
             args=[xml_file],
@@ -367,24 +399,7 @@ class Serval:
         internal_server_process.terminate()
         internal_server_process.join()
 
-        # Second build tree of dubious server
-        with open(server_config, "r") as f:
-            try:
-                config = yaml.safe_load(f.read())
-            except Exception as e:
-                print(e)
-                sys.exit(
-                    f"ERROR: Unable to parse server configuration file {server_config}."
-                )
-
-        actual_tree = self._scan_opcua_server(
-            config["connection"]["address"],
-            config["connection"]["port"],
-            config["connection"]["endpoint"],
-            config["connection"]["namespace"],
-        )
         # Third compare the two
-
         diff_tree = self._compare(actual_tree, expected_tree)
         if actual_tree == expected_tree:
             return (True, actual_tree, expected_tree, diff_tree)
@@ -398,41 +413,96 @@ def main():
         description="Validates an OPCUA server against an XML.",
     )
     parser.add_argument(
+        "-i",
+        "--ini",
+        help=(
+            "Print the server configurations available in the given .ini file"
+            " or in the default configuration if used with no argument."
+        ),
+        required=False,
+        nargs="?",
+        const=" ",
+        dest="ini",
+    )
+    parser.add_argument(
         "-x",
         "--xml",
         help="XML file to validate against.",
-        required=True,
+        required="--ini" not in sys.argv and "-i" not in sys.argv,
         nargs=1,
         dest="xml",
     )
     parser.add_argument(
+        "-f",
+        "--config_file",
+        help=(
+            ".ini file containing OPCUA server configurations. If this option "
+            "is not specified the script will attempt to find a default configuration."
+        ),
+        required=False,
+        nargs=1,
+        dest="config_file",
+    )
+    parser.add_argument(
         "-c",
         "--config",
-        help="YAML file specifying OPCUA server configuration.",
-        required=True,
+        help="Server within config_file specifying OPCUA server configuration.",
+        required="--ini" not in sys.argv and "-i" not in sys.argv,
         nargs=1,
         dest="config",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help=(
+            "The default output only reports the node tree and when the "
+            "relevant information on the server does not match the input XML. "
+            "Use this option to also report when the node info does match."
+        ),
+        required=False,
+        action="store_true",
+        dest="verbose",
+    )
     args = parser.parse_args()
+    if args.ini:
+        try:
+            if args.ini == " ":
+                args.ini = None
+
+            configurations = configuration.get_config_server_list(args.ini)
+        except FileNotFoundError as e:
+            print(e)
+        else:
+            print("Server configurations available in default configuration:")
+            for server_config in configurations:
+                print(server_config)
+        finally:
+            return
+
     xml = args.xml[0]
+    if "-f" not in sys.argv and "--config" not in sys.argv:
+        config_file = None
+    else:
+        config_file = args.config_file[0]
+
+    try:
+        configuration.get_config_server_list(config_file)
+    except FileNotFoundError as e:
+        print(e)
+        return
+
     config = args.config[0]
+    verbose = args.verbose
     if not os.path.isfile(xml):
         sys.exit(f"ERROR: Could not find file {xml}")
 
-    if not os.path.isfile(config):
-        sys.exit(f"ERROR: Could not find file {config}")
-
     validator = Serval()
-    valid, actual, expected, diff = validator.validate(xml, config)
+    valid, actual, expected, diff = validator.validate(xml, config_file, config)
     if valid:
         print("The servers match! No significant differences found.")
     else:
         print("The servers do not match! Printing diff...")
-        short_print = False
-        if short_print:
-            pprint.pprint(diff, sort_dicts=False)
-        else:
-            validator.print_full_diff(actual, expected, diff, 0)
+        validator.print_diff(actual, expected, diff, 0, verbose=verbose)
 
 
 if __name__ == "__main__":
