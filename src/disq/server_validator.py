@@ -5,9 +5,8 @@ import asyncua
 import yaml
 import asyncio
 import multiprocessing as mp
-import pprint
 from difflib import SequenceMatcher
-from disq import sculib
+from disq import sculib, configuration
 from disq.serval_internal_server import ServalInternalServer
 
 
@@ -363,9 +362,30 @@ class Serval:
                         verbose=verbose,
                     )
 
-    def validate(self, xml_file: str, server_config: str) -> (bool, dict, dict, dict):
-        print(f"Using xml file: {xml_file}, and config file: {server_config}")
-        # First build tree of correct server
+    def validate(
+        self, xml_file: str, server_file: str, server_config: str
+    ) -> (bool, dict, dict, dict):
+        if server_file is None:
+            print(
+                f"Using xml file: {xml_file}, and config: {server_config} from "
+                "default configuration."
+            )
+        else:
+            print(
+                f"Using xml file: {xml_file}, and config: {server_config} from "
+                f"{server_file}"
+            )
+
+        # First build tree of dubious server
+        server_args = configuration.get_config_sculib_args(server_file, server_config)
+        actual_tree = self._scan_opcua_server(
+            server_args["host"],
+            server_args["port"],
+            server_args["endpoint"],
+            server_args["namespace"],
+        )
+
+        # Second build tree of correct server
         internal_server_process = mp.Process(
             target=self._run_internal_server_wrap,
             args=[xml_file],
@@ -379,24 +399,7 @@ class Serval:
         internal_server_process.terminate()
         internal_server_process.join()
 
-        # Second build tree of dubious server
-        with open(server_config, "r") as f:
-            try:
-                config = yaml.safe_load(f.read())
-            except Exception as e:
-                print(e)
-                sys.exit(
-                    f"ERROR: Unable to parse server configuration file {server_config}."
-                )
-
-        actual_tree = self._scan_opcua_server(
-            config["connection"]["address"],
-            config["connection"]["port"],
-            config["connection"]["endpoint"],
-            config["connection"]["namespace"],
-        )
         # Third compare the two
-
         diff_tree = self._compare(actual_tree, expected_tree)
         if actual_tree == expected_tree:
             return (True, actual_tree, expected_tree, diff_tree)
@@ -410,18 +413,41 @@ def main():
         description="Validates an OPCUA server against an XML.",
     )
     parser.add_argument(
+        "-i",
+        "--ini",
+        help=(
+            "Print the server configurations available in the given .ini file"
+            " or in the default configuration if used with no argument."
+        ),
+        required=False,
+        nargs="?",
+        const=" ",
+        dest="ini",
+    )
+    parser.add_argument(
         "-x",
         "--xml",
         help="XML file to validate against.",
-        required=True,
+        required="--ini" not in sys.argv and "-i" not in sys.argv,
         nargs=1,
         dest="xml",
     )
     parser.add_argument(
+        "-f",
+        "--config_file",
+        help=(
+            ".ini file containing OPCUA server configurations. If this option "
+            "is not specified the script will attempt to find a default configuration."
+        ),
+        required=False,
+        nargs=1,
+        dest="config_file",
+    )
+    parser.add_argument(
         "-c",
         "--config",
-        help="YAML file specifying OPCUA server configuration.",
-        required=True,
+        help="Server within config_file specifying OPCUA server configuration.",
+        required="--ini" not in sys.argv and "-i" not in sys.argv,
         nargs=1,
         dest="config",
     )
@@ -438,17 +464,40 @@ def main():
         dest="verbose",
     )
     args = parser.parse_args()
+    if args.ini:
+        try:
+            if args.ini == " ":
+                args.ini = None
+
+            configurations = configuration.get_config_server_list(args.ini)
+        except FileNotFoundError as e:
+            print(e)
+        else:
+            print("Server configurations available in default configuration:")
+            for server_config in configurations:
+                print(server_config)
+        finally:
+            return
+
     xml = args.xml[0]
+    if "-f" not in sys.argv and "--config" not in sys.argv:
+        config_file = None
+    else:
+        config_file = args.config_file[0]
+
+    try:
+        configuration.get_config_server_list(config_file)
+    except FileNotFoundError as e:
+        print(e)
+        return
+
     config = args.config[0]
     verbose = args.verbose
     if not os.path.isfile(xml):
         sys.exit(f"ERROR: Could not find file {xml}")
 
-    if not os.path.isfile(config):
-        sys.exit(f"ERROR: Could not find file {config}")
-
     validator = Serval()
-    valid, actual, expected, diff = validator.validate(xml, config)
+    valid, actual, expected, diff = validator.validate(xml, config_file, config)
     if valid:
         print("The servers match! No significant differences found.")
     else:
