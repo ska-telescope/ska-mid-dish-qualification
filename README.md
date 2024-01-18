@@ -54,6 +54,23 @@ The DiSQ software is intended to be used either as a ready-made GUI application 
 
 After `pip` installing the package (see above) the GUI can be launched with the `disq-gui` command.
 
+Installing the package will also make the server validator available with `disq-validate-server`. The expected usage is as follows:
+```shell
+disq-validate-server -x <xml file> -f <configuration file> -c <config>
+disq-validate-server -x <xml file> -c <config>
+```
+Where the -x argument is an xml file used to generate a "good" OPCUA server to compare against, -f is a .ini configuration file containing server configurations, and -c is the specific configuration within that file. The -f flag can be omitted and the script will attempt to use the system default configurations.
+
+The server validator can also be used with just the -i flag:
+```shell
+disq-validate-server -i <configuration file>
+disq-validate-server -i
+```
+The -i flag will list the available configs in the given configuration file. If used without an argument the script will attempt to list the available configs in the system default configurations. For more information on configuration files see the Configuration section below.
+
+Finally the `disq-validate-server` has a -h flag to output information about its options.
+
+
 ### Configuration
 A configuration file named `disq.ini` can be used to specify a list of servers and their parameters. The user can then select the specific server to connect to from a drop-down menu widget and save having to type in all the server parameters.
 
