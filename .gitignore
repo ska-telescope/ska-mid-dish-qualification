@@ -92,3 +92,5 @@ tests/output_files/
 src/disq/certs/cert.der
 src/disq/certs/key.pem
 
+# Powershell log script logs
+*powershell_command_log.txt
