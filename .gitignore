@@ -91,6 +91,3 @@ tests/output_files/
 # CETC54 certificate junk
 src/disq/certs/cert.der
 src/disq/certs/key.pem
-
-# Powershell log script logs
-*powershell_command_log.txt

@@ -2,7 +2,7 @@
 #Intended to be used as ".\log.ps1 <git command>" to easily create logs of git commands run in a Windows powershell.
 #WARNING: This will only work with commands that output to the terminal. Commands that open a text editor will not behave correctly.
 
-$log_file=".\powershell_command_log.txt"
+$log_file=".\logs\powershell_command_log.txt"
 "" | Out-File -append -Filepath $log_file -Encoding UTF8
 "$(Get-Date -UFormat "[%Y-%m-%d %H:%M:%S]")" | Out-File -append -Filepath $log_file -Encoding UTF8
 "--- Running command: $args ---" | Tee-Object -Variable to_file0
