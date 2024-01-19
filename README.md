@@ -89,6 +89,14 @@ To tweak the default configuration, for example to switch to debug level, simply
 cp src/disq/default_logging_config.py disq_logging_config.yaml
 ```
 
+### Powershell Logs
+There is a small powershell script in the repository root directory named log.ps1. Intended to be used as:
+```shell
+".\log.ps1 <git command>"
+```
+to easily create logs of git commands run in a Windows powershell.
+WARNING: This will only work with commands that output to the terminal. Commands that open a text editor will not behave correctly.
+
 ## Authors and acknowledgment
 SKAO Team Wombat is developing this project:
 
