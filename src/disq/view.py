@@ -3,6 +3,7 @@ import os
 from enum import Enum
 from functools import cached_property
 from importlib import resources
+from pathlib import Path
 
 from PyQt6 import QtCore, QtWidgets, uic
 
@@ -150,7 +151,7 @@ class MainView(QtWidgets.QMainWindow):
         self.pushButton_Band1.clicked.connect(
             lambda: self.move2band_button_clicked("Band_1")
         )
-        self.pushButton_Band2: QtWidgets.QPushButton
+        self.pushButton_Band2: QtWidgets.QPushButton  # pylint: disable=C0103
         self.pushButton_Band2.clicked.connect(
             lambda: self.move2band_button_clicked("Band_2")
         )
@@ -192,6 +193,21 @@ class MainView(QtWidgets.QMainWindow):
         self.pushButton_recording_config: QtWidgets.QPushButton
         self.pushButton_recording_config.clicked.connect(
             self.recording_config_button_clicked
+        )
+
+        self.pushButton_load_track_table: QtWidgets.QPushButton
+        self.pushButton_load_track_table.clicked.connect(
+            lambda: self.controller.load_track_table(
+                self.lineEdit_track_table_file.text()
+            )
+        )
+        self.lineEdit_track_table_file: QtWidgets.QLineEdit  # pylint: disable=C0103
+        self.lineEdit_track_table_file.textChanged.connect(
+            self.track_table_file_changed
+        )
+        self.pushButton_select_track_table_file: QtWidgets.QPushButton  # pylint: disable=C0103
+        self.pushButton_select_track_table_file.clicked.connect(
+            self.track_table_file_button_clicked
         )
 
     @cached_property
@@ -388,6 +404,11 @@ class MainView(QtWidgets.QMainWindow):
                 "border-color: black;"
             )
 
+    def _track_table_file_exist(self) -> bool:
+        """Check if the track table file exists"""
+        tt_filename = Path(self.lineEdit_track_table_file.text())
+        return tt_filename.exists()
+
     @QtCore.pyqtSlot()
     def server_connected_event(self):
         logger.debug("server connected event")
@@ -399,6 +420,8 @@ class MainView(QtWidgets.QMainWindow):
         self.enable_opcua_widgets()
         self.enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
+        if self._track_table_file_exist():
+            self.pushButton_load_track_table.setEnabled(True)
 
     @QtCore.pyqtSlot()
     def server_disconnected_event(self):
@@ -408,6 +431,8 @@ class MainView(QtWidgets.QMainWindow):
         lbl: QtWidgets.QLabel = self.label_connection_status
         lbl.setText("Status: disconnected")
         self.enable_server_widgets(True, connect_button=True)
+        self.pushButton_load_track_table.setEnabled(False)
+        self.lineEdit_track_table_file.setEnabled(False)
 
     @QtCore.pyqtSlot()
     def connect_button_clicked(self):
@@ -443,6 +468,23 @@ class MainView(QtWidgets.QMainWindow):
             self.input_server_namespace.setText(server_config["namespace"])
             # Disable editing of the widgets
             self.enable_server_widgets(False)
+
+    @QtCore.pyqtSlot(str)
+    def track_table_file_changed(self, filename: str):
+        """Update the track table file path in the model"""
+        if self._track_table_file_exist() and self.controller.is_server_connected():
+            self.pushButton_load_track_table.setEnabled(True)
+        else:
+            self.pushButton_load_track_table.setEnabled(False)
+
+    @QtCore.pyqtSlot()
+    def track_table_file_button_clicked(self) -> None:
+        """Open a file dialog to select a track table file"""
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, "Open Track Table File", "", "Track Table Files (*.csv)"
+        )
+        if filename:
+            self.lineEdit_track_table_file.setText(filename)
 
     @QtCore.pyqtSlot()
     def recording_config_button_clicked(self):

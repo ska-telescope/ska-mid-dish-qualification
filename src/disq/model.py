@@ -198,6 +198,12 @@ class Model(QObject):
         result = self._scu.attributes.keys()
         return result
 
+    def load_track_table(self, filename: Path) -> None:
+        if self._scu is None:
+            raise RuntimeError("Server not connected")
+        logger.debug("Loading track table from file: %s", filename.absolute())
+        self._scu.track_table_reset_and_upload_from_file(str(filename.absolute()))
+
     def start_recording(self, filename: Path) -> None:
         if self._scu is None:
             raise RuntimeError("Server not connected")
