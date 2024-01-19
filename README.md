@@ -92,7 +92,7 @@ cp src/disq/default_logging_config.py disq_logging_config.yaml
 ### Powershell Logs
 There is a small powershell script in the repository root directory named log.ps1. Intended to be used as:
 ```shell
-".\log.ps1 <git command>"
+.\log.ps1 <git command>
 ```
 to easily create logs of git commands run in a Windows powershell.
 WARNING: This will only work with commands that output to the terminal. Commands that open a text editor will not behave correctly.
