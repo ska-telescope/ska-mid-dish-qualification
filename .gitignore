@@ -91,4 +91,3 @@ tests/output_files/
 # CETC54 certificate junk
 src/disq/certs/cert.der
 src/disq/certs/key.pem
-
