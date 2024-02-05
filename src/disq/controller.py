@@ -165,7 +165,7 @@ class Controller(QObject):
         fname = Path(filename)
         logger.debug("Loading track table from file: %s", fname.absolute())
         if not fname.exists():
-            msg = f"⛔️ Not loading track table. File does not exist: {fname.absolute()}"
+            msg = f"Not loading track table. File does not exist: {fname.absolute()}"
             self.emit_ui_status_message("WARNING", msg)
             return
         try:
