@@ -2,9 +2,8 @@ import argparse
 import os
 import sys
 import asyncua
-import yaml
 import asyncio
-import multiprocessing as mp
+import threading
 from difflib import SequenceMatcher
 from disq import sculib, configuration
 from disq.serval_internal_server import ServalInternalServer
@@ -53,7 +52,8 @@ class Serval:
     }
 
     def __init__(self, include_namespace: bool = False):
-        self.internal_server_started_barrier = mp.Barrier(2)
+        self.internal_server_started_barrier = threading.Barrier(2)
+        self.internal_server_stop = threading.Event()
         self.fuzzy_threshold = 0.85
         self.include_namespace = False
         if include_namespace:
@@ -66,7 +66,7 @@ class Serval:
     async def _run_internal_server(self, xml_file: str):
         async with ServalInternalServer(xml_file):
             self.internal_server_started_barrier.wait()
-            while True:
+            while not self.internal_server_stop.is_set():
                 await asyncio.sleep(1)
 
     def _run_internal_server_wrap(self, xml_file):
@@ -385,19 +385,16 @@ class Serval:
             server_args["namespace"],
         )
 
+        
         # Second build tree of correct server
-        internal_server_process = mp.Process(
-            target=self._run_internal_server_wrap,
-            args=[xml_file],
-            name="Internal server process",
-        )
+        self.internal_server_stop.clear()
+        internal_server_process = threading.Thread(target=self._run_internal_server_wrap, args=[xml_file], name="Internal Server Thread")
         internal_server_process.start()
         self.internal_server_started_barrier.wait()
         expected_tree = self._scan_opcua_server(
             "127.0.0.1", "57344", "/dish-structure/server/", "http://skao.int/DS_ICD/"
         )
-        internal_server_process.terminate()
-        internal_server_process.join()
+        self.internal_server_stop.set()
 
         # Third compare the two
         diff_tree = self._compare(actual_tree, expected_tree)
