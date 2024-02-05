@@ -160,6 +160,27 @@ class Controller(QObject):
         self.command_response_str(f"{cmd}{args}", result_code, result_msg)
 
     @pyqtSlot(str)
+    def load_track_table(self, filename: str):
+        """Load a track table from a file"""
+        fname = Path(filename)
+        logger.debug("Loading track table from file: %s", fname.absolute())
+        if not fname.exists():
+            msg = f"Not loading track table. File does not exist: {fname.absolute()}"
+            self.emit_ui_status_message("WARNING", msg)
+            return
+        try:
+            self._model.load_track_table(fname)
+        except Exception as e:  # pylint: disable=broad-except
+            e.add_note(f"Unable to load track table from file: {fname.absolute()}")
+            logger.exception(e)
+            msg = f"Unable to load track table: {e}"
+            self.emit_ui_status_message("ERROR", msg)
+            return
+        self.emit_ui_status_message(
+            "INFO", f"Track table loaded from file: {fname.absolute()}"
+        )
+
+    @pyqtSlot(str)
     def recording_start(self, filename: str):
         """Start recording"""
         fname = Path(filename)
