@@ -283,7 +283,6 @@ class MainView(QtWidgets.QMainWindow):
         self.input_server_endpoint.setEnabled(enable)
         self.input_server_namespace.setEnabled(enable)
         if connect_button:
-            self.btn_server_connect.setEnabled(not enable)
             self.btn_server_connect.setText("Connect" if enable else "Disconnect")
 
     @QtCore.pyqtSlot(bool)
