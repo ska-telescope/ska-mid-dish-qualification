@@ -464,7 +464,7 @@ class MainView(QtWidgets.QMainWindow):
             # Get the server config args from configfile
             server_config = self.controller.get_config_server_args(server_name)
             # Populate the widgets with the server config args
-            if "endpoint" in server_config:
+            if "endpoint" in server_config and "namespace" in server_config:
                 self.input_server_address.setText(server_config["host"])
                 self.input_server_port.setText(str(server_config["port"]))
                 self.input_server_endpoint.setText(server_config["endpoint"])

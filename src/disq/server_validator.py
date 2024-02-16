@@ -378,7 +378,7 @@ class Serval:
 
         # First build tree of dubious server
         server_args = configuration.get_config_sculib_args(server_file, server_config)
-        if "endpoint" in server_args:
+        if "endpoint" in server_args and "namespace" in server_args:
             actual_tree = self._scan_opcua_server(
                 server_args["host"],
                 server_args["port"],

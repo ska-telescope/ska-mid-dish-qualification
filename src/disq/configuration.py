@@ -166,7 +166,7 @@ def get_config_sculib_args(
         server_name = f"opcua_server.{server_name}"
     server_config: dict[str, str] = dict(config[server_name])
 
-    if "endpoint" in server_config:
+    if "endpoint" in server_config and "namespace" in server_config:
         sculib_args: dict[str, str | int] = {
             "host": str(server_config["host"]),
             "port": int(server_config["port"]),
