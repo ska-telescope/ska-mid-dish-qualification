@@ -205,7 +205,9 @@ class MainView(QtWidgets.QMainWindow):
         self.lineEdit_track_table_file.textChanged.connect(
             self.track_table_file_changed
         )
-        self.pushButton_select_track_table_file: QtWidgets.QPushButton  # pylint: disable=C0103
+        self.pushButton_select_track_table_file: (
+            QtWidgets.QPushButton
+        )  # pylint: disable=C0103
         self.pushButton_select_track_table_file.clicked.connect(
             self.track_table_file_button_clicked
         )
@@ -462,10 +464,15 @@ class MainView(QtWidgets.QMainWindow):
             # Get the server config args from configfile
             server_config = self.controller.get_config_server_args(server_name)
             # Populate the widgets with the server config args
-            self.input_server_address.setText(server_config["host"])
-            self.input_server_port.setText(str(server_config["port"]))
-            self.input_server_endpoint.setText(server_config["endpoint"])
-            self.input_server_namespace.setText(server_config["namespace"])
+            if "endpoint" in server_config:
+                self.input_server_address.setText(server_config["host"])
+                self.input_server_port.setText(str(server_config["port"]))
+                self.input_server_endpoint.setText(server_config["endpoint"])
+                self.input_server_namespace.setText(server_config["namespace"])
+            else:
+                # First physical controller does not have an endpoint or namespace
+                self.input_server_address.setText(server_config["host"])
+                self.input_server_port.setText(str(server_config["port"]))
             # Disable editing of the widgets
             self.enable_server_widgets(False)
 

@@ -378,17 +378,29 @@ class Serval:
 
         # First build tree of dubious server
         server_args = configuration.get_config_sculib_args(server_file, server_config)
-        actual_tree = self._scan_opcua_server(
-            server_args["host"],
-            server_args["port"],
-            server_args["endpoint"],
-            server_args["namespace"],
-        )
+        if "endpoint" in server_args:
+            actual_tree = self._scan_opcua_server(
+                server_args["host"],
+                server_args["port"],
+                server_args["endpoint"],
+                server_args["namespace"],
+            )
+        else:
+            # First physical controller does not have an endpoint or namespace
+            actual_tree = self._scan_opcua_server(
+                server_args["host"],
+                server_args["port"],
+                "",
+                "",
+            )
 
-        
         # Second build tree of correct server
         self.internal_server_stop.clear()
-        internal_server_process = threading.Thread(target=self._run_internal_server_wrap, args=[xml_file], name="Internal Server Thread")
+        internal_server_process = threading.Thread(
+            target=self._run_internal_server_wrap,
+            args=[xml_file],
+            name="Internal Server Thread",
+        )
         internal_server_process.start()
         self.internal_server_started_barrier.wait()
         expected_tree = self._scan_opcua_server(
