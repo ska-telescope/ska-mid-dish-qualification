@@ -38,6 +38,7 @@ Functions:
         Convenience function: Reads the configuration file and returns a dictionary of
         SCU library arguments.
 """
+
 import configparser
 import logging
 import os
@@ -164,12 +165,21 @@ def get_config_sculib_args(
     else:
         server_name = f"opcua_server.{server_name}"
     server_config: dict[str, str] = dict(config[server_name])
-    sculib_args: dict[str, str | int] = {
-        "host": str(server_config["host"]),
-        "port": int(server_config["port"]),
-        "endpoint": str(server_config["endpoint"]),
-        "namespace": str(server_config["namespace"]),
-    }
+
+    if "endpoint" in server_config and "namespace" in server_config:
+        sculib_args: dict[str, str | int] = {
+            "host": str(server_config["host"]),
+            "port": int(server_config["port"]),
+            "endpoint": str(server_config["endpoint"]),
+            "namespace": str(server_config["namespace"]),
+        }
+    else:
+        # First physical controller does not have an endpoint or namespace
+        sculib_args: dict[str, str | int] = {
+            "host": str(server_config["host"]),
+            "port": int(server_config["port"]),
+        }
+
     return sculib_args
 
 
