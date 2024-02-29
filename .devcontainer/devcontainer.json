@@ -1,0 +1,66 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+  "name": "${containerWorkspaceFolderBasename}",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.10-buster",
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/black:2": {},
+    "ghcr.io/devcontainers-contrib/features/flake8:2": {},
+    "ghcr.io/devcontainers-contrib/features/isort:2": {},
+    "ghcr.io/devcontainers-contrib/features/mypy:2": {},
+    "ghcr.io/devcontainers-contrib/features/poetry:2": {},
+    "ghcr.io/devcontainers-contrib/features/pylint:2": {}
+  },
+  // Configure tool-specific properties.
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash",
+            "args": [
+              "--login"
+            ]
+          }
+        },
+        "terminal.integration.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": "explicit"
+        },
+        "python.pythonPath": "/usr/bin/python3",
+        "python.testing.pytestEnabled": true,
+        "pylint.path": [
+          "/usr/local/bin/pylint"
+        ],
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter"
+        },
+        "isort.args": [
+          "--profile",
+          "black"
+        ],
+        "coverage-gutters.manualCoverageFilePaths": [
+          "${containerWorkspaceFolder}/build/reports/code-coverage.xml"
+        ],
+        "coverage-gutters.showLineCoverage": true
+      },
+      "extensions": [
+        "ms-python.pylint",
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "ms-python.isort",
+        "ms-python.mypy-type-checker",
+        "ryanluker.vscode-coverage-gutters",
+        "lextudio.restructuredtext",
+        "trond-snekvik.simple-rst",
+        "tamasfe.even-better-toml"
+      ]
+    }
+  }
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
+}

@@ -5,8 +5,11 @@
         "ms-python.black-formatter",
         "ms-python.flake8",
         "ms-python.python",
+        "ms-python.isort",
         "tamasfe.even-better-toml",
         "redhat.vscode-yaml",
+        "lextudio.restructuredtext",
+        "trond-snekvik.simple-rst",
         "ryanluker.vscode-coverage-gutters"
     ]
 }
