@@ -1,3 +1,3 @@
-from disq.sculib import scu
+from ska_mid_dish_qualification.sculib import scu
 
 print(scu)

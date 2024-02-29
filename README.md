@@ -72,21 +72,21 @@ Finally the `disq-validate-server` has a -h flag to output information about its
 
 
 ### Configuration
-A configuration file named `disq.ini` can be used to specify a list of servers and their parameters. The user can then select the specific server to connect to from a drop-down menu widget and save having to type in all the server parameters.
+A configuration file named `ska-mid-disq.ini` can be used to specify a list of servers and their parameters. The user can then select the specific server to connect to from a drop-down menu widget and save having to type in all the server parameters.
 
 The GUI application will search for the configuration file in the following order:
-* First the current working directory (CWD) is searched for a `disq.ini` file.
+* First the current working directory (CWD) is searched for a `ska-mid-disq.ini` file.
 * Then the environment variable `DISQ_CONFIG` is scanned for the existence of a file (any filename)
-* Finally the users data directory is scanned for a `disq.ini` file
-  * This is cross-platform compatible using [platformdirs](https://pypi.org/project/platformdirs/). On Linux `~/.local/share/disq/`
+* Finally the users data directory is scanned for a `ska-mid-disq.ini` file
+  * This is cross-platform compatible using [platformdirs](https://pypi.org/project/platformdirs/). On Linux `~/.local/share/ska_mid_dish_qualification/`
 
 ### Application Logs
-DiSQ uses Python logging to log and output or record debug/info/warning/error messages. The logging comes pre-configured in `src/disq/default_logging_config.py` but this default configuration can be overridden by a custom configuration if a file named `disq_logging_config.yaml` is found in the current working directory (CWD) when starting the app. 
+DiSQ uses Python logging to log and output or record debug/info/warning/error messages. The logging comes pre-configured in `src/ska_mid_dish_qualification/default_logging_config.py` but this default configuration can be overridden by a custom configuration if a file named `disq_logging_config.yaml` is found in the current working directory (CWD) when starting the app. 
 
 To tweak the default configuration, for example to switch to debug level, simply copy and rename the default logging config and make the required modifications to the copy:
 
 ```shell
-cp src/disq/default_logging_config.py disq_logging_config.yaml
+cp src/ska_mid_dish_qualification/default_logging_config.py disq_logging_config.yaml
 ```
 
 ### Powershell Logs

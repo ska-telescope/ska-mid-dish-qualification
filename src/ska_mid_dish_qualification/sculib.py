@@ -14,6 +14,7 @@
 # 2023-08-31, Thomas Juerges Refactored the basic access mechanics for an OPC UA server.
 
 import asyncio
+import datetime
 import enum
 import logging
 import logging.config
@@ -28,10 +29,8 @@ from typing import Any, Union
 
 import asyncua
 import cryptography
-import yaml
-import datetime
-
 import numpy
+import yaml
 
 logger = logging.getLogger('sculib')
 
@@ -47,8 +46,8 @@ def configure_logging(default_log_level: int = logging.INFO) -> None:
                 config = yaml.safe_load(f.read())
                 atTime = datetime.time.fromisoformat(config['handlers']['file_handler']['atTime'])
                 config['handlers']['file_handler']['atTime'] = atTime
-            except Exception as e:
-                print(e)
+            except Exception as exc:
+                print(exc)
                 print(f"WARNING: Unable to read logging configuration file {disq_log_config_file}")
     else:
         print(f"WARNING: Logging configuration file {disq_log_config_file} not found")
@@ -60,8 +59,8 @@ def configure_logging(default_log_level: int = logging.INFO) -> None:
         Path("logs").mkdir(parents=True, exist_ok=True)
         try:
             logging.config.dictConfig(config)
-        except ValueError as e:
-            print(e)
+        except ValueError as exc:
+            print(exc)
             print(f"WARNING: Caught exception. Unable to configure logging from file {disq_log_config_file}. Reverting to logging to the console (basicConfig).")
             logging.basicConfig(level = default_log_level)
 
@@ -120,7 +119,7 @@ hn_feed_indexer_sensors=[
 #     try:
 #         u = lower[name]
 #         s += f"\n'{u}',"
-#     except KeyError as e:
+#     except KeyError as exc:
 #         print(f'*** {name}')
 # s += f"\n]"
 # print(f'{s}')
@@ -132,7 +131,7 @@ hn_feed_indexer_sensors=[
 #     try:
 #         u = lower[name]
 #         s += f"\n'{u}',"
-#     except KeyError as e:
+#     except KeyError as exc:
 #         print(f'*** {name}')
 # s += f"\n]"
 # print(f'{s}')
@@ -251,7 +250,7 @@ hn_opcua_tilt_sensors = [
 ]
 
 async def handle_exception(e: Exception) -> None:
-    logger.exception(f'*** Exception caught: {e}')
+    logger.exception(f'*** Exception caught: {exc}')
 
 
 def create_command_function(node: asyncua.Node, event_loop: asyncio.AbstractEventLoop):
@@ -266,7 +265,7 @@ def create_command_function(node: asyncua.Node, event_loop: asyncio.AbstractEven
                 return_msg = asyncua.ua.CmdResponseType(return_code).name
             else:
                 return_msg = str(return_code)
-        except Exception as e:
+        except Exception as exc:
             e.add_note(f'Command: {id} args: {args}')
             asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
             return_code = -1
@@ -280,13 +279,13 @@ def create_rw_attribute(node: asyncua.Node, event_loop: asyncio.AbstractEventLoo
         def value(self) -> Any:
             try:
                 return asyncio.run_coroutine_threadsafe(node.get_value(), event_loop).result()
-            except Exception as e:
+            except Exception as exc:
                 asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
         @value.setter
         def value(self, _value: Any) -> None:
             try:
                 asyncio.run_coroutine_threadsafe(node.set_value(_value), event_loop).result()
-            except Exception as e:
+            except Exception as exc:
                 asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
     return opc_ua_rw_attribute()
 
@@ -296,7 +295,7 @@ def create_ro_attribute(node: asyncua.Node, event_loop: asyncio.AbstractEventLoo
         def value(self) -> Any:
             try:
                 return asyncio.run_coroutine_threadsafe(node.get_value(), event_loop).result()
-            except Exception as e:
+            except Exception as exc:
                 asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
     return opc_ua_ro_attribute()
 
@@ -403,7 +402,7 @@ class scu:
         except:
             try:
                 self.connection = self.connect(self.host, self.port, self.endpoint, self.timeout, encryption = False)
-            except Exception as e:
+            except Exception as exc:
                 e.add_note('Cannot connect to the OPC UA server. Please '
                              'check the connection parameters that were '
                              'passed to instantiate the sculib!')
@@ -493,7 +492,7 @@ class scu:
             else:
                 # Force namespace index for first physical controller
                 self.ns_idx = 2
-        except ValueError as e:
+        except ValueError as exc:
             namespaces = None
             try:
                 namespaces = asyncio.run_coroutine_threadsafe(connection.get_namespace_array(), self.event_loop).result()
@@ -724,9 +723,9 @@ class scu:
             cleaned_lines = [ line.rstrip('\n').split(',') for line in lines ]
             # Return an array that contains the time offsets and positions.
             return numpy.array(cleaned_lines, dtype=float)
-        except Exception as e:
+        except Exception as exc:
             e.add_note(f'Could not load or convert the track table file "{file_name}".')
-            logger.error(f'{e}')
+            logger.error(f'{exc}')
             raise e
 
     def track_table_reset_and_upload_from_file(self, file_name: str) -> None:
@@ -754,7 +753,7 @@ class scu:
     def feedback(self, r):
         logger.error('Not implemented because this function is not needed.')
         return
-        if self.debug == True:
+        if self.debug:
             logger.info('***Feedback:', r.request.url, r.request.body)
             logger.info(r.reason, r.status_code)
             logger.info("***Text returned:")
@@ -944,7 +943,7 @@ class scu:
                 load_type,
                 asyncua.ua.UInt16(entries),
                 asyncua.ua.ByteString(byte_string))
-        except Exception as e:
+        except Exception as exc:
             e.add_note(f'Tried to upload a track table in the new format but this failed. Will now try to uplad the track table in the old format...')
             logger.warning(e)
 
@@ -962,7 +961,7 @@ class scu:
                 load_type,
                 asyncua.ua.UInt16(entries),
                 asyncua.ua.ByteString(byte_string))
-        except Exception as e:
+        except Exception as exc:
             e.add_note(f'Uploading of a track table in the old format failed, too. Please check that your track table is correctly formatted, not empty and contains valid entries.')
             raise e
 

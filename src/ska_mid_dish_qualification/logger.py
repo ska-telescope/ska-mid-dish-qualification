@@ -7,7 +7,7 @@ from time import sleep
 
 import h5py
 
-from disq import sculib
+from ska_mid_dish_qualification import sculib
 
 app_logger = logging.getLogger("datalog")
 

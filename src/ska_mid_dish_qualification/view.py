@@ -7,7 +7,7 @@ from pathlib import Path
 
 from PyQt6 import QtCore, QtWidgets, uic
 
-from disq import controller, model
+from ska_mid_dish_qualification import controller, model
 
 logger = logging.getLogger("gui.view")
 
@@ -324,7 +324,8 @@ class MainView(QtWidgets.QMainWindow):
             if opcua_type in self.model.opcua_enum_types:
                 OpcuaEnum: Enum = self.model.opcua_enum_types[opcua_type]
                 enum_strings = [str(e.name) for e in OpcuaEnum]
-                wgt: QtWidgets.QComboBox = widget  # type: ignore  # Explicitly cast to QComboBox
+                # Explicitly cast to QComboBox
+                wgt: QtWidgets.QComboBox = widget  # type: ignore
                 wgt.clear()
                 wgt.addItems(enum_strings)
 
@@ -377,7 +378,8 @@ class MainView(QtWidgets.QMainWindow):
     def _update_opcua_boolean_widget(
         self, widget: QtWidgets.QLineEdit, event: dict
     ) -> None:
-        """Update the background colour of the widget to reflect the boolean state of the OPC-UA parameter
+        """
+        Update background colour of widget to reflect boolean state of OPC-UA parameter
 
         The event udpdate 'value' field can take 3 states:
          - None: the OPC-UA parameter is not defined. Colour background grey/disabled.
@@ -385,7 +387,8 @@ class MainView(QtWidgets.QMainWindow):
          - False: the OPC-UA parameter is False. Colour background dark green (LED off).
         """
         logger.debug(f"Boolean OPCUA update: {event['name']} value={event['value']}")
-        # TODO: modify background colour of widget (LED style on/off) to reflect the boolean state
+        # TODO: modify background colour of widget (LED style on/off) to reflect the
+        # boolean state
         led_colours = {
             "red": {True: "rgb(255, 0, 0)", False: "rgb(128, 0, 0)"},
             "green": {True: "rgb(10, 250, 0)", False: "rgb(10, 80, 0)"},
@@ -455,7 +458,9 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def server_config_select_changed(self, server_name: str):
-        """User changed server selection in drop-down box. Enable/disable relevant widgets"""
+        """
+        User changed server selection in drop-down box. Enable/disable relevant widgets.
+        """
         logger.debug("server config select changed: %s", server_name)
         if server_name is None or server_name == "":
             self.enable_server_widgets(True)
@@ -518,11 +523,12 @@ class MainView(QtWidgets.QMainWindow):
         ]
         try:
             args = [float(str_input) for str_input in text_widget_args]
-        except ValueError as e:
-            logger.error(f"Error converting slew2abs args to float: {e}")
+        except ValueError as exc:
+            logger.error(f"Error converting slew2abs args to float: {exc}")
             self.controller.emit_ui_status_message(
                 "ERROR",
-                f"Slew2Abs invalid arguments. Could not convert to number: {text_widget_args}",
+                "Slew2Abs invalid arguments. Could not convert to number: "
+                f"{text_widget_args}",
             )
             return
         logger.debug(f"args: {args}")

@@ -1,16 +1,11 @@
 {
-    "python.testing.pytestArgs": [],
-    "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.formatting.provider": "none",
-    "python.languageServer": "Pylance",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
     },
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter",
-        "editor.formatOnSave": true
+        "editor.defaultFormatter": "ms-python.black-formatter"
     },
     "pylint.args": [
         "--extension-pkg-whitelist=PyQt6"

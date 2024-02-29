@@ -7,8 +7,8 @@ from queue import Empty, Queue
 from asyncua import ua
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
-from disq.logger import Logger
-from disq.sculib import scu
+from ska_mid_dish_qualification.logger import Logger
+from ska_mid_dish_qualification.sculib import scu
 
 logger = logging.getLogger("gui.model")
 # class SubscriptionHandler:

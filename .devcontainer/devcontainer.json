@@ -60,7 +60,7 @@
         "tamasfe.even-better-toml"
       ]
     }
-  }
-  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-  // "remoteUser": "root"
+  },
+  "postCreateCommand": "./use_poetry.sh && poetry config virtualenvs.create false && poetry install --no-root",
+  "remoteUser": "root"
 }

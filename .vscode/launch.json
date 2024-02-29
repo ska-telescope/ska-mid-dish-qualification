@@ -16,11 +16,11 @@
             "name": "DiSQ GUI",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/src/disq/mvcmain.py",
+            "program": "${workspaceFolder}/src/ska_mid_dish_qualification/mvcmain.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "env": {
-                "DISQ_CONFIG": "${workspaceFolder}/disq.ini"
+                "DISQ_CONFIG": "${workspaceFolder}/ska-mid-disq.ini"
             }
         },
         {
@@ -35,7 +35,7 @@
                 ">",
                 "delme"
             ],
-            "program": "${workspaceFolder}/src/disq/server_validator.py",
+            "program": "${workspaceFolder}/src/ska_mid_dish_qualification/server_validator.py",
             "console": "integratedTerminal",
             "justMyCode": false
         }

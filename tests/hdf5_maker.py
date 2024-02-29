@@ -1,8 +1,10 @@
-import h5py
+"""Make HDF5 files with easily verifiable output for testing purposes."""
+
+import os
 from datetime import datetime
 from time import sleep
-import threading
-import os
+
+import h5py
 
 
 class Maker:
@@ -40,6 +42,7 @@ class Maker:
     SLEEP_TIME = 0.09726  # Adjust to get easy to read timestamp steps
 
     def __init__(self, spoof_server):
+        """Init Maker."""
         self.spoof_server = spoof_server
 
     def _get_value_type_from_node_name(self, node):
@@ -55,9 +58,10 @@ class Maker:
         return d[node]
 
     def generate(self, filename, nodes):
-        if os.path.exists(filename) == True:
+        """generate."""
+        if os.path.exists(filename):
             print(
-                f"This function will not overwrite. Please delete file {filename} first."
+                f"This function will not overwrite. Please delete file {filename} first"
             )
             return
 
@@ -139,6 +143,6 @@ class Maker:
 
 
 if __name__ == "__main__":
-    nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
+    the_nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     maker = Maker("simple input file")
-    maker.generate("input_files/start_stop_past_file.hdf5", nodes)
+    maker.generate("input_files/start_stop_past_file.hdf5", the_nodes)

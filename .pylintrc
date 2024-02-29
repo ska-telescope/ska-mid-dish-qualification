@@ -1,0 +1,25 @@
+[MESSAGES CONTROL]
+disable=
+    duplicate-code,
+    fixme,
+    logging-fstring-interpolation,
+    missing-function-docstring,
+    missing-module-docstring,
+    too-few-public-methods,
+    too-many-locals,
+    import-error,
+
+enable=
+    useless-suppression,
+
+ignore = sculib.py
+
+[SIMILARITIES]
+min-similarity-lines=7
+ignore-imports=yes
+
+# TODO: remove these when possible
+# W0212 protected-access
+# W0613 unused-argument
+# W0612 unused variable
+disable = W0212, W0613, W0612

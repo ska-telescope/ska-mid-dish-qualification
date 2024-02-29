@@ -4,7 +4,7 @@ import sys
 from PyQt6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton, QStatusBar
 from qasync import QEventLoop, asyncSlot
 
-from disq.sculib import scu
+from ska_mid_dish_qualification.sculib import scu
 
 
 class Window(QMainWindow):

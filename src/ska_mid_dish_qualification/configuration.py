@@ -3,7 +3,7 @@ This module contains functions for finding and reading the configuration file fo
 application. The configuration file is a standard .ini file that can be parsed with
 the configparser module.
 
-Example configuration file `disq.ini`:
+Example configuration file `ska-mid-disq.ini`:
 
     [DEFAULT]
     port = 4840
@@ -22,7 +22,7 @@ Example configuration file `disq.ini`:
 
 Functions:
     find_config_file(config_filename: str | None = None) -> Path:
-        Finds the configuration file named "disq.ini" and returns its path as a Path
+        Finds the configuration file named "ska-mid-disq.ini" and returns its path as a Path
         object. The configuration file can be specified in three ways:
             1. By providing the file path as a command line option.
             2. By setting the DISQ_CONFIG environment variable to the file path.
@@ -47,12 +47,12 @@ from pathlib import Path
 import platformdirs
 
 # The default configuration file name to search for
-_DEFAULT_CONFIG_FILENAME = "disq.ini"
+_DEFAULT_CONFIG_FILENAME = "ska-mid-disq.ini"
 
 
 def find_config_file(config_filename: str | None = None) -> Path:
     """
-    Finds the configuration file named "disq.ini"
+    Finds the configuration file named "ska-mid-disq.ini"
 
     The logic for finding the configuration file is as follows in mermaid diagram
     syntax:
@@ -102,7 +102,7 @@ def find_config_file(config_filename: str | None = None) -> Path:
 
     # Locate the user data directory
     fname_user_dir = Path(
-        platformdirs.user_config_dir(appauthor="SKAO", appname="disq")
+        platformdirs.user_config_dir(appauthor="SKAO", appname="ska-mid-dish-qualification")
     )
     fname_user_file = fname_user_dir / _DEFAULT_CONFIG_FILENAME
     logging.debug("Checking user data directory: %s", {fname_user_file})

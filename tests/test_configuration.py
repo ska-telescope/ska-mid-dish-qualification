@@ -1,13 +1,19 @@
+"""Test configuration."""
+
 import configparser
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
-from disq.configuration import find_config_file, get_configurations
+from ska_mid_dish_qualification.configuration import (
+    find_config_file,
+    get_configurations,
+)
 
 
 def test_find_config_file():
+    """test_find_config_file."""
     # Test when fname_cli_option is None
     with patch("os.getenv", return_value=None):
         with pytest.raises(FileNotFoundError):
@@ -19,24 +25,35 @@ def test_find_config_file():
 
 
 def test_get_configuration():
+    """test_get_configuration."""
     # Test when fname is None
-    with patch("disq.configuration.find_config_file", return_value=Path("disq.ini")):
+    with patch(
+        "ska_mid_dish_qualification.configuration.find_config_file",
+        return_value=Path("ska-mid-disq.ini"),
+    ):
         config = get_configurations(None)
         assert config is not None
 
     # Test when fname is a valid config file
-    with patch("disq.configuration.find_config_file", return_value=Path("disq.ini")):
-        config = get_configurations("disq.ini")
+    with patch(
+        "ska_mid_dish_qualification.configuration.find_config_file",
+        return_value=Path("ska-mid-disq.ini"),
+    ):
+        config = get_configurations("ska-mid-disq.ini")
         assert config is not None
 
     # Test when the file exist but is not a valid configuration file
-    with patch(
-        "disq.configuration.find_config_file", return_value=Path(__file__)
-    ), pytest.raises(configparser.Error):
+    with (
+        patch(
+            "ska_mid_dish_qualification.configuration.find_config_file",
+            return_value=Path(__file__),
+        ),
+        pytest.raises(configparser.Error),
+    ):
         config = get_configurations(__file__)
 
-    # Test with the test file disq.ini
-    config = get_configurations("disq.ini")
+    # Test with the test file ska-mid-disq.ini
+    config = get_configurations("ska-mid-disq.ini")
     assert config is not None
     assert config["DEFAULT"]["port"] == "4840"
     assert "opcua_server.cetc54_simulator" in config.sections()

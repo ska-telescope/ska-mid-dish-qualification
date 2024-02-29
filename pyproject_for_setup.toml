@@ -45,8 +45,8 @@ dev = [
 ]
 
 [project.scripts]
-disq-gui = "disq.mvcmain:main"
-disq-validate-server = "disq.server_validator:main"
+disq-gui = "ska_mid_dish_qualification.mvcmain:main"
+disq-validate-server = "ska_mid_dish_qualification.server_validator:main"
 
 [project.urls]
 GitLab = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
@@ -63,7 +63,7 @@ email = "ukp@observatorysciences.co.uk"
 name = "Ulrik Pedersen"
 
 [tool.setuptools_scm]
-write_to = "src/disq/_version.py"
+write_to = "src/ska_mid_dish_qualification/_version.py"
 
 [tool.mypy]
 ignore_missing_imports = true # Ignore missing stubs in imported modules
@@ -99,7 +99,7 @@ filterwarnings = "error"
 testpaths = "docs src tests"
 
 [tool.coverage.run]
-data_file = "/tmp/disq.coverage"
+data_file = "/tmp/ska_mid_dish_qualification.coverage"
 
 [tool.coverage.paths]
 # Tests are run from installed location, map back to the src directory
@@ -120,6 +120,6 @@ allowlist_externals =
     pytest
     mypy
 commands =
-    pytest: pytest --cov=disq --cov-report term --cov-report xml:cov.xml {posargs}
+    pytest: pytest --cov=ska-mid-disq --cov-report term --cov-report xml:cov.xml {posargs}
     mypy: mypy src tests {posargs}
 """

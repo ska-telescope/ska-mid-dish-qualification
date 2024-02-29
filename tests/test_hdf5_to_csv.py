@@ -1,13 +1,18 @@
-from disq import hdf5_to_csv as h2c
-from datetime import datetime, timedelta
-import h5py
-import os
+"""Test HDF5 to CSV."""
+
 import filecmp
+import os
+from datetime import datetime, timedelta
+
+import h5py
+
+from ska_mid_dish_qualification import hdf5_to_csv as h2c
 
 
 def test_node_not_in_file(capsys):
     """
-    Node not in file:
+    Node not in file.
+
     When one of the requested nodes is not in the input file print message but
     continue making CSV for remaining nodes.
     """
@@ -26,12 +31,13 @@ def test_node_not_in_file(capsys):
     # Check that error message matches expected
     assert captured.out == expected_stdout
     # Check the output file matches the expected CSV
-    assert filecmp.cmp(output_file, "expected_files/node_not_in_file.csv") == True
+    assert filecmp.cmp(output_file, "expected_files/node_not_in_file.csv") is True
 
 
 def test_no_matching_nodes(capsys):
     """
-    No matching nodes:
+    No matching nodes.
+
     When the input file does not contain any of the requested nodes print error
     message and exit.
     """
@@ -47,18 +53,19 @@ def test_no_matching_nodes(capsys):
     converter.make_csv(input_file, output_file, nodes, start, stop, step)
     captured = capsys.readouterr()
     expected_stdout = (
-        "Node not_a_node is not in the input file and will be ignored.\nERROR: No data for"
-        " requested nodes, exiting\n"
+        "Node not_a_node is not in the input file and will be ignored.\n"
+        "ERROR: No data for requested nodes, exiting\n"
     )
     # Check that error message matches expected
     assert captured.out == expected_stdout
     # Check the output file was not created
-    assert os.path.exists(output_file) == False
+    assert os.path.exists(output_file) is False
 
 
 def test_start_stop_past_file(capsys):
     """
-    Start and stop past ends of file:
+    Start and stop past ends of file.
+
     When the requested start time is earlier than the input file start time and/or
     the requested stop time is later than the input file stop time print messages
     and shorten range to existing file times.
@@ -86,12 +93,13 @@ def test_start_stop_past_file(capsys):
     assert captured.out == expected_stdout
     # Check the output file matches the expected (including CSV starts at earliest file
     # start and stops no later than latest file stop)
-    assert filecmp.cmp(output_file, "expected_files/start_stop_past_files.csv") == True
+    assert filecmp.cmp(output_file, "expected_files/start_stop_past_files.csv") is True
 
 
 def test_simple_input_file(capsys):
     """
-    Simple input file:
+    Simple input file.
+
     A simple HDF5 input file will be correctly converted to the expected CSV file
     without error.
     """
@@ -110,12 +118,13 @@ def test_simple_input_file(capsys):
     # Check that error message matches expected
     assert captured.out == expected_stdout
     # Check the output file matches the expected.
-    assert filecmp.cmp(output_file, "expected_files/simple_input_file.csv") == True
+    assert filecmp.cmp(output_file, "expected_files/simple_input_file.csv") is True
 
 
 def test_simple_input_file_double_speed(capsys):
     """
-    Simple input file double speed:
+    Simple input file double speed.
+
     A simple HDF5 input file sampled at double the rate it was created will output a
     CSV file with asterisks to indidicate values that are older than the line time
     minus the step_ms given.
@@ -137,5 +146,5 @@ def test_simple_input_file_double_speed(capsys):
     # Check the output file matches the expected.
     assert (
         filecmp.cmp(output_file, "expected_files/simple_input_file_double_speed.csv")
-        == True
+        is True
     )

@@ -1,12 +1,14 @@
 import argparse
+import asyncio
 import os
 import sys
-import asyncua
-import asyncio
 import threading
 from difflib import SequenceMatcher
-from disq import sculib, configuration
-from disq.serval_internal_server import ServalInternalServer
+
+import asyncua
+
+from ska_mid_dish_qualification import configuration, sculib
+from ska_mid_dish_qualification.serval_internal_server import ServalInternalServer
 
 
 class Serval:
@@ -233,7 +235,7 @@ class Serval:
                     if node_info["node_class"] == "Variable":
                         try:
                             _ = actual[node]["data_type"]
-                        except:
+                        except KeyError:
                             current_diff["type_match"] = False
                         else:
                             current_diff["type_match"] = (
@@ -310,7 +312,8 @@ class Serval:
                             print(f"  {indent}node_class: Match")
                     else:
                         print(
-                            f"  {indent}node_class: Expected: {node_info['node_class']}, actual: {actual[node]['node_class']}"
+                            f"  {indent}node_class: Expected: {node_info['node_class']}"
+                            f", actual: {actual[node]['node_class']}"
                         )
 
                     if node_info["node_class"] == "Variable":
@@ -320,7 +323,7 @@ class Serval:
                         else:
                             try:
                                 actual_type = actual[node]["data_type"]
-                            except:
+                            except Key:
                                 actual_type = "None"
 
                             print(
@@ -479,8 +482,8 @@ def main():
                 args.ini = None
 
             configurations = configuration.get_config_server_list(args.ini)
-        except FileNotFoundError as e:
-            print(e)
+        except FileNotFoundError as exc:
+            print(exc)
         else:
             print("Server configurations available in default configuration:")
             for server_config in configurations:
@@ -496,8 +499,8 @@ def main():
 
     try:
         configuration.get_config_server_list(config_file)
-    except FileNotFoundError as e:
-        print(e)
+    except FileNotFoundError as exc:
+        print(exc)
         return
 
     config = args.config[0]

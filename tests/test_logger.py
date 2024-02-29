@@ -1,38 +1,44 @@
-from disq import logger as log
-from disq import sculib
-from datetime import datetime, timedelta
-import h5py
-import os
-import random
-import subprocess
-import time
-
-
-class stub_scu(sculib.scu):
-    """
-    High level library stub class (no real subscriptions).
-    """
-
-    subscriptions = {}
-
-    def subscribe(self, attributes=None, period=None, data_queue=None) -> int:
-        id = time.clock_gettime_ns(time.CLOCK_MONOTONIC)
-        self.subscriptions[id] = {}
-        return id
-
-    def unsubscribe(self, id: int) -> None:
-        _ = self.subscriptions.pop(id)
-
-
 """
+Logger tests.
+
 Some tests in this file expect an OPCUA server to be running, even if data is not being
 gathered from the server. Specifically the custom server available in the
 ska-mid-dish-simulators repo on branch wom-133-custom-nodes-for-pretty-graphs
 """
 
+# pylint: disable=consider-using-in
+import os
+import random
+import subprocess
+import time
+from datetime import datetime, timedelta
+
+import h5py
+
+from ska_mid_dish_qualification import logger as log
+from ska_mid_dish_qualification import sculib
+
+
+class StubScu(sculib.scu):
+    """High level library stub class (no real subscriptions)."""
+
+    subscriptions: dict = {}
+
+    def subscribe(self, attributes=None, period=None, data_queue=None) -> int:
+        """subscribe."""
+        time_id = time.clock_gettime_ns(time.CLOCK_MONOTONIC)
+        self.subscriptions[time_id] = {}
+        return time_id
+
+    def unsubscribe(self, time_id: int) -> None:
+        """unsubscribe."""
+        _ = self.subscriptions.pop(time_id)
+
 
 def put_hdf5_file_in_queue(nodes: list[str], input_f_o: h5py.File, logger: log.Logger):
     """
+    Put HDF5 data in queue.
+
     Helper function for adding data from the nodes in the input_f_o to the logger
     queue. The next node from which data is read is randomised, but data is always read
     in index (chronological) order.
@@ -83,7 +89,8 @@ def put_hdf5_file_in_queue(nodes: list[str], input_f_o: h5py.File, logger: log.L
 
 def test_performance():
     """
-    Performance:
+    Test the performance of the logger class.
+
     Test the performance of the logger class by quickly reading a HDF5 file into the
     shared queue. Ensure the logging was completed within a certain time and the
     contents of he input and output files match.
@@ -92,8 +99,8 @@ def test_performance():
     output_file = "output_files/performance.hdf5"
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
-    test_start = datetime.now()
-    hll = stub_scu()
+    test_start_time = datetime.now()
+    hll = StubScu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     logger.add_nodes(nodes, 50)
 
@@ -101,15 +108,17 @@ def test_performance():
     put_hdf5_file_in_queue(nodes, input_f_o, logger)
     logger.stop()
     logger.wait_for_completion()
-    test_stop = datetime.now()
+    test_stop_time = datetime.now()
     input_f_o.close()
 
-    test_duration = test_stop - test_start
+    test_duration = test_stop_time - test_start_time
     print(f"Performance test duration: {test_duration}")
     # Check test ran in a reasonable time (1/10th of input file duration).
     assert test_duration < timedelta(minutes=6)
 
+    # pylint: disable=subprocess-run-check
     result = subprocess.run(["h5diff", "-v", input_file, output_file])
+    print(result)
     # Check output file contents match input file contents
     # The h5diff linux tool is returning 2 (i.e. error code) for 0 differences
     # found on the MockData.bool dataset.
@@ -118,8 +127,9 @@ def test_performance():
 
 def test_add_nodes(caplog):
     """
-    add_nodes:
-    Test the add_nodes method. Nodes are added correctly, logging matches expected,
+    Test the add_nodes method.
+
+    Nodes are added correctly, logging matches expected,
     and nothing happens if _start_invoked is set.
     """
     logger = log.Logger(file_name="n/a")
@@ -159,8 +169,9 @@ def test_add_nodes(caplog):
 
 def test_build_hdf5_structure():
     """
-    _build_hdf5_structure:
-    Test the _build_hdf5_structure() method. Checks the correct hierarchical structure
+    Test the _build_hdf5_structure() method.
+
+    Checks the correct hierarchical structure
     is created and the file object is set to SWMR mode.
     """
     output_file = "output_files/_build_hdf5_structure.hdf5"
@@ -171,18 +182,19 @@ def test_build_hdf5_structure():
     logger._build_hdf5_structure()
     expected_node_list = nodes
     assert list(logger.file_object.keys()) == expected_node_list
-    assert logger.file_object.swmr_mode == True
+    assert logger.file_object.swmr_mode is True
     logger.file_object.close()
 
 
 def test_start(caplog):
     """
-    start:
-    Test the start() method. Check that a file (and directory) is made with the input
+    Test the start() method.
+
+    Check that a file (and directory) is made with the input
     file name, and that it cannot be invoked twice, logging the correct messages.
     """
     output_file = "output_files/start.hdf5"
-    hll = stub_scu()
+    hll = StubScu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
     logger.add_nodes(nodes, 100)
@@ -201,35 +213,32 @@ def test_start(caplog):
     # Check messages are those expected.
     assert caplog.messages == expected_log or caplog.messages == expected_log2
     # Check file was created.
-    assert os.path.exists(output_file) == True
+    assert os.path.exists(output_file) is True
     logger.stop()
     logger.wait_for_completion()
 
 
 def test_stop():
-    """
-    stop:
-    Test the stop() method. Check _stop_logging is being set.
-    """
+    """Test the stop() method. Check _stop_logging is being set."""
     output_file = "output_files/stop.hdf5"
-    hll = stub_scu()
+    hll = StubScu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
     logger.add_nodes(nodes, 100)
     logger.start()
     logger.stop()
-    assert logger._stop_logging.is_set() == True
+    assert logger._stop_logging.is_set() is True
     logger.wait_for_completion()
 
 
 def test_write_cache_to_group():
     """
-    _write_cache_to_group:
-    Test the _write_cache_to_group() method. Check that values are written to the
-    output file.
+    Test the _write_cache_to_group() method.
+
+    Check that values are written to the output file.
     """
     output_file = "output_files/_write_cache_to_group.hdf5"
-    hll = stub_scu()
+    hll = StubScu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     nodes = ["MockData.increment"]
     logger.add_nodes(nodes, 100)
@@ -263,15 +272,16 @@ def test_write_cache_to_group():
 
 def test_log():
     """
-    _log:
-    Test the log() method. Add datapoints to the queue from a known input file, check
-    the output file contains all expected values.
+    Test the log() method.
+
+    Add datapoints to the queue from a known input file, check the output file
+    contains all expected values.
     """
     input_file = "input_files/_log.hdf5"
     output_file = "output_files/_log.hdf5"
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
-    hll = stub_scu()
+    hll = StubScu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     logger.add_nodes(nodes, 50)
 
@@ -287,8 +297,8 @@ def test_log():
         out_timestamps = output_f_o[node]["SourceTimestamp"][:]
         out_values = output_f_o[node]["Value"][:]
         # Check the data in the file matches.
-        for i in range(len(in_timestamps)):
-            assert out_timestamps[i] == in_timestamps[i]
+        for i, timestamp in enumerate(in_timestamps):
+            assert out_timestamps[i] == timestamp
             assert out_values[i] == in_values[i]
 
     input_f_o.close()
@@ -296,10 +306,7 @@ def test_log():
 
 
 def test_wait_for_completion(caplog):
-    """
-    wait_for_completion:
-    Test the wait_for_completion method. Check the log messages.
-    """
+    """Test the wait_for_completion method. Check the log messages."""
     logger = log.Logger(file_name="n/a")
     logger._start_invoked = False
     logger._stop_logging.clear()
@@ -324,7 +331,8 @@ def test_wait_for_completion(caplog):
 
 def test_enum_attribute():
     """
-    Enum attribute:
+    Test enum attribute.
+
     Test that an attribute containing a comma separated string of available enum string
     states is added to enum type node value datasets.
     """

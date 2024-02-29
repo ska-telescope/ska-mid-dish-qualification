@@ -9,6 +9,7 @@ class ServalInternalServer:
         self.server.set_server_name("Serval internal OPC-UA server")
         self.namespace_to_use = "http://skao.int/DS_ICD/"
 
+    # pylint: disable=attribute-defined-outside-init
     async def init(self):
         await self.server.init()
         await self.server.import_xml(self.xml)
@@ -40,11 +41,11 @@ async def main(xml):
 if __name__ == "__main__":
     import asyncio
 
-    xml = "tests/ds_icd_0.0.4.xml"
+    XML_PATH = "tests/ds_icd_0.0.4.xml"
     import os
     import sys
 
-    if not os.path.isfile(xml):
-        sys.exit(f"ERROR: Could not find file {xml}")
+    if not os.path.isfile(XML_PATH):
+        sys.exit(f"ERROR: Could not find file {XML_PATH}")
 
-    asyncio.run(main(xml))
+    asyncio.run(main(XML_PATH))

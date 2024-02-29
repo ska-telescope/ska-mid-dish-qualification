@@ -3,10 +3,10 @@ import logging
 from dotenv import load_dotenv
 from PyQt6.QtWidgets import QApplication
 
-from disq.controller import Controller
-from disq.model import Model
-from disq.sculib import configure_logging
-from disq.view import MainView
+from ska_mid_dish_qualification.controller import Controller
+from ska_mid_dish_qualification.model import Model
+from ska_mid_dish_qualification.sculib import configure_logging
+from ska_mid_dish_qualification.view import MainView
 
 
 def main():

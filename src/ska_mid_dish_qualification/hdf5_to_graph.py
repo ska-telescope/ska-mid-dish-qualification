@@ -1,8 +1,9 @@
-import h5py
 from datetime import datetime
+
+import h5py
 import matplotlib.axes as axes  # Entire import just for typehints
-import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
 
 
 def make_format(current: axes.Axes, other: axes.Axes, current_lab: str, other_lab: str):

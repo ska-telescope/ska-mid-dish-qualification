@@ -3,11 +3,11 @@ from pathlib import Path
 
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
-from disq import configuration, model
+from ska_mid_dish_qualification import configuration, model
 
 logger = logging.getLogger("gui.controller")
 
-_LOCAL_DIR_CONFIGFILE = "disq.ini"
+_LOCAL_DIR_CONFIGFILE = "ska-mid-disq.ini"
 
 
 class Controller(QObject):
@@ -77,8 +77,8 @@ class Controller(QObject):
             return
         try:
             self._model.connect(connection_details)
-        except OSError as e:
-            self.ui_status_message.emit(f"Unable to connect to server. Error: {e}")
+        except OSError as exc:
+            self.ui_status_message.emit(f"Unable to connect to server. Error: {exc}")
             return
         self.ui_status_message.emit(
             f"Connected to server: {self._model.get_server_uri()}"
@@ -170,10 +170,10 @@ class Controller(QObject):
             return
         try:
             self._model.load_track_table(fname)
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as exc:  # pylint: disable=broad-except
             e.add_note(f"Unable to load track table from file: {fname.absolute()}")
             logger.exception(e)
-            msg = f"Unable to load track table: {e}"
+            msg = f"Unable to load track table: {exc}"
             self.emit_ui_status_message("ERROR", msg)
             return
         self.emit_ui_status_message(
@@ -191,8 +191,8 @@ class Controller(QObject):
             return
         try:
             self._model.start_recording(fname)
-        except RuntimeError as e:
-            msg = f"Unable to start recording: {e}"
+        except RuntimeError as exc:
+            msg = f"Unable to start recording: {exc}"
             self.emit_ui_status_message("WARNING", msg)
             return
         self.emit_ui_status_message(

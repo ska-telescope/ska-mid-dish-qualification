@@ -3,7 +3,7 @@ from queue import Queue
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton, QStatusBar
 
-from disq.sculib import scu
+from ska_mid_dish_qualification.sculib import scu
 
 
 class Window(QMainWindow):

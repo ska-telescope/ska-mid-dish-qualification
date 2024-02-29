@@ -1,8 +1,12 @@
+"""Test timestamp reader."""
+
 from datetime import datetime
+
 import h5py
 
 
 def convert_timestamps(timestamps, values):
+    """convert_timestamps."""
     idx = 0
     for i in range(len(timestamps)):
         time = datetime.fromtimestamp(timestamps[idx]).isoformat()
@@ -12,6 +16,7 @@ def convert_timestamps(timestamps, values):
 
 
 def list_all(file_name):
+    """list_all."""
     fo = h5py.File(file_name, "r")
     nodes_list = list(fo.keys())
 
@@ -25,6 +30,6 @@ def list_all(file_name):
 
 
 if __name__ == "__main__":
-    file_name = "input_files/node_not_in_file.hdf5"
-    print(f"File: {file_name}")
-    list_all(file_name)
+    FILE_NAME = "input_files/node_not_in_file.hdf5"
+    print(f"File: {FILE_NAME}")
+    list_all(FILE_NAME)

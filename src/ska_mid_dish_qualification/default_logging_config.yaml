@@ -20,7 +20,7 @@ handlers:
     class: logging.handlers.TimedRotatingFileHandler
     level: DEBUG
     formatter: debug
-    filename: "logs/disq.log"
+    filename: "logs/ska_mid_dish_qualification.log"
     atTime: "08:00:00"
     # when: "h"
     # maxBytes: 1048576 # 1MB

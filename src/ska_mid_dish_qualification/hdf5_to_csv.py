@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+
 import h5py
 
 
@@ -46,8 +47,10 @@ class Converter:
     def _make_node_d(self, input_nodes: list[str], file_nodes: list[str]) -> bool:
         known_nodes = []
         for node in input_nodes:
-            known_nodes.append(node) if node in file_nodes else print(
-                f"Node {node} is not in the input file and will be ignored."
+            (
+                known_nodes.append(node)
+                if node in file_nodes
+                else print(f"Node {node} is not in the input file and will be ignored.")
             )
 
         if len(known_nodes) == 0:

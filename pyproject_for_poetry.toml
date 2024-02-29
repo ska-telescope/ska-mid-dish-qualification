@@ -15,7 +15,7 @@ homepage = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
 "Bug Tracker" = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification/-/issues"
 
 [tool.poetry.dependencies]
-python = "~3.11"
+python = "^3.10"
 asyncua = "^1.0.0"
 PyQt6 = "^6.4.0"
 pyqt6-tools = "^6.4.0"
@@ -29,18 +29,31 @@ numpy = "^1.26.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=6.2.5,<7.0.0"
+pytest-cov = "^4.0.0"
 assertpy = "^1.1"
-flake8 = "^5.0.4"
 isort = "^5.10.1"
 black = "^22.10.0"
 pylint = "^2.15.5"
-mypy = "^1.4.1"
-pytest-cov = "^4.0.0"
+pylint-junit = "^0.3.2"
+flake8 = "^5.0.4"
 flake8-isort = "^6.1.0"
-Flake8-pyproject = "^1.1"
+flake8-formatter-junit-xml = "^0.0.6"
+flake8-builtins = "^1.5.3"
+flake8-docstrings = "^1.6.0"
+flake8-use-fstring = "^1.4"
+flake8-rst-docstrings = "^0.2.7"
+mypy = "^1.4.1"
+pep8-naming = "^0.13.1"
 pipdeptree = "^2.10.2"
 tox-direct = "^0.4"
 types-mock = "^5.1.0"
+
+[tool.poetry.group.docs.dependencies]
+Sphinx = "^5.2"
+docutils = "^0.17"
+sphinx-argparse = "^0.3"
+ska-ser-sphinx-theme = "^0.1.1"
+sphinx-autodoc-typehints = "^1.19"
 
 [build-system]
 requires = ["poetry-core"]
@@ -49,7 +62,7 @@ build-backend = "poetry.core.masonry.api"
 [[tool.poetry.source]]
 name = 'ska'
 url = 'https://artefact.skatelescope.org/repository/pypi-all/simple'
-priority = "default"
+priority = "primary"
 
 
 [[tool.poetry.source]]
@@ -57,10 +70,10 @@ name = "PyPI"
 priority = "supplemental"
 
 [tool.poetry.scripts]
-disq-gui = "disq.mvcmain:main"
+disq-gui = "ska_mid_dish_qualification.mvcmain:main"
 
 [tool.setuptools_scm]
-write_to = "src/disq/_version.py"
+write_to = "src/ska_mid_dish_qualification/_version.py"
 
 [tool.mypy]
 ignore_missing_imports = true # Ignore missing stubs in imported modules
@@ -68,19 +81,6 @@ ignore_missing_imports = true # Ignore missing stubs in imported modules
 [tool.isort]
 float_to_top = true
 profile = "black"
-
-[tool.pylint."MESSAGES CONTROL"]
-disable = ["missing-docstring"]
-ignore = ["sculib.py"]
-
-[tool.flake8]
-extend-ignore = [
-    "E203", # See https://github.com/PyCQA/pycodestyle/issues/373
-    "F811", # support typing.overload decorator
-    "F722", # allow Annotated[typ, some_func("some string")]
-]
-max-line-length = 88 # Respect black's line length (default 88),
-exclude = [".tox", ".venv", "sculib.py"]
 
 [tool.black] # See https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-format
 force-exclude = "sculib.py|cam_sensors.py" # RegEx - Exclude formatting the legacy code
@@ -96,7 +96,7 @@ filterwarnings = "error"
 testpaths = "docs src tests"
 
 [tool.coverage.run]
-data_file = "/tmp/disq.coverage"
+data_file = "/tmp/ska_mid_dish_qualification.coverage"
 
 [tool.coverage.paths]
 # Tests are run from installed location, map back to the src directory
@@ -117,6 +117,6 @@ allowlist_externals =
     pytest
     mypy
 commands =
-    pytest: pytest --cov=disq --cov-report term --cov-report xml:cov.xml {posargs}
+    pytest: pytest --cov=ska-mid-dish-qualification --cov-report term --cov-report xml:cov.xml {posargs}
     mypy: mypy src tests {posargs}
 """

@@ -89,5 +89,5 @@ disq_logging_config.yaml
 tests/output_files/
 
 # CETC54 certificate junk
-src/disq/certs/cert.der
-src/disq/certs/key.pem
+src/ska_mid_dish_qualification/certs/cert.der
+src/ska_mid_dish_qualification/certs/key.pem
