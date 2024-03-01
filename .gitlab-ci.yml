@@ -1,14 +1,9 @@
-image: python:3.11
-
-stages:
-  - build
-  - test
-  - upload
-  - release
+image: $SKA_K8S_TOOLS_DOCKER_BUILDER_IMAGE
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
 variables:
+  GIT_SUBMODULE_STRATEGY: recursive
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PACKAGE_REGISTRY_PYPI_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi"
   PACKAGE_REGISTRY_GENERIC_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic"
@@ -18,7 +13,30 @@ cache:
   paths:
     - .cache/pip
 
+stages:
+  # - lint
+  - build
+  - test
+  # - scan
+  - upload # publish
+  - release # publish
+  - pages
+
+include:
+  # Python packages build,lint, test and publish
+  # - project: 'ska-telescope/templates-repository'
+  #   file: 'gitlab-ci/includes/python.gitlab-ci.yml'
+
+  # Docs pages
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/docs.gitlab-ci.yml'
+
+  # Create Gitlab CI badges from CI metrics
+  # - project: 'ska-telescope/templates-repository'
+  #   file: 'gitlab-ci/includes/finaliser.gitlab-ci.yml'
+
 build-job:
+  image: python:3.11
   stage: build
   before_script:
     - python --version ; pip --version # For debugging
@@ -36,6 +54,7 @@ build-job:
       dotenv: wheel.env
 
 test-install-job:
+  image: python:3.11
   stage: test
   before_script:
     - python --version ; pip --version # For debugging
@@ -46,6 +65,7 @@ test-install-job:
     - pip install -e .[dev]
 
 upload-pypi-job:
+  image: python:3.11
   stage: upload
   rules:
     - if: $CI_COMMIT_TAG
@@ -64,6 +84,7 @@ upload-pypi-job:
       TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${PACKAGE_REGISTRY_PYPI_URL} dist/*
 
 upload-generic-job:
+  image: python:3.11
   stage: upload
   image: curlimages/curl:latest
   rules:
@@ -85,6 +106,7 @@ upload-generic-job:
       dotenv: wheel.env
 
 release-job:
+  image: python:3.11
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   rules:
