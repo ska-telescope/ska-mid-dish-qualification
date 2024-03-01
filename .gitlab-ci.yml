@@ -20,7 +20,7 @@ stages:
   # - scan
   - upload # publish
   - release # publish
-  - pages
+  # - pages
 
 include:
   # Python packages build,lint, test and publish
