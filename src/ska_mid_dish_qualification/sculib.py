@@ -266,10 +266,10 @@ def create_command_function(node: asyncua.Node, event_loop: asyncio.AbstractEven
             else:
                 return_msg = str(return_code)
         except Exception as e:
-            e.add_note(f'Command: {uid} args: {args}')
+            # e.add_note(f'Command: {uid} args: {args}')
             asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
             return_code = -1
-            return_msg = str(e)
+            return_msg = f"Command: {uid}, args: {args}, exception: {e}"
         return return_code, return_msg
     return fn
 
@@ -403,9 +403,11 @@ class scu:
             try:
                 self.connection = self.connect(self.host, self.port, self.endpoint, self.timeout, encryption = False)
             except Exception as e:
-                e.add_note('Cannot connect to the OPC UA server. Please '
-                             'check the connection parameters that were '
-                             'passed to instantiate the sculib!')
+                # e.add_note('Cannot connect to the OPC UA server. Please '
+                msg = 'Cannot connect to the OPC UA server. Please '
+                'check the connection parameters that were '
+                'passed to instantiate the sculib!'
+                logger.error(f"{msg} {e}")
                 raise e
         logger.info('Populating nodes dicts from server. This will take about 1s...')
         self.populate_node_dicts()
@@ -504,7 +506,7 @@ class scu:
                 pass
             message = f'*** Exception caught while trying to access the requested namespace "{self.namespace}" on the OPC UA server. Will NOT continue with the normal operation but list the available namespaces here for future reference:\n{namespaces}'
             logger.error(message)
-            e.add_note(message)
+            # e.add_note(message)
             raise e
         return connection
 
@@ -724,8 +726,9 @@ class scu:
             # Return an array that contains the time offsets and positions.
             return numpy.array(cleaned_lines, dtype=float)
         except Exception as e:
-            e.add_note(f'Could not load or convert the track table file "{file_name}".')
-            logger.error(f'{e}')
+            # e.add_note(f'Could not load or convert the track table file "{file_name}".')
+            msg = f'Could not load or convert the track table file "{file_name}".'
+            logger.error(f'{msg} {e}')
             raise e
 
     def track_table_reset_and_upload_from_file(self, file_name: str) -> None:
@@ -927,7 +930,7 @@ class scu:
             or (entries != len(el)) or (len(t) != len(az))
             or (len(az) != len(el)) or (len(az) != len(el))):
             e = IndexError()
-            e.add_note(f'The provided track table contents are not usable because the contents are not aligned. The given number of track table entries and the size of each of the three arrays (t, az and el) need to match: Specified number of entries = {entries}, number of elements in time offset array = {len(t)}, number of elements in azimuth array = {len(az)}, number of elements in elevation array = {len(el)}.')
+            # e.add_note(f'The provided track table contents are not usable because the contents are not aligned. The given number of track table entries and the size of each of the three arrays (t, az and el) need to match: Specified number of entries = {entries}, number of elements in time offset array = {len(t)}, number of elements in azimuth array = {len(az)}, number of elements in elevation array = {len(el)}.')
             raise e
 
         # Format the track table in the new way that preceeds every row with
@@ -944,8 +947,9 @@ class scu:
                 asyncua.ua.UInt16(entries),
                 asyncua.ua.ByteString(byte_string))
         except Exception as e:
-            e.add_note(f'Tried to upload a track table in the new format but this failed. Will now try to uplad the track table in the old format...')
-            logger.warning(e)
+            # e.add_note(f'Tried to upload a track table in the new format but this failed. Will now try to uplad the track table in the old format...')
+            msg = f'Tried to upload a track table in the new format but this failed. Will now try to uplad the track table in the old format...'
+            logger.warning(f"{msg} {e}")
 
         # If I get here, then the OPC UA server likely did not support the new
         # format. Try again with the old format.
@@ -962,7 +966,7 @@ class scu:
                 asyncua.ua.UInt16(entries),
                 asyncua.ua.ByteString(byte_string))
         except Exception as e:
-            e.add_note(f'Uploading of a track table in the old format failed, too. Please check that your track table is correctly formatted, not empty and contains valid entries.')
+            # e.add_note(f'Uploading of a track table in the old format failed, too. Please check that your track table is correctly formatted, not empty and contains valid entries.')
             raise e
 
     def start_program_track(self, start_time, start_restart_or_stop: bool = True):

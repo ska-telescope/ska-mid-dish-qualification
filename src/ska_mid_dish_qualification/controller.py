@@ -171,9 +171,8 @@ class Controller(QObject):
         try:
             self._model.load_track_table(fname)
         except Exception as exc:  # pylint: disable=broad-except
-            exc.add_note(f"Unable to load track table from file: {fname.absolute()}")
-            logger.exception(exc)
-            msg = f"Unable to load track table: {exc}"
+            msg = f"Unable to load track table from file {fname.absolute()}: {exc}"
+            logger.exception(msg)
             self.emit_ui_status_message("ERROR", msg)
             return
         self.emit_ui_status_message(

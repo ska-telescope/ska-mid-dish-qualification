@@ -23,7 +23,7 @@ url = 'https://artefact.skatelescope.org/repository/pypi-all/simple'
 "Bug Tracker" = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification/-/issues"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 asyncua = "^1.0.0"
 PyQt6 = "^6.4.0"
 pyqt6-tools = "^6.4.0"
@@ -96,22 +96,3 @@ data_file = "/tmp/ska_mid_dish_qualification.coverage"
 [tool.coverage.paths]
 # Tests are run from installed location, map back to the src directory
 source = ["src", "**/site-packages/"]
-
-# tox must currently be configured via an embedded ini string
-# See: https://github.com/tox-dev/tox/issues/999
-[tool.tox]
-legacy_tox_ini = """
-[tox]
-skipsdist=True
-
-[testenv:{mypy,pytest}]
-# Don't create a virtualenv for the command, requires tox-direct plugin
-direct = True
-passenv = *
-allowlist_externals =
-    pytest
-    mypy
-commands =
-    pytest: pytest --cov=ska-mid-dish-qualification --cov-report term --cov-report xml:cov.xml {posargs}
-    mypy: mypy src tests {posargs}
-"""
