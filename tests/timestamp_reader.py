@@ -17,16 +17,16 @@ def convert_timestamps(timestamps, values):
 
 def list_all(file_name):
     """list_all."""
-    fo = h5py.File(file_name, "r")
-    nodes_list = list(fo.keys())
+    file = h5py.File(file_name, "r")
+    nodes_list = list(file.keys())
 
     for node in nodes_list:
         print(f"Node: {node}")
-        timestamps = fo[node]["SourceTimestamp"][:]
-        values = fo[node]["Value"][:]
+        timestamps = file[node]["SourceTimestamp"][:]
+        values = file[node]["Value"][:]
         convert_timestamps(timestamps, values)
 
-    fo.close()
+    file.close()
 
 
 if __name__ == "__main__":

@@ -47,7 +47,7 @@ class Maker:
 
     def _get_value_type_from_node_name(self, node):
         # TODO delete this and use HLL instead
-        d = {
+        data = {
             "MockData.sine_value": "double",
             "MockData.cosine_value": "double",
             "MockData.increment": "double",
@@ -55,7 +55,7 @@ class Maker:
             "MockData.bool": "bool",
             "MockData.enum": "enum",
         }
-        return d[node]
+        return data[node]
 
     def generate(self, filename, nodes):
         """generate."""
@@ -65,14 +65,14 @@ class Maker:
             )
             return
 
-        fo = h5py.File(filename, "w")
+        fout = h5py.File(filename, "w")
 
         data_d = {}
 
         # Make hierarchical format
         for node in nodes:
-            group = fo.create_group(node)
-            fo.attrs.create("Server", self.spoof_server)
+            group = fout.create_group(node)
+            fout.attrs.create("Server", self.spoof_server)
             timestamp_ds = group.create_dataset(
                 "SourceTimestamp",
                 dtype="f8",
@@ -104,7 +104,7 @@ class Maker:
             data_d[node] = {"SourceTimestamp": [], "Value": []}
 
         start_time = datetime.utcnow()
-        fo.attrs.create("Start time", start_time.isoformat(timespec="microseconds"))
+        fout.attrs.create("Start time", start_time.isoformat(timespec="microseconds"))
         # Make data
         data_rows = 10
         for idx in range(data_rows):
@@ -124,11 +124,11 @@ class Maker:
             sleep(self.SLEEP_TIME)
 
         stop_time = datetime.utcnow()
-        fo.attrs.create("Stop time", stop_time.isoformat(timespec="microseconds"))
+        fout.attrs.create("Stop time", stop_time.isoformat(timespec="microseconds"))
 
         # Store data
         for node in nodes:
-            group = fo[node]
+            group = fout[node]
             curr_len = group["SourceTimestamp"].len()
 
             group["SourceTimestamp"].resize(curr_len + data_rows, axis=0)
@@ -139,7 +139,7 @@ class Maker:
             group["Value"][-data_rows:] = data_d[node]["Value"]
             group["Value"].flush()
 
-        fo.close()
+        fout.close()
 
 
 if __name__ == "__main__":

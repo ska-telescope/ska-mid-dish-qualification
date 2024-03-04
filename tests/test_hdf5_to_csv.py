@@ -19,10 +19,10 @@ def test_node_not_in_file(capsys):
     input_files = "tests/input_files/node_not_in_file.hdf5"
     output_file = "tests/output_files/node_not_in_file.csv"
     nodes = ["not_a_node", "MockData.increment"]
-    fo = h5py.File(input_files, "r")
-    start = datetime.fromisoformat(fo.attrs["Start time"])
-    stop = datetime.fromisoformat(fo.attrs["Stop time"])
-    fo.close()
+    fin = h5py.File(input_files, "r")
+    start = datetime.fromisoformat(fin.attrs["Start time"])
+    stop = datetime.fromisoformat(fin.attrs["Stop time"])
+    fin.close()
     step = 100
     converter = h2c.Converter()
     converter.make_csv(input_files, output_file, nodes, start, stop, step)
@@ -44,10 +44,10 @@ def test_no_matching_nodes(capsys):
     input_file = "tests/input_files/no_matching_nodes.hdf5"
     output_file = "tests/output_files/no_matching_nodes.csv"
     nodes = "not_a_node"
-    fo = h5py.File(input_file, "r")
-    start = datetime.fromisoformat(fo.attrs["Start time"])
-    stop = datetime.fromisoformat(fo.attrs["Stop time"])
-    fo.close()
+    fin = h5py.File(input_file, "r")
+    start = datetime.fromisoformat(fin.attrs["Start time"])
+    stop = datetime.fromisoformat(fin.attrs["Stop time"])
+    fin.close()
     step = 100
     converter = h2c.Converter()
     converter.make_csv(input_file, output_file, nodes, start, stop, step)
@@ -73,11 +73,11 @@ def test_start_stop_past_file(capsys):
     input_file = "tests/input_files/start_stop_past_file.hdf5"
     output_file = "tests/output_files/start_stop_past_files.csv"
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
-    fo = h5py.File(input_file, "r")
+    fin = h5py.File(input_file, "r")
     # Cause the requested start and end times to be past the file ranges
-    start = datetime.fromisoformat(fo.attrs["Start time"]) - timedelta(seconds=4)
-    stop = datetime.fromisoformat(fo.attrs["Stop time"]) + timedelta(seconds=4)
-    fo.close()
+    start = datetime.fromisoformat(fin.attrs["Start time"]) - timedelta(seconds=4)
+    stop = datetime.fromisoformat(fin.attrs["Stop time"]) + timedelta(seconds=4)
+    fin.close()
     step = 100
     converter = h2c.Converter()
     converter.make_csv(input_file, output_file, nodes, start, stop, step)
@@ -109,10 +109,10 @@ def test_simple_input_file(capsys):
     input_file = "tests/input_files/simple_input_file.hdf5"
     output_file = "tests/output_files/simple_input_file.csv"
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
-    fo = h5py.File(input_file, "r")
-    start = datetime.fromisoformat(fo.attrs["Start time"])
-    stop = datetime.fromisoformat(fo.attrs["Stop time"])
-    fo.close()
+    fin = h5py.File(input_file, "r")
+    start = datetime.fromisoformat(fin.attrs["Start time"])
+    stop = datetime.fromisoformat(fin.attrs["Stop time"])
+    fin.close()
     step = 100
     converter = h2c.Converter()
     converter.make_csv(input_file, output_file, nodes, start, stop, step)
@@ -137,10 +137,10 @@ def test_simple_input_file_double_speed(capsys):
     input_file = "tests/input_files/simple_input_file_double_speed.hdf5"
     output_file = "tests/output_files/simple_input_file_double_speed.csv"
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
-    fo = h5py.File(input_file, "r")
-    start = datetime.fromisoformat(fo.attrs["Start time"])
-    stop = datetime.fromisoformat(fo.attrs["Stop time"])
-    fo.close()
+    fin = h5py.File(input_file, "r")
+    start = datetime.fromisoformat(fin.attrs["Start time"])
+    stop = datetime.fromisoformat(fin.attrs["Stop time"])
+    fin.close()
     step = 50
     converter = h2c.Converter()
     converter.make_csv(input_file, output_file, nodes, start, stop, step)
