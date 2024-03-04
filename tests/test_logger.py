@@ -5,6 +5,7 @@ import time
 from datetime import datetime, timedelta
 
 import h5py
+import pytest
 
 from disq import logger as log
 from disq import sculib
@@ -83,6 +84,7 @@ def put_hdf5_file_in_queue(nodes: list[str], input_f_o: h5py.File, logger: log.L
     # print(f"Test put {total_count} data points in queue")
 
 
+@pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_performance():
     """
     Performance:
@@ -118,6 +120,7 @@ def test_performance():
     # assert result.returncode == 0 # assert excluded because of tool bug
 
 
+@pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_add_nodes(caplog):
     """
     add_nodes:
@@ -159,6 +162,7 @@ def test_add_nodes(caplog):
     assert logger._nodes == expected_object_nodes
 
 
+@pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_build_hdf5_structure():
     """
     _build_hdf5_structure:
@@ -177,6 +181,7 @@ def test_build_hdf5_structure():
     logger.file_object.close()
 
 
+@pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_start(caplog):
     """
     start:
@@ -208,6 +213,7 @@ def test_start(caplog):
     logger.wait_for_completion()
 
 
+@pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_stop():
     """
     stop:
@@ -224,6 +230,7 @@ def test_stop():
     logger.wait_for_completion()
 
 
+@pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_write_cache_to_group():
     """
     _write_cache_to_group:
@@ -263,6 +270,7 @@ def test_write_cache_to_group():
     f_o.close()
 
 
+@pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_log():
     """
     _log:
@@ -297,6 +305,7 @@ def test_log():
     output_f_o.close()
 
 
+@pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_wait_for_completion(caplog):
     """
     wait_for_completion:
@@ -324,6 +333,7 @@ def test_wait_for_completion(caplog):
     assert caplog.messages == expected_log or caplog.messages == expected_log2
 
 
+@pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_enum_attribute():
     """
     Enum attribute:
