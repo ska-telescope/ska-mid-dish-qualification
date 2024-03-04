@@ -211,8 +211,8 @@ class Logger:
     def stop(self):
         """Stop logging. Ends the addition of new server data to internal queue
         and signals the logging thread to clear the remaining queued items."""
-        for id in self._subscription_ids:
-            self.hll.unsubscribe(id)
+        for uid in self._subscription_ids:
+            self.hll.unsubscribe(uid)
 
         self.stop_time = datetime.utcnow()
         self._stop_logging.set()

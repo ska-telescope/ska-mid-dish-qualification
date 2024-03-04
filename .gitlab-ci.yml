@@ -17,8 +17,8 @@ include:
     file: 'gitlab-ci/includes/python.gitlab-ci.yml'
 
   # Jupyter Notebooks
-  - project: "ska-telescope/templates-repository"
-    file: "gitlab-ci/includes/notebook.gitlab-ci.yml"
+  # - project: "ska-telescope/templates-repository"
+  #   file: "gitlab-ci/includes/notebook.gitlab-ci.yml"
 
   # Docs pages
   - project: "ska-telescope/templates-repository"

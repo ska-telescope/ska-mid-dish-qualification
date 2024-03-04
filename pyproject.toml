@@ -1,8 +1,7 @@
 [tool.poetry]
-include = ["MANIFEST.skao.int"]
-name = "DiSQ"
+name = "ska-mid-dish-qualification"
 version = "0.1.0"
-description = "SKAO MID Dish Structure Qualification (DiSQ) software"
+description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
 authors = [
     "Oliver Skivington <oliver.skivington@criticalsoftware.com>",
     "Thomas Juerges <thomas.juerges@skao.int>",
@@ -12,11 +11,19 @@ license = "BSD-3-Clause"
 readme = "README.md"
 homepage = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
 
+[tool.poetry.scripts]
+disq-gui = "ska_mid_dish_qualification.mvcmain:main"
+disq-validate-server = "ska_mid_dish_qualification.server_validator:main"
+
+[[tool.poetry.source]]
+name = 'ska'
+url = 'https://artefact.skatelescope.org/repository/pypi-all/simple'
+
 [tool.poetry.urls]
 "Bug Tracker" = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification/-/issues"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 asyncua = "^1.0.0"
 PyQt6 = "^6.4.0"
 pyqt6-tools = "^6.4.0"
@@ -59,19 +66,6 @@ sphinx-autodoc-typehints = "^1.19"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[[tool.poetry.source]]
-name = 'ska'
-url = 'https://artefact.skatelescope.org/repository/pypi-all/simple'
-priority = "primary"
-
-
-[[tool.poetry.source]]
-name = "PyPI"
-priority = "supplemental"
-
-[tool.poetry.scripts]
-disq-gui = "ska_mid_dish_qualification.mvcmain:main"
 
 [tool.setuptools_scm]
 write_to = "src/ska_mid_dish_qualification/_version.py"

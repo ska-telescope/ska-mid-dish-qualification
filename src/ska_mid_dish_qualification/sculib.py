@@ -46,8 +46,8 @@ def configure_logging(default_log_level: int = logging.INFO) -> None:
                 config = yaml.safe_load(f.read())
                 atTime = datetime.time.fromisoformat(config['handlers']['file_handler']['atTime'])
                 config['handlers']['file_handler']['atTime'] = atTime
-            except Exception as exc:
-                print(exc)
+            except Exception as e:
+                print(e)
                 print(f"WARNING: Unable to read logging configuration file {disq_log_config_file}")
     else:
         print(f"WARNING: Logging configuration file {disq_log_config_file} not found")
@@ -59,8 +59,8 @@ def configure_logging(default_log_level: int = logging.INFO) -> None:
         Path("logs").mkdir(parents=True, exist_ok=True)
         try:
             logging.config.dictConfig(config)
-        except ValueError as exc:
-            print(exc)
+        except ValueError as e:
+            print(e)
             print(f"WARNING: Caught exception. Unable to configure logging from file {disq_log_config_file}. Reverting to logging to the console (basicConfig).")
             logging.basicConfig(level = default_log_level)
 
@@ -119,7 +119,7 @@ hn_feed_indexer_sensors=[
 #     try:
 #         u = lower[name]
 #         s += f"\n'{u}',"
-#     except KeyError as exc:
+#     except KeyError as e:
 #         print(f'*** {name}')
 # s += f"\n]"
 # print(f'{s}')
@@ -131,7 +131,7 @@ hn_feed_indexer_sensors=[
 #     try:
 #         u = lower[name]
 #         s += f"\n'{u}',"
-#     except KeyError as exc:
+#     except KeyError as e:
 #         print(f'*** {name}')
 # s += f"\n]"
 # print(f'{s}')
@@ -250,23 +250,23 @@ hn_opcua_tilt_sensors = [
 ]
 
 async def handle_exception(e: Exception) -> None:
-    logger.exception(f'*** Exception caught: {exc}')
+    logger.exception(f'*** Exception caught: {e}')
 
 
 def create_command_function(node: asyncua.Node, event_loop: asyncio.AbstractEventLoop):
     call = asyncio.run_coroutine_threadsafe(node.get_parent(), event_loop).result().call_method
-    id = f'{node.nodeid.NamespaceIndex}:{asyncio.run_coroutine_threadsafe(node.read_display_name(), event_loop).result().Text}'
+    uid = f'{node.nodeid.NamespaceIndex}:{asyncio.run_coroutine_threadsafe(node.read_display_name(), event_loop).result().Text}'
     def fn(*args) -> Any:
         try:
-            return_code = asyncio.run_coroutine_threadsafe(call(id, *args), event_loop).result()
+            return_code = asyncio.run_coroutine_threadsafe(call(uid, *args), event_loop).result()
             return_msg: str = ""
             if hasattr(asyncua.ua, 'CmdResponseType') and return_code is not None:
                 # The asyncua library has a CmdResponseType enum ONLY if the opcua server implements the type
                 return_msg = asyncua.ua.CmdResponseType(return_code).name
             else:
                 return_msg = str(return_code)
-        except Exception as exc:
-            e.add_note(f'Command: {id} args: {args}')
+        except Exception as e:
+            e.add_note(f'Command: {uid} args: {args}')
             asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
             return_code = -1
             return_msg = str(e)
@@ -279,13 +279,13 @@ def create_rw_attribute(node: asyncua.Node, event_loop: asyncio.AbstractEventLoo
         def value(self) -> Any:
             try:
                 return asyncio.run_coroutine_threadsafe(node.get_value(), event_loop).result()
-            except Exception as exc:
+            except Exception as e:
                 asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
         @value.setter
         def value(self, _value: Any) -> None:
             try:
                 asyncio.run_coroutine_threadsafe(node.set_value(_value), event_loop).result()
-            except Exception as exc:
+            except Exception as e:
                 asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
     return opc_ua_rw_attribute()
 
@@ -295,7 +295,7 @@ def create_ro_attribute(node: asyncua.Node, event_loop: asyncio.AbstractEventLoo
         def value(self) -> Any:
             try:
                 return asyncio.run_coroutine_threadsafe(node.get_value(), event_loop).result()
-            except Exception as exc:
+            except Exception as e:
                 asyncio.run_coroutine_threadsafe(handle_exception(e), event_loop)
     return opc_ua_ro_attribute()
 
@@ -402,7 +402,7 @@ class scu:
         except:
             try:
                 self.connection = self.connect(self.host, self.port, self.endpoint, self.timeout, encryption = False)
-            except Exception as exc:
+            except Exception as e:
                 e.add_note('Cannot connect to the OPC UA server. Please '
                              'check the connection parameters that were '
                              'passed to instantiate the sculib!')
@@ -492,7 +492,7 @@ class scu:
             else:
                 # Force namespace index for first physical controller
                 self.ns_idx = 2
-        except ValueError as exc:
+        except ValueError as e:
             namespaces = None
             try:
                 namespaces = asyncio.run_coroutine_threadsafe(connection.get_namespace_array(), self.event_loop).result()
@@ -678,17 +678,17 @@ class scu:
                            f'dict and not subscribed for event updates: {invalid_attributes}')
         subscription = asyncio.run_coroutine_threadsafe(self.connection.create_subscription(period, subscription_handler), self.event_loop).result()
         handle = asyncio.run_coroutine_threadsafe(subscription.subscribe_data_change(nodes), self.event_loop).result()
-        id = time.monotonic_ns()
-        self.subscriptions[id] = {'handle': handle, 'nodes': nodes, 'subscription': subscription}
-        return id
+        uid = time.monotonic_ns()
+        self.subscriptions[uid] = {'handle': handle, 'nodes': nodes, 'subscription': subscription}
+        return uid
 
-    def unsubscribe(self, id: int) -> None:
-        subscription = self.subscriptions.pop(id)
+    def unsubscribe(self, uid: int) -> None:
+        subscription = self.subscriptions.pop(uid)
         _ = asyncio.run_coroutine_threadsafe(subscription['subscription'].unsubscribe(subscription['handle']), self.event_loop).result()
 
     def unsubscribe_all(self) -> None:
         while len(self.subscriptions) > 0:
-            id, subscription = self.subscriptions.popitem()
+            uid, subscription = self.subscriptions.popitem()
             _ = asyncio.run_coroutine_threadsafe(subscription['subscription'].unsubscribe(subscription['handle']), self.event_loop).result()
 
     def get_subscription_values(self) -> list[dict]:
@@ -723,9 +723,9 @@ class scu:
             cleaned_lines = [ line.rstrip('\n').split(',') for line in lines ]
             # Return an array that contains the time offsets and positions.
             return numpy.array(cleaned_lines, dtype=float)
-        except Exception as exc:
+        except Exception as e:
             e.add_note(f'Could not load or convert the track table file "{file_name}".')
-            logger.error(f'{exc}')
+            logger.error(f'{e}')
             raise e
 
     def track_table_reset_and_upload_from_file(self, file_name: str) -> None:
@@ -753,7 +753,7 @@ class scu:
     def feedback(self, r):
         logger.error('Not implemented because this function is not needed.')
         return
-        if self.debug:
+        if self.debug == True:
             logger.info('***Feedback:', r.request.url, r.request.body)
             logger.info(r.reason, r.status_code)
             logger.info("***Text returned:")
@@ -943,7 +943,7 @@ class scu:
                 load_type,
                 asyncua.ua.UInt16(entries),
                 asyncua.ua.ByteString(byte_string))
-        except Exception as exc:
+        except Exception as e:
             e.add_note(f'Tried to upload a track table in the new format but this failed. Will now try to uplad the track table in the old format...')
             logger.warning(e)
 
@@ -961,7 +961,7 @@ class scu:
                 load_type,
                 asyncua.ua.UInt16(entries),
                 asyncua.ua.ByteString(byte_string))
-        except Exception as exc:
+        except Exception as e:
             e.add_note(f'Uploading of a track table in the old format failed, too. Please check that your track table is correctly formatted, not empty and contains valid entries.')
             raise e
 
@@ -1111,32 +1111,32 @@ class scu:
         r = self.scu_get('/datalogging/sessions')
         return r
 
-    def session_query(self, id):
+    def session_query(self, uid):
         '''
-        GET specific session only - specified by id number
+        GET specific session only - specified by uid number
         Usage:
         session_query('16')
         '''
-        logger.info('logger sessioN query id ')
+        logger.info('logger sessioN query uid ')
         r = self.scu_get('/datalogging/session',
-             {'id': id})
+             {'uid': uid})
         return r
 
-    def session_delete(self, id):
+    def session_delete(self, uid):
         '''
-        DELETE specific session only - specified by id number
+        DELETE specific session only - specified by uid number
         Not working - returns response 500
         Usage:
         session_delete('16')
         '''
         logger.info('delete session ')
         r = self.scu_delete('/datalogging/session',
-             params= 'id='+id)
+             params= 'uid='+uid)
         return r
 
-    def session_rename(self, id, new_name):
+    def session_rename(self, uid, new_name):
         '''
-        RENAME specific session only - specified by id number and new session name
+        RENAME specific session only - specified by uid number and new session name
         Not working
         Works in browser display only, reverts when browser refreshed!
         Usage:
@@ -1144,14 +1144,14 @@ class scu:
         '''
         logger.info('rename session ')
         r = self.scu_put('/datalogging/session',
-             params = {'id': id,
+             params = {'uid': uid,
                 'name' : new_name})
         return r
 
 
-    def export_session(self, id, interval_ms=1000):
+    def export_session(self, uid, interval_ms=1000):
         '''
-        EXPORT specific session - by id and with interval
+        EXPORT specific session - by uid and with interval
         output r.text could be directed to be saved to file
         Usage:
         export_session('16',1000)
@@ -1159,7 +1159,7 @@ class scu:
         '''
         logger.info('export session ')
         r = self.scu_get('/datalogging/exportSession',
-             params = {'id': id,
+             params = {'uid': uid,
                 'interval_ms' : interval_ms})
         return r
 
@@ -1191,10 +1191,10 @@ class scu:
         if session == 'last':
             #get all logger sessions, may be many
             r = self.logger_sessions()
-            #[-1] for end of list, and ['uuid'] to get id of last session in list
+            #[-1] for end of list, and ['uuid'] to get uid of last session in list
             session = self.last_session()
         file_txt = self.export_session(session, interval_ms).text
-        logger.info('Session id: {} '.format(session))
+        logger.info('Session uid: {} '.format(session))
         file_time = str(int(time.time()))
         file_name = str(filename + '_' + file_time + '.csv')
         file_path = Path.cwd()  / 'output' / file_name
@@ -1219,10 +1219,10 @@ class scu:
         if session == 'last':
             #get all logger sessions, may be many
             r = self.logger_sessions()
-            #[-1] for end of list, and ['uuid'] to get id of last session in list
+            #[-1] for end of list, and ['uuid'] to get uid of last session in list
             session = self.last_session()
         file_txt = self.export_session(session, interval_ms).text
-        logger.info('Session id: {} '.format(session))
+        logger.info('Session uid: {} '.format(session))
 ##        file_time = str(int(time.time()))
         file_time = str(int(start))
         file_name = str(filename + '_' + file_time + '.csv')
@@ -1249,7 +1249,7 @@ class scu:
             r = self.logger_sessions()
             session = self.last_session()
         file_txt = self.export_session(session, interval_ms).text
-        logger.info('Session id: {} '.format(session))
+        logger.info('Session uid: {} '.format(session))
         file_name = str(filename + '.csv')
         file_path = Path.cwd()  / 'output' / file_name
         logger.info('Log file location:', file_path)

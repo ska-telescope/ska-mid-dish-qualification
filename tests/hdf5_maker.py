@@ -145,4 +145,4 @@ class Maker:
 if __name__ == "__main__":
     the_nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     maker = Maker("simple input file")
-    maker.generate("input_files/start_stop_past_file.hdf5", the_nodes)
+    maker.generate("tests/input_files/start_stop_past_file.hdf5", the_nodes)

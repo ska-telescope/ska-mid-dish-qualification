@@ -12,7 +12,7 @@ DiSQ enables engineers and scientists to control and qualify observatory dish st
 ## Installation
 This is a python software package which can be installed with the ubiquitous `pip` tool.
 
-Python >= 3.10 is required for this software package. Python package dependencies are installed automatically during the following installation steps.
+Python >= 3.11 is required for this software package. Python package dependencies are installed automatically during the following installation steps.
 
 The recommendation is to use a [virtualenv](https://docs.python.org/3/library/venv.html):
 ```
