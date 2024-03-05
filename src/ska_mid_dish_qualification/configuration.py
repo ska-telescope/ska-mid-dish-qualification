@@ -1,6 +1,7 @@
 """
-This module contains functions for finding and reading the configuration file for the
-application. The configuration file is a standard .ini file that can be parsed with
+Module with functions for finding and reading the application's configuration file.
+
+The configuration file is a standard .ini file that can be parsed with
 the configparser module.
 
 Example configuration file `ska-mid-disq.ini`:
@@ -22,12 +23,12 @@ Example configuration file `ska-mid-disq.ini`:
 
 Functions:
     find_config_file(config_filename: str | None = None) -> Path:
-        Finds the configuration file named "ska-mid-disq.ini" and returns its path as a Path
-        object. The configuration file can be specified in three ways:
-            1. By providing the file path as a command line option.
-            2. By setting the DISQ_CONFIG environment variable to the file path.
-            3. If neither of the above are provided, the function will look for the
-            file in the user's data directory.
+        Finds the configuration file named "ska-mid-disq.ini" and returns its path as
+        a Path object. The configuration file can be specified in three ways:
+        1. By providing the file path as a command line option.
+        2. By setting the DISQ_CONFIG environment variable to the file path.
+        3. If neither of the above are provided, the function will look for the
+        file in the user's data directory.
         If the configuration file is not found, a FileNotFoundError is raised.
 
     get_configuration(config_filename: str | None = None) -> configparser.ConfigParser:
@@ -51,8 +52,8 @@ _DEFAULT_CONFIG_FILENAME = "ska-mid-disq.ini"
 
 
 def find_config_file(config_filename: str | None = None) -> Path:
-    """
-    Finds the configuration file named "ska-mid-disq.ini"
+    r"""
+    Find the configuration file named "ska-mid-disq.ini".
 
     The logic for finding the configuration file is as follows in mermaid diagram
     syntax:
@@ -102,7 +103,9 @@ def find_config_file(config_filename: str | None = None) -> Path:
 
     # Locate the user data directory
     fname_user_dir = Path(
-        platformdirs.user_config_dir(appauthor="SKAO", appname="ska-mid-dish-qualification")
+        platformdirs.user_config_dir(
+            appauthor="SKAO", appname="ska-mid-dish-qualification"
+        )
     )
     fname_user_file = fname_user_dir / _DEFAULT_CONFIG_FILENAME
     logging.debug("Checking user data directory: %s", {fname_user_file})
@@ -119,7 +122,7 @@ def find_config_file(config_filename: str | None = None) -> Path:
 
 def get_configurations(config_filename: str | None = None) -> configparser.ConfigParser:
     """
-    Reads the configuration file and returns a ConfigParser object.
+    Read the configuration file and return a ConfigParser object.
 
     Args:
         config_filename (str, optional): The name of the configuration file.
@@ -142,7 +145,7 @@ def get_config_sculib_args(
     config_filename: str | None = None, server_name: str = "DEFAULT"
 ) -> dict[str, str | int]:
     """
-    Reads the configuration file and returns a dictionary of SCU library arguments.
+    Read the configuration file and return a dictionary of SCU library arguments.
 
     Args:
         config_filename (str, optional): The name of the configuration file. If None,
@@ -185,7 +188,7 @@ def get_config_sculib_args(
 
 def get_config_server_list(config_filename: str | None = None) -> list[str]:
     """
-    Reads the configuration file and returns a list of server names.
+    Read the configuration file and return a list of server names.
 
     Args:
         config_filename (str, optional): The name of the configuration file. If None,

@@ -12,8 +12,12 @@ class Converter:
     def _get_adjacent_data(
         self, time: datetime, node: str, look_from: tuple
     ) -> tuple[datetime, datetime]:
-        """look_from timestamp must be less than time i.e. while must loop at least
-        once. No do-while in Python at the time of writing."""
+        """
+        Get adjacent data.
+
+        look_from timestamp must be less than time i.e. while must loop at least
+        once. No do-while in Python at the time of writing.
+        """
         before = None
         after = look_from
 
@@ -54,20 +58,20 @@ class Converter:
             )
 
         if len(known_nodes) == 0:
-            print(f"ERROR: No data for requested nodes, exiting")
+            print("ERROR: No data for requested nodes, exiting")
             return False
 
         self._node_d = {}
         for node in known_nodes:
-            type = self._file_object[node]["Value"].attrs["Type"]
+            node_type = self._file_object[node]["Value"].attrs["Type"]
             length = self._file_object[node]["Value"].len()
             self._node_d[node] = {
-                "type": type,
+                "type": node_type,
                 "length": length,
                 "current": None,
                 "next": None,
             }
-            if type == "enum":
+            if node_type == "enum":
                 self._node_d[node]["enums"] = (
                     self._file_object[node]["Value"].attrs["Enumerations"].split(",")
                 )

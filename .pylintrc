@@ -1,18 +1,32 @@
 [MESSAGES CONTROL]
 disable=
+    no-name-in-module,
     duplicate-code,
+    import-error,
     fixme,
     logging-fstring-interpolation,
-    missing-function-docstring,
-    missing-module-docstring,
-    too-few-public-methods,
+    too-many-instance-attributes,
+    too-many-arguments,
     too-many-locals,
-    import-error,
+    too-few-public-methods,
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    too-many-branches,
+    too-many-nested-blocks
 
 enable=
     useless-suppression,
 
-ignore = sculib.py
+ignore = sculib.py, 
+    cam_sensors.py,
+    controller.py,
+    reader.py,
+    view.py,
+    hdf5_to_csv.py,
+    hdf5_to_graph.py,
+    server_validator.py,
+    logger.py
 
 [SIMILARITIES]
 min-similarity-lines=7

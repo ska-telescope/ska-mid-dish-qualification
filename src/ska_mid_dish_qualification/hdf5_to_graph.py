@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 
 def make_format(current: axes.Axes, other: axes.Axes, current_lab: str, other_lab: str):
     """
+    Format coordinates.
+
     Used for replacing the format_coord method of an matplotlib.axes object.
     """
 
@@ -18,14 +20,14 @@ def make_format(current: axes.Axes, other: axes.Axes, current_lab: str, other_la
         inv = other.transData.inverted()
         # convert back to data coords with respect to ax
         x1, y1 = inv.transform(display_coord)
-        return "{}: {:<}    {}: {:<}".format(
+        return "{}: {:<}    {}: {:<}".format(  # noqa: FS002
             other_lab,
-            "(x={}, y={})".format(
+            "(x={}, y={})".format(  # noqa: FS002
                 "???" if x1 is None else other.format_xdata(x1),
                 "???" if y1 is None else other.format_ydata(y1),
             ),
             current_lab,
-            "(x={}, y={})".format(
+            "(x={}, y={})".format(  # noqa: FS002
                 "???" if x is None else current.format_xdata(x),
                 "???" if y is None else current.format_ydata(y),
             ),
@@ -35,9 +37,7 @@ def make_format(current: axes.Axes, other: axes.Axes, current_lab: str, other_la
 
 
 def categorical_ydata(labels: list[str]):
-    """
-    Convert y-value into string.
-    """
+    """Convert y-value into string."""
 
     def format_ydata(y):
         ry = round(y)
@@ -58,8 +58,7 @@ class Grapher:
     _dash_sequence = (3, 5)
 
     def hdf5_info(self, file: str):
-        """Print the start and stop times and available nodes for the input
-        hdf5 file."""
+        """Print start and stop times and available nodes for the input hdf5 file."""
         with h5py.File(file, "r") as f:
             print(f"File: {file}")
             print(f"{f.attrs['Start time']} file starts.")
@@ -81,11 +80,11 @@ class Grapher:
                     # Datapointes are store chronologically; stop here.
                     break
 
-        type = fo[node]["Value"].attrs["Type"]
+        node_type = fo[node]["Value"].attrs["Type"]
         categories = []
-        if type == "bool":
+        if node_type == "bool":
             categories = ["False", "True"]
-        if type == "enum":
+        if node_type == "enum":
             categories = fo[node]["Value"].attrs["Enumerations"].split(",")
 
         return (dts, data, categories)
@@ -124,10 +123,14 @@ class Grapher:
         start: str = None,
         stop: str = None,
     ):
-        """Generate a graph with one or two y axis (nodes) with the same x
+        """
+        Build graph.
+
+        Generate a graph with one or two y axis (nodes) with the same x
         axis (time). Start and stop are datetime strings in ISO format (e.g.
         YYYY-MM-DDThh:mm:ss). If the start or stop times are not given, the
-        graph will default to the full time range of the input file."""
+        graph will default to the full time range of the input file.
+        """
         # Get data from HDF5 file
         with h5py.File(file, "r") as f:
             if start is None:

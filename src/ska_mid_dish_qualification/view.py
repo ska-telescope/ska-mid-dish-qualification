@@ -18,12 +18,12 @@ class RecordingConfigDialog(QtWidgets.QDialog):
 
         self.setWindowTitle("Recording Configuration")
 
-        QBtn = (
+        qbtn = (
             QtWidgets.QDialogButtonBox.StandardButton.Ok
             | QtWidgets.QDialogButtonBox.StandardButton.Cancel
         )
 
-        self.btn_box = QtWidgets.QDialogButtonBox(QBtn)
+        self.btn_box = QtWidgets.QDialogButtonBox(qbtn)
         self.btn_box.accepted.connect(self.accept_selection)
         self.btn_box.rejected.connect(self.reject)
 
@@ -214,8 +214,11 @@ class MainView(QtWidgets.QMainWindow):
 
     @cached_property
     def opcua_widgets(self) -> dict:
-        """Return a dict of of all 'opcua' widgets and their update method
-        {name: (widget, func)}"""
+        """
+        Return a dict of of all 'opcua' widgets and their update method.
+
+        {name: (widget, func)}
+        """
         # re = QtCore.QRegularExpression("opcua_")
         # opcua_widgets = self.findChildren(QtWidgets.QLineEdit, re)
         all_widgets: list[QtWidgets.QLineEdit] = self.findChildren(QtWidgets.QLineEdit)
@@ -261,12 +264,12 @@ class MainView(QtWidgets.QMainWindow):
         return opcua_widgets
 
     def enable_opcua_widgets(self):
-        """Enable all the OPC-UA widgets"""
+        """Enable all the OPC-UA widgets."""
         for widget in self.all_opcua_widgets:
             widget.setEnabled(True)
 
     def disable_opcua_widgets(self):
-        """Disable all the OPC-UA widgets"""
+        """Disable all the OPC-UA widgets."""
         for widget in self.all_opcua_widgets:
             widget.setEnabled(False)
 
@@ -287,7 +290,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(bool)
     def recording_status_update(self, status: bool):
-        """Update the recording status"""
+        """Update the recording status."""
         self.lineEdit_recording_status: QtWidgets.QLineEdit
         if status:
             self.lineEdit_recording_status.setText("Recording")
@@ -315,15 +318,15 @@ class MainView(QtWidgets.QMainWindow):
         _widget_update_func(_widget, event)
 
     def _init_opcua_combo_widgets(self) -> None:
-        """Initialise all the OPC-UA combo widgets"""
+        """Initialise all the OPC-UA combo widgets."""
         for widget in self.findChildren(QtWidgets.QComboBox):
             if "opcua_type" not in widget.dynamicPropertyNames():
                 # Skip all the non-opcua widgets
                 continue
             opcua_type = str(widget.property("opcua_type"))
             if opcua_type in self.model.opcua_enum_types:
-                OpcuaEnum: Enum = self.model.opcua_enum_types[opcua_type]
-                enum_strings = [str(e.name) for e in OpcuaEnum]
+                opcua_enum: Enum = self.model.opcua_enum_types[opcua_type]
+                enum_strings = [str(e.name) for e in opcua_enum]
                 # Explicitly cast to QComboBox
                 wgt: QtWidgets.QComboBox = widget  # type: ignore
                 wgt.clear()
@@ -332,37 +335,39 @@ class MainView(QtWidgets.QMainWindow):
     def _update_opcua_text_widget(
         self, widget: QtWidgets.QLineEdit, event: dict
     ) -> None:
-        """Update the text of the widget with the event value
+        """
+        Update the text of the widget with the event value.
 
         The event update dict contains:
-        { 'name': name, 'node': node, 'value': value,
-          'source_timestamp': source_timestamp,
-          'server_timestamp': server_timestamp,
-          'data': data }
+            { 'name': name, 'node': node, 'value': value,
+            'source_timestamp': source_timestamp,
+            'server_timestamp': server_timestamp,
+            'data': data }
         """
         val = event["value"]
         if isinstance(val, float):
-            str_val = "{:.3f}".format(val)
+            str_val = f"{val:.3f}"
         else:
             str_val = str(val)
         widget.setText(str_val)
 
     def _update_opcua_enum_widget(self, widget: QtWidgets.QLineEdit, event: dict):
-        """Update the text of the widget with the event data
+        """
+        Update the text of the widget with the event data.
 
         The Event data is an OPC-UA Enum type. The value arrives as an integer and
         it is converted to a string here before updating the text of the widget.
 
         The event update dict contains:
-        { 'name': name, 'node': node, 'value': value,
-          'source_timestamp': source_timestamp,
-          'server_timestamp': server_timestamp,
-          'data': data }
+            { 'name': name, 'node': node, 'value': value,
+            'source_timestamp': source_timestamp,
+            'server_timestamp': server_timestamp,
+            'data': data }
         """
         opcua_type: str = widget.property("opcua_type")
         int_val = int(event["value"])
         try:
-            OpcuaEnum: type = self.model.opcua_enum_types[opcua_type]
+            opcua_enum: type = self.model.opcua_enum_types[opcua_type]
         except KeyError:
             logger.warning(
                 "OPC-UA Enum type '%s' not found. Using integer value instead.",
@@ -370,7 +375,7 @@ class MainView(QtWidgets.QMainWindow):
             )
             str_val = str(int_val)
         else:
-            val = OpcuaEnum(int_val)
+            val = opcua_enum(int_val)
             str_val = val.name
         finally:
             widget.setText(str_val)
@@ -379,7 +384,7 @@ class MainView(QtWidgets.QMainWindow):
         self, widget: QtWidgets.QLineEdit, event: dict
     ) -> None:
         """
-        Update background colour of widget to reflect boolean state of OPC-UA parameter
+        Update background colour of widget to reflect boolean state of OPC-UA parameter.
 
         The event udpdate 'value' field can take 3 states:
          - None: the OPC-UA parameter is not defined. Colour background grey/disabled.
@@ -409,7 +414,7 @@ class MainView(QtWidgets.QMainWindow):
             )
 
     def _track_table_file_exist(self) -> bool:
-        """Check if the track table file exists"""
+        """Check if the track table file exists."""
         tt_filename = Path(self.lineEdit_track_table_file.text())
         return tt_filename.exists()
 
@@ -440,7 +445,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def connect_button_clicked(self):
-        """Setup a connection to the server"""
+        """Connect to the server."""
         if not self.controller.is_server_connected():
             connect_details = {
                 "address": self.input_server_address.text(),
@@ -459,7 +464,9 @@ class MainView(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot(str)
     def server_config_select_changed(self, server_name: str):
         """
-        User changed server selection in drop-down box. Enable/disable relevant widgets.
+        User changed server selection in drop-down box.
+
+        Enable/disable relevant widgets.
         """
         logger.debug("server config select changed: %s", server_name)
         if server_name is None or server_name == "":
@@ -487,7 +494,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def track_table_file_changed(self, filename: str):
-        """Update the track table file path in the model"""
+        """Update the track table file path in the model."""
         if self._track_table_file_exist() and self.controller.is_server_connected():
             self.pushButton_load_track_table.setEnabled(True)
         else:
@@ -495,7 +502,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def track_table_file_button_clicked(self) -> None:
-        """Open a file dialog to select a track table file"""
+        """Open a file dialog to select a track table file."""
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(
             self, "Open Track Table File", "", "Track Table Files (*.csv)"
         )
@@ -504,7 +511,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def recording_config_button_clicked(self):
-        """Open the recording configuration dialog"""
+        """Open the recording configuration dialog."""
         dialog = RecordingConfigDialog(self, self.model.opcua_attributes)
         if dialog.exec():
             logger.debug("Recording config dialog accepted")
@@ -563,10 +570,10 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def command_response_status_update(self, status: str):
-        """Update the main window status bar with a status update"""
+        """Update the main window status bar with a status update."""
         self.cmd_status_label.setText(status)
 
     @QtCore.pyqtSlot(str)
     def move2band_button_clicked(self, band: str):
-        """Move to the given band"""
+        """Move to the given band."""
         self.controller.command_move2band(band)

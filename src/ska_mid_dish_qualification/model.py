@@ -158,7 +158,7 @@ class Model(QObject):
             logger.debug(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
             result = self._scu.commands[command](arg)
         else:
-            # Commands that take none or more parameters of base types like float, bool, etc.
+            # Commands that take none or more parameters of base types like float, bool.
             result = self._scu.commands[command](*args)
         return result
 

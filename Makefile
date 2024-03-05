@@ -17,9 +17,13 @@ include .make/base.mk
 include .make/python.mk
 
 PYTHON_LINE_LENGTH = 88
-PYTHON_LINT_TARGET = tests/
+# PYTHON_LINT_TARGET = tests/
 # linting source has way too many problems to fix right now
-# PYTHON_LINT_TARGET = src/ tests/
+PYTHON_LINT_TARGET = tests/ src/
+
+PYTHON_SWITCHES_FOR_BLACK = --force-exclude "src/ska_mid_dish_qualification/sculib.py"
+PYTHON_SWITCHES_FOR_FLAKE8 = --config .flake8
+PYTHON_SWITCHES_FOR_PYLINT = --rcfile .pylintrc
 
 #######################################
 # DOCS

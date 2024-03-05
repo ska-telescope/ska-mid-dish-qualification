@@ -28,7 +28,7 @@ class Controller(QObject):
         return r
 
     def emit_ui_status_message(self, severity: str, message: str):
-        """Emit a status message to the UI. Severity is one of: INFO, WARNING, ERROR"""
+        """Emit a status message to the UI. Severity is one of: INFO, WARNING, ERROR."""
         sevr_symbol = ""
         if severity == "INFO":
             sevr_symbol = "ℹ️"
@@ -91,7 +91,10 @@ class Controller(QObject):
         self.server_disconnected.emit()
 
     def subscribe_opcua_updates(self, registrations: dict):
-        """Subscribe to the requested OPC UA variable data updates with the given
+        """
+        Subscribe to OPC UA variable data updates.
+
+        Subscribe to the requested OPC UA variable data updates with the given
         callback. registrations is a dictionary with key:UI name value:callback method
         """
         self._model.register_event_updates(registrations=registrations)
@@ -104,7 +107,8 @@ class Controller(QObject):
         elevation_velocity: float,
     ):
         cmd = "Management.Slew2AbsAzEl"
-        desc = f"Command: {cmd}  args: {azimuth_position}, {elevation_position}, {azimuth_velocity}, {elevation_velocity}"
+        desc = f"Command: {cmd}  args: {azimuth_position}, {elevation_position}, "
+        f"{azimuth_velocity}, {elevation_velocity}"
         logger.debug(desc)
         self.ui_status_message.emit(desc)
         result_code, result_msg = self._model.run_opcua_command(
@@ -161,7 +165,7 @@ class Controller(QObject):
 
     @pyqtSlot(str)
     def load_track_table(self, filename: str):
-        """Load a track table from a file"""
+        """Load a track table from a file."""
         fname = Path(filename)
         logger.debug("Loading track table from file: %s", fname.absolute())
         if not fname.exists():
@@ -181,7 +185,7 @@ class Controller(QObject):
 
     @pyqtSlot(str)
     def recording_start(self, filename: str):
-        """Start recording"""
+        """Start recording."""
         fname = Path(filename)
         logger.debug(f"Recording to file: {fname.absolute()}")
         if fname.exists():
@@ -201,7 +205,7 @@ class Controller(QObject):
 
     @pyqtSlot()
     def recording_stop(self):
-        """Stop recording"""
+        """Stop recording."""
         self._model.stop_recording()
         self.emit_ui_status_message("INFO", "Recording stopped")
         self.recording_status.emit(False)

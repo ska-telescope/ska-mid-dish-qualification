@@ -14,13 +14,15 @@ class Reader:
         self.file = file
 
     def fill(self, node: str, start: datetime, stop: datetime):
-        """Retreive datapoints from file for given node between start and stop times"""
+        """Retreive datapoints from file for given node between start and stop times."""
         fo = h5py.File(self.file, "r", libver="latest")
         group = fo[node]
 
         """
-        # List comprehensions are faster than append-for because they have a different method than .append() with less overhead than calling an entire function.
-        # This introduces way more overhead, no way comprehensions are faster for this use case.
+        List comprehensions are faster than append-for because they have a different
+        method than .append() with less overhead than calling an entire function.
+        This introduces way more overhead, no way comprehensions are faster for this
+        use case.
         self._x = [
             data
             for data in group["SourceTimestamp"]
@@ -52,8 +54,11 @@ class Reader:
                     self._y.append(self._values[i])
 
     def plot(self):
-        """Plot the fetched data. Creates a graph for type "double" or a table for types
-        "bool" and "enum"."""
+        """
+        Plot the fetched data.
+
+        Creates a graph for type "double" or a table for types "bool" and "enum".
+        """
         match self._type:
             case "double":
                 fig, ax = plt.subplots()
