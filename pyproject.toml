@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ska-mid-dish-qualification"
-version = "0.1.0"
+version = "0.2.1"
 description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
 authors = [
     "Oliver Skivington <oliver.skivington@criticalsoftware.com>",

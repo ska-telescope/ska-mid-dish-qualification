@@ -47,7 +47,8 @@
         "ryanluker.vscode-coverage-gutters",
         "lextudio.restructuredtext",
         "trond-snekvik.simple-rst",
-        "tamasfe.even-better-toml"
+        "tamasfe.even-better-toml",
+        "ms-toolsai.jupyter"
       ]
     }
   },
