@@ -52,9 +52,6 @@ flake8-use-fstring = "^1.4"
 flake8-rst-docstrings = "^0.2.7"
 mypy = "^1.4.1"
 pep8-naming = "^0.13.1"
-pipdeptree = "^2.10.2"
-tox-direct = "^0.4"
-types-mock = "^5.1.0"
 
 [tool.poetry.group.docs.dependencies]
 Sphinx = "^5.2"

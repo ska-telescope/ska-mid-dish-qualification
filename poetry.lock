@@ -701,23 +701,6 @@ url = "https://artefact.skatelescope.org/repository/pypi-all/simple"
 reference = 'ska'
 
 [[package]]
-name = "distlib"
-version = "0.3.8"
-description = "Distribution utilities"
-category = "dev"
-optional = false
-python-versions = "*"
-files = [
-    {file = "distlib-0.3.8-py2.py3-none-any.whl", hash = "sha256:034db59a0b96f8ca18035f36290806a9a6e6bd9d1ff91e45a7f172eb17e51784"},
-    {file = "distlib-0.3.8.tar.gz", hash = "sha256:1530ea13e350031b6312d8580ddb6b27a104275a31106523b8f123787f494f64"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skatelescope.org/repository/pypi-all/simple"
-reference = 'ska'
-
-[[package]]
 name = "docutils"
 version = "0.17.1"
 description = "Docutils -- Python Documentation Utilities"
@@ -728,28 +711,6 @@ files = [
     {file = "docutils-0.17.1-py2.py3-none-any.whl", hash = "sha256:cf316c8370a737a022b72b56874f6602acf974a37a9fba42ec2876387549fc61"},
     {file = "docutils-0.17.1.tar.gz", hash = "sha256:686577d2e4c32380bb50cbb22f575ed742d58168cee37e99117a854bcd88f125"},
 ]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skatelescope.org/repository/pypi-all/simple"
-reference = 'ska'
-
-[[package]]
-name = "filelock"
-version = "3.13.1"
-description = "A platform independent file lock."
-category = "dev"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "filelock-3.13.1-py3-none-any.whl", hash = "sha256:57dbda9b35157b05fb3e58ee91448612eb674172fab98ee235ccb0b5bee19a1c"},
-    {file = "filelock-3.13.1.tar.gz", hash = "sha256:521f5f56c50f8426f5e03ad3b281b490a87ef15bc6c526f168290f0c7148d44e"},
-]
-
-[package.extras]
-docs = ["furo (>=2023.9.10)", "sphinx (>=7.2.6)", "sphinx-autodoc-typehints (>=1.24)"]
-testing = ["covdefaults (>=2.3)", "coverage (>=7.3.2)", "diff-cover (>=8)", "pytest (>=7.4.3)", "pytest-cov (>=4.1)", "pytest-mock (>=3.12)", "pytest-timeout (>=2.2)"]
-typing = ["typing-extensions (>=4.8)"]
 
 [package.source]
 type = "legacy"
@@ -1616,26 +1577,6 @@ url = "https://artefact.skatelescope.org/repository/pypi-all/simple"
 reference = 'ska'
 
 [[package]]
-name = "pathlib2"
-version = "2.3.7.post1"
-description = "Object-oriented filesystem paths"
-category = "dev"
-optional = false
-python-versions = "*"
-files = [
-    {file = "pathlib2-2.3.7.post1-py2.py3-none-any.whl", hash = "sha256:5266a0fd000452f1b3467d782f079a4343c63aaa119221fbdc4e39577489ca5b"},
-    {file = "pathlib2-2.3.7.post1.tar.gz", hash = "sha256:9fe0edad898b83c0c3e199c842b27ed216645d2e177757b2dd67384d4113c641"},
-]
-
-[package.dependencies]
-six = "*"
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skatelescope.org/repository/pypi-all/simple"
-reference = 'ska'
-
-[[package]]
 name = "pathspec"
 version = "0.12.1"
 description = "Utility library for gitignore style pattern matching of file paths."
@@ -1757,27 +1698,6 @@ mic = ["olefile"]
 tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "packaging", "pyroma", "pytest", "pytest-cov", "pytest-timeout"]
 typing = ["typing-extensions"]
 xmp = ["defusedxml"]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skatelescope.org/repository/pypi-all/simple"
-reference = 'ska'
-
-[[package]]
-name = "pipdeptree"
-version = "2.16.0"
-description = "Command line utility to show dependency tree of packages."
-category = "dev"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "pipdeptree-2.16.0-py3-none-any.whl", hash = "sha256:77b5f8a942eaea83599b76459ad8ff908e60065a3055e09d49dcab3eb0077f3c"},
-    {file = "pipdeptree-2.16.0.tar.gz", hash = "sha256:45b045a539a87dde690596f4293ac7af7c6a1cd0a3480b06de9d33046564d17b"},
-]
-
-[package.extras]
-graphviz = ["graphviz (>=0.20.1)"]
-test = ["covdefaults (>=2.3)", "diff-cover (>=8.0.1)", "pip (>=23.3.1)", "pytest (>=7.4.3)", "pytest-cov (>=4.1)", "pytest-mock (>=3.12)", "virtualenv (>=20.25,<21)"]
 
 [package.source]
 type = "legacy"
@@ -2039,14 +1959,14 @@ reference = 'ska'
 
 [[package]]
 name = "pyparsing"
-version = "3.1.1"
+version = "3.1.2"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
 category = "main"
 optional = false
 python-versions = ">=3.6.8"
 files = [
-    {file = "pyparsing-3.1.1-py3-none-any.whl", hash = "sha256:32c7c0b711493c72ff18a981d24f28aaf9c1fb7ed5e9667c9e84e3db623bdbfb"},
-    {file = "pyparsing-3.1.1.tar.gz", hash = "sha256:ede28a1a32462f5a9705e07aea48001a08f7cf81a021585011deba701581a0db"},
+    {file = "pyparsing-3.1.2-py3-none-any.whl", hash = "sha256:f9db75911801ed778fe61bb643079ff86601aca99fcae6345aa67292038fb742"},
+    {file = "pyparsing-3.1.2.tar.gz", hash = "sha256:a1bac0ce561155ecc3ed78ca94d3c9378656ad4c94c1270de543f621420f94ad"},
 ]
 
 [package.extras]
@@ -2861,80 +2781,6 @@ url = "https://artefact.skatelescope.org/repository/pypi-all/simple"
 reference = 'ska'
 
 [[package]]
-name = "tox"
-version = "3.28.0"
-description = "tox is a generic virtualenv management and test command line tool"
-category = "dev"
-optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
-files = [
-    {file = "tox-3.28.0-py2.py3-none-any.whl", hash = "sha256:57b5ab7e8bb3074edc3c0c0b4b192a4f3799d3723b2c5b76f1fa9f2d40316eea"},
-    {file = "tox-3.28.0.tar.gz", hash = "sha256:d0d28f3fe6d6d7195c27f8b054c3e99d5451952b54abdae673b71609a581f640"},
-]
-
-[package.dependencies]
-colorama = {version = ">=0.4.1", markers = "platform_system == \"Windows\""}
-filelock = ">=3.0.0"
-packaging = ">=14"
-pluggy = ">=0.12.0"
-py = ">=1.4.17"
-six = ">=1.14.0"
-tomli = {version = ">=2.0.1", markers = "python_version >= \"3.7\" and python_version < \"3.11\""}
-virtualenv = ">=16.0.0,<20.0.0 || >20.0.0,<20.0.1 || >20.0.1,<20.0.2 || >20.0.2,<20.0.3 || >20.0.3,<20.0.4 || >20.0.4,<20.0.5 || >20.0.5,<20.0.6 || >20.0.6,<20.0.7 || >20.0.7"
-
-[package.extras]
-docs = ["pygments-github-lexers (>=0.0.5)", "sphinx (>=2.0.0)", "sphinxcontrib-autoprogram (>=0.1.5)", "towncrier (>=18.5.0)"]
-testing = ["flaky (>=3.4.0)", "freezegun (>=0.3.11)", "pathlib2 (>=2.3.3)", "psutil (>=5.6.1)", "pytest (>=4.0.0)", "pytest-cov (>=2.5.1)", "pytest-mock (>=1.10.0)", "pytest-randomly (>=1.0.0)"]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skatelescope.org/repository/pypi-all/simple"
-reference = 'ska'
-
-[[package]]
-name = "tox-direct"
-version = "0.4"
-description = "plugin for tox - run everything directly (tox creates no virtual env)"
-category = "dev"
-optional = false
-python-versions = "*"
-files = [
-    {file = "tox-direct-0.4.tar.gz", hash = "sha256:33bb6627db50c1c1760f889410bf77107e4858cf15a0f4532442fd690b6284c8"},
-    {file = "tox_direct-0.4-py2.py3-none-any.whl", hash = "sha256:d80968dfbaf99198d7fa77fb2c20786f6bcf584000be96217a4ffd74dd4b3699"},
-]
-
-[package.dependencies]
-pathlib2 = "*"
-py = "*"
-tox = ">=3.12,<4"
-
-[package.extras]
-publish = ["twine"]
-test = ["pytest"]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skatelescope.org/repository/pypi-all/simple"
-reference = 'ska'
-
-[[package]]
-name = "types-mock"
-version = "5.1.0.20240106"
-description = "Typing stubs for mock"
-category = "dev"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "types-mock-5.1.0.20240106.tar.gz", hash = "sha256:13ca379d5710ccb3f18f69ade5b08881874cb83383d8fb49b1d4dac9d5c5d090"},
-    {file = "types_mock-5.1.0.20240106-py3-none-any.whl", hash = "sha256:3d116955495935b0bcba14954b38d97e507cd43eca3e3700fc1b8e4f5c6bf2c7"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skatelescope.org/repository/pypi-all/simple"
-reference = 'ska'
-
-[[package]]
 name = "typing-extensions"
 version = "4.10.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -2968,32 +2814,6 @@ brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)"]
 h2 = ["h2 (>=4,<5)"]
 socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skatelescope.org/repository/pypi-all/simple"
-reference = 'ska'
-
-[[package]]
-name = "virtualenv"
-version = "20.25.1"
-description = "Virtual Python Environment builder"
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "virtualenv-20.25.1-py3-none-any.whl", hash = "sha256:961c026ac520bac5f69acb8ea063e8a4f071bcc9457b9c1f28f6b085c511583a"},
-    {file = "virtualenv-20.25.1.tar.gz", hash = "sha256:e08e13ecdca7a0bd53798f356d5831434afa5b07b93f0abdf0797b7a06ffe197"},
-]
-
-[package.dependencies]
-distlib = ">=0.3.7,<1"
-filelock = ">=3.12.2,<4"
-platformdirs = ">=3.9.1,<5"
-
-[package.extras]
-docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx (>=7.1.2)", "sphinx-argparse (>=0.4)", "sphinxcontrib-towncrier (>=0.2.1a0)", "towncrier (>=23.6)"]
-test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=23.1)", "pytest (>=7.4)", "pytest-env (>=0.8.2)", "pytest-freezer (>=0.4.8)", "pytest-mock (>=3.11.1)", "pytest-randomly (>=3.12)", "pytest-timeout (>=2.1)", "setuptools (>=68)", "time-machine (>=2.10)"]
 
 [package.source]
 type = "legacy"
@@ -3088,4 +2908,4 @@ reference = 'ska'
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "3c24fe0a15e4f0cb70ded0fab0ae4bb25ffa398df3c9395f0002125768b00a97"
+content-hash = "7eade9a47a2043fb27c2839402d9c6ee17e647035b21a8f4bd6836e20dada8a3"

@@ -4,6 +4,9 @@
     "dockerfile": "Dockerfile",
     "context": ".."
   },
+  "features": {
+    "ghcr.io/devcontainers/features/desktop-lite:1": {}
+  },
   "customizations": {
     "vscode": {
       "settings": {
