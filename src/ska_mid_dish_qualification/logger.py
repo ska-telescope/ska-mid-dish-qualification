@@ -4,6 +4,7 @@ import queue
 import threading
 from datetime import datetime, timedelta
 from time import sleep
+from typing import Final
 
 import h5py
 
@@ -65,6 +66,17 @@ class Logger:
         self.queue = queue.Queue(maxsize=0)
         self._data_count = 0
 
+        self.start_time: datetime
+        self.stop_time: datetime
+        # self.file_object
+
+        # Constants
+        self._total_count_idx: Final = 0
+        self._type_idx: Final = 1
+        self._count_idx: Final = 2
+        self._timestamp_idx: Final = 3
+        self._value_idx: Final = 4
+
         if high_level_library is None:
             if server is None:
                 self.hll = sculib.scu()
@@ -99,7 +111,7 @@ class Logger:
                 continue
 
             node_type = self.hll.get_attribute_data_type(node)
-            if node_type not in self._hdf5_type_from_value_type.keys():
+            if node_type not in self._hdf5_type_from_value_type:
                 app_logger.info(
                     f'Unsupported type for "{node}": "{node_type}"; skipping. '
                     f'Nodes must be of type "Boolean"/"Double"/"Enumeration".'
@@ -157,13 +169,6 @@ class Logger:
             #                            ^ list indices match for data points ^
             self._cache[node] = [0, value_type, 0, [], []]
 
-        # No magic numbers
-        self._total_count_idx = 0
-        self._type_idx = 1
-        self._count_idx = 2
-        self._timestamp_idx = 3
-        self._value_idx = 4
-
         # HDF5 structure created, can now enter SWMR mode
         self.file_object.swmr_mode = True
 
@@ -171,7 +176,7 @@ class Logger:
         # Sort added nodes into lists per period
         period_dict = {}
         for node, period in self._nodes.items():
-            if period in period_dict.keys():
+            if period in period_dict:
                 period_dict[period].append(node)
             else:
                 period_dict[period] = []
@@ -210,7 +215,8 @@ class Logger:
             os.makedirs(basedir)
 
         app_logger.info(f"Writing data to file: {self.file}")
-        self.file_object = h5py.File(self.file, "w", libver="latest")
+        # pylint: disable=attribute-defined-outside-init
+        self.file_object = h5py.File(self.file, "w", libver="latest")  # TODO
         self._build_hdf5_structure()
 
         self._subscribe_to_nodes()
@@ -319,7 +325,8 @@ class Logger:
 
         self.file_object.close()
         app_logger.info(f"Logger received {self._data_count} data points.")
-        self.file_object = h5py.File(self.file, "a", libver="latest")
+        # pylint: disable=attribute-defined-outside-init
+        self.file_object = h5py.File(self.file, "a", libver="latest")  # TODO
         self.file_object.attrs.create(
             "Start time", self.start_time.isoformat(timespec="microseconds")
         )

@@ -4,7 +4,7 @@ extend-ignore = E203, # See https://github.com/PyCQA/pycodestyle/issues/373
     F811, # support typing.overload decorator
     F722, # allow Annotated[typ, some_func("some string")]
     W503, # conflicts with black
-    D100,D101,,D102,D103,D105,D107 # docstrings
+    D100,D101,D102,D103,D105,D107 # docstrings
     
 docstring-style = sphinx
 rst-roles = py:attr, py:class, py:const, py:exc, py:func, py:meth, py:mod

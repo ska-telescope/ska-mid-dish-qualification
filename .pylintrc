@@ -8,12 +8,12 @@ disable=
     too-many-instance-attributes,
     too-many-arguments,
     too-many-locals,
+    ; too-many-branches,
+    ; too-many-nested-blocks,
     too-few-public-methods,
     missing-module-docstring,
     missing-class-docstring,
     missing-function-docstring,
-    too-many-branches,
-    too-many-nested-blocks
 
 enable=
     useless-suppression,
@@ -25,8 +25,8 @@ ignore = sculib.py,
     view.py,
     hdf5_to_csv.py,
     hdf5_to_graph.py,
-    server_validator.py,
-    logger.py
+    ; server_validator.py,
+    ; logger.py,
 
 [SIMILARITIES]
 min-similarity-lines=7

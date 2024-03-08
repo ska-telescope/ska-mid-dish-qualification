@@ -58,6 +58,8 @@ class Serval:
         self.internal_server_stop = threading.Event()
         self.fuzzy_threshold = 0.85
         self.include_namespace = False
+        self.server: sculib.scu
+        self.event_loop: asyncio.AbstractEventLoop
         if include_namespace:
             self.in_args = "0:InputArguments"
             self.out_args = "0:OutputArguments"
@@ -115,7 +117,7 @@ class Serval:
     def _read_data_type_tuple(self, sculib_path: str) -> tuple:
         try:
             data_type = self.server.get_attribute_data_type(sculib_path)
-        except Exception:
+        except Exception:  # TODO pylint: disable=broad-exception-caught
             return ("Node name error",)
         if data_type == "Enumeration":
             return (data_type, ",".join(self.server.get_enum_strings(sculib_path)))
@@ -265,17 +267,14 @@ class Serval:
         self, indent: str, args_string: str, expected_info: dict, actual_info: dict
     ):
         alignment = " " * (len(args_string) + 4)
-        expected_params = [
-            (name, data_type) for name, data_type in expected_info[args_string].items()
-        ]
-        actual_params = [
-            (name, data_type) for name, data_type in actual_info[args_string].items()
-        ]
+        expected_params = list(expected_info[args_string].items())
+        actual_params = list(actual_info[args_string].items())
         print(
-            f"""  {indent}{args_string}: Expected: {expected_params},
-{alignment}{indent}  actual: {actual_params}"""
+            f"  {indent}{args_string}: Expected: {expected_params},"
+            f"{alignment}{indent}  actual: {actual_params}"
         )
 
+    # TODO pylint: disable=too-many-branches,too-many-nested-blocks
     def print_diff(
         self,
         actual: dict,
@@ -328,7 +327,6 @@ class Serval:
                                 f"  {indent}data_type: Expected: "
                                 f"{node_info['data_type']}, actual: {actual_type}"
                             )
-
                     if len(node_info["children"]) > 0:
                         if diff[node]["diff"]["children_match"]:
                             if verbose:
@@ -337,22 +335,23 @@ class Serval:
                                 print(f"  {indent}children:")
                         else:
                             children_indent = " " * len("  children: ")
-                            expected_children = [
-                                name for name in node_info["children"].keys()
-                            ]
-                            actual_children = [
-                                name for name in actual[node]["children"].keys()
-                            ]
+                            expected_children = list(node_info["children"].keys())
+                            actual_children = list(actual[node]["children"].keys())
                             if "fuzzy" in diff[node]["diff"]:
-                                fuzzy_children = [
-                                    fuzzy for fuzzy in diff[node]["diff"]["fuzzy"]
-                                ]
-                                children_match = f"""Expected: {expected_children},
-{children_indent}{indent}  actual: {actual_children}.
-{children_indent}{indent}Possible matches: {fuzzy_children}"""
+                                fuzzy_children = list(diff[node]["diff"]["fuzzy"])
+                                children_match = (
+                                    f"Expected: {expected_children},"
+                                    + f"{children_indent}{indent}  "
+                                    + f"actual: {actual_children}."
+                                    + f"{children_indent}{indent}"
+                                    + f"Possible matches: {fuzzy_children}"
+                                )
                             else:
-                                children_match = f"""Expected: {expected_children},
-{children_indent}{indent}  actual: {actual_children}"""
+                                children_match = (
+                                    f"Expected: {expected_children},"
+                                    + f"{children_indent}{indent}  "
+                                    + f"actual: {actual_children}"
+                                )
 
                             print(f"  {indent}children: {children_match}")
 
@@ -487,8 +486,7 @@ def main():
             print("Server configurations available in default configuration:")
             for server_config in configurations:
                 print(server_config)
-        finally:
-            return
+        return
 
     xml = args.xml[0]
     if "-f" not in sys.argv and "--config" not in sys.argv:
