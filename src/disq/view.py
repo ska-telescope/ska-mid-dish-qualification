@@ -283,7 +283,6 @@ class MainView(QtWidgets.QMainWindow):
         self.input_server_endpoint.setEnabled(enable)
         self.input_server_namespace.setEnabled(enable)
         if connect_button:
-            self.btn_server_connect.setEnabled(not enable)
             self.btn_server_connect.setText("Connect" if enable else "Disconnect")
 
     @QtCore.pyqtSlot(bool)
@@ -461,6 +460,11 @@ class MainView(QtWidgets.QMainWindow):
         if server_name is None or server_name == "":
             self.enable_server_widgets(True)
         else:
+            # Clear the input boxes first
+            self.input_server_address.clear()
+            self.input_server_port.clear()
+            self.input_server_endpoint.clear()
+            self.input_server_namespace.clear()
             # Get the server config args from configfile
             server_config = self.controller.get_config_server_args(server_name)
             # Populate the widgets with the server config args
