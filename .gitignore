@@ -29,6 +29,7 @@ var/
 .installed.cfg
 *.egg
 **/_version.py
+MANIFEST.skao.int
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
