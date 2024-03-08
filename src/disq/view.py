@@ -461,10 +461,10 @@ class MainView(QtWidgets.QMainWindow):
             self.enable_server_widgets(True)
         else:
             # Clear the input boxes first
-            self.input_server_address.setText("")
-            self.input_server_port.setText("")
-            self.input_server_endpoint.setText("")
-            self.input_server_namespace.setText("")
+            self.input_server_address.clear()
+            self.input_server_port.clear()
+            self.input_server_endpoint.clear()
+            self.input_server_namespace.clear()
             # Get the server config args from configfile
             server_config = self.controller.get_config_server_args(server_name)
             # Populate the widgets with the server config args
