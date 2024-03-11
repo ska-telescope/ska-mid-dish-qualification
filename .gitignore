@@ -92,3 +92,6 @@ tests/output_files/
 # CETC54 certificate junk
 src/ska_mid_dish_qualification/certs/cert.der
 src/ska_mid_dish_qualification/certs/key.pem
+
+# Optional git hooks linked from .make submodule
+resources/git-hooks

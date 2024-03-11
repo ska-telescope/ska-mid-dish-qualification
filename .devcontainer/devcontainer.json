@@ -51,13 +51,13 @@
         "ms-python.mypy-type-checker",
         "ms-python.pylint",
         "ms-python.python",
+        "ms-toolsai.jupyter",
         "ryanluker.vscode-coverage-gutters",
         "tamasfe.even-better-toml",
         "trond-snekvik.simple-rst"
       ]
     }
   },
-  "postCreateCommand": "pip install --no-warn-script-location -e .[dev] && export PATH='$PATH:/home/tango/.local/bin'",
-  // "postCreateCommand": "sudo poetry config virtualenvs.create false && sudo poetry install",
+  "postCreateCommand": "sudo poetry config virtualenvs.create false && sudo poetry install",
   "remoteUser": "tango"
 }

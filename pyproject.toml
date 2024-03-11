@@ -160,7 +160,7 @@ filterwarnings = "error"
 testpaths = "docs src tests"
 
 [tool.coverage.run]
-data_file = "/tmp/ska_mid_dish_qualification.coverage"
+data_file = "/build/reports/code-coverage.xml"
 
 [tool.coverage.paths]
 # Tests are run from installed location, map back to the src directory
