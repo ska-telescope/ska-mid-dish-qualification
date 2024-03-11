@@ -34,7 +34,10 @@ Assuming you have your ssh keys setup in gitlab and access to the repo, first cl
 
 Then install as an ["editable" development installation](https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs):
 
-```pip install -e .[dev]```
+```
+pip config set global.extra-index-url https://artefact.skatelescope.org/repository/pypi-all/simple
+pip install -e .[dev]
+```
 
 Developers can also build a distributable package wheel using the [`build`](https://pypa-build.readthedocs.io/en/stable/) module. It is recommended to do this in a completely fresh clone and fresh virtualenv:
 

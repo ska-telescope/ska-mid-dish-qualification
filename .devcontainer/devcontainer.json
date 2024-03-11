@@ -28,6 +28,9 @@
         "pylint.path": [
           "/usr/local/bin/pylint"
         ],
+        "pylint.args": [
+          "--extension-pkg-whitelist=PyQt6"
+        ],
         "[python]": {
           "editor.defaultFormatter": "ms-python.black-formatter"
         },
@@ -54,6 +57,7 @@
       ]
     }
   },
-  "postCreateCommand": "sudo poetry config virtualenvs.create false && sudo poetry install",
+  "postCreateCommand": "pip install --no-warn-script-location -e .[dev] && export PATH='$PATH:/home/tango/.local/bin'",
+  // "postCreateCommand": "sudo poetry config virtualenvs.create false && sudo poetry install",
   "remoteUser": "tango"
 }

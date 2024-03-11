@@ -9,5 +9,13 @@
     },
     "pylint.args": [
         "--extension-pkg-whitelist=PyQt6"
-    ]
+    ],
+    "isort.args": [
+        "--profile",
+        "black"
+    ],
+    "coverage-gutters.manualCoverageFilePaths": [
+        "build/reports/code-coverage.xml"
+    ],
+    "coverage-gutters.showLineCoverage": true
 }

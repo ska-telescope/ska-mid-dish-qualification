@@ -1,3 +1,78 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm[toml]>=6.2", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ska-mid-dish-qualification"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: BSD 3-Clause License",
+    "Programming Language :: Python :: 3.10",
+]
+description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
+dependencies = [
+    "asyncua",
+    "PyQt6==6.4.2",
+    "pyqt6-tools",
+    "python-dotenv",
+    "h5py",
+    "numpy",
+    # matplotlib and plotly are only used in the reader class.
+    "matplotlib",
+    "plotly",
+    "pyyaml",
+    "platformdirs",
+]
+
+dynamic = ["version"]
+license.file = "LICENSE"
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "assertpy",
+    "isort",
+    "black",
+    "pylint",
+    "pylint-junit",
+    "flake8",
+    "flake8-isort",
+    "flake8-formatter-junit-xml",
+    "flake8-builtins",
+    "flake8-docstrings",
+    "flake8-use-fstring",
+    "flake8-rst-docstrings",
+    "mypy",
+    "pep8-naming",
+    "build",
+    "Sphinx",
+    "docutils",
+    "sphinx-argparse",
+    "ska-ser-sphinx-theme",
+    "sphinx-autodoc-typehints",
+]
+
+[project.scripts]
+disq-gui = "ska_mid_dish_qualification.mvcmain:main"
+disq-validate-server = "ska_mid_dish_qualification.server_validator:main"
+
+[project.urls]
+GitLab = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
+source = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
+
+[[project.authors]] # Further authors may be added by duplicating this section
+email = "Thomas.Juerges@skao.int"
+name = "Thomas Juerges"
+[[project.authors]]
+email = "oliver.skivington@criticalsoftware.com"
+name = "Oliver Skivington"
+[[project.authors]]
+email = "ukp@observatorysciences.co.uk"
+name = "Ulrik Pedersen"
+
 [tool.poetry]
 include = ["MANIFEST.skao.int"]
 name = "ska-mid-dish-qualification"
@@ -10,7 +85,8 @@ authors = [
 ]
 license = "BSD-3-Clause"
 readme = "README.md"
-homepage = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
+repository = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
+documentation = "https://developer.skatelescope.org/projects/ska-mid-dish-qualification"
 
 [tool.poetry.scripts]
 disq-gui = "ska_mid_dish_qualification.mvcmain:main"
@@ -19,9 +95,6 @@ disq-validate-server = "ska_mid_dish_qualification.server_validator:main"
 [[tool.poetry.source]]
 name = 'ska'
 url = 'https://artefact.skatelescope.org/repository/pypi-all/simple'
-
-[tool.poetry.urls]
-"Bug Tracker" = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification/-/issues"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -62,10 +135,6 @@ docutils = "^0.17"
 sphinx-argparse = "^0.3"
 ska-ser-sphinx-theme = "^0.1.1"
 sphinx-autodoc-typehints = "^1.19"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.setuptools_scm]
 write_to = "src/ska_mid_dish_qualification/_version.py"

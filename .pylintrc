@@ -19,6 +19,7 @@ enable=
     useless-suppression,
 
 ignore = sculib.py, 
+    _version.py,
     cam_sensors.py,
     controller.py,
     reader.py,
