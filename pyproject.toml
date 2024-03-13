@@ -51,7 +51,7 @@ dev = [
     "Sphinx",
     "docutils",
     "sphinx-argparse",
-    "ska-ser-sphinx-theme",
+    "ska-ser-sphinx-theme @ git+https://gitlab.com/ska-telescope/ska-ser-sphinx-theme.git@0.1.2",
     "sphinx-autodoc-typehints",
 ]
 
@@ -93,8 +93,8 @@ disq-gui = "ska_mid_dish_qualification.mvcmain:main"
 disq-validate-server = "ska_mid_dish_qualification.server_validator:main"
 
 [[tool.poetry.source]]
-name = 'ska'
-url = 'https://artefact.skatelescope.org/repository/pypi-all/simple'
+name = "ska"
+url = "https://artefact.skatelescope.org/repository/pypi-internal/simple"
 
 [tool.poetry.dependencies]
 python = "^3.10"

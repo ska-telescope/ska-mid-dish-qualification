@@ -35,7 +35,6 @@ Assuming you have your ssh keys setup in gitlab and access to the repo, first cl
 Then install as an ["editable" development installation](https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs):
 
 ```
-pip config set global.extra-index-url https://artefact.skatelescope.org/repository/pypi-all/simple
 pip install -e .[dev]
 ```
 
