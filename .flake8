@@ -1,0 +1,22 @@
+[flake8]
+max-line-length = 88
+
+# See https://github.com/PyCQA/pycodestyle/issues/373
+# support typing.overload decorator
+# allow Annotated[typ, some_func("some string")]
+# conflicts with black
+# TODO: docstrings
+extend-ignore = E203, 
+    F811, 
+    F722, 
+    W503,
+    D100,D101,D102,D103,D105,D107 
+    
+docstring-style = sphinx
+rst-roles = py:attr, py:class, py:const, py:exc, py:func, py:meth, py:mod
+rst-directives = literalinclude, uml
+
+exclude = src/*.py,
+    tests/*.py,
+    src/disq/sculib.py,
+    src/disq/cam_sensors.py

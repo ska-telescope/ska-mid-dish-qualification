@@ -1,0 +1,40 @@
+[MESSAGES CONTROL]
+disable=
+    no-name-in-module,
+    duplicate-code,
+    import-error,
+    fixme,
+    logging-fstring-interpolation,
+    too-many-instance-attributes,
+    too-many-arguments,
+    too-many-locals,
+    ; too-many-branches,
+    ; too-many-nested-blocks,
+    too-few-public-methods,
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+
+enable=
+    useless-suppression,
+
+ignore = sculib.py, 
+    _version.py,
+    cam_sensors.py,
+    controller.py,
+    reader.py,
+    view.py,
+    hdf5_to_csv.py,
+    hdf5_to_graph.py,
+    server_validator.py,
+    logger.py,
+
+[SIMILARITIES]
+min-similarity-lines=7
+ignore-imports=yes
+
+# TODO: remove these when possible
+# W0212 protected-access
+# W0613 unused-argument
+# W0612 unused variable
+disable = W0212, W0613, W0612
