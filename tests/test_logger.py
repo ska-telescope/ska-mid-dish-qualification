@@ -92,8 +92,8 @@ def test_performance():
     shared queue. Ensure the logging was completed within a certain time and the
     contents of he input and output files match.
     """
-    input_file = "input_files/60_minutes.hdf5"
-    output_file = "output_files/performance.hdf5"
+    input_file = "tests/input_files/60_minutes.hdf5"
+    output_file = "tests/output_files/performance.hdf5"
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
     test_start = datetime.now()
@@ -169,7 +169,7 @@ def test_build_hdf5_structure():
     Test the _build_hdf5_structure() method. Checks the correct hierarchical structure
     is created and the file object is set to SWMR mode.
     """
-    output_file = "output_files/_build_hdf5_structure.hdf5"
+    output_file = "tests/output_files/_build_hdf5_structure.hdf5"
     logger = log.Logger(file_name=output_file)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
     logger.add_nodes(nodes, 100)
@@ -188,7 +188,7 @@ def test_start(caplog):
     Test the start() method. Check that a file (and directory) is made with the input
     file name, and that it cannot be invoked twice, logging the correct messages.
     """
-    output_file = "output_files/start.hdf5"
+    output_file = "tests/output_files/start.hdf5"
     hll = stub_scu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
@@ -219,7 +219,7 @@ def test_stop():
     stop:
     Test the stop() method. Check _stop_logging is being set.
     """
-    output_file = "output_files/stop.hdf5"
+    output_file = "tests/output_files/stop.hdf5"
     hll = stub_scu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
@@ -237,7 +237,7 @@ def test_write_cache_to_group():
     Test the _write_cache_to_group() method. Check that values are written to the
     output file.
     """
-    output_file = "output_files/_write_cache_to_group.hdf5"
+    output_file = "tests/output_files/_write_cache_to_group.hdf5"
     hll = stub_scu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     nodes = ["MockData.increment"]
@@ -277,8 +277,8 @@ def test_log():
     Test the log() method. Add datapoints to the queue from a known input file, check
     the output file contains all expected values.
     """
-    input_file = "input_files/_log.hdf5"
-    output_file = "output_files/_log.hdf5"
+    input_file = "tests/input_files/_log.hdf5"
+    output_file = "tests/output_files/_log.hdf5"
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
     hll = stub_scu()
@@ -340,7 +340,7 @@ def test_enum_attribute():
     Test that an attribute containing a comma separated string of available enum string
     states is added to enum type node value datasets.
     """
-    output_file = "output_files/enum_attribute.hdf5"
+    output_file = "tests/output_files/enum_attribute.hdf5"
     logger = log.Logger(file_name=output_file)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
     logger.add_nodes(nodes, 100)

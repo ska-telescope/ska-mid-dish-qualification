@@ -13,8 +13,8 @@ def test_node_not_in_file(capsys):
     When one of the requested nodes is not in the input file print message but
     continue making CSV for remaining nodes.
     """
-    input_files = "input_files/node_not_in_file.hdf5"
-    output_file = "output_files/node_not_in_file.csv"
+    input_files = "tests/input_files/node_not_in_file.hdf5"
+    output_file = "tests/output_files/node_not_in_file.csv"
     nodes = ["not_a_node", "MockData.increment"]
     fo = h5py.File(input_files, "r")
     start = datetime.fromisoformat(fo.attrs["Start time"])
@@ -28,7 +28,7 @@ def test_node_not_in_file(capsys):
     # Check that error message matches expected
     assert captured.out == expected_stdout
     # Check the output file matches the expected CSV
-    assert filecmp.cmp(output_file, "expected_files/node_not_in_file.csv") == True
+    assert filecmp.cmp(output_file, "tests/expected_files/node_not_in_file.csv") == True
 
 
 def test_no_matching_nodes(capsys):
@@ -37,8 +37,8 @@ def test_no_matching_nodes(capsys):
     When the input file does not contain any of the requested nodes print error
     message and exit.
     """
-    input_file = "input_files/no_matching_nodes.hdf5"
-    output_file = "output_files/no_matching_nodes.csv"
+    input_file = "tests/input_files/no_matching_nodes.hdf5"
+    output_file = "tests/output_files/no_matching_nodes.csv"
     nodes = "not_a_node"
     fo = h5py.File(input_file, "r")
     start = datetime.fromisoformat(fo.attrs["Start time"])
@@ -65,8 +65,8 @@ def test_start_stop_past_file(capsys):
     the requested stop time is later than the input file stop time print messages
     and shorten range to existing file times.
     """
-    input_file = "input_files/start_stop_past_file.hdf5"
-    output_file = "output_files/start_stop_past_files.csv"
+    input_file = "tests/input_files/start_stop_past_file.hdf5"
+    output_file = "tests/output_files/start_stop_past_files.csv"
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     fo = h5py.File(input_file, "r")
     # Cause the requested start and end times to be past the file ranges
@@ -88,7 +88,10 @@ def test_start_stop_past_file(capsys):
     assert captured.out == expected_stdout
     # Check the output file matches the expected (including CSV starts at earliest file
     # start and stops no later than latest file stop)
-    assert filecmp.cmp(output_file, "expected_files/start_stop_past_files.csv") == True
+    assert (
+        filecmp.cmp(output_file, "tests/expected_files/start_stop_past_files.csv")
+        == True
+    )
 
 
 def test_simple_input_file(capsys):
@@ -97,8 +100,8 @@ def test_simple_input_file(capsys):
     A simple HDF5 input file will be correctly converted to the expected CSV file
     without error.
     """
-    input_file = "input_files/simple_input_file.hdf5"
-    output_file = "output_files/simple_input_file.csv"
+    input_file = "tests/input_files/simple_input_file.hdf5"
+    output_file = "tests/output_files/simple_input_file.csv"
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     fo = h5py.File(input_file, "r")
     start = datetime.fromisoformat(fo.attrs["Start time"])
@@ -112,7 +115,9 @@ def test_simple_input_file(capsys):
     # Check that error message matches expected
     assert captured.out == expected_stdout
     # Check the output file matches the expected.
-    assert filecmp.cmp(output_file, "expected_files/simple_input_file.csv") == True
+    assert (
+        filecmp.cmp(output_file, "tests/expected_files/simple_input_file.csv") == True
+    )
 
 
 def test_simple_input_file_double_speed(capsys):
@@ -122,8 +127,8 @@ def test_simple_input_file_double_speed(capsys):
     CSV file with asterisks to indidicate values that are older than the line time
     minus the step_ms given.
     """
-    input_file = "input_files/simple_input_file_double_speed.hdf5"
-    output_file = "output_files/simple_input_file_double_speed.csv"
+    input_file = "tests/input_files/simple_input_file_double_speed.hdf5"
+    output_file = "tests/output_files/simple_input_file_double_speed.csv"
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     fo = h5py.File(input_file, "r")
     start = datetime.fromisoformat(fo.attrs["Start time"])
@@ -138,6 +143,8 @@ def test_simple_input_file_double_speed(capsys):
     assert captured.out == expected_stdout
     # Check the output file matches the expected.
     assert (
-        filecmp.cmp(output_file, "expected_files/simple_input_file_double_speed.csv")
+        filecmp.cmp(
+            output_file, "tests/expected_files/simple_input_file_double_speed.csv"
+        )
         == True
     )

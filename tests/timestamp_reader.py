@@ -26,6 +26,6 @@ def list_all(file_name):
 
 
 if __name__ == "__main__":
-    FILE_NAME = "input_files/node_not_in_file.hdf5"
+    FILE_NAME = "tests/input_files/node_not_in_file.hdf5"
     print(f"File: {FILE_NAME}")
     list_all(FILE_NAME)
