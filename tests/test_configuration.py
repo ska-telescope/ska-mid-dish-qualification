@@ -30,9 +30,10 @@ def test_get_configuration():
         assert config is not None
 
     # Test when the file exist but is not a valid configuration file
-    with patch(
-        "disq.configuration.find_config_file", return_value=Path(__file__)
-    ), pytest.raises(configparser.Error):
+    with (
+        patch("disq.configuration.find_config_file", return_value=Path(__file__)),
+        pytest.raises(configparser.Error),
+    ):
         config = get_configurations(__file__)
 
     # Test with the test file disq.ini

@@ -1,8 +1,10 @@
-from disq import hdf5_to_csv as h2c
-from datetime import datetime, timedelta
-import h5py
-import os
 import filecmp
+import os
+from datetime import datetime, timedelta
+
+import h5py
+
+from disq import hdf5_to_csv as h2c
 
 
 def test_node_not_in_file(capsys):

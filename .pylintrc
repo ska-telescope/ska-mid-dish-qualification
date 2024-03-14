@@ -28,6 +28,9 @@ ignore = sculib.py,
     hdf5_to_graph.py,
     server_validator.py,
     logger.py,
+    test_logger.py,
+    test_hdf5_to_csv.py,
+    hdf5_maker.py
 
 [SIMILARITIES]
 min-similarity-lines=7

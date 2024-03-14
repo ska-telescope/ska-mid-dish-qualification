@@ -1,11 +1,13 @@
-from disq import logger as log
-from disq import sculib
-from datetime import datetime, timedelta
-import h5py
 import os
 import random
 import subprocess
 import time
+from datetime import datetime, timedelta
+
+import h5py
+
+from disq import logger as log
+from disq import sculib
 
 
 class stub_scu(sculib.scu):
