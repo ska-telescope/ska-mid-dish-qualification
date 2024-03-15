@@ -1,11 +1,13 @@
 import argparse
+import asyncio
 import os
 import sys
-import asyncua
-import asyncio
 import threading
 from difflib import SequenceMatcher
-from disq import sculib, configuration
+
+import asyncua
+
+from disq import configuration, sculib
 from disq.serval_internal_server import ServalInternalServer
 
 

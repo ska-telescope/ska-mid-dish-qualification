@@ -1,7 +1,8 @@
-import h5py
 from datetime import datetime
-import matplotlib.pyplot as plt
+
+import h5py
 import matplotlib.dates as dates
+import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import plotly.graph_objects as graph_obj
 
