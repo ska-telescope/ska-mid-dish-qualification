@@ -1,3 +1,27 @@
+[MAIN]
+ignore=
+    _version.py,
+    sculib.py, 
+    cam_sensors.py,
+    controller.py,
+    hdf5_to_csv.py,
+    hdf5_to_graph.py,
+    logger.py,
+    model.py,
+    reader.py,
+    serval_internal_server.py,
+    server_validator.py,
+    view.py,
+    hdf5_maker.py,
+    test_logger.py,
+    test_hdf5_to_csv.py,
+    timestamp_reader.py
+
+extension-pkg-allow-list=PyQt6
+
+[FORMAT]
+max-line-length = 88
+
 [MESSAGES CONTROL]
 disable=
     no-name-in-module,
@@ -18,26 +42,6 @@ disable=
 enable=
     useless-suppression,
 
-ignore = sculib.py, 
-    _version.py,
-    cam_sensors.py,
-    controller.py,
-    reader.py,
-    view.py,
-    hdf5_to_csv.py,
-    hdf5_to_graph.py,
-    server_validator.py,
-    logger.py,
-    test_logger.py,
-    test_hdf5_to_csv.py,
-    hdf5_maker.py
-
 [SIMILARITIES]
 min-similarity-lines=7
 ignore-imports=yes
-
-# TODO: remove these when possible
-# W0212 protected-access
-# W0613 unused-argument
-# W0612 unused variable
-disable = W0212, W0613, W0612

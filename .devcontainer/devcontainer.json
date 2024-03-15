@@ -29,7 +29,10 @@
           "/usr/local/bin/pylint"
         ],
         "pylint.args": [
-          "--extension-pkg-whitelist=PyQt6"
+          "--rcfile=.pylintrc"
+        ],
+        "flake8.args": [
+          "--config=.flake8"
         ],
         "[python]": {
           "editor.defaultFormatter": "ms-python.black-formatter"
