@@ -152,7 +152,7 @@ line-length = 88
 [tool.pytest.ini_options]
 # Run pytest with all our checkers, and don't spam us with massive tracebacks on error
 addopts = """
-    --tb=native -vv --doctest-modules --doctest-glob="*.rst"
+    --tb=native -v --doctest-modules --doctest-glob="*.rst"
     """
 # https://iscinumpy.gitlab.io/post/bound-version-constraints/#watch-for-warnings
 filterwarnings = "error"
@@ -160,7 +160,7 @@ filterwarnings = "error"
 testpaths = "docs src tests"
 
 [tool.coverage.run]
-data_file = "/build/reports/code-coverage.xml"
+omit = ["__init__.py", "_version.py"]
 
 [tool.coverage.paths]
 # Tests are run from installed location, map back to the src directory
