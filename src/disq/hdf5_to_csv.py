@@ -1,12 +1,16 @@
 from datetime import datetime, timedelta
+
 import h5py
 
 
 class Converter:
-    default_start_delta = timedelta(minutes=60)  # TODO configure good default start
+    default_start_delta = timedelta(
+        minutes=60
+    )  # TODO configure good default start
 
     _NO_DATA_YET_STR = "-"
     _OLD_DATA_STR = "*"
+    _DELIMITER = ","
 
     def _get_adjacent_data(
         self, time: datetime, node: str, look_from: tuple
@@ -35,7 +39,9 @@ class Converter:
                 value = str(self._file_object[node]["Value"][idx])
 
             after = (
-                datetime.fromtimestamp(self._file_object[node]["SourceTimestamp"][idx]),
+                datetime.fromtimestamp(
+                    self._file_object[node]["SourceTimestamp"][idx]
+                ),
                 value,
                 False,
                 idx,
@@ -43,11 +49,17 @@ class Converter:
 
         return before, after
 
-    def _make_node_d(self, input_nodes: list[str], file_nodes: list[str]) -> bool:
+    def _make_node_d(
+        self, input_nodes: list[str], file_nodes: list[str]
+    ) -> bool:
         known_nodes = []
         for node in input_nodes:
-            known_nodes.append(node) if node in file_nodes else print(
-                f"Node {node} is not in the input file and will be ignored."
+            (
+                known_nodes.append(node)
+                if node in file_nodes
+                else print(
+                    f"Node {node} is not in the input file and will be ignored."
+                )
             )
 
         if len(known_nodes) == 0:
@@ -66,14 +78,22 @@ class Converter:
             }
             if type == "enum":
                 self._node_d[node]["enums"] = (
-                    self._file_object[node]["Value"].attrs["Enumerations"].split(",")
+                    self._file_object[node]["Value"]
+                    .attrs["Enumerations"]
+                    .split(",")
                 )
 
         return True
 
-    def _check_start_stop(self, start: datetime | None, stop: datetime | None) -> bool:
-        file_start = datetime.fromisoformat(self._file_object.attrs["Start time"])
-        file_stop = datetime.fromisoformat(self._file_object.attrs["Stop time"])
+    def _check_start_stop(
+        self, start: datetime | None, stop: datetime | None
+    ) -> bool:
+        file_start = datetime.fromisoformat(
+            self._file_object.attrs["Start time"]
+        )
+        file_stop = datetime.fromisoformat(
+            self._file_object.attrs["Stop time"]
+        )
 
         if stop is None:
             stop = datetime.utcnow()
@@ -131,11 +151,15 @@ class Converter:
             next_val = self._node_d[node]["next"]
             # We already have the most recent value, no need to look again
             # Or reached end of node data in file
-            if (line_time > current[0] and line_time < next_val[0]) or current[2]:
+            if (line_time > current[0] and line_time < next_val[0]) or current[
+                2
+            ]:
                 if current[0] < prev_time:
-                    line.append(f";{current[1]}{self._OLD_DATA_STR}")
+                    line.append(
+                        f"{self._DELIMITER}{current[1]}{self._OLD_DATA_STR}"
+                    )
                 else:
-                    line.append(f";{current[1]}")
+                    line.append(f"{self._DELIMITER}{current[1]}")
                 continue
 
             # Keep searching the current file.
@@ -144,12 +168,16 @@ class Converter:
             # step_ms.
             # Minimises disk access as HDF5 should store recently read
             # chunks in memory.
-            current, next_val = self._get_adjacent_data(line_time, node, current)
+            current, next_val = self._get_adjacent_data(
+                line_time, node, current
+            )
 
             if current[0] < prev_time:
-                line.append(f";{current[1]}{self._OLD_DATA_STR}")
+                line.append(
+                    f"{self._DELIMITER}{current[1]}{self._OLD_DATA_STR}"
+                )
             else:
-                line.append(f";{current[1]}")
+                line.append(f"{self._DELIMITER}{current[1]}")
 
             self._node_d[node]["current"] = current
             self._node_d[node]["next"] = next_val
@@ -191,10 +219,14 @@ class Converter:
         # Write the CSV
         with open(output_file, "w") as f:
             # Match example file (timestamps end with a 'Z')
-            f.write(f"StartTime;{self.start.isoformat()}Z\n")
-            f.write(f"EndTime;{self.stop.isoformat()}Z\n")
+            f.write(f"StartTime{self._DELIMITER}{self.start.isoformat()}Z\n")
+            f.write(f"EndTime{self._DELIMITER}{self.stop.isoformat()}Z\n")
 
-            header = "Date/Time;" + ";".join(node for node in self._node_d.keys())
+            header = (
+                "Date/Time"
+                + self._DELIMITER
+                + self._DELIMITER.join(node for node in self._node_d.keys())
+            )
             f.write(header + "\n")
 
             line_time = self.start
