@@ -56,10 +56,10 @@ After `pip` installing the package (see above) the GUI can be launched with the 
 
 Installing the package will also make the server validator available with `disq-validate-server`. The expected usage is as follows:
 ```shell
-disq-validate-server -x <xml file> -f <configuration file> -c <config>
-disq-validate-server -x <xml file> -c <config>
+disq-validate-server -x <xml file> -f <configuration file> -c <config> -o <output file>
+disq-validate-server -x <xml file> -c <config> -o <output file>
 ```
-Where the -x argument is an xml file used to generate a "good" OPCUA server to compare against, -f is a .ini configuration file containing server configurations, and -c is the specific configuration within that file. The -f flag can be omitted and the script will attempt to use the system default configurations.
+Where the -x argument is an xml file used to generate a "good" OPCUA server to compare against, -f is a .ini configuration file containing server configurations, -c is the specific configuration within that file, and -o is the name of a file to write the output to (WARNING: The file specified by -o will be overwritten). The -f flag can be omitted and the script will attempt to use the system default configurations. It is recommended to open the output file in a text editor that can scroll horizontally (such as VSCode) as the output lines for the actual/expected nodes line up to make it easier to spot the differences.
 
 The server validator can also be used with just the -i flag:
 ```shell

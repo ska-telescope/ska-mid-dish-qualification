@@ -259,8 +259,20 @@ class Serval:
 
         return diff_tree
 
+    def _print(self, string: str, output_file: str | None = None):
+        if output_file is None:
+            print(string)
+        else:
+            with open(output_file, "a") as f:
+                print(string, file=f)
+
     def _print_method_args_mismatch_string(
-        self, indent: str, args_string: str, expected_info: dict, actual_info: dict
+        self,
+        indent: str,
+        args_string: str,
+        expected_info: dict,
+        actual_info: dict,
+        output_file: str | None = None,
     ):
         alignment = " " * (len(args_string) + 4)
         expected_params = [
@@ -269,9 +281,10 @@ class Serval:
         actual_params = [
             (name, data_type) for name, data_type in actual_info[args_string].items()
         ]
-        print(
+        self._print(
             f"""  {indent}{args_string}: Expected: {expected_params},
-{alignment}{indent}  actual: {actual_params}"""
+{alignment}{indent}  actual: {actual_params}""",
+            output_file,
         )
 
     def print_diff(
@@ -281,58 +294,69 @@ class Serval:
         diff: dict,
         level: int,
         verbose: bool = False,
+        output_file: str | None = None,
     ):
         indent = " " * len("  Children: ") * level
         for node, node_info in expected.items():
             if node in actual:
-                print(f"{indent}>{node}")
+                self._print(f"{indent}>{node}", output_file)
                 if node == self.in_args:
                     if diff[node]["diff"]["params_match"]:
                         if verbose:
-                            print(f"  {indent}method_params: Match")
+                            self._print(f"  {indent}method_params: Match", output_file)
                     else:
                         self._print_method_args_mismatch_string(
-                            indent, "method_params", node_info, actual[node]
+                            indent,
+                            "method_params",
+                            node_info,
+                            actual[node],
+                            output_file,
                         )
 
                 elif node == self.out_args:
                     if diff[node]["diff"]["return_match"]:
                         if verbose:
-                            print(f"  {indent}method_return: Match")
+                            self._print(f"  {indent}method_return: Match", output_file)
                     else:
                         self._print_method_args_mismatch_string(
-                            indent, "method_return", node_info, actual[node]
+                            indent,
+                            "method_return",
+                            node_info,
+                            actual[node],
+                            output_file,
                         )
 
                 else:
                     if diff[node]["diff"]["class_match"]:
                         if verbose:
-                            print(f"  {indent}node_class: Match")
+                            self._print(f"  {indent}node_class: Match", output_file)
                     else:
-                        print(
-                            f"  {indent}node_class: Expected: {node_info['node_class']}, actual: {actual[node]['node_class']}"
+                        self._print(
+                            f"  {indent}node_class: Expected: {node_info['node_class']}, actual: {actual[node]['node_class']}",
+                            output_file,
                         )
 
                     if node_info["node_class"] == "Variable":
                         if diff[node]["diff"]["type_match"]:
                             if verbose:
-                                print(f"  {indent}data_type: Match")
+                                self._print(f"  {indent}data_type: Match", output_file)
                         else:
                             try:
                                 actual_type = actual[node]["data_type"]
                             except:
                                 actual_type = "None"
 
-                            print(
-                                f"  {indent}data_type: Expected: {node_info['data_type']}, actual: {actual_type}"
+                            self._print(
+                                f"  {indent}data_type: Expected: {node_info['data_type']}, actual: {actual_type}",
+                                output_file,
                             )
 
                     if len(node_info["children"]) > 0:
                         if diff[node]["diff"]["children_match"]:
                             if verbose:
-                                print(f"  {indent}children: Match")
+                                self._print(f"  {indent}children: Match", output_file)
                             else:
-                                print(f"  {indent}children:")
+                                self._print(f"  {indent}children:", output_file)
                         else:
                             children_indent = " " * len("  children: ")
                             expected_children = [
@@ -352,7 +376,9 @@ class Serval:
                                 children_match = f"""Expected: {expected_children},
 {children_indent}{indent}  actual: {actual_children}"""
 
-                            print(f"  {indent}children: {children_match}")
+                            self._print(
+                                f"  {indent}children: {children_match}", output_file
+                            )
 
                     self.print_diff(
                         actual[node]["children"],
@@ -360,6 +386,7 @@ class Serval:
                         diff[node]["children"],
                         level + 1,
                         verbose=verbose,
+                        output_file=output_file,
                     )
 
     def validate(
@@ -472,6 +499,16 @@ def main():
         action="store_true",
         dest="verbose",
     )
+    parser.add_argument(
+        "-o",
+        help=(
+            "Write the diff (if any) to the specified output file. If the "
+            "file exists it will be overwritten if there is a diff."
+        ),
+        required=False,
+        nargs=1,
+        dest="output_file",
+    )
     args = parser.parse_args()
     if args.ini:
         try:
@@ -502,6 +539,10 @@ def main():
 
     config = args.config[0]
     verbose = args.verbose
+    output_file = None
+    if "-o" in sys.argv:
+        output_file = args.output_file[0]
+
     if not os.path.isfile(xml):
         sys.exit(f"ERROR: Could not find file {xml}")
 
@@ -510,8 +551,16 @@ def main():
     if valid:
         print("The servers match! No significant differences found.")
     else:
-        print("The servers do not match! Printing diff...")
-        validator.print_diff(actual, expected, diff, 0, verbose=verbose)
+        if output_file is None:
+            print("The servers do not match! Printing diff...")
+            validator.print_diff(actual, expected, diff, 0, verbose=verbose)
+        else:
+            print(f"The servers do not match! Writing diff to {output_file}...")
+            # Clear output file
+            open(output_file, "w").close()
+            validator.print_diff(
+                actual, expected, diff, 0, verbose=verbose, output_file=output_file
+            )
 
 
 if __name__ == "__main__":
