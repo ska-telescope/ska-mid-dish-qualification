@@ -1,8 +1,9 @@
-import h5py
+import os
+import threading
 from datetime import datetime
 from time import sleep
-import threading
-import os
+
+import h5py
 
 
 class Maker:
@@ -57,7 +58,8 @@ class Maker:
     def generate(self, filename, nodes):
         if os.path.exists(filename) == True:
             print(
-                f"This function will not overwrite. Please delete file {filename} first."
+                f"This function will not overwrite. "
+                f"Please delete file {filename} first."
             )
             return
 

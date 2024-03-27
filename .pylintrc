@@ -1,0 +1,47 @@
+[MAIN]
+ignore=
+    _version.py,
+    sculib.py, 
+    cam_sensors.py,
+    controller.py,
+    hdf5_to_csv.py,
+    hdf5_to_graph.py,
+    logger.py,
+    model.py,
+    reader.py,
+    serval_internal_server.py,
+    server_validator.py,
+    view.py,
+    hdf5_maker.py,
+    test_logger.py,
+    test_hdf5_to_csv.py,
+    timestamp_reader.py
+
+extension-pkg-allow-list=PyQt6
+
+[FORMAT]
+max-line-length = 88
+
+[MESSAGES CONTROL]
+disable=
+    no-name-in-module,
+    duplicate-code,
+    import-error,
+    fixme,
+    logging-fstring-interpolation,
+    too-many-instance-attributes,
+    too-many-arguments,
+    too-many-locals,
+    ; too-many-branches,
+    ; too-many-nested-blocks,
+    too-few-public-methods,
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+
+enable=
+    useless-suppression,
+
+[SIMILARITIES]
+min-similarity-lines=7
+ignore-imports=yes

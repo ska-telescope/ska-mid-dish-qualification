@@ -1,18 +1,24 @@
 {
-    "python.testing.pytestArgs": [],
-    "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.formatting.provider": "none",
-    "python.languageServer": "Pylance",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
     },
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter",
-        "editor.formatOnSave": true
+        "editor.defaultFormatter": "ms-python.black-formatter"
     },
     "pylint.args": [
-        "--extension-pkg-whitelist=PyQt6"
-    ]
+        "--rcfile=.pylintrc"
+    ],
+    "flake8.args": [
+        "--config=.flake8"
+    ],
+    "isort.args": [
+        "--profile",
+        "black"
+    ],
+    "coverage-gutters.manualCoverageFilePaths": [
+        "build/reports/code-coverage.xml"
+    ],
+    "coverage-gutters.showLineCoverage": true
 }
