@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 
 import h5py
@@ -191,6 +192,11 @@ class Converter:
         for node in self._node_d.keys():
             self._node_d[node]["current"] = cache_init
             self._node_d[node]["next"] = cache_init
+
+        # Create directories if they don't exist
+        output_directory = os.path.dirname(output_file)
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
 
         # Write the CSV
         with open(output_file, "w") as f:
