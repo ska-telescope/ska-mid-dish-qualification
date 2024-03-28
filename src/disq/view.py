@@ -18,12 +18,12 @@ class RecordingConfigDialog(QtWidgets.QDialog):
 
         self.setWindowTitle("Recording Configuration")
 
-        QBtn = (
+        button = (
             QtWidgets.QDialogButtonBox.StandardButton.Ok
             | QtWidgets.QDialogButtonBox.StandardButton.Cancel
         )
 
-        self.btn_box = QtWidgets.QDialogButtonBox(QBtn)
+        self.btn_box = QtWidgets.QDialogButtonBox(button)
         self.btn_box.accepted.connect(self.accept_selection)
         self.btn_box.rejected.connect(self.reject)
 
@@ -322,9 +322,10 @@ class MainView(QtWidgets.QMainWindow):
                 continue
             opcua_type = str(widget.property("opcua_type"))
             if opcua_type in self.model.opcua_enum_types:
-                OpcuaEnum: Enum = self.model.opcua_enum_types[opcua_type]
-                enum_strings = [str(e.name) for e in OpcuaEnum]
-                wgt: QtWidgets.QComboBox = widget  # type: ignore  # Explicitly cast to QComboBox
+                opcua_enum: Enum = self.model.opcua_enum_types[opcua_type]
+                enum_strings = [str(e.name) for e in opcua_enum]
+                # Explicitly cast to QComboBox
+                wgt: QtWidgets.QComboBox = widget  # type: ignore
                 wgt.clear()
                 wgt.addItems(enum_strings)
 
@@ -335,13 +336,12 @@ class MainView(QtWidgets.QMainWindow):
 
         The event update dict contains:
         { 'name': name, 'node': node, 'value': value,
-          'source_timestamp': source_timestamp,
-          'server_timestamp': server_timestamp,
-          'data': data }
+        'source_timestamp': source_timestamp, 'server_timestamp': server_timestamp,
+        'data': data }
         """
         val = event["value"]
         if isinstance(val, float):
-            str_val = "{:.3f}".format(val)
+            str_val = f"{val:.3f}"
         else:
             str_val = str(val)
         widget.setText(str_val)
@@ -353,15 +353,14 @@ class MainView(QtWidgets.QMainWindow):
         it is converted to a string here before updating the text of the widget.
 
         The event update dict contains:
-        { 'name': name, 'node': node, 'value': value,
-          'source_timestamp': source_timestamp,
-          'server_timestamp': server_timestamp,
-          'data': data }
+        {'name': name, 'node': node, 'value': value,
+        'source_timestamp': source_timestamp, 'server_timestamp': server_timestamp,
+        'data': data }
         """
         opcua_type: str = widget.property("opcua_type")
         int_val = int(event["value"])
         try:
-            OpcuaEnum: type = self.model.opcua_enum_types[opcua_type]
+            opcua_enum: type = self.model.opcua_enum_types[opcua_type]
         except KeyError:
             logger.warning(
                 "OPC-UA Enum type '%s' not found. Using integer value instead.",
@@ -369,7 +368,7 @@ class MainView(QtWidgets.QMainWindow):
             )
             str_val = str(int_val)
         else:
-            val = OpcuaEnum(int_val)
+            val = opcua_enum(int_val)
             str_val = val.name
         finally:
             widget.setText(str_val)
@@ -377,7 +376,8 @@ class MainView(QtWidgets.QMainWindow):
     def _update_opcua_boolean_widget(
         self, widget: QtWidgets.QLineEdit, event: dict
     ) -> None:
-        """Update the background colour of the widget to reflect the boolean state of the OPC-UA parameter
+        """
+        Update background colour of widget to reflect boolean state of OPC-UA parameter
 
         The event udpdate 'value' field can take 3 states:
          - None: the OPC-UA parameter is not defined. Colour background grey/disabled.
@@ -385,7 +385,8 @@ class MainView(QtWidgets.QMainWindow):
          - False: the OPC-UA parameter is False. Colour background dark green (LED off).
         """
         logger.debug(f"Boolean OPCUA update: {event['name']} value={event['value']}")
-        # TODO: modify background colour of widget (LED style on/off) to reflect the boolean state
+        # TODO: modify background colour of widget (LED style on/off) to reflect the
+        # boolean state
         led_colours = {
             "red": {True: "rgb(255, 0, 0)", False: "rgb(128, 0, 0)"},
             "green": {True: "rgb(10, 250, 0)", False: "rgb(10, 80, 0)"},
@@ -464,7 +465,11 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def server_config_select_changed(self, server_name: str):
-        """User changed server selection in drop-down box. Enable/disable relevant widgets"""
+        """
+        User changed server selection in drop-down box.
+
+        Enable/disable relevant widgets.
+        """
         logger.debug("server config select changed: %s", server_name)
         if server_name is None or server_name == "":
             self.enable_server_widgets(True)
@@ -531,7 +536,8 @@ class MainView(QtWidgets.QMainWindow):
             logger.error(f"Error converting slew2abs args to float: {e}")
             self.controller.emit_ui_status_message(
                 "ERROR",
-                f"Slew2Abs invalid arguments. Could not convert to number: {text_widget_args}",
+                f"Slew2Abs invalid arguments. Could not convert to number: "
+                f"{text_widget_args}",
             )
             return
         logger.debug(f"args: {args}")

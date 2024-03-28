@@ -1,5 +1,4 @@
 import os
-import threading
 from datetime import datetime
 from time import sleep
 
@@ -56,7 +55,7 @@ class Maker:
         return d[node]
 
     def generate(self, filename, nodes):
-        if os.path.exists(filename) == True:
+        if os.path.exists(filename):
             print(
                 f"This function will not overwrite. "
                 f"Please delete file {filename} first."

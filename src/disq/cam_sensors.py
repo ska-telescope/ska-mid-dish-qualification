@@ -23,7 +23,7 @@ def sensor_data_pvsn(
     try:
         resp = requests.get(sensors_url, sample_params)
     except Exception as exc:
-        print("Something failed: {}".format(exc))
+        print(f"Something failed: {exc}")
     if resp.status_code == 200:
         sample_results = resp.json()
         # Debug
@@ -32,6 +32,6 @@ def sensor_data_pvsn(
         timestamps = [sample["sample_time"] for sample in sample_results["data"]]
         samples = [sample["value"] for sample in sample_results["data"]]
     else:
-        print("Request returned with a status code {}".format(resp.status_code))
+        print(f"Request returned with a status code {resp.status_code}")
         print(resp)
     return (timestampv, timestamps, samples)

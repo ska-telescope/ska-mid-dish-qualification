@@ -77,8 +77,11 @@ class Logger:
         self._subscription_ids = []
 
     def add_nodes(self, nodes: list[str], period: int):
-        """Add a node or list of nodes with desired period in miliseconds to be subscribed to.
-        Subsequent calls with the same node will overwrite the period."""
+        """
+        Add a node or list of nodes with desired period in milliseconds to subscribe to.
+
+        Subsequent calls with the same node will overwrite the period.
+        """
         if self._start_invoked:
             app_logger.warning(
                 "WARNING: nodes cannot be added after start() has been invoked."
@@ -95,11 +98,11 @@ class Logger:
                 )
                 continue
 
-            type = self.hll.get_attribute_data_type(node)
-            if type not in self._hdf5_type_from_value_type.keys():
+            node_type = self.hll.get_attribute_data_type(node)
+            if node_type not in self._hdf5_type_from_value_type.keys():
                 app_logger.info(
-                    f'Unsupported type for "{node}": "{type}"; skipping. Nodes must be'
-                    f' of type "Boolean"/"Double"/"Enumeration".'
+                    f'Unsupported type for "{node}": "{node_type}"; skipping. '
+                    f'Nodes must be of type "Boolean"/"Double"/"Enumeration".'
                 )
                 continue
 
@@ -113,9 +116,11 @@ class Logger:
 
     def _build_hdf5_structure(self):
         for node in self._nodes:
-            # One group per node containing a single dataset for each of SourceTimestamp, Value.
+            # One group per node containing a single dataset for each of
+            # SourceTimestamp, Value
             group = self.file_object.create_group(node)
-            # Zeroeth dataset is always source timestamp which must be an 8 byte float as HDF5 does not support Python datetime.
+            # Zeroeth dataset is always source timestamp which must be an 8 byte float
+            # as HDF5 does not support Python datetime.
             time_dataset = group.create_dataset(
                 "SourceTimestamp",
                 dtype="f8",
@@ -147,8 +152,8 @@ class Logger:
                 )
 
             # While here create cache structure per node.
-            # Node name : [total data point count, type string,
-            # current data point count, [timestamp 1, timestamp 2, ...], [value 1, value 2, ...]]
+            # Node name : [total data point count, type string, current data point count
+            #                , [timestamp 1, timestamp 2, ...], [value 1, value 2, ...]]
             #                            ^ list indices match for data points ^
             self._cache[node] = [0, value_type, 0, [], []]
 
@@ -182,7 +187,11 @@ class Logger:
             )
 
     def start(self):
-        """Start logging the nodes added by add_nodes(). Creates and uses a thread internally."""
+        """
+        Start logging the nodes added by add_nodes().
+
+        Creates and uses a thread internally.
+        """
         if self._start_invoked:
             app_logger.warning("WARNING: start() can only be invoked once per object.")
             return
@@ -211,8 +220,8 @@ class Logger:
     def stop(self):
         """Stop logging. Ends the addition of new server data to internal queue
         and signals the logging thread to clear the remaining queued items."""
-        for id in self._subscription_ids:
-            self.hll.unsubscribe(id)
+        for uid in self._subscription_ids:
+            self.hll.unsubscribe(uid)
 
         self.stop_time = datetime.utcnow()
         self._stop_logging.set()
@@ -287,7 +296,7 @@ class Logger:
         app_logger.debug(
             f"Number of items in queue (final write): {self.queue.qsize()}"
         )
-        # Subscriptions have been stopped so clear remaining queue, do a final flush, and close file.
+        # Subscriptions have been stopped: clear remaining queue, flush and close file.
         while not self.queue.empty():
             datapoint = self.queue.get(block=True, timeout=self._QUEUE_GET_TIMEOUT_SECS)
             self._data_count += 1

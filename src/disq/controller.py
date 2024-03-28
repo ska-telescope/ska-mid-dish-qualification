@@ -105,7 +105,10 @@ class Controller(QObject):
         elevation_velocity: float,
     ):
         cmd = "Management.Slew2AbsAzEl"
-        desc = f"Command: {cmd}  args: {azimuth_position}, {elevation_position}, {azimuth_velocity}, {elevation_velocity}"
+        desc = (
+            f"Command: {cmd}  args: {azimuth_position}, {elevation_position}, "
+            f"{azimuth_velocity}, {elevation_velocity}"
+        )
         logger.debug(desc)
         self.ui_status_message.emit(desc)
         result_code, result_msg = self._model.run_opcua_command(

@@ -18,7 +18,7 @@ logger = logging.getLogger("gui.model")
 
 #     async def datachange_notification(self, node: Node, val, data):
 #         if type(val) == float:
-#             str_val = "{:.3f}".format(val)
+#             str_val = f"{val:.3f}"
 #         elif type(val) == Enum:
 #             str_val = val.name
 #         else:
@@ -178,7 +178,7 @@ class Model(QObject):
             logger.debug(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
             result = self._scu.commands[command](arg)
         else:
-            # Commands that take none or more parameters of base types like float, bool, etc.
+            # Commands that take none or more parameters of base types: float,bool,etc.
             result = self._scu.commands[command](*args)
         return result
 
