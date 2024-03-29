@@ -78,12 +78,21 @@ class Model(QObject):
 
     def connect(self, connect_details: dict) -> None:
         logger.debug("Connecting to server: %s", connect_details)
-        self._scu = scu(
-            host=connect_details["address"],
-            port=connect_details["port"],
-            namespace=connect_details["namespace"],
-            endpoint=connect_details["endpoint"],
-        )
+        try:
+            self._scu = scu(
+                host=connect_details["address"],
+                port=connect_details["port"],
+                namespace=connect_details["namespace"],
+                endpoint=connect_details["endpoint"],
+            )
+        except RuntimeError as e:
+            logger.debug(
+                "Exception while creating sculib object server (cleaning up scu object): %s",
+                e,
+            )
+            del self._scu
+            self._scu = None
+            raise e
         logger.debug("Connected to server on URI: %s", self.get_server_uri())
         logger.debug("Getting node list")
         self._scu.get_node_list()

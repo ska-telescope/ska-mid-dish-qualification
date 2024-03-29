@@ -77,8 +77,9 @@ class Controller(QObject):
             return
         try:
             self._model.connect(connection_details)
-        except OSError as e:
+        except (OSError, RuntimeError) as e:
             self.ui_status_message.emit(f"Unable to connect to server. Error: {e}")
+            self.server_disconnected.emit()
             return
         self.ui_status_message.emit(
             f"Connected to server: {self._model.get_server_uri()}"
