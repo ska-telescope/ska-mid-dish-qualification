@@ -179,6 +179,10 @@ def get_config_sculib_args(
             "host": str(server_config["host"]),
             "port": int(server_config["port"]),
         }
+    if "auth_user" in server_config:
+        sculib_args["username"] = str(server_config["auth_user"])
+    if "auth_password" in server_config:
+        sculib_args["password"] = str(server_config["auth_password"])
 
     return sculib_args
 

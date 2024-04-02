@@ -78,12 +78,16 @@ class Model(QObject):
 
     def connect(self, connect_details: dict) -> None:
         logger.debug("Connecting to server: %s", connect_details)
+        username = connect_details.get("username", None)
+        password = connect_details.get("password", None)
         try:
             self._scu = scu(
                 host=connect_details["address"],
                 port=connect_details["port"],
                 namespace=connect_details["namespace"],
                 endpoint=connect_details["endpoint"],
+                username=username,
+                password=password,
             )
         except RuntimeError as e:
             logger.debug(
