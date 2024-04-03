@@ -138,15 +138,74 @@ class MainView(QtWidgets.QMainWindow):
         self.pushButton_slew2abs: QtWidgets.QPushButton
         self.pushButton_slew2abs.clicked.connect(self.slew2abs_button_clicked)
         self.pushButton_stop: QtWidgets.QPushButton
-        self.pushButton_stop.clicked.connect(self.stop_button_clicked)
+        self.pushButton_stop.clicked.connect(lambda: self.stop_button_clicked("AzEl"))
         self.pushButton_stow: QtWidgets.QPushButton
         self.pushButton_stow.clicked.connect(self.stow_button_clicked)
         self.pushButton_unstow: QtWidgets.QPushButton
         self.pushButton_unstow.clicked.connect(self.unstow_button_clicked)
         self.pushButton_activate: QtWidgets.QPushButton
-        self.pushButton_activate.clicked.connect(self.activate_button_clicked)
+        self.pushButton_activate.clicked.connect(
+            lambda: self.activate_button_clicked("AzEl")
+        )
         self.pushButton_deactivate: QtWidgets.QPushButton
-        self.pushButton_deactivate.clicked.connect(self.deactivate_button_clicked)
+        self.pushButton_deactivate.clicked.connect(
+            lambda: self.deactivate_button_clicked("AzEl")
+        )
+
+        self.button_elevation_slew: QtWidgets.QPushButton
+        self.button_elevation_slew.clicked.connect(
+            lambda: self.slew_button_clicked("El")
+        )
+        self.button_elevation_stop: QtWidgets.QPushButton
+        self.button_elevation_stop.clicked.connect(
+            lambda: self.stop_button_clicked("El")
+        )
+        self.button_elevation_activate: QtWidgets.QPushButton
+        self.button_elevation_activate.clicked.connect(
+            lambda: self.activate_button_clicked("El")
+        )
+        self.button_elevation_deactivate: QtWidgets.QPushButton
+        self.button_elevation_deactivate.clicked.connect(
+            lambda: self.deactivate_button_clicked("El")
+        )
+
+        self.button_azimuth_slew: QtWidgets.QPushButton
+        self.button_azimuth_slew.clicked.connect(lambda: self.slew_button_clicked("Az"))
+        self.button_azimuth_stop: QtWidgets.QPushButton
+        self.button_azimuth_stop.clicked.connect(lambda: self.stop_button_clicked("Az"))
+        self.button_azimuth_activate: QtWidgets.QPushButton
+        self.button_azimuth_activate.clicked.connect(
+            lambda: self.activate_button_clicked("Az")
+        )
+        self.button_azimuth_deactivate: QtWidgets.QPushButton
+        self.button_azimuth_deactivate.clicked.connect(
+            lambda: self.deactivate_button_clicked("Az")
+        )
+
+        self.button_indexer_slew: QtWidgets.QPushButton
+        self.button_indexer_slew.clicked.connect(lambda: self.slew_button_clicked("Fi"))
+        self.button_indexer_stop: QtWidgets.QPushButton
+        self.button_indexer_stop.clicked.connect(lambda: self.stop_button_clicked("Fi"))
+        self.button_indexer_activate: QtWidgets.QPushButton
+        self.button_indexer_activate.clicked.connect(
+            lambda: self.activate_button_clicked("Fi")
+        )
+        self.button_indexer_deactivate: QtWidgets.QPushButton
+        self.button_indexer_deactivate.clicked.connect(
+            lambda: self.deactivate_button_clicked("Fi")
+        )
+
+        self.lineEdit_azimuth_position_demand: QtWidgets.QLineEdit
+        self.lineEdit_elevation_position_demand: QtWidgets.QLineEdit
+        self.lineEdit_azimuth_velocity_demand: QtWidgets.QLineEdit
+        self.lineEdit_elevation_velocity_demand: QtWidgets.QLineEdit
+        self.line_elevation_position_demand: QtWidgets.QLineEdit
+        self.line_elevation_velocity_demand: QtWidgets.QLineEdit
+        self.line_azimuth_position_demand: QtWidgets.QLineEdit
+        self.line_azimuth_velocity_demand: QtWidgets.QLineEdit
+        self.line_indexer_position_demand: QtWidgets.QLineEdit
+        self.line_indexer_velocity_demand: QtWidgets.QLineEdit
+
         self.pushButton_Band1: QtWidgets.QPushButton
         self.pushButton_Band1.clicked.connect(
             lambda: self.move2band_button_clicked("Band_1")
@@ -541,11 +600,51 @@ class MainView(QtWidgets.QMainWindow):
             )
             return
         logger.debug(f"args: {args}")
-        self.controller.command_slew2abs(*args)
+        self.controller.command_slew2abs_azim_elev(*args)
 
-    @QtCore.pyqtSlot()
-    def stop_button_clicked(self):
-        self.controller.command_stop()
+    @QtCore.pyqtSlot(str)
+    def slew_button_clicked(self, axis: str):
+
+        def validate_args(text_widget_args: list[str]) -> list[float] | None:
+            try:
+                args = [float(str_input) for str_input in text_widget_args]
+                return args
+            except ValueError as e:
+                logger.error(f"Error converting slew args to float: {e}")
+                self.controller.emit_ui_status_message(
+                    "ERROR",
+                    f"Slew invalid arguments. Could not convert to number: "
+                    f"{text_widget_args}",
+                )
+                return None
+
+        match axis:
+            case "El":
+                text_widget_args = [
+                    self.line_elevation_position_demand.text(),
+                    self.line_elevation_velocity_demand.text(),
+                ]
+            case "Az":
+                text_widget_args = [
+                    self.line_azimuth_position_demand.text(),
+                    self.line_azimuth_velocity_demand.text(),
+                ]
+            case "Fi":
+                text_widget_args = [
+                    self.line_indexer_position_demand.text(),
+                    self.line_indexer_velocity_demand.text(),
+                ]
+            case _:
+                return
+        args = validate_args(text_widget_args)
+        if args is not None:
+            logger.debug(f"args: {args}")
+            self.controller.command_slew_single_axis(axis, *args)
+        return
+
+    @QtCore.pyqtSlot(str)
+    def stop_button_clicked(self, axis: str):
+        self.controller.command_stop(axis)
 
     @QtCore.pyqtSlot()
     def stow_button_clicked(self):
@@ -555,13 +654,13 @@ class MainView(QtWidgets.QMainWindow):
     def unstow_button_clicked(self):
         self.controller.command_stow(False)
 
-    @QtCore.pyqtSlot()
-    def activate_button_clicked(self):
-        self.controller.command_activate()
+    @QtCore.pyqtSlot(str)
+    def activate_button_clicked(self, axis: str):
+        self.controller.command_activate(axis)
 
-    @QtCore.pyqtSlot()
-    def deactivate_button_clicked(self):
-        self.controller.command_deactivate()
+    @QtCore.pyqtSlot(str)
+    def deactivate_button_clicked(self, axis: str):
+        self.controller.command_deactivate(axis)
 
     @QtCore.pyqtSlot(bool)
     def authority_button_clicked(self, take_command: bool):

@@ -98,7 +98,8 @@ class Model(QObject):
             )
         except RuntimeError as e:
             logger.debug(
-                "Exception while creating sculib object server (cleaning up scu object): %s",
+                "Exception while creating sculib object server "
+                "(cleaning up scu object): %s",
                 e,
             )
             del self._scu
@@ -148,6 +149,7 @@ class Model(QObject):
             "Management.Activate",
             "Management.DeActivate",
             "Management.Reset",
+            "Management.Slew2AbsSingleAx",
         ]:
             # Commands that take a single AxisSelectType parameter input
             try:
@@ -158,7 +160,7 @@ class Model(QObject):
                 )
                 arg = {"Az": 0, "El": 1, "Fi": 2, "AzEl": 3}[args[0]]
             logger.debug(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
-            result = self._scu.commands[command](arg)
+            result = self._scu.commands[command](arg, *args[1:])
         elif command == "Management.Move2Band":
             try:
                 arg = ua.BandType[args[0]]

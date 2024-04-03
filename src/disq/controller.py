@@ -97,7 +97,7 @@ class Controller(QObject):
         """
         self._model.register_event_updates(registrations=registrations)
 
-    def command_slew2abs(
+    def command_slew2abs_azim_elev(
         self,
         azimuth_position: float,
         elevation_position: float,
@@ -120,23 +120,30 @@ class Controller(QObject):
         )
         self.command_response_str(cmd, result_code, result_msg)
 
+    def command_slew_single_axis(self, axis: str, position: float, velocity: float):
+        cmd = "Management.Slew2AbsSingleAx"
+        desc = f"Command: {cmd}  args: {axis}, {position}, {velocity}"
+        logger.debug(desc)
+        self.ui_status_message.emit(desc)
+        result_code, result_msg = self._model.run_opcua_command(
+            cmd, axis, position, velocity
+        )
+        self.command_response_str(cmd, result_code, result_msg)
+
     @pyqtSlot()
-    def command_activate(self):
+    def command_activate(self, axis: str = "AzEl"):
         cmd = "Management.Activate"
-        axis_select_arg = "AzEl"
-        self.issue_command(cmd, axis_select_arg)
+        self.issue_command(cmd, axis)
 
     @pyqtSlot()
-    def command_deactivate(self):
+    def command_deactivate(self, axis: str = "AzEl"):
         cmd = "Management.DeActivate"
-        axis_select_arg = "AzEl"
-        self.issue_command(cmd, axis_select_arg)
+        self.issue_command(cmd, axis)
 
     @pyqtSlot()
-    def command_stop(self):
+    def command_stop(self, axis: str = "AzEl"):
         cmd = "Management.Stop"
-        axis_select_arg = "AzEl"
-        self.issue_command(cmd, axis_select_arg)
+        self.issue_command(cmd, axis)
 
     @pyqtSlot(bool)
     def command_stow(self, stow: bool = True):
