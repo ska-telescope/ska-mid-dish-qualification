@@ -171,7 +171,8 @@ def get_config_sculib_args(
         "host": str(server_config["host"]),
         "port": int(server_config["port"]),
     }
-    # The remaining args are optional so we add them if defined in config (PLC controller does not have these defined)
+    # The remaining args are optional so we add them if defined in config
+    # (PLC controller does not have these defined)
     optional_args = ["endpoint", "namespace", "username", "password"]
     for arg in optional_args:
         if arg in server_config:
