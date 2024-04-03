@@ -6,6 +6,7 @@ gathered from the server. Specifically the custom server available in the
 ska-mid-dish-simulators repo on branch wom-133-custom-nodes-for-pretty-graphs
 """
 
+# pylint: disable=protected-access
 import os
 import random
 import subprocess

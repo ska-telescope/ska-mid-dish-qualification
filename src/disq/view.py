@@ -12,6 +12,7 @@ from disq import controller, model
 logger = logging.getLogger("gui.view")
 
 
+# pylint: disable=too-few-public-methods
 class RecordingConfigDialog(QtWidgets.QDialog):
     def __init__(self, attributes: list[str], parent=None):
         super().__init__(parent)
@@ -55,7 +56,8 @@ class RecordingConfigDialog(QtWidgets.QDialog):
         self.accept()
 
 
-# pylint: disable=too-many-statements, too-many-public-methods
+# pylint: disable=too-many-statements, too-many-public-methods,
+# pylint: disable=too-many-instance-attributes
 class MainView(QtWidgets.QMainWindow):
     def __init__(
         self,
@@ -371,7 +373,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(dict)
     def event_update(self, event: dict) -> None:
-        logger.debug(f"View: data update: {event['name']} value={event['value']}")
+        logger.debug("View: data update: %s value=%s", event["name"], event["value"])
         # Get the widget update method from the dict of opcua widgets
         _widget = self.opcua_widgets[event["name"]][0]
         _widget_update_func = self.opcua_widgets[event["name"]][1]
@@ -447,7 +449,7 @@ class MainView(QtWidgets.QMainWindow):
          - True: the OPC-UA parameter is True. Colour background light green (LED on).
          - False: the OPC-UA parameter is False. Colour background dark green (LED off).
         """
-        logger.debug(f"Boolean OPCUA update: {event['name']} value={event['value']}")
+        logger.debug("Boolean OPCUA update: %s value=%s", event["name"], event["value"])
         # TODO: modify background colour of widget (LED style on/off) to reflect the
         # boolean state
         led_colours = {
@@ -577,7 +579,7 @@ class MainView(QtWidgets.QMainWindow):
         dialog = RecordingConfigDialog(self, self.model.opcua_attributes)
         if dialog.exec():
             logger.debug("Recording config dialog accepted")
-            logger.debug(f"Selected: {dialog.config_parameters}")
+            logger.debug("Selected: %s", dialog.config_parameters)
             self.controller.recording_config = dialog.config_parameters
         else:
             logger.debug("Recording config dialog cancelled")
@@ -593,14 +595,14 @@ class MainView(QtWidgets.QMainWindow):
         try:
             args = [float(str_input) for str_input in text_widget_args]
         except ValueError as e:
-            logger.error(f"Error converting slew2abs args to float: {e}")
+            logger.error("Error converting slew2abs args to float: %s", e)
             self.controller.emit_ui_status_message(
                 "ERROR",
                 f"Slew2Abs invalid arguments. Could not convert to number: "
                 f"{text_widget_args}",
             )
             return
-        logger.debug(f"args: {args}")
+        logger.debug("args: %s", args)
         self.controller.command_slew2abs_azim_elev(*args)
 
     @QtCore.pyqtSlot(str)
@@ -611,7 +613,7 @@ class MainView(QtWidgets.QMainWindow):
                 args = [float(str_input) for str_input in text_widget_args]
                 return args
             except ValueError as e:
-                logger.error(f"Error converting slew args to float: {e}")
+                logger.error("Error converting slew args to float: %s", e)
                 self.controller.emit_ui_status_message(
                     "ERROR",
                     f"Slew invalid arguments. Could not convert to number: "
@@ -639,7 +641,7 @@ class MainView(QtWidgets.QMainWindow):
                 return
         args = validate_args(text_widget_args)
         if args is not None:
-            logger.debug(f"args: {args}")
+            logger.debug("args: %s", args)
             self.controller.command_slew_single_axis(axis, *args)
         return
 

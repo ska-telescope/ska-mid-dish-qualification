@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import h5py
 
@@ -81,7 +81,7 @@ class Converter:
         file_stop = datetime.fromisoformat(self._file_object.attrs["Stop time"])
 
         if stop is None:
-            stop = datetime.utcnow()
+            stop = datetime.now(timezone.utc)
 
         if start is None:
             start = stop - self.default_start_delta

@@ -36,15 +36,18 @@ class QueuePollThread(QThread):
     def run(self) -> None:
         self._running = True
         logger.debug(
-            "QueuePollThread: Starting queue poll thread"
-            f"{QThread.currentThread()}({int(QThread.currentThreadId())})"
+            "QueuePollThread: Starting queue poll thread %s(%d)",
+            QThread.currentThread(),
+            QThread.currentThreadId(),
         )
         while self._running:
             try:
                 data = self.queue.get(timeout=0.2)
             except Empty:
                 continue
-            logger.debug(f"QueuePollThread: Got data: {data['name']} = {data['value']}")
+            logger.debug(
+                "QueuePollThread: Got data: %s = %s", data["name"], data["value"]
+            )
             self.signal.emit(data)
 
     def stop(self) -> None:
@@ -53,6 +56,7 @@ class QueuePollThread(QThread):
             self.terminate()
 
 
+# pylint: disable=too-many-instance-attributes
 class Model(QObject):
     # define signals here
     command_response = pyqtSignal(str)
@@ -78,18 +82,14 @@ class Model(QObject):
 
     def connect(self, connect_details: dict) -> None:
         """
-        Connects to the server using the provided connection details.
+        Connect to the server using the provided connection details.
 
-        Args:
-            connect_details (dict): A dictionary containing the connection details.
-                connect_details should contain the disq.sculib.scu class initialization parameters as keys: 'host' and 'port' are required.
-                'namespace', 'endpoint', 'auth_user', 'auth_password' are optional and can be None.
-
-        Raises:
-            RuntimeError: If an error occurs while creating the sculib object (after which the connection is cleaned up and the scu object is set to None)
-
-        Returns:
-            None
+        :param connect_details: A dictionary containing the connection details.
+            connect_details should contain the disq.sculib.scu class initialization
+            parameters as keys: 'host' and 'port' are required. 'namespace', 'endpoint',
+            'auth_user', 'auth_password' are optional and can be None.
+        :raises RuntimeError: If an error occurs while creating the sculib object.
+            (after which the connection is cleaned up and the scu object is set to None)
         """
         logger.debug("Connecting to server: %s", connect_details)
         try:
@@ -159,7 +159,9 @@ class Model(QObject):
                     "OPC-UA server has no 'AxisSelectType' enum. Attempting a guess."
                 )
                 arg = {"Az": 0, "El": 1, "Fi": 2, "AzEl": 3}[args[0]]
-            logger.debug(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
+            logger.debug(
+                "Model: run_opcua_command: %s, args: %d, %r", command, arg, args[1:]
+            )
             result = self._scu.commands[command](arg, *args[1:])
         elif command == "Management.Move2Band":
             try:
@@ -177,10 +179,11 @@ class Model(QObject):
                     "Band_5b": 5,
                     "Optical": 6,
                 }[args[0]]
-            logger.debug(f"Model: run_opcua_command: {command}({arg}) type:{type(arg)}")
+            logger.debug("Model: run_opcua_command:  %s(%d)", command, arg)
             result = self._scu.commands[command](arg)
         else:
             # Commands that take none or more parameters of base types: float,bool,etc.
+            logger.debug("Model: run_opcua_command: %s, args: %r", command, args)
             result = self._scu.commands[command](*args)
         return result
 
@@ -231,7 +234,7 @@ class Model(QObject):
             raise RuntimeError("Server not connected")
         if self._data_logger is not None:
             raise RuntimeError("Data logger already exist")
-        logger.debug(f"Creating Logger and file: {filename.absolute()}")
+        logger.debug("Creating Logger and file: %s", filename.absolute())
         self._data_logger = Logger(str(filename.absolute()), self._scu)
         self._data_logger.add_nodes(
             self.recording_config,

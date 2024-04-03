@@ -2,7 +2,7 @@ import logging
 import os
 import queue
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from time import sleep
 
 import h5py
@@ -94,22 +94,26 @@ class Logger:
         for node in list(nodes):
             if node not in self._available_attributes:
                 app_logger.info(
-                    f'"{node}" not available as an attribute on the server, skipping.'
+                    '"%s" not available as an attribute on the server, skipping.', node
                 )
                 continue
 
             node_type = self.hll.get_attribute_data_type(node)
             if node_type not in self._hdf5_type_from_value_type.keys():
                 app_logger.info(
-                    f'Unsupported type for "{node}": "{node_type}"; skipping. '
-                    f'Nodes must be of type "Boolean"/"Double"/"Enumeration".'
+                    'Unsupported type for "%s": "%s"; skipping. '
+                    'Nodes must be of type "Boolean"/"Double"/"Enumeration".',
+                    node,
+                    node_type,
                 )
                 continue
 
             if node in self._nodes:
                 app_logger.info(
-                    f"Updating period for node {node} from {self._nodes[node]} to "
-                    f"{period}."
+                    "Updating period for node %s from %d to %d.",
+                    node,
+                    self._nodes[node],
+                    period,
                 )
 
             self._nodes[node] = period
@@ -178,7 +182,7 @@ class Logger:
                 period_dict[period].append(node)
 
         # Start to fill queue
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(timezone.utc)
         for period, attributes in period_dict.items():
             self._subscription_ids.append(
                 self.hll.subscribe(
@@ -202,14 +206,16 @@ class Logger:
 
         if self.file is None:
             self.file = (
-                "results/" + datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S") + ".hdf5"
+                "results/"
+                + datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
+                + ".hdf5"
             )
 
         basedir = os.path.dirname(self.file)
         if basedir != "" and not os.path.exists(basedir):
             os.makedirs(basedir)
 
-        app_logger.info(f"Writing data to file: {self.file}")
+        app_logger.info("Writing data to file: %s", self.file)
         self.file_object = h5py.File(self.file, "w", libver="latest")
         self._build_hdf5_structure()
 
@@ -223,7 +229,7 @@ class Logger:
         for uid in self._subscription_ids:
             self.hll.unsubscribe(uid)
 
-        self.stop_time = datetime.utcnow()
+        self.stop_time = datetime.now(timezone.utc)
         self._stop_logging.set()
 
     def _write_cache_to_group(self, node: str):
@@ -279,7 +285,7 @@ class Logger:
                 ):
                     self._write_cache_to_group(node)
                     app_logger.debug(
-                        f"Number of items in queue (cache write): {self.queue.qsize()}"
+                        "Number of items in queue (cache write): %d", self.queue.qsize()
                     )
 
             # Write to file at least every self._FLUSH_PERIOD_MSECS
@@ -288,13 +294,13 @@ class Logger:
                     if cache[self._count_idx] > 0:
                         self._write_cache_to_group(cache_node)
                 app_logger.debug(
-                    f"Number of items in queue (flush write): {self.queue.qsize()}"
+                    "Number of items in queue (flush write): %d", self.queue.qsize()
                 )
 
                 next_flush_interval += timedelta(milliseconds=self._FLUSH_PERIOD_MSECS)
 
         app_logger.debug(
-            f"Number of items in queue (final write): {self.queue.qsize()}"
+            "Number of items in queue (final write): %d", self.queue.qsize()
         )
         # Subscriptions have been stopped: clear remaining queue, flush and close file.
         while not self.queue.empty():
@@ -313,7 +319,7 @@ class Logger:
                 self._write_cache_to_group(cache_node)
 
         self.file_object.close()
-        app_logger.info(f"Logger received {self._data_count} data points.")
+        app_logger.info("Logger received %d data points.", self._data_count)
         self.file_object = h5py.File(self.file, "a", libver="latest")
         self.file_object.attrs.create(
             "Start time", self.start_time.isoformat(timespec="microseconds")
@@ -323,7 +329,9 @@ class Logger:
         )
         self.file_object.close()
         app_logger.debug(
-            f"File start time: {self.start_time} and stop time: {self.stop_time}"
+            "File start time: %s, and stop time: %s",
+            self.start_time,
+            self.stop_time,
         )
 
         self.logging_complete.set()
