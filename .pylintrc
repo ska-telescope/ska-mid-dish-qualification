@@ -11,7 +11,7 @@ ignore=
     reader.py,
     serval_internal_server.py,
     server_validator.py,
-    view.py,
+    ; view.py,
     ; hdf5_maker.py,
     ; test_logger.py,
     ; test_hdf5_to_csv.py,

@@ -13,7 +13,7 @@ logger = logging.getLogger("gui.view")
 
 
 class RecordingConfigDialog(QtWidgets.QDialog):
-    def __init__(self, parent=None, attributes: list[str] = []):
+    def __init__(self, attributes: list[str], parent=None):
         super().__init__(parent)
 
         self.setWindowTitle("Recording Configuration")
@@ -55,9 +55,14 @@ class RecordingConfigDialog(QtWidgets.QDialog):
         self.accept()
 
 
+# pylint: disable=too-many-statements, too-many-public-methods
 class MainView(QtWidgets.QMainWindow):
     def __init__(
-        self, model: model.Model, controller: controller.Controller, *args, **kwargs
+        self,
+        disq_model: model.Model,
+        disq_controller: controller.Controller,
+        *args,
+        **kwargs,
     ):
         super().__init__(*args, **kwargs)
         # Load the UI from the XML .ui file
@@ -91,18 +96,19 @@ class MainView(QtWidgets.QMainWindow):
         if server_namespace is not None:
             self.input_server_namespace: QtWidgets.QLineEdit
             self.input_server_namespace.setText(server_namespace)
-        self.btn_server_connect: QtWidgets.QPushButton
-        self.btn_server_connect.setFocus()
+        self.button_server_connect: QtWidgets.QPushButton
+        self.button_server_connect.setFocus()
+        self.label_conn_status: QtWidgets.QLabel
 
         # Keep a reference to model and controller
-        self.model = model
-        self.controller = controller
+        self.model = disq_model
+        self.controller = disq_controller
 
         # Populate the server config select (drop-down) box with entries from
         # configuration file
         server_list = self.controller.get_config_servers()
         self.dropdown_server_config_select: QtWidgets.QComboBox
-        self.dropdown_server_config_select.addItems([None] + server_list)
+        self.dropdown_server_config_select.addItems([""] + server_list)
         self.dropdown_server_config_select.currentTextChanged.connect(
             self.server_config_select_changed
         )
@@ -112,43 +118,41 @@ class MainView(QtWidgets.QMainWindow):
         self.controller.server_connected.connect(self.server_connected_event)
         self.controller.server_disconnected.connect(self.server_disconnected_event)
 
-        pb: QtWidgets.QPushButton = self.btn_server_connect
+        pb: QtWidgets.QPushButton = self.button_server_connect
         pb.clicked.connect(self.connect_button_clicked)
 
         # Listen for Model event signals
         self.model.data_received.connect(self.event_update)
 
-        self.comboBox_authority: QtWidgets.QComboBox
-        self.pushButton_take_auth: QtWidgets.QPushButton
-        self.pushButton_take_auth.clicked.connect(
+        self.combobox_authority: QtWidgets.QComboBox
+        self.button_take_auth: QtWidgets.QPushButton
+        self.button_take_auth.clicked.connect(
             lambda: self.authority_button_clicked(True)
         )
-        self.pushButton_release_auth: QtWidgets.QPushButton
-        self.pushButton_release_auth.clicked.connect(
+        self.button_release_auth: QtWidgets.QPushButton
+        self.button_release_auth.clicked.connect(
             lambda: self.authority_button_clicked(False)
         )
-        self.pushButton_interlock_ack: QtWidgets.QPushButton
-        self.pushButton_interlock_ack.clicked.connect(
-            self.controller.command_interlock_ack
-        )
+        self.button_interlock_ack: QtWidgets.QPushButton
+        self.button_interlock_ack.clicked.connect(self.controller.command_interlock_ack)
         # pb_slew2abs: QtWidgets.QPushButton = self.findChild(
-        #     QtWidgets.QPushButton, name="pushButton_slew2abs"
+        #     QtWidgets.QPushButton, name="button_slew2abs"
         # )
         # pb_slew2abs.clicked.connect(self.slew2abs_button_clicked)
-        self.pushButton_slew2abs: QtWidgets.QPushButton
-        self.pushButton_slew2abs.clicked.connect(self.slew2abs_button_clicked)
-        self.pushButton_stop: QtWidgets.QPushButton
-        self.pushButton_stop.clicked.connect(lambda: self.stop_button_clicked("AzEl"))
-        self.pushButton_stow: QtWidgets.QPushButton
-        self.pushButton_stow.clicked.connect(self.stow_button_clicked)
-        self.pushButton_unstow: QtWidgets.QPushButton
-        self.pushButton_unstow.clicked.connect(self.unstow_button_clicked)
-        self.pushButton_activate: QtWidgets.QPushButton
-        self.pushButton_activate.clicked.connect(
+        self.button_slew2abs: QtWidgets.QPushButton
+        self.button_slew2abs.clicked.connect(self.slew2abs_button_clicked)
+        self.button_stop: QtWidgets.QPushButton
+        self.button_stop.clicked.connect(lambda: self.stop_button_clicked("AzEl"))
+        self.button_stow: QtWidgets.QPushButton
+        self.button_stow.clicked.connect(self.stow_button_clicked)
+        self.button_unstow: QtWidgets.QPushButton
+        self.button_unstow.clicked.connect(self.unstow_button_clicked)
+        self.button_activate: QtWidgets.QPushButton
+        self.button_activate.clicked.connect(
             lambda: self.activate_button_clicked("AzEl")
         )
-        self.pushButton_deactivate: QtWidgets.QPushButton
-        self.pushButton_deactivate.clicked.connect(
+        self.button_deactivate: QtWidgets.QPushButton
+        self.button_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("AzEl")
         )
 
@@ -195,79 +199,80 @@ class MainView(QtWidgets.QMainWindow):
             lambda: self.deactivate_button_clicked("Fi")
         )
 
-        self.lineEdit_azimuth_position_demand: QtWidgets.QLineEdit
-        self.lineEdit_elevation_position_demand: QtWidgets.QLineEdit
-        self.lineEdit_azimuth_velocity_demand: QtWidgets.QLineEdit
-        self.lineEdit_elevation_velocity_demand: QtWidgets.QLineEdit
-        self.line_elevation_position_demand: QtWidgets.QLineEdit
-        self.line_elevation_velocity_demand: QtWidgets.QLineEdit
-        self.line_azimuth_position_demand: QtWidgets.QLineEdit
-        self.line_azimuth_velocity_demand: QtWidgets.QLineEdit
-        self.line_indexer_position_demand: QtWidgets.QLineEdit
-        self.line_indexer_velocity_demand: QtWidgets.QLineEdit
+        self.line_edit_slew_simul_azim_position: QtWidgets.QLineEdit
+        self.line_edit_slew_simul_elev_position: QtWidgets.QLineEdit
+        self.line_edit_slew_simul_azim_velocity: QtWidgets.QLineEdit
+        self.line_edit_slew_simul_elev_velocity: QtWidgets.QLineEdit
+        self.line_edit_slew_only_elevation_position: QtWidgets.QLineEdit
+        self.line_edit_slew_only_elevation_velocity: QtWidgets.QLineEdit
+        self.line_edit_slew_only_azimuth_position: QtWidgets.QLineEdit
+        self.line_edit_slew_only_azimuth_velocity: QtWidgets.QLineEdit
+        self.line_edit_slew_only_indexer_position: QtWidgets.QLineEdit
+        self.line_edit_slew_only_indexer_velocity: QtWidgets.QLineEdit
 
-        self.pushButton_Band1: QtWidgets.QPushButton
-        self.pushButton_Band1.clicked.connect(
+        self.button_band1: QtWidgets.QPushButton
+        self.button_band1.clicked.connect(
             lambda: self.move2band_button_clicked("Band_1")
         )
-        self.pushButton_Band2: QtWidgets.QPushButton  # pylint: disable=C0103
-        self.pushButton_Band2.clicked.connect(
+        self.button_band2: QtWidgets.QPushButton
+        self.button_band2.clicked.connect(
             lambda: self.move2band_button_clicked("Band_2")
         )
-        self.pushButton_Band3: QtWidgets.QPushButton
-        self.pushButton_Band3.clicked.connect(
+        self.button_band3: QtWidgets.QPushButton
+        self.button_band3.clicked.connect(
             lambda: self.move2band_button_clicked("Band_3")
         )
-        self.pushButton_Band4: QtWidgets.QPushButton
-        self.pushButton_Band4.clicked.connect(
+        self.button_band4: QtWidgets.QPushButton
+        self.button_band4.clicked.connect(
             lambda: self.move2band_button_clicked("Band_4")
         )
-        self.pushButton_Band5a: QtWidgets.QPushButton
-        self.pushButton_Band5a.clicked.connect(
+        self.button_band5a: QtWidgets.QPushButton
+        self.button_band5a.clicked.connect(
             lambda: self.move2band_button_clicked("Band_5a")
         )
-        self.pushButton_Band5b: QtWidgets.QPushButton
-        self.pushButton_Band5b.clicked.connect(
+        self.button_band5b: QtWidgets.QPushButton
+        self.button_band5b.clicked.connect(
             lambda: self.move2band_button_clicked("Band_5b")
         )
-        self.pushButton_Band6: QtWidgets.QPushButton
-        self.pushButton_Band6.clicked.connect(
+        self.button_band6: QtWidgets.QPushButton
+        self.button_band6.clicked.connect(
             lambda: self.move2band_button_clicked("Band_6")
         )
-        self.pushButton_Band_optical: QtWidgets.QPushButton
-        self.pushButton_Band_optical.clicked.connect(
+        self.button_band_optical: QtWidgets.QPushButton
+        self.button_band_optical.clicked.connect(
             lambda: self.move2band_button_clicked("Optical")
         )
         self.disable_opcua_widgets()
 
-        self.pushButton_recording_start: QtWidgets.QPushButton
-        self.lineEdit_recording_file: QtWidgets.QLineEdit
-        self.pushButton_recording_start.clicked.connect(
-            lambda: self.controller.recording_start(self.lineEdit_recording_file.text())
+        self.button_recording_start: QtWidgets.QPushButton
+        self.line_edit_recording_file: QtWidgets.QLineEdit
+        self.line_edit_recording_status: QtWidgets.QLineEdit
+        self.button_recording_start.clicked.connect(
+            lambda: self.controller.recording_start(
+                self.line_edit_recording_file.text()
+            )
         )
-        self.pushButton_recording_stop: QtWidgets.QPushButton
-        self.pushButton_recording_stop.clicked.connect(self.controller.recording_stop)
+        self.button_recording_stop: QtWidgets.QPushButton
+        self.button_recording_stop.clicked.connect(self.controller.recording_stop)
         self.controller.recording_status.connect(self.recording_status_update)
 
-        self.pushButton_recording_config: QtWidgets.QPushButton
-        self.pushButton_recording_config.clicked.connect(
+        self.button_recording_config: QtWidgets.QPushButton
+        self.button_recording_config.clicked.connect(
             self.recording_config_button_clicked
         )
 
-        self.pushButton_load_track_table: QtWidgets.QPushButton
-        self.pushButton_load_track_table.clicked.connect(
+        self.button_load_track_table: QtWidgets.QPushButton
+        self.button_load_track_table.clicked.connect(
             lambda: self.controller.load_track_table(
-                self.lineEdit_track_table_file.text()
+                self.line_edit_track_table_file.text()
             )
         )
-        self.lineEdit_track_table_file: QtWidgets.QLineEdit  # pylint: disable=C0103
-        self.lineEdit_track_table_file.textChanged.connect(
+        self.line_edit_track_table_file: QtWidgets.QLineEdit
+        self.line_edit_track_table_file.textChanged.connect(
             self.track_table_file_changed
         )
-        self.pushButton_select_track_table_file: (
-            QtWidgets.QPushButton
-        )  # pylint: disable=C0103
-        self.pushButton_select_track_table_file.clicked.connect(
+        self.button_select_track_table_file: QtWidgets.QPushButton
+        self.button_select_track_table_file.clicked.connect(
             self.track_table_file_button_clicked
         )
 
@@ -277,7 +282,7 @@ class MainView(QtWidgets.QMainWindow):
         {name: (widget, func)}"""
         # re = QtCore.QRegularExpression("opcua_")
         # opcua_widgets = self.findChildren(QtWidgets.QLineEdit, re)
-        all_widgets: list[QtWidgets.QLineEdit] = self.findChildren(QtWidgets.QLineEdit)
+        all_widgets: list[QtCore.QObject] = self.findChildren(QtWidgets.QLineEdit)
         opcua_widget_updates: dict = {}
         for wgt in all_widgets:
             if "opcua" not in wgt.dynamicPropertyNames():
@@ -307,10 +312,10 @@ class MainView(QtWidgets.QMainWindow):
 
     @cached_property
     def all_opcua_widgets(self) -> list:
-        all_widgets: list[QtWidgets.QObject] = self.findChildren(
+        all_widgets: list[QtCore.QObject] = self.findChildren(
             (QtWidgets.QLineEdit, QtWidgets.QPushButton, QtWidgets.QComboBox)
         )
-        opcua_widgets: list[QtWidgets.QObject] = []
+        opcua_widgets: list[QtCore.QObject] = []
         for wgt in all_widgets:
             property_names: list[QtCore.QByteArray] = wgt.dynamicPropertyNames()
             for property_name in property_names:
@@ -330,11 +335,11 @@ class MainView(QtWidgets.QMainWindow):
             widget.setEnabled(False)
 
     def enable_data_logger_widgets(self, enable: bool = True):
-        self.pushButton_recording_start.setEnabled(enable)
-        self.pushButton_recording_stop.setEnabled(enable)
-        self.lineEdit_recording_file.setEnabled(enable)
-        self.lineEdit_recording_status.setEnabled(enable)
-        self.pushButton_recording_config.setEnabled(enable)
+        self.button_recording_start.setEnabled(enable)
+        self.button_recording_stop.setEnabled(enable)
+        self.line_edit_recording_file.setEnabled(enable)
+        self.line_edit_recording_status.setEnabled(enable)
+        self.button_recording_config.setEnabled(enable)
 
     def enable_server_widgets(self, enable: bool = True, connect_button: bool = False):
         self.input_server_address.setEnabled(enable)
@@ -342,28 +347,27 @@ class MainView(QtWidgets.QMainWindow):
         self.input_server_endpoint.setEnabled(enable)
         self.input_server_namespace.setEnabled(enable)
         if connect_button:
-            self.btn_server_connect.setText("Connect" if enable else "Disconnect")
+            self.button_server_connect.setText("Connect" if enable else "Disconnect")
 
     @QtCore.pyqtSlot(bool)
     def recording_status_update(self, status: bool):
         """Update the recording status"""
-        self.lineEdit_recording_status: QtWidgets.QLineEdit
         if status:
-            self.lineEdit_recording_status.setText("Recording")
-            self.lineEdit_recording_status.setStyleSheet(
+            self.line_edit_recording_status.setText("Recording")
+            self.line_edit_recording_status.setStyleSheet(
                 "background-color: rgb(10, 250, 0);"
             )
-            self.pushButton_recording_start.setEnabled(False)
-            self.pushButton_recording_stop.setEnabled(True)
-            self.pushButton_recording_config.setEnabled(False)
+            self.button_recording_start.setEnabled(False)
+            self.button_recording_stop.setEnabled(True)
+            self.button_recording_config.setEnabled(False)
         else:
-            self.lineEdit_recording_status.setText("Stopped")
-            self.lineEdit_recording_status.setStyleSheet(
+            self.line_edit_recording_status.setText("Stopped")
+            self.line_edit_recording_status.setStyleSheet(
                 "background-color: rgb(10, 80, 0);"
             )
-            self.pushButton_recording_start.setEnabled(True)
-            self.pushButton_recording_stop.setEnabled(False)
-            self.pushButton_recording_config.setEnabled(True)
+            self.button_recording_start.setEnabled(True)
+            self.button_recording_stop.setEnabled(False)
+            self.button_recording_config.setEnabled(True)
 
     @QtCore.pyqtSlot(dict)
     def event_update(self, event: dict) -> None:
@@ -467,33 +471,31 @@ class MainView(QtWidgets.QMainWindow):
 
     def _track_table_file_exist(self) -> bool:
         """Check if the track table file exists"""
-        tt_filename = Path(self.lineEdit_track_table_file.text())
+        tt_filename = Path(self.line_edit_track_table_file.text())
         return tt_filename.exists()
 
     @QtCore.pyqtSlot()
     def server_connected_event(self):
         logger.debug("server connected event")
-        lbl: QtWidgets.QLabel = self.label_connection_status
-        lbl.setText("Subscribing to OPC-UA updates...")
+        self.label_conn_status.setText("Subscribing to OPC-UA updates...")
         self.controller.subscribe_opcua_updates(self.opcua_widgets)
-        lbl.setText(f"Connected to: {self.model.get_server_uri()}")
+        self.label_conn_status.setText(f"Connected to: {self.model.get_server_uri()}")
         self.enable_server_widgets(False, connect_button=True)
         self.enable_opcua_widgets()
         self.enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
         if self._track_table_file_exist():
-            self.pushButton_load_track_table.setEnabled(True)
+            self.button_load_track_table.setEnabled(True)
 
     @QtCore.pyqtSlot()
     def server_disconnected_event(self):
         logger.debug("server disconnected event")
         self.disable_opcua_widgets()
         self.enable_data_logger_widgets(False)
-        lbl: QtWidgets.QLabel = self.label_connection_status
-        lbl.setText("Status: disconnected")
+        self.label_conn_status.setText("Status: disconnected")
         self.enable_server_widgets(True, connect_button=True)
-        self.pushButton_load_track_table.setEnabled(False)
-        self.lineEdit_track_table_file.setEnabled(False)
+        self.button_load_track_table.setEnabled(False)
+        self.line_edit_track_table_file.setEnabled(False)
 
     @QtCore.pyqtSlot()
     def connect_button_clicked(self):
@@ -515,8 +517,7 @@ class MainView(QtWidgets.QMainWindow):
                 "password", None
             )
             logger.debug("connecting to server: %s", connect_details)
-            lbl: QtWidgets.QLabel = self.label_connection_status
-            lbl.setText("connecting...")
+            self.label_conn_status.setText("connecting...")
             self.controller.connect_server(connect_details)
         else:
             logger.debug("disconnecting from server")
@@ -554,12 +555,12 @@ class MainView(QtWidgets.QMainWindow):
             self.enable_server_widgets(False)
 
     @QtCore.pyqtSlot(str)
-    def track_table_file_changed(self, filename: str):
+    def track_table_file_changed(self):
         """Update the track table file path in the model"""
         if self._track_table_file_exist() and self.controller.is_server_connected():
-            self.pushButton_load_track_table.setEnabled(True)
+            self.button_load_track_table.setEnabled(True)
         else:
-            self.pushButton_load_track_table.setEnabled(False)
+            self.button_load_track_table.setEnabled(False)
 
     @QtCore.pyqtSlot()
     def track_table_file_button_clicked(self) -> None:
@@ -568,7 +569,7 @@ class MainView(QtWidgets.QMainWindow):
             self, "Open Track Table File", "", "Track Table Files (*.csv)"
         )
         if filename:
-            self.lineEdit_track_table_file.setText(filename)
+            self.line_edit_track_table_file.setText(filename)
 
     @QtCore.pyqtSlot()
     def recording_config_button_clicked(self):
@@ -584,10 +585,10 @@ class MainView(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def slew2abs_button_clicked(self):
         text_widget_args = [
-            self.lineEdit_azimuth_position_demand.text(),
-            self.lineEdit_elevation_position_demand.text(),
-            self.lineEdit_azimuth_velocity_demand.text(),
-            self.lineEdit_elevation_velocity_demand.text(),
+            self.line_edit_slew_simul_azim_position.text(),
+            self.line_edit_slew_simul_elev_position.text(),
+            self.line_edit_slew_simul_azim_velocity.text(),
+            self.line_edit_slew_simul_elev_velocity.text(),
         ]
         try:
             args = [float(str_input) for str_input in text_widget_args]
@@ -621,18 +622,18 @@ class MainView(QtWidgets.QMainWindow):
         match axis:
             case "El":
                 text_widget_args = [
-                    self.line_elevation_position_demand.text(),
-                    self.line_elevation_velocity_demand.text(),
+                    self.line_edit_slew_only_elevation_position.text(),
+                    self.line_edit_slew_only_elevation_velocity.text(),
                 ]
             case "Az":
                 text_widget_args = [
-                    self.line_azimuth_position_demand.text(),
-                    self.line_azimuth_velocity_demand.text(),
+                    self.line_edit_slew_only_azimuth_position.text(),
+                    self.line_edit_slew_only_azimuth_velocity.text(),
                 ]
             case "Fi":
                 text_widget_args = [
-                    self.line_indexer_position_demand.text(),
-                    self.line_indexer_velocity_demand.text(),
+                    self.line_edit_slew_only_indexer_position.text(),
+                    self.line_edit_slew_only_indexer_velocity.text(),
                 ]
             case _:
                 return
@@ -664,7 +665,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(bool)
     def authority_button_clicked(self, take_command: bool):
-        username = self.comboBox_authority.currentText()
+        username = self.combobox_authority.currentText()
         self.controller.command_take_authority(
             take_command=take_command, username=username
         )
