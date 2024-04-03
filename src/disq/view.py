@@ -440,7 +440,7 @@ class MainView(QtWidgets.QMainWindow):
         """Setup a connection to the server"""
         if not self.controller.is_server_connected():
             connect_details = {
-                "address": self.input_server_address.text(),
+                "host": self.input_server_address.text(),
                 "port": self.input_server_port.text(),
                 "endpoint": self.input_server_endpoint.text(),
                 "namespace": self.input_server_namespace.text(),

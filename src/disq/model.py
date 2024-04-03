@@ -77,17 +77,24 @@ class Model(QObject):
         self._event_q_poller: QueuePollThread | None = None
 
     def connect(self, connect_details: dict) -> None:
+        """
+        Connects to the server using the provided connection details.
+
+        Args:
+            connect_details (dict): A dictionary containing the connection details.
+                connect_details should contain the disq.sculib.scu class initialization parameters as keys: 'host' and 'port' are required.
+                'namespace', 'endpoint', 'auth_user', 'auth_password' are optional and can be None.
+
+        Raises:
+            RuntimeError: If an error occurs while creating the sculib object (after which the connection is cleaned up and the scu object is set to None)
+
+        Returns:
+            None
+        """
         logger.debug("Connecting to server: %s", connect_details)
-        username = connect_details.get("username", None)
-        password = connect_details.get("password", None)
         try:
             self._scu = scu(
-                host=connect_details["address"],
-                port=connect_details["port"],
-                namespace=connect_details["namespace"],
-                endpoint=connect_details["endpoint"],
-                username=username,
-                password=password,
+                **connect_details,
             )
         except RuntimeError as e:
             logger.debug(
