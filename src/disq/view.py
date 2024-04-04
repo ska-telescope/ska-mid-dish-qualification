@@ -440,11 +440,20 @@ class MainView(QtWidgets.QMainWindow):
         """Setup a connection to the server"""
         if not self.controller.is_server_connected():
             connect_details = {
-                "address": self.input_server_address.text(),
+                "host": self.input_server_address.text(),
                 "port": self.input_server_port.text(),
                 "endpoint": self.input_server_endpoint.text(),
                 "namespace": self.input_server_namespace.text(),
             }
+            config_connection_details = self.controller.get_config_server_args(
+                self.dropdown_server_config_select.currentText()
+            )
+            connect_details["username"] = config_connection_details.get(
+                "username", None
+            )
+            connect_details["password"] = config_connection_details.get(
+                "password", None
+            )
             logger.debug("connecting to server: %s", connect_details)
             lbl: QtWidgets.QLabel = self.label_connection_status
             lbl.setText("connecting...")

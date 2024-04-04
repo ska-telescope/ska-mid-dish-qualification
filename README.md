@@ -80,13 +80,15 @@ The GUI application will search for the configuration file in the following orde
 * Finally the users data directory is scanned for a `disq.ini` file
   * This is cross-platform compatible using [platformdirs](https://pypi.org/project/platformdirs/). On Linux `~/.local/share/disq/`
 
+An example `disq.ini` file is provided in the root directory of the source distribution of this repo.
+
 ### Application Logs
-DiSQ uses Python logging to log and output or record debug/info/warning/error messages. The logging comes pre-configured in `src/disq/default_logging_config.py` but this default configuration can be overridden by a custom configuration if a file named `disq_logging_config.yaml` is found in the current working directory (CWD) when starting the app. 
+DiSQ uses Python logging to log and output or record debug/info/warning/error messages. The logging comes pre-configured in `src/disq/default_logging_config.yaml` but this default configuration can be overridden by a custom configuration if a file named `disq_logging_config.yaml` is found in the current working directory (CWD) when starting the app. 
 
 To tweak the default configuration, for example to switch to debug level, simply copy and rename the default logging config and make the required modifications to the copy:
 
 ```shell
-cp src/disq/default_logging_config.py disq_logging_config.yaml
+cp src/disq/default_logging_config.yaml disq_logging_config.yaml
 ```
 
 ### Powershell Logs
