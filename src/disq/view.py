@@ -14,7 +14,7 @@ logger = logging.getLogger("gui.view")
 
 # pylint: disable=too-few-public-methods
 class RecordingConfigDialog(QtWidgets.QDialog):
-    def __init__(self, attributes: list[str], parent=None):
+    def __init__(self, parent: QtWidgets.QWidget, attributes: list[str]):
         super().__init__(parent)
 
         self.setWindowTitle("Recording Configuration")
