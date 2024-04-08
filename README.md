@@ -49,6 +49,10 @@ python3 -m build --wheel
 
 The resulting `.whl` package can be found in the `dist/` direcotory and be installed with `pip install <packagename>.whl`
 
+In order to run the DiSQ software from a Linux distro without a GUI, like WSL2 Ubuntu, the following packages will need to be installed:
+
+```apt-get install libxkbcommon-x11-0 libgl1 libegl1 libwayland-client0 libwayland-server0 libxcb1 libxcb-xkb1 -y```
+
 ## Usage
 The DiSQ software is intended to be used either as a ready-made GUI application or for more advanced users as a library in Jupyter notebooks. See the examples directory for, well, examples.
 
