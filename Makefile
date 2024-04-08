@@ -30,3 +30,5 @@ PYTHON_SWITCHES_FOR_PYLINT = --rcfile .pylintrc
 # DOCS
 #######################################
 include .make/docs.mk
+
+DOCS_SPHINXOPTS = -Q

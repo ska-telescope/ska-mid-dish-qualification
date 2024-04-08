@@ -15,3 +15,8 @@ DiSQ enables engineers and scientists to control and qualify observatory dish st
 - A data logger built in to both of the two above interfaces to allow recording of engineering parameters published from the PLC.
 
 .. image:: img/DiSQ_component_view.svg
+
+.. toctree::
+   :maxdepth: 2
+
+   api/index
