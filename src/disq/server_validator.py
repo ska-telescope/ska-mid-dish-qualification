@@ -1,3 +1,5 @@
+"""Server validator."""
+
 import argparse
 import asyncio
 import os
@@ -12,6 +14,14 @@ from disq.serval_internal_server import ServalInternalServer
 
 
 class Serval:
+    """
+    A class representing an OPC UA server and its functionalities.
+
+    :param include_namespace: Flag to indicate whether to include namespace in node
+        names. Default is False.
+    :type include_namespace: bool
+    """
+
     opcua_node_class_names = {
         0: "Unspecified",
         1: "Object",
@@ -54,6 +64,25 @@ class Serval:
     }
 
     def __init__(self, include_namespace: bool = False):
+        """
+        Initialize a new instance of a class.
+
+        :param include_namespace: A boolean indicating whether to include namespace in
+            arguments (default is False).
+        :type include_namespace: bool
+
+        :variables:
+            - internal_server_started_barrier: Barrier to synchronize internal server
+                start.
+            - internal_server_stop: Event to signal stop of internal server.
+            - fuzzy_threshold: A float representing the fuzzy threshold value.
+            - include_namespace: A boolean indicating whether namespace is included in
+                arguments.
+            - in_args: Input arguments with or without namespace based on
+                include_namespace value.
+            - out_args: Output arguments with or without namespace based on
+                include_namespace value.
+        """
         self.internal_server_started_barrier = threading.Barrier(2)
         self.internal_server_stop = threading.Event()
         self.fuzzy_threshold = 0.85
@@ -66,20 +95,49 @@ class Serval:
             self.out_args = "OutputArguments"
 
     async def _run_internal_server(self, xml_file: str):
+        """
+        Run an internal server using the specified XML file.
+
+        :param xml_file: The path to the XML file for configuring the internal server.
+        :type xml_file: str
+        """
         async with ServalInternalServer(xml_file):
             self.internal_server_started_barrier.wait()
             while not self.internal_server_stop.is_set():
                 await asyncio.sleep(1)
 
     def _run_internal_server_wrap(self, xml_file):
+        """
+        Run the internal server using asyncio to process an XML file.
+
+        :param xml_file: The XML file to be processed.
+        :type xml_file: str
+        :raises: Any exceptions that may occur during the internal server execution.
+        """
         asyncio.run(self._run_internal_server(xml_file))
 
     def _read_node_name(self, node: asyncua.Node) -> asyncua.ua.uatypes.QualifiedName:
+        """
+        Read the browse name of a given Node.
+
+        :param node: The Node whose browse name is to be read.
+        :type node: asyncua.Node
+        :return: The QualifiedName object representing the browse name of the Node.
+        :rtype: asyncua.ua.uatypes.QualifiedName
+        """
         return asyncio.run_coroutine_threadsafe(
             node.read_browse_name(), self.event_loop
         ).result()
 
     def _get_node_info(self, node: asyncua.Node) -> tuple:
+        """
+        Get information about a Node in the OPC UA server.
+
+        :param node: The Node object to retrieve information from.
+        :type node: asyncua.Node
+        :return: A tuple containing the name, class, and children of the input Node.
+        :rtype: tuple
+        """
         name = self._read_node_name(node)
         node_class = asyncio.run_coroutine_threadsafe(
             node.read_node_class(), self.event_loop
@@ -91,6 +149,15 @@ class Serval:
         return (name, node_class, children)
 
     def _get_param_type_tuple(self, node_id: asyncua.ua.uatypes.NodeId) -> tuple:
+        """
+        Get the parameter type tuple for a given NodeId.
+
+        :param node_id: The NodeId of the parameter.
+        :type node_id: asyncua.ua.uatypes.NodeId
+        :return: A tuple containing the parameter type and additional information if the
+            type is 'Enumeration'.
+        :rtype: tuple
+        """
         param_type = self.server.get_attribute_data_type(node_id)
         if param_type == "Enumeration":
             return (param_type, ",".join(self.server.get_enum_strings(node_id)))
@@ -98,6 +165,14 @@ class Serval:
         return (param_type,)
 
     def _get_method_info(self, node: asyncua.Node) -> dict:
+        """
+        Get information about the method associated with a Node.
+
+        :param node: The Node object representing the method.
+        :type node: asyncua.Node
+        :return: A dictionary containing information about the method parameters.
+        :rtype: dict
+        """
         params = (
             asyncio.run_coroutine_threadsafe(
                 node.read_attribute(self.opcua_attribute_ids["Value"]), self.event_loop
@@ -113,6 +188,23 @@ class Serval:
         return args
 
     def _read_data_type_tuple(self, sculib_path: str) -> tuple:
+        """
+        Read and return the data type information of a node in SCULib.
+
+        The tuple can have one or two elements:
+        - If an error occurs while retrieving the data type, a tuple with a single
+        element 'Node name error' is returned.
+        - If the data type is an Enumeration, a tuple with two elements is returned:
+        The data type as the first element, and a comma-separated string of enum strings
+        as the second element.
+        - Otherwise, a tuple with the data type as the only element is returned.
+
+        :param sculib_path: The path of the node in SCULib.
+        :type sculib_path: str
+
+        :return: A tuple containing the data type information.
+        :rtype: tuple
+        """
         try:
             data_type = self.server.get_attribute_data_type(sculib_path)
         except Exception:
@@ -123,6 +215,16 @@ class Serval:
         return (data_type,)
 
     def _fill_tree_recursive(self, node: asyncua.Node, ancestors: list[str]) -> dict:
+        """
+        Fill a dictionary representing the OPC UA nodes starting from a given node.
+
+        :param node: The starting node to traverse.
+        :type node: asyncua.Node
+        :param ancestors: List of ancestor node names.
+        :type ancestors: list[str]
+        :return: A dictionary representing the OPC UA nodes starting from the given node
+        :rtype: dict
+        """
         node_dict = {}
         # Fill node info
         name, node_class, node_children = self._get_node_info(node)
@@ -159,6 +261,20 @@ class Serval:
         self, host: str, port: str, endpoint: str, namespace: str
     ) -> dict:
         # Use sculib for encryption and getting PLC_PRG node.
+        """
+        Scan an OPC UA server and retrieve the server tree.
+
+        :param host: The IP address or hostname of the OPC UA server.
+        :type host: str
+        :param port: The port number of the OPC UA server.
+        :type port: str
+        :param endpoint: The endpoint of the OPC UA server.
+        :type endpoint: str
+        :param namespace: The namespace of the OPC UA server.
+        :type namespace: str
+        :return: A dictionary representing the server tree.
+        :rtype: dict
+        """
         self.server = sculib.scu(
             host=host, port=port, endpoint=endpoint, namespace=namespace
         )
@@ -170,6 +286,17 @@ class Serval:
         return server_tree
 
     def _args_match(self, actual_args: dict, expected_args: dict) -> bool:
+        """
+        Check if the actual arguments match the expected arguments.
+
+        :param actual_args: A dictionary containing the actual arguments.
+        :type actual_args: dict
+        :param expected_args: A dictionary containing the expected arguments.
+        :type expected_args: dict
+        :return: True if the actual arguments match the expected arguments, False
+            otherwise.
+        :rtype: bool
+        """
         ret = True
         for param, data_type in expected_args.items():
             if param not in actual_args:
@@ -185,6 +312,18 @@ class Serval:
     def _node_children_match(
         self, actual_children: dict, expected_children: dict, to_fuzzy: list
     ) -> bool:
+        """
+        Check if the children nodes of a node match the expected children.
+
+        :param actual_children: A dictionary of actual children nodes.
+        :type actual_children: dict
+        :param expected_children: A dictionary of expected children nodes.
+        :type expected_children: dict
+        :param to_fuzzy: A list to store nodes that need to be matched fuzzily.
+        :type to_fuzzy: list
+        :return: True if the children nodes match, False otherwise.
+        :rtype: bool
+        """
         ret = True
         for child in actual_children:
             if child not in expected_children:
@@ -200,6 +339,17 @@ class Serval:
         return ret
 
     def _fuzzy_match(self, actual_siblings: dict, to_fuzzy: list) -> list:
+        """
+        Perform a fuzzy matching between expected values and actual siblings.
+
+        :param actual_siblings: A dictionary containing actual sibling values.
+        :type actual_siblings: dict
+        :param to_fuzzy: A list of values to be fuzzy matched against actual siblings.
+        :type to_fuzzy: list
+        :return: A list of dictionaries where keys are expected values and values are
+            possible matches.
+        :rtype: list
+        """
         possibles = []
         for expected in to_fuzzy:
             possible = []
@@ -213,6 +363,17 @@ class Serval:
         return possibles
 
     def _compare(self, actual: dict, expected: dict) -> dict:
+        """
+        Compare two dictionaries representing nested data structures.
+
+        :param actual: The actual dictionary representing the current state.
+        :type actual: dict
+        :param expected: The expected dictionary representing the desired state.
+        :type expected: dict
+        :return: A dictionary representing the differences between the actual and
+            expected dictionaries.
+        :rtype: dict
+        """
         diff_tree = {}
         for node, node_info in expected.items():
             if node in actual:
@@ -262,6 +423,16 @@ class Serval:
         return diff_tree
 
     def _print(self, string: str, output_file: str | None = None):
+        """
+        Print a string either to the console or to a file.
+
+        :param string: The string to be printed.
+        :type string: str
+        :param output_file: The file to which the string should be printed. If None,
+            string is printed to the console.
+        :type output_file: str or None
+        :raises FileNotFoundError: If the specified output file does not exist.
+        """
         if output_file is None:
             print(string)
         else:
@@ -276,6 +447,21 @@ class Serval:
         actual_info: dict,
         output_file: str | None = None,
     ):
+        """
+        Print a formatted string comparing expected and actual method arguments.
+
+        :param indent: String used for indentation.
+        :type indent: str
+        :param args_string: String representation of method arguments.
+        :type args_string: str
+        :param expected_info: Dictionary containing expected method arguments
+            information.
+        :type expected_info: dict
+        :param actual_info: Dictionary containing actual method arguments information.
+        :type actual_info: dict
+        :param output_file: Optional file to write the output to.
+        :type output_file: str or None
+        """
         alignment = " " * (len(args_string) + 4)
         expected_params = [
             (name, data_type) for name, data_type in expected_info[args_string].items()
@@ -298,6 +484,22 @@ class Serval:
         verbose: bool = False,
         output_file: str | None = None,
     ):
+        """
+        Print the differences between actual and expected dictionaries.
+
+        :param actual: The actual dictionary to compare.
+        :type actual: dict
+        :param expected: The expected dictionary to compare.
+        :type expected: dict
+        :param diff: The differences dictionary between actual and expected.
+        :type diff: dict
+        :param level: The current level of recursion.
+        :type level: int
+        :param verbose: Whether to include verbose output.
+        :type verbose: bool, optional
+        :param output_file: The file to output the results to.
+        :type output_file: str, optional
+        """
         indent = " " * len("  Children: ") * level
         for node, node_info in expected.items():
             if node in actual:
@@ -395,7 +597,24 @@ class Serval:
 
     def validate(
         self, xml_file: str, server_file: str, server_config: str
-    ) -> (bool, dict, dict, dict):
+    ) -> tuple[bool, dict, dict, dict]:
+        """
+        Validate the configuration of an OPC UA server.
+
+        Using provided XML, server file, and server configuration.
+
+        :param xml_file: The path to the XML file.
+        :type xml_file: str
+        :param server_file: The path to the server file.
+        :type server_file: str
+        :param server_config: The server configuration.
+        :type server_config: str
+        :return: A tuple containing a boolean indicating if the validation was
+            successful, actual_tree, expected_tree, and diff_tree.
+        :rtype: tuple
+        :raises: No explicit exceptions raised, but may encounter exceptions related to
+            configuration or server operations.
+        """
         if server_file is None:
             print(
                 f"Using xml file: {xml_file}, and config: {server_config} from "
@@ -448,6 +667,29 @@ class Serval:
 
 
 def main():
+    """
+    Validate an OPCUA server against an XML file.
+
+    :param ini: Print the server configurations available in the given .ini file or in
+        the default configuration if used with no argument. (optional)
+    :type ini: str
+    :param xml: XML file to validate against.
+    :type xml: str
+    :param config_file: .ini file containing OPCUA server configurations. If this option
+        is not specified the script will attempt to find a default configuration.
+        (optional)
+    :type config_file: str
+    :param config: Server within config_file specifying OPCUA server configuration.
+    :type config: str
+    :param verbose: The default output only reports the node tree and when the relevant
+        information on the server does not match the input XML. Use this option to also
+        report when the node info does match. (optional)
+    :type verbose: bool
+    :param output_file: Write the diff (if any) to the specified output file. If the
+        file exists it will be overwritten if there is a diff. (optional)
+    :type output_file: str
+    :raises FileNotFoundError: If a file is not found.
+    """
     parser = argparse.ArgumentParser(
         prog="Dish Structure Server Validator",
         description="Validates an OPCUA server against an XML.",

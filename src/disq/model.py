@@ -1,3 +1,5 @@
+"""DiSQ GUI model."""
+
 import logging
 import os
 from functools import cached_property
@@ -27,13 +29,32 @@ logger = logging.getLogger("gui.model")
 
 
 class QueuePollThread(QThread):
+    """
+    A class representing a queue poll thread using QThread.
+
+    :param signal: The signal used to communicate data from the thread.
+    :type signal: pyqtSignal
+    """
+
     def __init__(self, signal) -> None:
+        """
+        Initialize the SignalProcessor object.
+
+        :param signal: The signal to be processed.
+        :type signal: Any
+        """
         super().__init__()
         self.queue: Queue = Queue()
         self.signal = signal
         self._running = False
 
     def run(self) -> None:
+        """
+        Run the queue poll thread.
+
+        This method starts a thread that continuously polls a queue for data and emits a
+        signal when data is received.
+        """
         self._running = True
         logger.debug(
             "QueuePollThread: Starting queue poll thread %s(%d)",
@@ -51,6 +72,12 @@ class QueuePollThread(QThread):
             self.signal.emit(data)
 
     def stop(self) -> None:
+        """
+        Stop the process.
+
+        This method sets the `_running` flag to False and waits for 1 second.
+        If the process does not stop within that time, it is terminated.
+        """
         self._running = False
         if not self.wait(1):
             self.terminate()
@@ -59,10 +86,41 @@ class QueuePollThread(QThread):
 # pylint: disable=too-many-instance-attributes
 class Model(QObject):
     # define signals here
+    """
+    A class representing a Model.
+
+    :param parent: The parent object of the Model (default is None).
+    :type parent: QObject
+    :param _scu: An instance of the scu class or None.
+    :type _scu: scu
+    :param _data_logger: An instance of the Logger class or None.
+    :type _data_logger: Logger
+    :param _recording_config: A list of strings containing recording configurations.
+    :type _recording_config: list[str]
+    :param _namespace: The namespace for the OPCUA server.
+    :type _namespace: str
+    :param _endpoint: The endpoint for the OPCUA server.
+    :type _endpoint: str
+    :param _namespace_index: The index of the namespace or None.
+    :type _namespace_index: int
+    :param _subscriptions: A list of subscriptions.
+    :type _subscriptions: list
+    :param subscription_rate_ms: The subscription rate in milliseconds.
+    :type subscription_rate_ms: int
+    :param _event_q_poller: An instance of QueuePollThread or None.
+    :type _event_q_poller: QueuePollThread
+    """
+
     command_response = pyqtSignal(str)
     data_received = pyqtSignal(dict)
 
     def __init__(self, parent: QObject | None = None) -> None:
+        """
+        Initialize a new instance of the class.
+
+        :param parent: The parent object, if any.
+        :type parent: QObject or None
+        """
         super().__init__(parent)
         self._scu: scu | None = None
         self._data_logger: Logger | None = None
@@ -110,11 +168,23 @@ class Model(QObject):
         self._scu.get_node_list()
 
     def get_server_uri(self) -> str:
+        """
+        Get the URI of the server that the client is connected to.
+
+        :return: The URI of the server.
+        :rtype: str
+        """
         if self._scu is None:
             return ""
         return self._scu.connection.server_url.geturl()
 
     def disconnect(self):
+        """
+        Disconnect from the SCU and clean up resources.
+
+        Disconnects from the SCU, unsubscribes from all events, and stops the event
+        queue poller.
+        """
         if self._scu is not None:
             self._scu.unsubscribe_all()
             self._scu.disconnect()
@@ -124,11 +194,24 @@ class Model(QObject):
             self._event_q_poller = None
 
     def is_connected(self) -> bool:
+        """
+        Check if the object is connected.
+
+        :return: True if the object is connected, False otherwise.
+        :rtype: bool
+        """
         return (
             self._scu is not None
         )  # TODO: MAJOR assumption here: OPC-UA is connected if scu is instantiated...
 
     def register_event_updates(self, registrations: dict) -> None:
+        """
+        Register event updates for specific event registrations.
+
+        :param registrations: A dictionary containing event registrations where keys are
+            the events to subscribe to.
+        :type registrations: dict
+        """
         self._event_q_poller = QueuePollThread(self.data_received)
         self._event_q_poller.start()
 
@@ -142,6 +225,17 @@ class Model(QObject):
             logger.warning("Model: register_event_updates: scu is None!?!?!")
 
     def run_opcua_command(self, command: str, *args) -> tuple:
+        """
+        Run an OPC-UA command on the server.
+
+        :param command: The command to be executed on the OPC-UA server.
+        :type command: str
+        :param args: Additional arguments to be passed to the command.
+        :type args: tuple
+        :return: The result of the command execution.
+        :rtype: tuple
+        :raises RuntimeError: If the server is not connected.
+        """
         if self._scu is None:
             raise RuntimeError("server not connected")
         if command in [
@@ -189,6 +283,15 @@ class Model(QObject):
 
     @cached_property
     def opcua_enum_types(self) -> dict:
+        """
+        Retrieve a dictionary of OPC-UA enum types.
+
+        :return: A dictionary mapping OPC-UA enum type names to their corresponding
+            values.
+        :rtype: dict
+        :raises AttributeError: If any of the required enum types are not found in the
+            UA namespace.
+        """
         result = {}
         missing_types = []
         for opcua_type in [
@@ -218,18 +321,42 @@ class Model(QObject):
 
     @cached_property
     def opcua_attributes(self) -> list[str]:
+        """
+        Return the OPC UA attributes associated with the object.
+
+        This method retrieves the attributes from the OPC UA server if the connection
+        has been established.
+
+        :return: A list of OPC UA attribute names.
+        :rtype: list[str]
+        """
         if self._scu is None:
             return []
         result = self._scu.attributes.keys()
         return result
 
     def load_track_table(self, filename: Path) -> None:
+        """
+        Load the track table data from a file.
+
+        :param filename: The path to the file containing the track table data.
+        :type filename: Path
+        :raises RuntimeError: If the server is not connected.
+        """
         if self._scu is None:
             raise RuntimeError("Server not connected")
         logger.debug("Loading track table from file: %s", filename.absolute())
         self._scu.track_table_reset_and_upload_from_file(str(filename.absolute()))
 
     def start_recording(self, filename: Path) -> None:
+        """
+        Start recording data to a specified file.
+
+        :param filename: The path to the file where the data will be recorded.
+        :type filename: Path
+        :raises RuntimeError: If the server is not connected or if the data logger
+            already exists.
+        """
         if self._scu is None:
             raise RuntimeError("Server not connected")
         if self._data_logger is not None:
@@ -244,6 +371,11 @@ class Model(QObject):
         logger.debug("Logger recording started")
 
     def stop_recording(self) -> None:
+        """
+        Stop recording data.
+
+        This method stops the data recording process if it is currently running.
+        """
         if self._data_logger is not None:
             logger.debug("stopping recording")
             self._data_logger.stop()
@@ -252,8 +384,20 @@ class Model(QObject):
 
     @property
     def recording_config(self) -> list[str]:
+        """
+        Get the recording configuration.
+
+        :return: The recording configuration as a list of strings.
+        :rtype: list[str]
+        """
         return self._recording_config
 
     @recording_config.setter
     def recording_config(self, config: list[str]) -> None:
+        """
+        Set the recording configuration.
+
+        :param config: A list of strings specifying the recording configuration.
+        :type config: list[str]
+        """
         self._recording_config = config

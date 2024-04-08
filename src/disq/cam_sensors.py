@@ -9,6 +9,24 @@ def sensor_data_pvsn(
     timestop,
     sensors_url="http://portal.mkat.karoo.kat.ac.za/katstore/api/query",
 ):
+    """
+    Retrieve sensor data from a remote API.
+
+    :param sensor: The name of the sensor to retrieve data for.
+    :type sensor: str
+    :param timestart: The start time for the data query.
+    :type timestart: str (format: 'YYYY-MM-DDTHH:MM:SS')
+    :param timestop: The stop time for the data query.
+    :type timestop: str (format: 'YYYY-MM-DDTHH:MM:SS')
+    :param sensors_url: The URL of the API to query sensor data from. Default is
+        'http://portal.mkat.karoo.kat.ac.za/katstore/api/query'.
+    :type sensors_url: str
+    :return: A tuple containing lists of value timestamps, sample timestamps, and sample
+        values.
+    :rtype: tuple
+    :raises Exception: If the request to the API fails.
+    :raises KeyError: If the response does not contain expected keys.
+    """
     import requests
 
     sample_params = {

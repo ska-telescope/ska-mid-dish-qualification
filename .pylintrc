@@ -21,9 +21,6 @@ disable=
     no-name-in-module,  # issue with PyQt6 import in CI environment
     duplicate-code,
     fixme,
-    missing-module-docstring,
-    missing-class-docstring,
-    missing-function-docstring,
 
 ; enable=
 ;     useless-suppression,

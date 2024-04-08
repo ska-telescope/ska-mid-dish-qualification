@@ -1,3 +1,5 @@
+"""HDF5 to CSV converter."""
+
 import os
 from datetime import datetime, timedelta, timezone
 
@@ -5,6 +7,35 @@ import h5py
 
 
 class Converter:
+    """
+    A class representing a Converter.
+
+    - `default_start_delta`: The default time delta for the start.
+    - `_NO_DATA_YET_STR`: A string indicating no data is available yet.
+    - `_OLD_DATA_STR`: A string indicating old data.
+    - `_DELIMITER`: The delimiter used in the CSV output.
+
+    Methods:
+    - `_get_adjacent_data`: Get the adjacent data for a given time and node.
+    - `_make_node_d`: Make a dictionary of nodes with their properties.
+    - `_check_start_stop`: Check start and stop times against file start and stop times.
+    - `_create_next_line`: Create the next line of the CSV output.
+    - `make_csv`: Generate a CSV output file based on input file and parameters.
+
+    :param input_file: The input file to read data from.
+    :type input_file: str
+    :param output_file: The output file to write the CSV data.
+    :type output_file: str
+    :param nodes: The list of nodes to include in the CSV output.
+    :type nodes: str or list[str]
+    :param start: The start time for the CSV output.
+    :type start: datetime, optional
+    :param stop: The stop time for the CSV output.
+    :type stop: datetime, optional
+    :param step_ms: The time step in milliseconds for the CSV output.
+    :type step_ms: int, default 100
+    """
+
     default_start_delta = timedelta(minutes=60)  # TODO configure good default start
 
     _NO_DATA_YET_STR = "-"
@@ -14,8 +45,12 @@ class Converter:
     def _get_adjacent_data(
         self, time: datetime, node: str, look_from: tuple
     ) -> tuple[datetime, datetime]:
-        """look_from timestamp must be less than time i.e. while must loop at least
-        once. No do-while in Python at the time of writing."""
+        """
+        Get adjacent data.
+
+        look_from timestamp must be less than time i.e. while must loop at least once.
+        No do-while in Python at the time of writing.
+        """
         before = None
         after = look_from
 
@@ -47,6 +82,22 @@ class Converter:
         return before, after
 
     def _make_node_d(self, input_nodes: list[str], file_nodes: list[str]) -> bool:
+        """
+        Make a node dictionary based on input nodes and file nodes.
+
+        The function checks the input nodes against the file nodes and creates a
+        dictionary for each known node with its type, length, current value, and next
+        value. If the node type is 'enum', it also stores the possible enumerations. If
+        no known nodes are found, an error message is printed and the function returns
+        False.
+
+        :param input_nodes: A list of node names from the input.
+        :type input_nodes: list[str]
+        :param file_nodes: A list of node names from the file.
+        :type file_nodes: list[str]
+        :return: True if the node dictionary was successfully created, otherwise False.
+        :rtype: bool
+        """
         known_nodes = []
         for node in input_nodes:
             (
@@ -77,6 +128,23 @@ class Converter:
         return True
 
     def _check_start_stop(self, start: datetime | None, stop: datetime | None) -> bool:
+        """
+        Check and adjust the start and stop times based on file attributes.
+
+        :param start: The start time to check and adjust.
+        :type start: datetime or None
+        :param stop: The stop time to check and adjust.
+        :type stop: datetime or None
+        :return: True if the start and stop times are valid and adjusted, False
+            otherwise.
+        :rtype: bool
+        :raises ValueError: If the start time is before the earliest file start time or
+            after the latest file stop time.
+        :raises ValueError: If the stop time is before the start time.
+        :raises ValueError: If the start time is before the start of the input file.
+        :raises ValueError: If the stop time is after the end of the input file.
+        :raises ValueError: If the start time is after the stop time.
+        """
         file_start = datetime.fromisoformat(self._file_object.attrs["Start time"])
         file_stop = datetime.fromisoformat(self._file_object.attrs["Stop time"])
 
@@ -129,6 +197,16 @@ class Converter:
         return True
 
     def _create_next_line(self, line_time, prev_time) -> str:
+        """
+        Create the next line in a data file based on the current time and previous time.
+
+        :param line_time: The current time to generate the line for.
+        :type line_time: datetime
+        :param prev_time: The previous time for comparison.
+        :type prev_time: datetime
+        :return: The next line in the data file as a string.
+        :rtype: str
+        """
         line = [f"{line_time.isoformat()}Z"]
         # Add a column in the line for each node
         for node in self._node_d.keys():
@@ -171,6 +249,24 @@ class Converter:
         stop: datetime = None,
         step_ms: int = 100,
     ):
+        """
+        Generate a CSV file from an HDF5 input file.
+
+        :param input_file: Path to the input HDF5 file.
+        :type input_file: str
+        :param output_file: Path to the output CSV file.
+        :type output_file: str
+        :param nodes: List of node names or a single node name to include in the CSV.
+        :type nodes: str or list[str]
+        :param start: Start datetime for data extraction. Defaults to None.
+        :type start: datetime
+        :param stop: Stop datetime for data extraction. Defaults to None.
+        :type stop: datetime
+        :param step_ms: Time step in milliseconds. Defaults to 100.
+        :type step_ms: int
+        :raises ValueError: If nodes are not found in the input file.
+        :raises OSError: If an I/O operation fails.
+        """
         if isinstance(nodes, str):
             nodes = [nodes]
 

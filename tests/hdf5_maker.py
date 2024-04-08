@@ -1,3 +1,5 @@
+"""Make HDF5 files with easily verifiable output for testing purposes."""
+
 import os
 from datetime import datetime, timezone
 from time import sleep
@@ -41,10 +43,24 @@ class Maker:
     SLEEP_TIME = 0.09726  # Adjust to get easy to read timestamp steps
 
     def __init__(self, spoof_server):
+        """
+        Initialize a new instance of the class.
+
+        :param spoof_server: The server to spoof.
+        :type spoof_server: str
+        """
         self.spoof_server = spoof_server
 
     def _get_value_type_from_node_name(self, node):
         # TODO delete this and use HLL instead
+        """
+        Get the type of value based on the node name.
+
+        :param node: The name of the node to get the value type from.
+        :type node: str
+        :return: The type of value associated with the input node name.
+        :rtype: str
+        """
         d = {
             "MockData.sine_value": "double",
             "MockData.cosine_value": "double",
@@ -56,6 +72,14 @@ class Maker:
         return d[node]
 
     def generate(self, filename, nodes):
+        """
+        Generate HDF5 file with specified nodes and data.
+
+        :param filename: The name of the HDF5 file to be generated.
+        :type filename: str
+        :param nodes: List of node names to create in the HDF5 file.
+        :type nodes: list of str
+        """
         if os.path.exists(filename):
             print(
                 f"This function will not overwrite. "

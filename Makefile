@@ -23,6 +23,9 @@ PYTHON_SWITCHES_FOR_BLACK = --force-exclude "src/disq/sculib.py|src/disq/_versio
 PYTHON_SWITCHES_FOR_FLAKE8 = --config .flake8
 PYTHON_SWITCHES_FOR_PYLINT = --rcfile .pylintrc
 
+# python-post-lint:
+# 	$(PYTHON_RUNNER) mypy --exclude sculib.py src/
+
 #######################################
 # DOCS
 #######################################

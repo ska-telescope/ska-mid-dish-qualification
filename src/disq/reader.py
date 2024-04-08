@@ -1,3 +1,5 @@
+"""HDF5 file reader."""
+
 from datetime import datetime
 
 import h5py
@@ -8,27 +10,37 @@ import plotly.graph_objects as graph_obj
 
 
 class Reader:
+    """
+    A class representing a data reader.
+
+    :param file: The file path to read data from.
+    :type file: str
+    """
+
     _type = None
 
     def __init__(self, file: str):
+        """
+        Initialize the object with a file path.
+
+        :param file: Path to the file.
+        :type file: str
+        """
         self.file = file
 
     def fill(self, node: str, start: datetime, stop: datetime):
-        """Retreive datapoints from file for given node between start and stop times"""
+        """Retreive datapoints from file for given node between start and stop times."""
         fo = h5py.File(self.file, "r", libver="latest")
         group = fo[node]
-
-        """
         # List comprehensions are faster than append-for because they have a different
         # method than .append() with less overhead than calling an entire function.
         # This introduces more overhead, no way comprehensions are faster here.
-        self._x = [
-            data
-            for data in group["SourceTimestamp"]
-            if datetime.fromtimestamp(data) >= start
-            and datetime.fromtimestamp(data) <= stop
-        ]
-        """
+        # self._x = [
+        #     data
+        #     for data in group["SourceTimestamp"]
+        #     if datetime.fromtimestamp(data) >= start
+        #     and datetime.fromtimestamp(data) <= stop
+        # ]
         self._srctimestamps = group["SourceTimestamp"][:]
         self._values = group["Value"][:]
         self._type = group["Value"].attrs["Type"]
@@ -53,8 +65,11 @@ class Reader:
                     self._y.append(self._values[i])
 
     def plot(self):
-        """Plot the fetched data. Creates a graph for type "double" or a table for types
-        "bool" and "enum"."""
+        """
+        Plot the fetched data.
+
+        Creates a graph for type "double" or a table for types "bool" and "enum".
+        """
         match self._type:
             case "double":
                 fig, ax = plt.subplots()

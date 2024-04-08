@@ -1,3 +1,5 @@
+"""DiSQ GUI View."""
+
 import logging
 import os
 from enum import Enum
@@ -14,7 +16,25 @@ logger = logging.getLogger("gui.view")
 
 # pylint: disable=too-few-public-methods
 class RecordingConfigDialog(QtWidgets.QDialog):
+    """
+    A dialog class for recording configuration.
+
+    :param parent: The parent widget of the dialog.
+    :type parent: QtWidgets.QWidget
+    :param attributes: A list of OPC-UA attributes to be displayed and selected.
+    :type attributes: list[str]
+    """
+
     def __init__(self, parent: QtWidgets.QWidget, attributes: list[str]):
+        """
+        Initialize the Recording Configuration dialog.
+
+        :param parent: The parent widget for the dialog.
+        :type parent: QtWidgets.QWidget
+        :param attributes: A list of strings representing OPC-UA attributes to choose
+            from.
+        :type attributes: list[str]
+        """
         super().__init__(parent)
 
         self.setWindowTitle("Recording Configuration")
@@ -49,6 +69,7 @@ class RecordingConfigDialog(QtWidgets.QDialog):
 
     @QtCore.pyqtSlot()
     def accept_selection(self):
+        """Accepts the selection made in the configuration dialog."""
         logger.debug("Recording config dialog accepted")
         self.config_parameters = [
             item.text() for item in self.list_widget.selectedItems()
@@ -59,6 +80,15 @@ class RecordingConfigDialog(QtWidgets.QDialog):
 # pylint: disable=too-many-statements, too-many-public-methods,
 # pylint: disable=too-many-instance-attributes
 class MainView(QtWidgets.QMainWindow):
+    """
+    A class representing the MainView of a GUI application.
+
+    :param disq_model: The model instance for the MainView.
+    :type disq_model: model.Model
+    :param disq_controller: The controller instance for the MainView.
+    :type disq_controller: controller.Controller
+    """
+
     def __init__(
         self,
         disq_model: model.Model,
@@ -66,6 +96,33 @@ class MainView(QtWidgets.QMainWindow):
         *args,
         **kwargs,
     ):
+        """
+        Initialize the DiSQ GUI with the provided model and controller.
+
+        The function initializes the GUI components with the provided model and
+        controller objects. It loads the UI from the XML file, sets the window title,
+        and connects various buttons and widgets to their corresponding functions in the
+        controller.
+
+        The function also reads server configuration details from environment variables
+        and populates the input fields accordingly. It sets up event handlers for
+        updating the UI based on server connection status, receiving data from the
+        model, and handling recording functionality.
+
+        Additionally, the function connects various buttons for different control
+        actions such as slew, stop, activate, deactivate, etc. It also handles
+        recording, track table loading, and configuration related functionalities.
+
+        The function sets up the UI layout and initial widget states based on the
+        provided model and controller objects.
+
+        :param disq_model: The model object for DiSQ.
+        :type disq_model: model.Model
+        :param disq_controller: The controller object for DiSQ.
+        :type disq_controller: controller.Controller
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        """
         super().__init__(*args, **kwargs)
         # Load the UI from the XML .ui file
         ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
@@ -280,8 +337,11 @@ class MainView(QtWidgets.QMainWindow):
 
     @cached_property
     def opcua_widgets(self) -> dict:
-        """Return a dict of of all 'opcua' widgets and their update method
-        {name: (widget, func)}"""
+        """
+        Return a dict of of all 'opcua' widgets and their update method.
+
+        :return: {name: (widget, func)}
+        """
         # re = QtCore.QRegularExpression("opcua_")
         # opcua_widgets = self.findChildren(QtWidgets.QLineEdit, re)
         all_widgets: list[QtCore.QObject] = self.findChildren(QtWidgets.QLineEdit)
@@ -314,6 +374,16 @@ class MainView(QtWidgets.QMainWindow):
 
     @cached_property
     def all_opcua_widgets(self) -> list:
+        """
+        Return a list of all OPC UA widgets.
+
+        This function finds all widgets that are subclasses of QtWidgets.QLineEdit,
+        QtWidgets.QPushButton, or QtWidgets.QComboBox and have a dynamic property that
+        starts with 'opcua'.
+
+        :return: List of OPC UA widgets.
+        :rtype: list[QtCore.QObject]
+        """
         all_widgets: list[QtCore.QObject] = self.findChildren(
             (QtWidgets.QLineEdit, QtWidgets.QPushButton, QtWidgets.QComboBox)
         )
@@ -327,16 +397,22 @@ class MainView(QtWidgets.QMainWindow):
         return opcua_widgets
 
     def enable_opcua_widgets(self):
-        """Enable all the OPC-UA widgets"""
+        """Enable all the OPC-UA widgets."""
         for widget in self.all_opcua_widgets:
             widget.setEnabled(True)
 
     def disable_opcua_widgets(self):
-        """Disable all the OPC-UA widgets"""
+        """Disable all the OPC-UA widgets."""
         for widget in self.all_opcua_widgets:
             widget.setEnabled(False)
 
     def enable_data_logger_widgets(self, enable: bool = True):
+        """
+        Enable or disable data logger widgets.
+
+        :param enable: Whether to enable or disable the widgets. Default is True.
+        :type enable: bool
+        """
         self.button_recording_start.setEnabled(enable)
         self.button_recording_stop.setEnabled(enable)
         self.line_edit_recording_file.setEnabled(enable)
@@ -344,6 +420,14 @@ class MainView(QtWidgets.QMainWindow):
         self.button_recording_config.setEnabled(enable)
 
     def enable_server_widgets(self, enable: bool = True, connect_button: bool = False):
+        """
+        Enable or disable server widgets and optionally update the connect button text.
+
+        :param enable: Enable or disable server widgets (default True).
+        :type enable: bool
+        :param connect_button: Update the connect button text (default False).
+        :type connect_button: bool
+        """
         self.input_server_address.setEnabled(enable)
         self.input_server_port.setEnabled(enable)
         self.input_server_endpoint.setEnabled(enable)
@@ -353,7 +437,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(bool)
     def recording_status_update(self, status: bool):
-        """Update the recording status"""
+        """Update the recording status."""
         if status:
             self.line_edit_recording_status.setText("Recording")
             self.line_edit_recording_status.setStyleSheet(
@@ -373,6 +457,12 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(dict)
     def event_update(self, event: dict) -> None:
+        """
+        Update the view with event data.
+
+        :param event: A dictionary containing event data.
+        :type event: dict
+        """
         logger.debug("View: data update: %s value=%s", event["name"], event["value"])
         # Get the widget update method from the dict of opcua widgets
         _widget = self.opcua_widgets[event["name"]][0]
@@ -380,7 +470,7 @@ class MainView(QtWidgets.QMainWindow):
         _widget_update_func(_widget, event)
 
     def _init_opcua_combo_widgets(self) -> None:
-        """Initialise all the OPC-UA combo widgets"""
+        """Initialise all the OPC-UA combo widgets."""
         for widget in self.findChildren(QtWidgets.QComboBox):
             if "opcua_type" not in widget.dynamicPropertyNames():
                 # Skip all the non-opcua widgets
@@ -397,7 +487,8 @@ class MainView(QtWidgets.QMainWindow):
     def _update_opcua_text_widget(
         self, widget: QtWidgets.QLineEdit, event: dict
     ) -> None:
-        """Update the text of the widget with the event value
+        """
+        Update the text of the widget with the event value.
 
         The event update dict contains:
         { 'name': name, 'node': node, 'value': value,
@@ -412,15 +503,19 @@ class MainView(QtWidgets.QMainWindow):
         widget.setText(str_val)
 
     def _update_opcua_enum_widget(self, widget: QtWidgets.QLineEdit, event: dict):
-        """Update the text of the widget with the event data
+        """
+        Update the text of the widget with the event data.
 
         The Event data is an OPC-UA Enum type. The value arrives as an integer and
         it is converted to a string here before updating the text of the widget.
 
         The event update dict contains:
-        {'name': name, 'node': node, 'value': value,
-        'source_timestamp': source_timestamp, 'server_timestamp': server_timestamp,
-        'data': data }
+        - name: name
+        - node: node
+        - value: value
+        - source_timestamp: source_timestamp
+        - server_timestamp: server_timestamp
+        - data: data
         """
         opcua_type: str = widget.property("opcua_type")
         int_val = int(event["value"])
@@ -442,7 +537,7 @@ class MainView(QtWidgets.QMainWindow):
         self, widget: QtWidgets.QLineEdit, event: dict
     ) -> None:
         """
-        Update background colour of widget to reflect boolean state of OPC-UA parameter
+        Update background colour of widget to reflect boolean state of OPC-UA parameter.
 
         The event udpdate 'value' field can take 3 states:
          - None: the OPC-UA parameter is not defined. Colour background grey/disabled.
@@ -472,12 +567,17 @@ class MainView(QtWidgets.QMainWindow):
             )
 
     def _track_table_file_exist(self) -> bool:
-        """Check if the track table file exists"""
+        """Check if the track table file exists."""
         tt_filename = Path(self.line_edit_track_table_file.text())
         return tt_filename.exists()
 
     @QtCore.pyqtSlot()
     def server_connected_event(self):
+        """
+        Handle the server connected event.
+
+        This function is called when the server is successfully connected.
+        """
         logger.debug("server connected event")
         self.label_conn_status.setText("Subscribing to OPC-UA updates...")
         self.controller.subscribe_opcua_updates(self.opcua_widgets)
@@ -491,6 +591,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def server_disconnected_event(self):
+        """Handle the server disconnected event."""
         logger.debug("server disconnected event")
         self.disable_opcua_widgets()
         self.enable_data_logger_widgets(False)
@@ -501,7 +602,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def connect_button_clicked(self):
-        """Setup a connection to the server"""
+        """Setup a connection to the server."""
         if not self.controller.is_server_connected():
             connect_details = {
                 "host": self.input_server_address.text(),
@@ -558,7 +659,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def track_table_file_changed(self):
-        """Update the track table file path in the model"""
+        """Update the track table file path in the model."""
         if self._track_table_file_exist() and self.controller.is_server_connected():
             self.button_load_track_table.setEnabled(True)
         else:
@@ -566,7 +667,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def track_table_file_button_clicked(self) -> None:
-        """Open a file dialog to select a track table file"""
+        """Open a file dialog to select a track table file."""
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(
             self, "Open Track Table File", "", "Track Table Files (*.csv)"
         )
@@ -575,7 +676,7 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def recording_config_button_clicked(self):
-        """Open the recording configuration dialog"""
+        """Open the recording configuration dialog."""
         dialog = RecordingConfigDialog(self, self.model.opcua_attributes)
         if dialog.exec():
             logger.debug("Recording config dialog accepted")
@@ -586,6 +687,18 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def slew2abs_button_clicked(self):
+        """
+        Slew to absolute position.
+
+        Convert slew simulation position and velocity values to absolute position and
+        velocity and send the command to the controller.
+
+        This function extracts the values from the line edit widgets for azimuth and
+        elevation position and velocity, converts them to float, and then calls the
+        controller's command_slew2abs_azim_elev method with the converted arguments.
+
+        :raises ValueError: If the input arguments cannot be converted to float.
+        """
         text_widget_args = [
             self.line_edit_slew_simul_azim_position.text(),
             self.line_edit_slew_simul_elev_position.text(),
@@ -607,8 +720,25 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def slew_button_clicked(self, axis: str):
+        """
+        Slot function to handle the click event of a slew button.
+
+        :param axis: The axis for which the slew operation is being performed.
+        :type axis: str
+        """
 
         def validate_args(text_widget_args: list[str]) -> list[float] | None:
+            """
+            Validate and convert a list of string arguments to a list of float values.
+
+            :param text_widget_args: A list of string arguments to be converted to float
+                  values.
+            :type text_widget_args: list[str]
+            :return: A list of float values converted from the input string arguments.
+            :rtype: list[float] or None if conversion fails.
+            :raises ValueError: If any of the string arguments cannot be converted to a
+                  float.
+            """
             try:
                 args = [float(str_input) for str_input in text_widget_args]
                 return args
@@ -647,26 +777,61 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def stop_button_clicked(self, axis: str):
+        """
+        Handle the signal emitted when the stop button is clicked.
+
+        :param axis: The axis on which to stop the movement.
+        :type axis: str
+        """
         self.controller.command_stop(axis)
 
     @QtCore.pyqtSlot()
     def stow_button_clicked(self):
+        """Handle the click event of the stow button."""
         self.controller.command_stow()
 
     @QtCore.pyqtSlot()
     def unstow_button_clicked(self):
+        """
+        Unstow button clicked callback function.
+
+        This function calls the controller's command_stow method with False as the
+        argument.
+
+        :param self: The object itself.
+        :type self: object
+        """
         self.controller.command_stow(False)
 
     @QtCore.pyqtSlot(str)
     def activate_button_clicked(self, axis: str):
+        """
+        Activate the button clicked for a specific axis.
+
+        :param axis: The axis for which the button was clicked.
+        :type axis: str
+        """
         self.controller.command_activate(axis)
 
     @QtCore.pyqtSlot(str)
     def deactivate_button_clicked(self, axis: str):
+        """
+        Deactivate button clicked slot function.
+
+        :param axis: Axis identifier for deactivation.
+        :type axis: str
+        """
         self.controller.command_deactivate(axis)
 
     @QtCore.pyqtSlot(bool)
     def authority_button_clicked(self, take_command: bool):
+        """
+        Handle the click event of an authority button.
+
+        :param take_command: A boolean value indicating whether to take or release
+            authority.
+        :type take_command: bool
+        """
         username = self.combobox_authority.currentText()
         self.controller.command_take_authority(
             take_command=take_command, username=username
@@ -674,10 +839,10 @@ class MainView(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def command_response_status_update(self, status: str):
-        """Update the main window status bar with a status update"""
+        """Update the main window status bar with a status update."""
         self.cmd_status_label.setText(status)
 
     @QtCore.pyqtSlot(str)
     def move2band_button_clicked(self, band: str):
-        """Move to the given band"""
+        """Move to the given band."""
         self.controller.command_move2band(band)

@@ -1,3 +1,5 @@
+"""DiSQ logger."""
+
 import logging
 import os
 import queue
@@ -58,6 +60,19 @@ class Logger:
         server: str = None,
         port: str = None,
     ):
+        """
+        Initialize the Logger object.
+
+        :param file_name: The name of the file to log data to.
+        :type file_name: str
+        :param high_level_library: An optional high level library object to use for data
+            manipulation.
+        :type high_level_library: sculib.scu
+        :param server: The server IP address to connect to.
+        :type server: str
+        :param port: The port number to connect to on the server.
+        :type port: str
+        """
         self.file = file_name
         self._thread = threading.Thread(
             group=None, target=self._log, name="Logger internal thread"
@@ -119,6 +134,12 @@ class Logger:
             self._nodes[node] = period
 
     def _build_hdf5_structure(self):
+        """
+        Build the HDF5 structure for storing data.
+
+        This method creates the necessary groups and datasets within an HDF5 file for
+        storing data.
+        """
         for node in self._nodes:
             # One group per node containing a single dataset for each of
             # SourceTimestamp, Value
@@ -173,6 +194,12 @@ class Logger:
 
     def _subscribe_to_nodes(self):
         # Sort added nodes into lists per period
+        """
+        Subscribe to nodes with specified attributes and periods.
+
+        This method subscribes to nodes with specific attributes and periods provided
+        in the `_nodes` dictionary attribute of the class instance.
+        """
         period_dict = {}
         for node, period in self._nodes.items():
             if period in period_dict.keys():
@@ -224,8 +251,12 @@ class Logger:
         self._thread.start()
 
     def stop(self):
-        """Stop logging. Ends the addition of new server data to internal queue
-        and signals the logging thread to clear the remaining queued items."""
+        """
+        Stop logging.
+
+        Ends the addition of new server data to internal queue and signals the logging
+        thread to clear the remaining queued items.
+        """
         for uid in self._subscription_ids:
             self.hll.unsubscribe(uid)
 
@@ -257,6 +288,16 @@ class Logger:
         ]
 
     def _log(self):
+        """
+        Log data points to a cache and write them to a file periodically.
+
+        This method logs data points to a cache and periodically writes them to a file.
+        It also provides debug and info logging messages.
+
+        This method does not have any parameters or return values.
+
+        This method does not raise any exceptions.
+        """
         next_flush_interval = datetime.now() + timedelta(
             milliseconds=self._FLUSH_PERIOD_MSECS
         )

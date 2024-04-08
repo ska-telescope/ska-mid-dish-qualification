@@ -1,3 +1,5 @@
+"""Tests of the configuration file."""
+
 import configparser
 from pathlib import Path
 from unittest.mock import patch
@@ -9,6 +11,18 @@ from disq.configuration import find_config_file, get_configurations
 
 def test_find_config_file():
     # Test when fname_cli_option is None
+    """
+    Test function for finding a configuration file.
+
+    This function tests the behavior of the find_config_file function under different
+    scenarios.
+
+    :param None: Testing scenario where environment variable is not set.
+    :type None: None
+    :param __file__: Testing scenario where a valid file path is provided as input.
+    :type __file__: str
+    :raises FileNotFoundError: If the environment variable is not set.
+    """
     with patch("os.getenv", return_value=None):
         with pytest.raises(FileNotFoundError):
             find_config_file(None)
@@ -20,6 +34,14 @@ def test_find_config_file():
 
 def test_get_configuration():
     # Test when fname is None
+    """
+    Test the get_configurations function.
+
+    This function tests the get_configurations function by mocking the find_config_file
+    function and checking the output configuration file.
+
+    :raises: AssertionError: If any of the test cases fail.
+    """
     with patch("disq.configuration.find_config_file", return_value=Path("disq.ini")):
         config = get_configurations(None)
         assert config is not None

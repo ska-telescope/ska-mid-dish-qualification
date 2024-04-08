@@ -1,3 +1,5 @@
+"""Tests of the HDF5 to CSV converter."""
+
 import filecmp
 import os
 from datetime import datetime, timedelta
@@ -9,9 +11,10 @@ from disq import hdf5_to_csv as h2c
 
 def test_node_not_in_file(capsys):
     """
-    Node not in file:
-    When one of the requested nodes is not in the input file print message but
-    continue making CSV for remaining nodes.
+    Test node not in file.
+
+    When one of the requested nodes is not in the input file, print a message but
+    continue making CSV for the remaining nodes.
     """
     input_files = "tests/input_files/node_not_in_file.hdf5"
     output_file = "tests/output_files/node_not_in_file.csv"
@@ -33,9 +36,10 @@ def test_node_not_in_file(capsys):
 
 def test_no_matching_nodes(capsys):
     """
-    No matching nodes:
-    When the input file does not contain any of the requested nodes print error
-    message and exit.
+    Test no matching nodes.
+
+    When the input file does not contain any of the requested nodes, print error message
+    and exit.
     """
     input_file = "tests/input_files/no_matching_nodes.hdf5"
     output_file = "tests/output_files/no_matching_nodes.csv"
@@ -60,10 +64,11 @@ def test_no_matching_nodes(capsys):
 
 def test_start_stop_past_file(capsys):
     """
-    Start and stop past ends of file:
-    When the requested start time is earlier than the input file start time and/or
-    the requested stop time is later than the input file stop time print messages
-    and shorten range to existing file times.
+    Test start and stop past ends of file.
+
+    When the requested start time is earlier than the input file start time and/or the
+    requested stop time is later than the input file stop time print messages and
+    shorten range to existing file times.
     """
     input_file = "tests/input_files/start_stop_past_file.hdf5"
     output_file = "tests/output_files/start_stop_past_files.csv"
@@ -96,7 +101,8 @@ def test_start_stop_past_file(capsys):
 
 def test_simple_input_file(capsys):
     """
-    Simple input file:
+    Test simple input file.
+
     A simple HDF5 input file will be correctly converted to the expected CSV file
     without error.
     """
@@ -122,10 +128,11 @@ def test_simple_input_file(capsys):
 
 def test_simple_input_file_double_speed(capsys):
     """
-    Simple input file double speed:
-    A simple HDF5 input file sampled at double the rate it was created will output a
-    CSV file with asterisks to indidicate values that are older than the line time
-    minus the step_ms given.
+    Test simple input file double speed.
+
+    A simple HDF5 input file sampled at double the rate it was created will output a CSV
+    file with asterisks to indicate values that are older than the line time minus the
+    step_ms given.
     """
     input_file = "tests/input_files/simple_input_file_double_speed.hdf5"
     output_file = "tests/output_files/simple_input_file_double_speed.csv"

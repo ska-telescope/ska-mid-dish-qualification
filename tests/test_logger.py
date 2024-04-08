@@ -2,8 +2,8 @@
 Tests for the logger.
 
 Some tests in this file expect an OPCUA server to be running, even if data is not being
-gathered from the server. Specifically the custom server available in the
-ska-mid-dish-simulators repo on branch wom-133-custom-nodes-for-pretty-graphs
+gathered from the server. Specifically the custom server available in the ska-mid-dish-
+simulators repo on branch wom-133-custom-nodes-for-pretty-graphs
 """
 
 # pylint: disable=protected-access
@@ -21,26 +21,44 @@ from disq import sculib
 
 
 class StubScu(sculib.scu):
-    """
-    High level library stub class (no real subscriptions).
-    """
+    """High level library stub class (no real subscriptions)."""
 
     subscriptions: dict = {}
 
     def subscribe(self, attributes=None, period=None, data_queue=None) -> int:
+        """
+        Subscribe to a data source.
+
+        :param attributes: Optional. Attributes related to the subscription.
+        :type attributes: dict
+        :param period: Optional. Period of the subscription.
+        :type period: int
+        :param data_queue: Optional. Queue to store incoming data.
+        :type data_queue: list
+        :return: Unique identifier for the subscription.
+        :rtype: int
+        """
         uid = time.clock_gettime_ns(time.CLOCK_MONOTONIC)
         self.subscriptions[uid] = {}
         return uid
 
     def unsubscribe(self, uid: int) -> None:
+        """
+        Unsubscribe a user from the subscription.
+
+        :param uid: The unique identifier of the user to unsubscribe.
+        :type uid: int
+        :raises IndexError: If the user ID is invalid.
+        """
         _ = self.subscriptions.pop(uid)
 
 
 def put_hdf5_file_in_queue(nodes: list[str], input_f_o: h5py.File, logger: log.Logger):
     """
-    Helper function for adding data from the nodes in the input_f_o to the logger
-    queue. The next node from which data is read is randomised, but data is always read
-    in index (chronological) order.
+    Add data from the nodes in the input_f_o to the logger queue.
+
+    The next node from which data is read is randomised, but data is always read in
+    index (chronological) order.
     """
     node_datasets = {}
     node_start_count = {}
@@ -89,10 +107,10 @@ def put_hdf5_file_in_queue(nodes: list[str], input_f_o: h5py.File, logger: log.L
 @pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_performance():
     """
-    Performance:
-    Test the performance of the logger class by quickly reading a HDF5 file into the
-    shared queue. Ensure the logging was completed within a certain time and the
-    contents of he input and output files match.
+    Test the performance of the logger class.
+
+    By quickly reading a HDF5 file into the shared queue. Ensure the logging was
+    completed within a certain time and the contents of he input and output files match.
     """
     input_file = "tests/input_files/60_minutes.hdf5"
     output_file = "tests/output_files/performance.hdf5"
@@ -126,9 +144,10 @@ def test_performance():
 @pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_add_nodes(caplog):
     """
-    add_nodes:
-    Test the add_nodes method. Nodes are added correctly, logging matches expected,
-    and nothing happens if _start_invoked is set.
+    Test the add_nodes method.
+
+    Nodes are added correctly, logging matches expected, and nothing happens if
+    _start_invoked is set.
     """
     logger = log.Logger(file_name="n/a")
     nodes = ["MockData.increment", "MockData.sine_value", "MockData.cosine_value", "a"]
@@ -169,9 +188,10 @@ def test_add_nodes(caplog):
 @pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_build_hdf5_structure():
     """
-    _build_hdf5_structure:
-    Test the _build_hdf5_structure() method. Checks the correct hierarchical structure
-    is created and the file object is set to SWMR mode.
+    Test the _build_hdf5_structure() method.
+
+    Checks the correct hierarchical structure is created and the file object is set to
+    SWMR mode.
     """
     output_file = "tests/output_files/_build_hdf5_structure.hdf5"
     logger = log.Logger(file_name=output_file)
@@ -188,9 +208,10 @@ def test_build_hdf5_structure():
 @pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_start(caplog):
     """
-    start:
-    Test the start() method. Check that a file (and directory) is made with the input
-    file name, and that it cannot be invoked twice, logging the correct messages.
+    Test the start() method.
+
+    Check that a file (and directory) is made with the input file name, and that it
+    cannot be invoked twice, logging the correct messages.
     """
     output_file = "tests/output_files/start.hdf5"
     hll = StubScu()
@@ -221,8 +242,9 @@ def test_start(caplog):
 @pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_stop():
     """
-    stop:
-    Test the stop() method. Check _stop_logging is being set.
+    Test the stop() method.
+
+    Check _stop_logging is being set.
     """
     output_file = "tests/output_files/stop.hdf5"
     hll = StubScu()
@@ -238,9 +260,9 @@ def test_stop():
 @pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_write_cache_to_group():
     """
-    _write_cache_to_group:
-    Test the _write_cache_to_group() method. Check that values are written to the
-    output file.
+    Test the _write_cache_to_group() method.
+
+    Check that values are written to the output file.
     """
     output_file = "tests/output_files/_write_cache_to_group.hdf5"
     hll = StubScu()
@@ -278,9 +300,10 @@ def test_write_cache_to_group():
 @pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_log():
     """
-    _log:
-    Test the log() method. Add datapoints to the queue from a known input file, check
-    the output file contains all expected values.
+    Test the log() method.
+
+    Add datapoints to the queue from a known input file, check the output file contains
+    all expected values.
     """
     input_file = "tests/input_files/_log.hdf5"
     output_file = "tests/output_files/_log.hdf5"
@@ -313,8 +336,9 @@ def test_log():
 @pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_wait_for_completion(caplog):
     """
-    wait_for_completion:
-    Test the wait_for_completion method. Check the log messages.
+    Test the wait_for_completion method.
+
+    Check the log messages.
     """
     logger = log.Logger(file_name="n/a")
     logger._start_invoked = False
@@ -342,7 +366,8 @@ def test_wait_for_completion(caplog):
 @pytest.mark.xfail(reason="Needs running simulator to connect to")
 def test_enum_attribute():
     """
-    Enum attribute:
+    Enum attribute.
+
     Test that an attribute containing a comma separated string of available enum string
     states is added to enum type node value datasets.
     """
