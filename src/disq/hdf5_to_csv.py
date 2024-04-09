@@ -2,10 +2,16 @@
 
 import os
 from datetime import datetime, timedelta, timezone
+from typing import Final
 
 import h5py
 
+# TODO: This class could use some refactoring. There is no __init__, so the only public
+# method make_csv() can be decorated as a static method and the private methods as class
+# methods.
 
+
+# pylint: disable=too-few-public-methods,attribute-defined-outside-init
 class Converter:
     """
     A class representing a Converter.
@@ -36,11 +42,11 @@ class Converter:
     :type step_ms: int, default 100
     """
 
-    default_start_delta = timedelta(minutes=60)  # TODO configure good default start
-
-    _NO_DATA_YET_STR = "-"
-    _OLD_DATA_STR = "*"
-    _DELIMITER = ","
+    # TODO: configure good default start
+    _DEFAULT_START_DELTA: Final = timedelta(minutes=60)
+    _NO_DATA_YET_STR: Final = "-"
+    _OLD_DATA_STR: Final = "*"
+    _DELIMITER: Final = ","
 
     def _get_adjacent_data(
         self, time: datetime, node: str, look_from: tuple
@@ -100,11 +106,10 @@ class Converter:
         """
         known_nodes = []
         for node in input_nodes:
-            (
+            if node in file_nodes:
                 known_nodes.append(node)
-                if node in file_nodes
-                else print(f"Node {node} is not in the input file and will be ignored.")
-            )
+            else:
+                print(f"Node {node} is not in the input file and will be ignored.")
 
         if len(known_nodes) == 0:
             print("ERROR: No data for requested nodes, exiting")
@@ -152,7 +157,7 @@ class Converter:
             stop = datetime.now(timezone.utc)
 
         if start is None:
-            start = stop - self.default_start_delta
+            start = stop - self._DEFAULT_START_DELTA
 
         if start < file_start:
             print(
@@ -184,9 +189,8 @@ class Converter:
 
         # Determine if start falls within a file
         self._start_in_file = False
-        if file_start <= start and file_stop > start:
-            if file_start < start:
-                self._start_in_file = True
+        if file_start < start < file_stop:
+            self._start_in_file = True
 
         if stop <= start:
             print("ERROR: Start must be before stop, exiting.")
@@ -209,12 +213,12 @@ class Converter:
         """
         line = [f"{line_time.isoformat()}Z"]
         # Add a column in the line for each node
-        for node in self._node_d.keys():
+        for node in self._node_d:  # TODO: pylint: disable=consider-using-dict-items
             current = self._node_d[node]["current"]
             next_val = self._node_d[node]["next"]
             # We already have the most recent value, no need to look again
             # Or reached end of node data in file
-            if (line_time > current[0] and line_time < next_val[0]) or current[2]:
+            if (current[0] < line_time < next_val[0]) or current[2]:
                 if current[0] < prev_time:
                     line.append(f"{self._DELIMITER}{current[1]}{self._OLD_DATA_STR}")
                 else:
@@ -240,6 +244,7 @@ class Converter:
         line.append("\n")
         return "".join(line)
 
+    # pylint: disable=too-many-arguments,too-many-locals
     def make_csv(
         self,
         input_file: str,
@@ -285,7 +290,7 @@ class Converter:
             False,
             -1,
         )
-        for node in self._node_d.keys():
+        for node in self._node_d:  # TODO: pylint: disable=consider-using-dict-items
             self._node_d[node]["current"] = cache_init
             self._node_d[node]["next"] = cache_init
 
@@ -295,7 +300,7 @@ class Converter:
             os.makedirs(output_directory)
 
         # Write the CSV
-        with open(output_file, "w") as f:
+        with open(output_file, "w", encoding="UTF-8") as f:
             # Match example file (timestamps end with a 'Z')
             f.write(f"StartTime{self._DELIMITER}{self.start.isoformat()}Z\n")
             f.write(f"EndTime{self._DELIMITER}{self.stop.isoformat()}Z\n")
@@ -303,7 +308,7 @@ class Converter:
             header = (
                 "Date/Time"
                 + self._DELIMITER
-                + self._DELIMITER.join(node for node in self._node_d.keys())
+                + self._DELIMITER.join(node for node in self._node_d)
             )
             f.write(header + "\n")
 

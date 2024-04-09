@@ -1,14 +1,7 @@
 [MAIN]
 ignore=
     _version.py,
-    sculib.py, 
-    cam_sensors.py,
-    hdf5_to_csv.py,
-    hdf5_to_graph.py,
-    logger.py,
-    reader.py,
-    serval_internal_server.py,
-    server_validator.py,
+    sculib.py,
 
 extension-pkg-allow-list=PyQt6
 

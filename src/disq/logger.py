@@ -6,6 +6,7 @@ import queue
 import threading
 from datetime import datetime, timedelta, timezone
 from time import sleep
+from typing import Final
 
 import h5py
 
@@ -14,44 +15,43 @@ from disq import sculib
 app_logger = logging.getLogger("datalog")
 
 
+# pylint: disable=too-many-instance-attributes
 class Logger:
     """Logger for DiSQ software."""
 
     # Constants
-    _MAX_ENUM_STR_LEN_BYTES = 64
-    _CHUNK_SIZE_BYTES = 4096
-    _CHUNK_DOUBLE = 4096 / 8  # 512
-    _CHUNK_BOOL = 4096 / 1
-    _CHUNK_ENUM = 4096 / 4  # 1024
-    _CHUNKS_PER_FLUSH = 2
-    _FLUSH_DOUBLE = _CHUNK_DOUBLE * _CHUNKS_PER_FLUSH
-    _FLUSH_BOOL = _CHUNK_BOOL * _CHUNKS_PER_FLUSH
-    _FLUSH_ENUM = _CHUNK_ENUM * _CHUNKS_PER_FLUSH
-    _FLUSH_PERIOD_MSECS = 5000
-    _QUEUE_GET_TIMEOUT_SECS = 0.01
-    _COMPLETION_LOOP_TIMEOUT_SECS = 0.01
-    _hdf5_type_from_value_type = {
+    _MAX_ENUM_STR_LEN_BYTES: Final = 64
+    _CHUNK_SIZE_BYTES: Final = 4096
+    _CHUNK_DOUBLE: Final = 4096 / 8  # 512
+    _CHUNK_BOOL: Final = 4096 / 1
+    _CHUNK_ENUM: Final = 4096 / 4  # 1024
+    _CHUNKS_PER_FLUSH: Final = 2
+    _FLUSH_DOUBLE: Final = _CHUNK_DOUBLE * _CHUNKS_PER_FLUSH
+    _FLUSH_BOOL: Final = _CHUNK_BOOL * _CHUNKS_PER_FLUSH
+    _FLUSH_ENUM: Final = _CHUNK_ENUM * _CHUNKS_PER_FLUSH
+    _FLUSH_PERIOD_MSECS: Final = 5000
+    _QUEUE_GET_TIMEOUT_SECS: Final = 0.01
+    _COMPLETION_LOOP_TIMEOUT_SECS: Final = 0.01
+    _HDF5_TYPE_FROM_VALUE_TYPE: Final = {
         "Double": "f8",  # 64 bit double numpy type
         "Boolean": "?",
         "Enumeration": "u4",  # 32 bit unsigned integer numpy type
     }
-    _chunks_from_value_type = {
+    _CHUNKS_FROM_VALUE_TYPE: Final = {
         "Double": _CHUNK_DOUBLE,
         "Boolean": _CHUNK_BOOL,
         "Enumeration": _CHUNK_ENUM,
     }
-    _flush_from_value_type = {
+    _FLUSH_FROM_VALUE_TYPE: Final = {
         "Double": _FLUSH_DOUBLE,
         "Boolean": _FLUSH_BOOL,
         "Enumeration": _FLUSH_ENUM,
     }
-
-    _nodes = None
-    _stop_logging = threading.Event()
-    _start_invoked = False
-    _cache = {}
-
-    logging_complete = threading.Event()
+    _TOTAL_COUND_IDX: Final = 0
+    _TYPE_IDX: Final = 1
+    _COUNT_IDX: Final = 2
+    _TIMESTAMP_IDX: Final = 3
+    _VALUE_IDX: Final = 4
 
     def __init__(
         self,
@@ -79,6 +79,11 @@ class Logger:
         )
         self.queue = queue.Queue(maxsize=0)
         self._data_count = 0
+        self._nodes = None
+        self._stop_logging = threading.Event()
+        self._start_invoked = False
+        self._cache = {}
+        self.logging_complete = threading.Event()
 
         if high_level_library is None:
             if server is None:
@@ -90,6 +95,9 @@ class Logger:
 
         self._available_attributes = self.hll.get_attribute_list()
         self._subscription_ids = []
+        self.file_object: h5py.File
+        self.start_time: datetime
+        self.stop_time: datetime
 
     def add_nodes(self, nodes: list[str], period: int):
         """
@@ -114,7 +122,7 @@ class Logger:
                 continue
 
             node_type = self.hll.get_attribute_data_type(node)
-            if node_type not in self._hdf5_type_from_value_type.keys():
+            if node_type not in self._HDF5_TYPE_FROM_VALUE_TYPE:
                 app_logger.info(
                     'Unsupported type for "%s": "%s"; skipping. '
                     'Nodes must be of type "Boolean"/"Double"/"Enumeration".',
@@ -158,8 +166,8 @@ class Logger:
             )
 
             value_type = self.hll.get_attribute_data_type(node)
-            dtype = self._hdf5_type_from_value_type[value_type]
-            value_chunks = self._chunks_from_value_type[value_type]
+            dtype = self._HDF5_TYPE_FROM_VALUE_TYPE[value_type]
+            value_chunks = self._CHUNKS_FROM_VALUE_TYPE[value_type]
             value_dataset = group.create_dataset(
                 "Value",
                 dtype=dtype,
@@ -182,27 +190,20 @@ class Logger:
             #                            ^ list indices match for data points ^
             self._cache[node] = [0, value_type, 0, [], []]
 
-        # No magic numbers
-        self._total_count_idx = 0
-        self._type_idx = 1
-        self._count_idx = 2
-        self._timestamp_idx = 3
-        self._value_idx = 4
-
         # HDF5 structure created, can now enter SWMR mode
         self.file_object.swmr_mode = True
 
     def _subscribe_to_nodes(self):
-        # Sort added nodes into lists per period
         """
         Subscribe to nodes with specified attributes and periods.
 
         This method subscribes to nodes with specific attributes and periods provided
         in the `_nodes` dictionary attribute of the class instance.
         """
+        # Sort added nodes into lists per period
         period_dict = {}
         for node, period in self._nodes.items():
-            if period in period_dict.keys():
+            if period in period_dict:
                 period_dict[period].append(node)
             else:
                 period_dict[period] = []
@@ -270,18 +271,18 @@ class Logger:
         # Dataset lengths will always match as they are only written here
         curr_len = group["SourceTimestamp"].len()
 
-        group["SourceTimestamp"].resize(curr_len + cache[self._count_idx], axis=0)
-        group["SourceTimestamp"][-cache[self._count_idx] :] = cache[self._timestamp_idx]
+        group["SourceTimestamp"].resize(curr_len + cache[self._COUNT_IDX], axis=0)
+        group["SourceTimestamp"][-cache[self._COUNT_IDX] :] = cache[self._TIMESTAMP_IDX]
         group["SourceTimestamp"].flush()
 
-        group["Value"].resize(curr_len + cache[self._count_idx], axis=0)
-        group["Value"][-cache[self._count_idx] :] = cache[self._value_idx]
+        group["Value"].resize(curr_len + cache[self._COUNT_IDX], axis=0)
+        group["Value"][-cache[self._COUNT_IDX] :] = cache[self._VALUE_IDX]
         group["Value"].flush()
 
         # Cache has been written to file so clear it
         self._cache[node] = [
-            self._cache[node][self._total_count_idx],
-            self._cache[node][self._type_idx],
+            self._cache[node][self._TOTAL_COUND_IDX],
+            self._cache[node][self._TYPE_IDX],
             0,
             [],
             [],
@@ -311,17 +312,17 @@ class Logger:
             else:
                 self._data_count += 1
                 node = datapoint["name"]
-                self._cache[node][self._timestamp_idx].append(
+                self._cache[node][self._TIMESTAMP_IDX].append(
                     datapoint["source_timestamp"].timestamp()
                 )
-                self._cache[node][self._value_idx].append(datapoint["value"])
-                self._cache[node][self._count_idx] += 1
-                self._cache[node][self._total_count_idx] += 1
+                self._cache[node][self._VALUE_IDX].append(datapoint["value"])
+                self._cache[node][self._COUNT_IDX] += 1
+                self._cache[node][self._TOTAL_COUND_IDX] += 1
 
                 # Write to file when cache reaches multiple of chunk size for value type
                 if (
-                    self._cache[node][self._total_count_idx]
-                    % self._flush_from_value_type[self._cache[node][self._type_idx]]
+                    self._cache[node][self._TOTAL_COUND_IDX]
+                    % self._FLUSH_FROM_VALUE_TYPE[self._cache[node][self._TYPE_IDX]]
                     == 0
                 ):
                     self._write_cache_to_group(node)
@@ -332,7 +333,7 @@ class Logger:
             # Write to file at least every self._FLUSH_PERIOD_MSECS
             if next_flush_interval < datetime.now():
                 for cache_node, cache in self._cache.items():
-                    if cache[self._count_idx] > 0:
+                    if cache[self._COUNT_IDX] > 0:
                         self._write_cache_to_group(cache_node)
                 app_logger.debug(
                     "Number of items in queue (flush write): %d", self.queue.qsize()
@@ -348,15 +349,15 @@ class Logger:
             datapoint = self.queue.get(block=True, timeout=self._QUEUE_GET_TIMEOUT_SECS)
             self._data_count += 1
             node = datapoint["name"]
-            self._cache[node][self._timestamp_idx].append(
+            self._cache[node][self._TIMESTAMP_IDX].append(
                 datapoint["source_timestamp"].timestamp()
             )
-            self._cache[node][self._value_idx].append(datapoint["value"])
-            self._cache[node][self._count_idx] += 1
-            self._cache[node][self._total_count_idx] += 1
+            self._cache[node][self._VALUE_IDX].append(datapoint["value"])
+            self._cache[node][self._COUNT_IDX] += 1
+            self._cache[node][self._TOTAL_COUND_IDX] += 1
 
         for cache_node, cache in self._cache.items():
-            if cache[self._count_idx] > 0:
+            if cache[self._COUNT_IDX] > 0:
                 self._write_cache_to_group(cache_node)
 
         self.file_object.close()

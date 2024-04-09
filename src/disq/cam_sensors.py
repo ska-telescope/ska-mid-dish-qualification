@@ -1,6 +1,12 @@
-# sensor name to retrieve
-# log file start and stop time to match to sensors you are retrieving
-# 13/10/2020 made mkat archive default in function call, allows to override for rts by using mkat-rts instead of mkat
+"""
+Function to retrieve sensor data from a remote API.
+
+Log file start and stop time to match to sensors you are retrieving.
+13/10/2020: made mkat archive default in function call, allows to override for rts by
+using mkat-rts instead of mkat.
+"""
+
+import requests
 
 
 def sensor_data_pvsn(
@@ -27,8 +33,6 @@ def sensor_data_pvsn(
     :raises Exception: If the request to the API fails.
     :raises KeyError: If the response does not contain expected keys.
     """
-    import requests
-
     sample_params = {
         "sensor": sensor,
         "start_time": timestart,
@@ -39,8 +43,8 @@ def sensor_data_pvsn(
     # Debug
     # print(sample_params)
     try:
-        resp = requests.get(sensors_url, sample_params)
-    except Exception as exc:
+        resp = requests.get(sensors_url, sample_params, timeout=60)
+    except requests.exceptions.RequestException as exc:
         print(f"Something failed: {exc}")
     if resp.status_code == 200:
         sample_results = resp.json()

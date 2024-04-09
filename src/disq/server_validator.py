@@ -13,6 +13,7 @@ from disq import configuration, sculib
 from disq.serval_internal_server import ServalInternalServer
 
 
+# pylint: disable=too-many-instance-attributes
 class Serval:
     """
     A class representing an OPC UA server and its functionalities.
@@ -93,6 +94,8 @@ class Serval:
         else:
             self.in_args = "InputArguments"
             self.out_args = "OutputArguments"
+        self.server: sculib.scu
+        self.event_loop: asyncio.AbstractEventLoop
 
     async def _run_internal_server(self, xml_file: str):
         """
@@ -207,7 +210,7 @@ class Serval:
         """
         try:
             data_type = self.server.get_attribute_data_type(sculib_path)
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             return ("Node name error",)
         if data_type == "Enumeration":
             return (data_type, ",".join(self.server.get_enum_strings(sculib_path)))
@@ -276,7 +279,7 @@ class Serval:
         :rtype: dict
         """
         self.server = sculib.scu(
-            host=host, port=port, endpoint=endpoint, namespace=namespace
+            host=host, port=int(port), endpoint=endpoint, namespace=namespace
         )
         self.event_loop = self.server.event_loop
         # Fill tree dict for server
@@ -396,7 +399,7 @@ class Serval:
                     if node_info["node_class"] == "Variable":
                         try:
                             _ = actual[node]["data_type"]
-                        except Exception:
+                        except Exception:  # pylint: disable=broad-exception-caught
                             current_diff["type_match"] = False
                         else:
                             current_diff["type_match"] = (
@@ -436,9 +439,10 @@ class Serval:
         if output_file is None:
             print(string)
         else:
-            with open(output_file, "a") as f:
+            with open(output_file, "a", encoding="UTF-8") as f:
                 print(string, file=f)
 
+    # pylint: disable=too-many-arguments,unnecessary-comprehension
     def _print_method_args_mismatch_string(
         self,
         indent: str,
@@ -470,11 +474,14 @@ class Serval:
             (name, data_type) for name, data_type in actual_info[args_string].items()
         ]
         self._print(
-            f"""  {indent}{args_string}: Expected: {expected_params},
-{alignment}{indent}  actual: {actual_params}""",
+            f"  {indent}{args_string}: Expected: {expected_params},"
+            f"{alignment}{indent}  actual: {actual_params}",
             output_file,
         )
 
+    # TODO: Consider refactoring for more readable code, remove below disabled rules
+    # pylint: disable=too-many-branches,unnecessary-comprehension
+    # pylint: disable=too-many-arguments,too-many-locals, too-many-nested-blocks
     def print_diff(
         self,
         actual: dict,
@@ -548,7 +555,7 @@ class Serval:
                         else:
                             try:
                                 actual_type = actual[node]["data_type"]
-                            except Exception:
+                            except Exception:  # pylint: disable=broad-exception-caught
                                 actual_type = "None"
 
                             self._print(
@@ -666,6 +673,7 @@ class Serval:
         return (False, actual_tree, expected_tree, diff_tree)
 
 
+# pylint: disable=too-many-branches
 def main():
     """
     Validate an OPCUA server against an XML file.
@@ -768,8 +776,7 @@ def main():
             print("Server configurations available in default configuration:")
             for server_config in configurations:
                 print(server_config)
-        finally:
-            return
+        return
 
     xml = args.xml[0]
     if "-f" not in sys.argv and "--config" not in sys.argv:
@@ -802,8 +809,8 @@ def main():
             validator.print_diff(actual, expected, diff, 0, verbose=verbose)
         else:
             print(f"The servers do not match! Writing diff to {output_file}...")
-            # Clear output file
-            open(output_file, "w").close()
+            # Clear output file. pylint: disable=consider-using-with
+            open(output_file, "w", encoding="UTF-8").close()
             validator.print_diff(
                 actual, expected, diff, 0, verbose=verbose, output_file=output_file
             )

@@ -3,19 +3,18 @@
 from datetime import datetime
 
 import h5py
-import matplotlib.axes as axes  # Entire import just for typehints
-import matplotlib.dates as mdates
-import matplotlib.pyplot as plt
+from matplotlib import axes, dates, pyplot
 
 
+# pylint: disable=consider-using-f-string
 def make_format(current: axes.Axes, other: axes.Axes, current_lab: str, other_lab: str):
     """Used for replacing the format_coord method of an matplotlib.axes object."""
 
     def format_coord(x, y):
-        # x, y are data coordinates
-        # convert to display coords
         """
         Format the coordinates of two axes.
+
+        Covert x, y data coordinates to display coords.
 
         :param x: The x-coordinate value.
         :type x: float
@@ -59,8 +58,7 @@ def categorical_ydata(labels: list[str]):
         ry = round(y)
         if ry >= len(labels):
             ry = len(labels) - 1
-        if ry < 0:
-            ry = 0
+        ry = max(ry, 0)
         return labels[ry]
 
     return format_ydata
@@ -157,6 +155,7 @@ class Grapher:
 
         return (dts, data, categories)
 
+    # pylint: disable=too-many-arguments
     def _build_axis(
         self,
         node: str,
@@ -204,6 +203,7 @@ class Grapher:
             borderaxespad=0,
         )
 
+    # pylint: disable=too-many-arguments, too-many-locals
     def graph(
         self,
         file: str,
@@ -239,8 +239,8 @@ class Grapher:
                 )
 
         # Build graph
-        fig, y1 = plt.subplots(figsize=(12, 4.8))
-        y1.xaxis.set_major_formatter(mdates.DateFormatter("%y-%m-%d %H:%M:%S.%f"))
+        fig, y1 = pyplot.subplots(figsize=(12, 4.8))
+        y1.xaxis.set_major_formatter(dates.DateFormatter("%y-%m-%d %H:%M:%S.%f"))
         self._build_axis(node1, y1, y1_dts, y1_data, 0, y1_categories)
 
         if node2 is not None:
@@ -250,11 +250,11 @@ class Grapher:
             y2.format_coord = make_format(y2, y1, node2, node1)
 
         fig.autofmt_xdate(rotation=20)
-        plt.grid(
+        pyplot.grid(
             visible=self._grid_lines,
             which="major",
             c="dimgrey",
             dashes=self._dash_sequence,
         )
-        plt.tight_layout()
-        plt.show()
+        pyplot.tight_layout()
+        pyplot.show()

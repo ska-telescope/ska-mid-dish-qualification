@@ -1,6 +1,7 @@
 """Internal server for the Serval system."""
 
 from asyncua import Server
+from asyncua.common.node import Node
 
 
 class ServalInternalServer:
@@ -11,7 +12,7 @@ class ServalInternalServer:
     :type xml: str
     """
 
-    def __init__(self, xml):
+    def __init__(self, xml: str):
         """
         Initialize the class with XML data and set the OPC-UA server details.
 
@@ -23,6 +24,8 @@ class ServalInternalServer:
         self.server.set_endpoint("opc.tcp://0.0.0.0:57344/dish-structure/server/")
         self.server.set_server_name("Serval internal OPC-UA server")
         self.namespace_to_use = "http://skao.int/DS_ICD/"
+        self.idx: int
+        self.plc_prg: Node
 
     async def init(self):
         """
@@ -68,7 +71,7 @@ class ServalInternalServer:
         await self.server.stop()
 
 
-async def main(xml):
+async def main(xml: str):
     """
     Asynchronous function to run a ServalInternalServer.
 
@@ -83,11 +86,11 @@ async def main(xml):
 if __name__ == "__main__":
     import asyncio
 
-    xml = "tests/ds_icd_0.0.4.xml"
+    XML = "tests/ds_icd_0.0.4.xml"
     import os
     import sys
 
-    if not os.path.isfile(xml):
-        sys.exit(f"ERROR: Could not find file {xml}")
+    if not os.path.isfile(XML):
+        sys.exit(f"ERROR: Could not find file {XML}")
 
-    asyncio.run(main(xml))
+    asyncio.run(main(XML))
