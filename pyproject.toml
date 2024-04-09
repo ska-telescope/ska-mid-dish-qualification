@@ -93,9 +93,14 @@ disq-gui = "disq.mvcmain:main"
 disq-validate-server = "disq.server_validator:main"
 
 [[tool.poetry.source]]
+name = "PyPI-public"
+url = "https://pypi.org/simple"
+priority = "primary"
+
+[[tool.poetry.source]]
 name = "ska"
-url = "https://artefact.skatelescope.org/repository/pypi-internal/simple"
-priority = "supplemental"
+url = "https://artefact.skao.int/repository/pypi-all/simple"
+priority = "primary"
 
 [tool.poetry.dependencies]
 python = "^3.10"
