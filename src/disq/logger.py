@@ -56,7 +56,7 @@ class Logger:
     def __init__(
         self,
         file_name: str = None,
-        high_level_library: sculib.scu = None,
+        high_level_library: sculib.SCU = None,
         server: str = None,
         port: str = None,
     ):
@@ -67,7 +67,7 @@ class Logger:
         :type file_name: str
         :param high_level_library: An optional high level library object to use for data
             manipulation.
-        :type high_level_library: sculib.scu
+        :type high_level_library: sculib.SCU
         :param server: The server IP address to connect to.
         :type server: str
         :param port: The port number to connect to on the server.
@@ -87,9 +87,9 @@ class Logger:
 
         if high_level_library is None:
             if server is None:
-                self.hll = sculib.scu()
+                self.hll = sculib.SCU()
             else:
-                self.hll = sculib.scu(host=server, port=port)
+                self.hll = sculib.SCU(host=server, port=port)
         else:
             self.hll = high_level_library
 

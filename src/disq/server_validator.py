@@ -94,7 +94,7 @@ class Serval:
         else:
             self.in_args = "InputArguments"
             self.out_args = "OutputArguments"
-        self.server: sculib.scu
+        self.server: sculib.SCU
         self.event_loop: asyncio.AbstractEventLoop
 
     async def _run_internal_server(self, xml_file: str):
@@ -278,7 +278,7 @@ class Serval:
         :return: A dictionary representing the server tree.
         :rtype: dict
         """
-        self.server = sculib.scu(
+        self.server = sculib.SCU(
             host=host, port=int(port), endpoint=endpoint, namespace=namespace
         )
         self.event_loop = self.server.event_loop

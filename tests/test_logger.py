@@ -20,7 +20,7 @@ from disq import logger as log
 from disq import sculib
 
 
-class StubScu(sculib.scu):
+class StubScu(sculib.SCU):
     """High level library stub class (no real subscriptions)."""
 
     subscriptions: dict = {}

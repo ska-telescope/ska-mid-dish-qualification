@@ -3,7 +3,7 @@ from queue import Queue
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton, QStatusBar
 
-from disq.sculib import scu
+from disq.sculib import SCU
 
 
 class Window(QMainWindow):
@@ -44,7 +44,7 @@ class Window(QMainWindow):
     def button2_clicked(self):
         print("btn2 clicked")
         print("Instantiating sculib object")
-        self._scu = scu(
+        self._scu = SCU(
             host="localhost",
             endpoint="/dish-structure/server/",
             namespace="http://skao.int/DS_ICD/",

@@ -10,7 +10,7 @@ from asyncua import ua
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
 from disq.logger import Logger
-from disq.sculib import scu
+from disq.sculib import SCU
 
 logger = logging.getLogger("gui.model")
 # class SubscriptionHandler:
@@ -91,8 +91,8 @@ class Model(QObject):
 
     :param parent: The parent object of the Model (default is None).
     :type parent: QObject
-    :param _scu: An instance of the scu class or None.
-    :type _scu: scu
+    :param _scu: An instance of the SCU class or None.
+    :type _scu: SCU
     :param _data_logger: An instance of the Logger class or None.
     :type _data_logger: Logger
     :param _recording_config: A list of strings containing recording configurations.
@@ -122,7 +122,7 @@ class Model(QObject):
         :type parent: QObject or None
         """
         super().__init__(parent)
-        self._scu: scu | None = None
+        self._scu: SCU | None = None
         self._data_logger: Logger | None = None
         self._recording_config: list[str] = []
         self._namespace = str(
@@ -143,15 +143,15 @@ class Model(QObject):
         Connect to the server using the provided connection details.
 
         :param connect_details: A dictionary containing the connection details.
-            connect_details should contain the disq.sculib.scu class initialization
+            connect_details should contain the disq.sculib.SCU class initialization
             parameters as keys: 'host' and 'port' are required. 'namespace', 'endpoint',
             'auth_user', 'auth_password' are optional and can be None.
         :raises RuntimeError: If an error occurs while creating the sculib object.
-            (after which the connection is cleaned up and the scu object is set to None)
+            (after which the connection is cleaned up and the SCU object is set to None)
         """
         logger.debug("Connecting to server: %s", connect_details)
         try:
-            self._scu = scu(
+            self._scu = SCU(
                 **connect_details,
             )
         except RuntimeError as e:
