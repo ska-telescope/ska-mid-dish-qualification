@@ -19,7 +19,7 @@ include .make/python.mk
 PYTHON_LINE_LENGTH = 88
 PYTHON_LINT_TARGET = tests/ src/
 
-PYTHON_SWITCHES_FOR_BLACK = --force-exclude "src/disq/sculib.py|src/disq/_version.py"
+PYTHON_SWITCHES_FOR_BLACK = --force-exclude "src/disq/_version.py"
 PYTHON_SWITCHES_FOR_FLAKE8 = --config .flake8
 PYTHON_SWITCHES_FOR_PYLINT = --rcfile .pylintrc
 
