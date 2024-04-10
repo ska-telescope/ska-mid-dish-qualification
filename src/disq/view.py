@@ -183,6 +183,7 @@ class MainView(QtWidgets.QMainWindow):
         # Listen for Model event signals
         self.model.data_received.connect(self.event_update)
 
+        # Authority status group widgets
         self.combobox_authority: QtWidgets.QComboBox
         self.button_take_auth: QtWidgets.QPushButton
         self.button_take_auth.clicked.connect(
@@ -194,12 +195,14 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.button_interlock_ack: QtWidgets.QPushButton
         self.button_interlock_ack.clicked.connect(self.controller.command_interlock_ack)
-        # pb_slew2abs: QtWidgets.QPushButton = self.findChild(
-        #     QtWidgets.QPushButton, name="button_slew2abs"
-        # )
-        # pb_slew2abs.clicked.connect(self.slew2abs_button_clicked)
+        # Slew group widgets
+        self.line_edit_slew_simul_azim_position: QtWidgets.QLineEdit
+        self.line_edit_slew_simul_elev_position: QtWidgets.QLineEdit
+        self.line_edit_slew_simul_azim_velocity: QtWidgets.QLineEdit
+        self.line_edit_slew_simul_elev_velocity: QtWidgets.QLineEdit
         self.button_slew2abs: QtWidgets.QPushButton
         self.button_slew2abs.clicked.connect(self.slew2abs_button_clicked)
+        # Commands group widgets
         self.button_stop: QtWidgets.QPushButton
         self.button_stop.clicked.connect(lambda: self.stop_button_clicked("AzEl"))
         self.button_stow: QtWidgets.QPushButton
@@ -214,7 +217,7 @@ class MainView(QtWidgets.QMainWindow):
         self.button_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("AzEl")
         )
-
+        # Axis tab elevation group widgets
         self.button_elevation_slew: QtWidgets.QPushButton
         self.button_elevation_slew.clicked.connect(
             lambda: self.slew_button_clicked("El")
@@ -231,7 +234,9 @@ class MainView(QtWidgets.QMainWindow):
         self.button_elevation_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("El")
         )
-
+        self.line_edit_slew_only_elevation_position: QtWidgets.QLineEdit
+        self.line_edit_slew_only_elevation_velocity: QtWidgets.QLineEdit
+        # Axis tab azimuth group widgets
         self.button_azimuth_slew: QtWidgets.QPushButton
         self.button_azimuth_slew.clicked.connect(lambda: self.slew_button_clicked("Az"))
         self.button_azimuth_stop: QtWidgets.QPushButton
@@ -244,7 +249,9 @@ class MainView(QtWidgets.QMainWindow):
         self.button_azimuth_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Az")
         )
-
+        self.line_edit_slew_only_azimuth_position: QtWidgets.QLineEdit
+        self.line_edit_slew_only_azimuth_velocity: QtWidgets.QLineEdit
+        # Axis tab feed indexer group widgets
         self.button_indexer_slew: QtWidgets.QPushButton
         self.button_indexer_slew.clicked.connect(lambda: self.slew_button_clicked("Fi"))
         self.button_indexer_stop: QtWidgets.QPushButton
@@ -257,18 +264,82 @@ class MainView(QtWidgets.QMainWindow):
         self.button_indexer_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Fi")
         )
-
-        self.line_edit_slew_simul_azim_position: QtWidgets.QLineEdit
-        self.line_edit_slew_simul_elev_position: QtWidgets.QLineEdit
-        self.line_edit_slew_simul_azim_velocity: QtWidgets.QLineEdit
-        self.line_edit_slew_simul_elev_velocity: QtWidgets.QLineEdit
-        self.line_edit_slew_only_elevation_position: QtWidgets.QLineEdit
-        self.line_edit_slew_only_elevation_velocity: QtWidgets.QLineEdit
-        self.line_edit_slew_only_azimuth_position: QtWidgets.QLineEdit
-        self.line_edit_slew_only_azimuth_velocity: QtWidgets.QLineEdit
         self.line_edit_slew_only_indexer_position: QtWidgets.QLineEdit
         self.line_edit_slew_only_indexer_velocity: QtWidgets.QLineEdit
-
+        # Point tab static pointing model widgets
+        self.button_toggle_point_model: QtWidgets.QPushButton
+        self.display_asec: QtWidgets.QLabel
+        self.display_an: QtWidgets.QLabel
+        self.display_ara: QtWidgets.QLabel
+        self.display_hece4: QtWidgets.QLabel
+        self.display_hese8: QtWidgets.QLabel
+        self.display_abphi: QtWidgets.QLabel
+        self.display_aw: QtWidgets.QLabel
+        self.display_an0: QtWidgets.QLabel
+        self.display_hese4: QtWidgets.QLabel
+        self.display_aces: QtWidgets.QLabel
+        self.display_ecec: QtWidgets.QLabel
+        self.display_aw0: QtWidgets.QLabel
+        self.display_ie: QtWidgets.QLabel
+        self.display_hece8: QtWidgets.QLabel
+        self.display_eces: QtWidgets.QLabel
+        self.display_npae: QtWidgets.QLabel
+        self.display_ca: QtWidgets.QLabel
+        self.display_ia: QtWidgets.QLabel
+        self.display_model_elev: QtWidgets.QLabel
+        self.display_model_azim: QtWidgets.QLabel
+        self.spinbox_aw: QtWidgets.QDoubleSpinBox
+        self.spinbox_hece4: QtWidgets.QDoubleSpinBox
+        self.spinbox_hese8: QtWidgets.QDoubleSpinBox
+        self.spinbox_ie: QtWidgets.QDoubleSpinBox
+        self.spinbox_ca: QtWidgets.QDoubleSpinBox
+        self.spinbox_aw0: QtWidgets.QDoubleSpinBox
+        self.spinbox_asec: QtWidgets.QDoubleSpinBox
+        self.spinbox_aces: QtWidgets.QDoubleSpinBox
+        self.spinbox_an0: QtWidgets.QDoubleSpinBox
+        self.spinbox_hese4: QtWidgets.QDoubleSpinBox
+        self.spinbox_hece8: QtWidgets.QDoubleSpinBox
+        self.spinbox_abphi: QtWidgets.QDoubleSpinBox
+        self.spinbox_ara: QtWidgets.QDoubleSpinBox
+        self.spinbox_npae: QtWidgets.QDoubleSpinBox
+        self.spinbox_ia: QtWidgets.QDoubleSpinBox
+        self.spinbox_eces: QtWidgets.QDoubleSpinBox
+        self.spinbox_an: QtWidgets.QDoubleSpinBox
+        self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
+        self.spinbox_offset_elev: QtWidgets.QDoubleSpinBox
+        # Point tab static pointing offset widgets
+        self.display_offset_elev: QtWidgets.QLabel
+        self.display_offest_xelev: QtWidgets.QLabel
+        # Point tab tilt correction widgets
+        self.button_toggle_tilt_correction: QtWidgets.QPushButton
+        self.button_toggle_tilt_correction_1or2: QtWidgets.QPushButton
+        self.display_tilt_meas_x1: QtWidgets.QLabel
+        self.display_tilt_meas_y1: QtWidgets.QLabel
+        self.display_tilt_corrected_x: QtWidgets.QLabel
+        self.display_tilt_corrected_y: QtWidgets.QLabel
+        self.display_tilt_meas_x2: QtWidgets.QLabel
+        self.display_tilt_meas_y2: QtWidgets.QLabel
+        self.display_tilt_filtered_x: QtWidgets.QLabel
+        self.display_tilt_filtered_y: QtWidgets.QLabel
+        self.display_tilt_elev: QtWidgets.QLabel
+        self.display_tilt_azim: QtWidgets.QLabel
+        # Point tab ambient temperature correction widgets
+        self.button_toggle_temp_correction: QtWidgets.QPushButton
+        self.display_temp_east: QtWidgets.QLabel
+        self.display_temp_south: QtWidgets.QLabel
+        self.display_temp_west: QtWidgets.QLabel
+        self.display_param1: QtWidgets.QLabel
+        self.display_param2: QtWidgets.QLabel
+        self.display_param3: QtWidgets.QLabel
+        self.display_param4: QtWidgets.QLabel
+        self.display_temp_elev: QtWidgets.QLabel
+        self.display_temp_azim: QtWidgets.QLabel
+        self.spinbox_ecec: QtWidgets.QDoubleSpinBox
+        self.spinbox_param1: QtWidgets.QDoubleSpinBox
+        self.spinbox_param3: QtWidgets.QDoubleSpinBox
+        self.spinbox_param2: QtWidgets.QDoubleSpinBox
+        self.spinbox_param4: QtWidgets.QDoubleSpinBox
+        # Bands group widgets
         self.button_band1: QtWidgets.QPushButton
         self.button_band1.clicked.connect(
             lambda: self.move2band_button_clicked("Band_1")
@@ -302,7 +373,7 @@ class MainView(QtWidgets.QMainWindow):
             lambda: self.move2band_button_clicked("Optical")
         )
         self.disable_opcua_widgets()
-
+        # Recording group widgets
         self.button_recording_start: QtWidgets.QPushButton
         self.line_edit_recording_file: QtWidgets.QLineEdit
         self.line_edit_recording_status: QtWidgets.QLineEdit
