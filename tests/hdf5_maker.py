@@ -1,11 +1,11 @@
 import os
-import threading
-from datetime import datetime
+from datetime import datetime, timezone
 from time import sleep
 
 import h5py
 
 
+# pylint: disable=too-few-public-methods
 class Maker:
     """Make HDF5 files with easily verifiable output for testing purposes."""
 
@@ -56,7 +56,7 @@ class Maker:
         return d[node]
 
     def generate(self, filename, nodes):
-        if os.path.exists(filename) == True:
+        if os.path.exists(filename):
             print(
                 f"This function will not overwrite. "
                 f"Please delete file {filename} first."
@@ -83,13 +83,11 @@ class Maker:
             )
 
             value_type = self._get_value_type_from_node_name(node)
-            dtype = self._hdf5_type_from_value_type[value_type]
-            value_chunks = self._chunks_from_value_type[value_type]
             value_dataset = group.create_dataset(
                 "Value",
-                dtype=dtype,
                 shape=(0,),
-                chunks=(value_chunks,),
+                dtype=self._hdf5_type_from_value_type[value_type],
+                chunks=(self._chunks_from_value_type[value_type],),
                 maxshape=(None,),
             )
             value_dataset.attrs.create(
@@ -101,14 +99,16 @@ class Maker:
 
             data_d[node] = {"SourceTimestamp": [], "Value": []}
 
-        start_time = datetime.utcnow()
-        fo.attrs.create("Start time", start_time.isoformat(timespec="microseconds"))
+        fo.attrs.create(
+            "Start time", datetime.now(timezone.utc).isoformat(timespec="microseconds")
+        )
         # Make data
         data_rows = 10
         for idx in range(data_rows):
-            timestamp = datetime.utcnow().timestamp()
             for node in nodes:
-                data_d[node]["SourceTimestamp"].append(timestamp)
+                data_d[node]["SourceTimestamp"].append(
+                    datetime.now(timezone.utc).timestamp()
+                )
                 if self._get_value_type_from_node_name(node) == "double":
                     data_d[node]["Value"].append(idx)
                 if self._get_value_type_from_node_name(node) == "bool":
@@ -121,8 +121,9 @@ class Maker:
 
             sleep(self.SLEEP_TIME)
 
-        stop_time = datetime.utcnow()
-        fo.attrs.create("Stop time", stop_time.isoformat(timespec="microseconds"))
+        fo.attrs.create(
+            "Stop time", datetime.now(timezone.utc).isoformat(timespec="microseconds")
+        )
 
         # Store data
         for node in nodes:
@@ -141,6 +142,6 @@ class Maker:
 
 
 if __name__ == "__main__":
-    nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
+    mock_nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     maker = Maker("simple input file")
-    maker.generate("input_files/start_stop_past_file.hdf5", nodes)
+    maker.generate("input_files/start_stop_past_file.hdf5", mock_nodes)

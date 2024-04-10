@@ -1,3 +1,12 @@
+"""
+Tests for the logger.
+
+Some tests in this file expect an OPCUA server to be running, even if data is not being
+gathered from the server. Specifically the custom server available in the
+ska-mid-dish-simulators repo on branch wom-133-custom-nodes-for-pretty-graphs
+"""
+
+# pylint: disable=protected-access
 import os
 import random
 import subprocess
@@ -11,27 +20,20 @@ from disq import logger as log
 from disq import sculib
 
 
-class stub_scu(sculib.scu):
+class StubScu(sculib.scu):
     """
     High level library stub class (no real subscriptions).
     """
 
-    subscriptions = {}
+    subscriptions: dict = {}
 
     def subscribe(self, attributes=None, period=None, data_queue=None) -> int:
-        id = time.clock_gettime_ns(time.CLOCK_MONOTONIC)
-        self.subscriptions[id] = {}
-        return id
+        uid = time.clock_gettime_ns(time.CLOCK_MONOTONIC)
+        self.subscriptions[uid] = {}
+        return uid
 
-    def unsubscribe(self, id: int) -> None:
-        _ = self.subscriptions.pop(id)
-
-
-"""
-Some tests in this file expect an OPCUA server to be running, even if data is not being
-gathered from the server. Specifically the custom server available in the
-ska-mid-dish-simulators repo on branch wom-133-custom-nodes-for-pretty-graphs
-"""
+    def unsubscribe(self, uid: int) -> None:
+        _ = self.subscriptions.pop(uid)
 
 
 def put_hdf5_file_in_queue(nodes: list[str], input_f_o: h5py.File, logger: log.Logger):
@@ -96,8 +98,8 @@ def test_performance():
     output_file = "tests/output_files/performance.hdf5"
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
-    test_start = datetime.now()
-    hll = stub_scu()
+    start_time = datetime.now()
+    hll = StubScu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     logger.add_nodes(nodes, 50)
 
@@ -105,15 +107,16 @@ def test_performance():
     put_hdf5_file_in_queue(nodes, input_f_o, logger)
     logger.stop()
     logger.wait_for_completion()
-    test_stop = datetime.now()
+    stop_time = datetime.now()
     input_f_o.close()
 
-    test_duration = test_stop - test_start
+    test_duration = stop_time - start_time
     print(f"Performance test duration: {test_duration}")
     # Check test ran in a reasonable time (1/10th of input file duration).
     assert test_duration < timedelta(minutes=6)
-
-    result = subprocess.run(["h5diff", "-v", input_file, output_file])
+    # pylint: disable=subprocess-run-check
+    subprocess.run(["h5diff", "-v", input_file, output_file])
+    # result = subprocess.run(["h5diff", "-v", input_file, output_file])
     # Check output file contents match input file contents
     # The h5diff linux tool is returning 2 (i.e. error code) for 0 differences
     # found on the MockData.bool dataset.
@@ -151,6 +154,7 @@ def test_add_nodes(caplog):
         "Updating period for node MockData.increment from 100 to 50.",
         "WARNING: nodes cannot be added after start() has been invoked.",
     ]
+    # pylint: disable=consider-using-in
     assert captured == expected_log or captured == expected_log2
     expected_object_nodes = {
         "MockData.increment": 50,
@@ -177,7 +181,7 @@ def test_build_hdf5_structure():
     logger._build_hdf5_structure()
     expected_node_list = nodes
     assert list(logger.file_object.keys()) == expected_node_list
-    assert logger.file_object.swmr_mode == True
+    assert logger.file_object.swmr_mode is True
     logger.file_object.close()
 
 
@@ -189,7 +193,7 @@ def test_start(caplog):
     file name, and that it cannot be invoked twice, logging the correct messages.
     """
     output_file = "tests/output_files/start.hdf5"
-    hll = stub_scu()
+    hll = StubScu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
     logger.add_nodes(nodes, 100)
@@ -206,9 +210,10 @@ def test_start(caplog):
         "WARNING: start() can only be invoked once per object.",
     ]
     # Check messages are those expected.
+    # pylint: disable=consider-using-in
     assert caplog.messages == expected_log or caplog.messages == expected_log2
     # Check file was created.
-    assert os.path.exists(output_file) == True
+    assert os.path.exists(output_file) is True
     logger.stop()
     logger.wait_for_completion()
 
@@ -220,13 +225,13 @@ def test_stop():
     Test the stop() method. Check _stop_logging is being set.
     """
     output_file = "tests/output_files/stop.hdf5"
-    hll = stub_scu()
+    hll = StubScu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
     logger.add_nodes(nodes, 100)
     logger.start()
     logger.stop()
-    assert logger._stop_logging.is_set() == True
+    assert logger._stop_logging.is_set() is True
     logger.wait_for_completion()
 
 
@@ -238,7 +243,7 @@ def test_write_cache_to_group():
     output file.
     """
     output_file = "tests/output_files/_write_cache_to_group.hdf5"
-    hll = stub_scu()
+    hll = StubScu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     nodes = ["MockData.increment"]
     logger.add_nodes(nodes, 100)
@@ -281,7 +286,7 @@ def test_log():
     output_file = "tests/output_files/_log.hdf5"
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
-    hll = stub_scu()
+    hll = StubScu()
     logger = log.Logger(file_name=output_file, high_level_library=hll)
     logger.add_nodes(nodes, 50)
 
@@ -297,7 +302,7 @@ def test_log():
         out_timestamps = output_f_o[node]["SourceTimestamp"][:]
         out_values = output_f_o[node]["Value"][:]
         # Check the data in the file matches.
-        for i in range(len(in_timestamps)):
+        for i in range(len(in_timestamps)):  # pylint: disable=consider-using-enumerate
             assert out_timestamps[i] == in_timestamps[i]
             assert out_values[i] == in_values[i]
 
@@ -330,6 +335,7 @@ def test_wait_for_completion(caplog):
         "WARNING: cannot wait for logging to complete if start() has not been invoked.",
         "WARNING: cannot wait for logging to complete if stop() has not been invoked.",
     ]
+    # pylint: disable=consider-using-in
     assert caplog.messages == expected_log or caplog.messages == expected_log2
 
 

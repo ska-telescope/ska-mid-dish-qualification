@@ -4,12 +4,10 @@ import h5py
 
 
 def convert_timestamps(timestamps, values):
-    idx = 0
-    for i in range(len(timestamps)):
+    for idx in range(len(timestamps)):  # pylint: disable=consider-using-enumerate
         time = datetime.fromtimestamp(timestamps[idx]).isoformat()
         value = values[idx]
         print(f"{idx} : {time} : {value}")
-        idx += 1
 
 
 def list_all(file_name):

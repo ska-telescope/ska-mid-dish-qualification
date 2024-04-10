@@ -1,7 +1,8 @@
 """
-This module contains functions for finding and reading the configuration file for the
-application. The configuration file is a standard .ini file that can be parsed with
-the configparser module.
+This module contains functions for finding and reading the DiSQ configuration file.
+
+The configuration file is a standard .ini file that can be parsed with the configparser
+module.
 
 Example configuration file `disq.ini`:
 
@@ -24,10 +25,10 @@ Functions:
     find_config_file(config_filename: str | None = None) -> Path:
         Finds the configuration file named "disq.ini" and returns its path as a Path
         object. The configuration file can be specified in three ways:
-            1. By providing the file path as a command line option.
-            2. By setting the DISQ_CONFIG environment variable to the file path.
-            3. If neither of the above are provided, the function will look for the
-            file in the user's data directory.
+        1. By providing the file path as a command line option.
+        2. By setting the DISQ_CONFIG environment variable to the file path.
+        3. If neither of the above are provided, the function will look for the
+        file in the user's data directory.
         If the configuration file is not found, a FileNotFoundError is raised.
 
     get_configuration(config_filename: str | None = None) -> configparser.ConfigParser:
@@ -51,8 +52,8 @@ _DEFAULT_CONFIG_FILENAME = "disq.ini"
 
 
 def find_config_file(config_filename: str | None = None) -> Path:
-    """
-    Finds the configuration file named "disq.ini"
+    r"""
+    Finds the configuration file named "disq.ini".
 
     The logic for finding the configuration file is as follows in mermaid diagram
     syntax:
@@ -165,6 +166,7 @@ def get_config_sculib_args(
     else:
         server_name = f"opcua_server.{server_name}"
     server_config: dict[str, str] = dict(config[server_name])
+    sculib_args: dict[str, str | int]
 
     # Every controller MUST have a host and port to be able to establish a connection
     sculib_args: dict[str, str | int] = {

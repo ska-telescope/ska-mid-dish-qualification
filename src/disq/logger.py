@@ -2,7 +2,7 @@ import logging
 import os
 import queue
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from time import sleep
 
 import h5py
@@ -77,8 +77,11 @@ class Logger:
         self._subscription_ids = []
 
     def add_nodes(self, nodes: list[str], period: int):
-        """Add a node or list of nodes with desired period in miliseconds to be subscribed to.
-        Subsequent calls with the same node will overwrite the period."""
+        """
+        Add a node or list of nodes with desired period in milliseconds to subscribe to.
+
+        Subsequent calls with the same node will overwrite the period.
+        """
         if self._start_invoked:
             app_logger.warning(
                 "WARNING: nodes cannot be added after start() has been invoked."
@@ -91,31 +94,37 @@ class Logger:
         for node in list(nodes):
             if node not in self._available_attributes:
                 app_logger.info(
-                    f'"{node}" not available as an attribute on the server, skipping.'
+                    '"%s" not available as an attribute on the server, skipping.', node
                 )
                 continue
 
-            type = self.hll.get_attribute_data_type(node)
-            if type not in self._hdf5_type_from_value_type.keys():
+            node_type = self.hll.get_attribute_data_type(node)
+            if node_type not in self._hdf5_type_from_value_type.keys():
                 app_logger.info(
-                    f'Unsupported type for "{node}": "{type}"; skipping. Nodes must be'
-                    f' of type "Boolean"/"Double"/"Enumeration".'
+                    'Unsupported type for "%s": "%s"; skipping. '
+                    'Nodes must be of type "Boolean"/"Double"/"Enumeration".',
+                    node,
+                    node_type,
                 )
                 continue
 
             if node in self._nodes:
                 app_logger.info(
-                    f"Updating period for node {node} from {self._nodes[node]} to "
-                    f"{period}."
+                    "Updating period for node %s from %d to %d.",
+                    node,
+                    self._nodes[node],
+                    period,
                 )
 
             self._nodes[node] = period
 
     def _build_hdf5_structure(self):
         for node in self._nodes:
-            # One group per node containing a single dataset for each of SourceTimestamp, Value.
+            # One group per node containing a single dataset for each of
+            # SourceTimestamp, Value
             group = self.file_object.create_group(node)
-            # Zeroeth dataset is always source timestamp which must be an 8 byte float as HDF5 does not support Python datetime.
+            # Zeroeth dataset is always source timestamp which must be an 8 byte float
+            # as HDF5 does not support Python datetime.
             time_dataset = group.create_dataset(
                 "SourceTimestamp",
                 dtype="f8",
@@ -147,8 +156,8 @@ class Logger:
                 )
 
             # While here create cache structure per node.
-            # Node name : [total data point count, type string,
-            # current data point count, [timestamp 1, timestamp 2, ...], [value 1, value 2, ...]]
+            # Node name : [total data point count, type string, current data point count
+            #                , [timestamp 1, timestamp 2, ...], [value 1, value 2, ...]]
             #                            ^ list indices match for data points ^
             self._cache[node] = [0, value_type, 0, [], []]
 
@@ -173,7 +182,7 @@ class Logger:
                 period_dict[period].append(node)
 
         # Start to fill queue
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(timezone.utc)
         for period, attributes in period_dict.items():
             self._subscription_ids.append(
                 self.hll.subscribe(
@@ -182,7 +191,11 @@ class Logger:
             )
 
     def start(self):
-        """Start logging the nodes added by add_nodes(). Creates and uses a thread internally."""
+        """
+        Start logging the nodes added by add_nodes().
+
+        Creates and uses a thread internally.
+        """
         if self._start_invoked:
             app_logger.warning("WARNING: start() can only be invoked once per object.")
             return
@@ -193,14 +206,16 @@ class Logger:
 
         if self.file is None:
             self.file = (
-                "results/" + datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S") + ".hdf5"
+                "results/"
+                + datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
+                + ".hdf5"
             )
 
         basedir = os.path.dirname(self.file)
         if basedir != "" and not os.path.exists(basedir):
             os.makedirs(basedir)
 
-        app_logger.info(f"Writing data to file: {self.file}")
+        app_logger.info("Writing data to file: %s", self.file)
         self.file_object = h5py.File(self.file, "w", libver="latest")
         self._build_hdf5_structure()
 
@@ -211,10 +226,10 @@ class Logger:
     def stop(self):
         """Stop logging. Ends the addition of new server data to internal queue
         and signals the logging thread to clear the remaining queued items."""
-        for id in self._subscription_ids:
-            self.hll.unsubscribe(id)
+        for uid in self._subscription_ids:
+            self.hll.unsubscribe(uid)
 
-        self.stop_time = datetime.utcnow()
+        self.stop_time = datetime.now(timezone.utc)
         self._stop_logging.set()
 
     def _write_cache_to_group(self, node: str):
@@ -270,7 +285,7 @@ class Logger:
                 ):
                     self._write_cache_to_group(node)
                     app_logger.debug(
-                        f"Number of items in queue (cache write): {self.queue.qsize()}"
+                        "Number of items in queue (cache write): %d", self.queue.qsize()
                     )
 
             # Write to file at least every self._FLUSH_PERIOD_MSECS
@@ -279,15 +294,15 @@ class Logger:
                     if cache[self._count_idx] > 0:
                         self._write_cache_to_group(cache_node)
                 app_logger.debug(
-                    f"Number of items in queue (flush write): {self.queue.qsize()}"
+                    "Number of items in queue (flush write): %d", self.queue.qsize()
                 )
 
                 next_flush_interval += timedelta(milliseconds=self._FLUSH_PERIOD_MSECS)
 
         app_logger.debug(
-            f"Number of items in queue (final write): {self.queue.qsize()}"
+            "Number of items in queue (final write): %d", self.queue.qsize()
         )
-        # Subscriptions have been stopped so clear remaining queue, do a final flush, and close file.
+        # Subscriptions have been stopped: clear remaining queue, flush and close file.
         while not self.queue.empty():
             datapoint = self.queue.get(block=True, timeout=self._QUEUE_GET_TIMEOUT_SECS)
             self._data_count += 1
@@ -304,7 +319,7 @@ class Logger:
                 self._write_cache_to_group(cache_node)
 
         self.file_object.close()
-        app_logger.info(f"Logger received {self._data_count} data points.")
+        app_logger.info("Logger received %d data points.", self._data_count)
         self.file_object = h5py.File(self.file, "a", libver="latest")
         self.file_object.attrs.create(
             "Start time", self.start_time.isoformat(timespec="microseconds")
@@ -314,7 +329,9 @@ class Logger:
         )
         self.file_object.close()
         app_logger.debug(
-            f"File start time: {self.start_time} and stop time: {self.stop_time}"
+            "File start time: %s, and stop time: %s",
+            self.start_time,
+            self.stop_time,
         )
 
         self.logging_complete.set()

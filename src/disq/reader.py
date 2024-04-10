@@ -19,8 +19,9 @@ class Reader:
         group = fo[node]
 
         """
-        # List comprehensions are faster than append-for because they have a different method than .append() with less overhead than calling an entire function.
-        # This introduces way more overhead, no way comprehensions are faster for this use case.
+        # List comprehensions are faster than append-for because they have a different
+        # method than .append() with less overhead than calling an entire function.
+        # This introduces more overhead, no way comprehensions are faster here.
         self._x = [
             data
             for data in group["SourceTimestamp"]

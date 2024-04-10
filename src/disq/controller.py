@@ -20,7 +20,7 @@ class Controller(QObject):
         super().__init__(parent)
         self._model = mvc_model
 
-    def command_response_str(
+    def _command_response_str(
         self, command: str, result_code: int, result_msg: str
     ) -> str:
         r = f'Command "{command}" response: ({result_code}) "{result_msg}"'
@@ -97,7 +97,7 @@ class Controller(QObject):
         """
         self._model.register_event_updates(registrations=registrations)
 
-    def command_slew2abs(
+    def command_slew2abs_azim_elev(
         self,
         azimuth_position: float,
         elevation_position: float,
@@ -105,7 +105,10 @@ class Controller(QObject):
         elevation_velocity: float,
     ):
         cmd = "Management.Slew2AbsAzEl"
-        desc = f"Command: {cmd}  args: {azimuth_position}, {elevation_position}, {azimuth_velocity}, {elevation_velocity}"
+        desc = (
+            f"Command: {cmd}  args: {azimuth_position}, {elevation_position}, "
+            f"{azimuth_velocity}, {elevation_velocity}"
+        )
         logger.debug(desc)
         self.ui_status_message.emit(desc)
         result_code, result_msg = self._model.run_opcua_command(
@@ -115,50 +118,57 @@ class Controller(QObject):
             azimuth_velocity,
             elevation_velocity,
         )
-        self.command_response_str(cmd, result_code, result_msg)
+        self._command_response_str(cmd, result_code, result_msg)
+
+    def command_slew_single_axis(self, axis: str, position: float, velocity: float):
+        cmd = "Management.Slew2AbsSingleAx"
+        desc = f"Command: {cmd}  args: {axis}, {position}, {velocity}"
+        logger.debug(desc)
+        self.ui_status_message.emit(desc)
+        result_code, result_msg = self._model.run_opcua_command(
+            cmd, axis, position, velocity
+        )
+        self._command_response_str(cmd, result_code, result_msg)
 
     @pyqtSlot()
-    def command_activate(self):
+    def command_activate(self, axis: str = "AzEl"):
         cmd = "Management.Activate"
-        axis_select_arg = "AzEl"
-        self.issue_command(cmd, axis_select_arg)
+        self._issue_command(cmd, axis)
 
     @pyqtSlot()
-    def command_deactivate(self):
+    def command_deactivate(self, axis: str = "AzEl"):
         cmd = "Management.DeActivate"
-        axis_select_arg = "AzEl"
-        self.issue_command(cmd, axis_select_arg)
+        self._issue_command(cmd, axis)
 
     @pyqtSlot()
-    def command_stop(self):
+    def command_stop(self, axis: str = "AzEl"):
         cmd = "Management.Stop"
-        axis_select_arg = "AzEl"
-        self.issue_command(cmd, axis_select_arg)
+        self._issue_command(cmd, axis)
 
     @pyqtSlot(bool)
     def command_stow(self, stow: bool = True):
         cmd = "Management.Stow"
-        self.issue_command(cmd, stow)  # argument to stow or not...
+        self._issue_command(cmd, stow)  # argument to stow or not...
 
     @pyqtSlot()
     def command_interlock_ack(self):
         cmd = "Safety.InterlockAck"
-        self.issue_command(cmd)
+        self._issue_command(cmd)
 
     def command_move2band(self, band: str):
         cmd = "Management.Move2Band"
-        self.issue_command(cmd, band)
+        self._issue_command(cmd, band)
 
     def command_take_authority(self, take_command: bool, username: str):
         cmd = "CommandArbiter.TakeReleaseAuth"
         # Arguments are: (bool TakeCommand, string Username)
-        self.issue_command(cmd, take_command, username)
+        self._issue_command(cmd, take_command, username)
 
-    def issue_command(self, cmd: str, *args):
-        logger.debug(f"Command: {cmd}  args: {args}")
+    def _issue_command(self, cmd: str, *args):
+        logger.debug("Command: %s, args: %s", cmd, args)
         self.ui_status_message.emit(f"Issuing command: {cmd} {args}")
         result_code, result_msg = self._model.run_opcua_command(cmd, *args)
-        self.command_response_str(f"{cmd}{args}", result_code, result_msg)
+        self._command_response_str(f"{cmd}{args}", result_code, result_msg)
 
     @pyqtSlot(str)
     def load_track_table(self, filename: str):
@@ -171,10 +181,10 @@ class Controller(QObject):
             return
         try:
             self._model.load_track_table(fname)
-        except Exception as e:  # pylint: disable=broad-except
-            e.add_note(f"Unable to load track table from file: {fname.absolute()}")
-            logger.exception(e)
-            msg = f"Unable to load track table: {e}"
+        except Exception as exc:  # pylint: disable=broad-except
+            exc_msg = f"Unable to load track table from file: {fname.absolute()}"
+            logger.exception("%s - %s", exc_msg, exc)
+            msg = f"Unable to load track table: {exc}"
             self.emit_ui_status_message("ERROR", msg)
             return
         self.emit_ui_status_message(
@@ -185,7 +195,7 @@ class Controller(QObject):
     def recording_start(self, filename: str):
         """Start recording"""
         fname = Path(filename)
-        logger.debug(f"Recording to file: {fname.absolute()}")
+        logger.debug("Recording to file: %s", fname.absolute())
         if fname.exists():
             msg = f"⛔️ Not recording. Data file already exists: {fname.absolute()}"
             self.emit_ui_status_message("WARNING", msg)

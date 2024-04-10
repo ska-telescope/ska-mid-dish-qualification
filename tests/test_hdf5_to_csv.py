@@ -28,7 +28,7 @@ def test_node_not_in_file(capsys):
     # Check that error message matches expected
     assert captured.out == expected_stdout
     # Check the output file matches the expected CSV
-    assert filecmp.cmp(output_file, "tests/expected_files/node_not_in_file.csv") == True
+    assert filecmp.cmp(output_file, "tests/expected_files/node_not_in_file.csv") is True
 
 
 def test_no_matching_nodes(capsys):
@@ -49,13 +49,13 @@ def test_no_matching_nodes(capsys):
     converter.make_csv(input_file, output_file, nodes, start, stop, step)
     captured = capsys.readouterr()
     expected_stdout = (
-        "Node not_a_node is not in the input file and will be ignored.\nERROR: No data for"
-        " requested nodes, exiting\n"
+        "Node not_a_node is not in the input file and will be ignored.\n"
+        "ERROR: No data for requested nodes, exiting\n"
     )
     # Check that error message matches expected
     assert captured.out == expected_stdout
     # Check the output file was not created
-    assert os.path.exists(output_file) == False
+    assert os.path.exists(output_file) is False
 
 
 def test_start_stop_past_file(capsys):
@@ -90,7 +90,7 @@ def test_start_stop_past_file(capsys):
     # start and stops no later than latest file stop)
     assert (
         filecmp.cmp(output_file, "tests/expected_files/start_stop_past_files.csv")
-        == True
+        is True
     )
 
 
@@ -116,7 +116,7 @@ def test_simple_input_file(capsys):
     assert captured.out == expected_stdout
     # Check the output file matches the expected.
     assert (
-        filecmp.cmp(output_file, "tests/expected_files/simple_input_file.csv") == True
+        filecmp.cmp(output_file, "tests/expected_files/simple_input_file.csv") is True
     )
 
 
@@ -146,5 +146,5 @@ def test_simple_input_file_double_speed(capsys):
         filecmp.cmp(
             output_file, "tests/expected_files/simple_input_file_double_speed.csv"
         )
-        == True
+        is True
     )

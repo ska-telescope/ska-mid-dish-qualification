@@ -18,14 +18,14 @@ def make_format(current: axes.Axes, other: axes.Axes, current_lab: str, other_la
         inv = other.transData.inverted()
         # convert back to data coords with respect to ax
         x1, y1 = inv.transform(display_coord)
-        return "{}: {:<}    {}: {:<}".format(
+        return "{}: {:<}    {}: {:<}".format(  # noqa: FS002
             other_lab,
-            "(x={}, y={})".format(
+            "(x={}, y={})".format(  # noqa: FS002
                 "???" if x1 is None else other.format_xdata(x1),
                 "???" if y1 is None else other.format_ydata(y1),
             ),
             current_lab,
-            "(x={}, y={})".format(
+            "(x={}, y={})".format(  # noqa: FS002
                 "???" if x is None else current.format_xdata(x),
                 "???" if y is None else current.format_ydata(y),
             ),
@@ -81,11 +81,11 @@ class Grapher:
                     # Datapointes are store chronologically; stop here.
                     break
 
-        type = fo[node]["Value"].attrs["Type"]
+        node_type = fo[node]["Value"].attrs["Type"]
         categories = []
-        if type == "bool":
+        if node_type == "bool":
             categories = ["False", "True"]
-        if type == "enum":
+        if node_type == "enum":
             categories = fo[node]["Value"].attrs["Enumerations"].split(",")
 
         return (dts, data, categories)

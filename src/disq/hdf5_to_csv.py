@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import h5py
 
@@ -56,20 +56,20 @@ class Converter:
             )
 
         if len(known_nodes) == 0:
-            print(f"ERROR: No data for requested nodes, exiting")
+            print("ERROR: No data for requested nodes, exiting")
             return False
 
         self._node_d = {}
         for node in known_nodes:
-            type = self._file_object[node]["Value"].attrs["Type"]
+            node_type = self._file_object[node]["Value"].attrs["Type"]
             length = self._file_object[node]["Value"].len()
             self._node_d[node] = {
-                "type": type,
+                "type": node_type,
                 "length": length,
                 "current": None,
                 "next": None,
             }
-            if type == "enum":
+            if node_type == "enum":
                 self._node_d[node]["enums"] = (
                     self._file_object[node]["Value"].attrs["Enumerations"].split(",")
                 )
@@ -81,7 +81,7 @@ class Converter:
         file_stop = datetime.fromisoformat(self._file_object.attrs["Stop time"])
 
         if stop is None:
-            stop = datetime.utcnow()
+            stop = datetime.now(timezone.utc)
 
         if start is None:
             start = stop - self.default_start_delta

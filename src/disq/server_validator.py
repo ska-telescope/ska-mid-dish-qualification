@@ -115,7 +115,7 @@ class Serval:
     def _read_data_type_tuple(self, sculib_path: str) -> tuple:
         try:
             data_type = self.server.get_attribute_data_type(sculib_path)
-        except:
+        except Exception:
             return ("Node name error",)
         if data_type == "Enumeration":
             return (data_type, ",".join(self.server.get_enum_strings(sculib_path)))
@@ -235,7 +235,7 @@ class Serval:
                     if node_info["node_class"] == "Variable":
                         try:
                             _ = actual[node]["data_type"]
-                        except:
+                        except Exception:
                             current_diff["type_match"] = False
                         else:
                             current_diff["type_match"] = (
@@ -334,7 +334,8 @@ class Serval:
                             self._print(f"  {indent}node_class: Match", output_file)
                     else:
                         self._print(
-                            f"  {indent}node_class: Expected: {node_info['node_class']}, actual: {actual[node]['node_class']}",
+                            f"  {indent}node_class: Expected: {node_info['node_class']}"
+                            f", actual: {actual[node]['node_class']}",
                             output_file,
                         )
 
@@ -345,11 +346,12 @@ class Serval:
                         else:
                             try:
                                 actual_type = actual[node]["data_type"]
-                            except:
+                            except Exception:
                                 actual_type = "None"
 
                             self._print(
-                                f"  {indent}data_type: Expected: {node_info['data_type']}, actual: {actual_type}",
+                                f"  {indent}data_type: Expected: "
+                                f"{node_info['data_type']}, actual: {actual_type}",
                                 output_file,
                             )
 
