@@ -274,13 +274,13 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_ie: QtWidgets.QDoubleSpinBox
         self.spinbox_ca: QtWidgets.QDoubleSpinBox
         self.spinbox_aw0: QtWidgets.QDoubleSpinBox
-        self.spinbox_asec: QtWidgets.QDoubleSpinBox
+        self.spinbox_acec: QtWidgets.QDoubleSpinBox
         self.spinbox_aces: QtWidgets.QDoubleSpinBox
         self.spinbox_an0: QtWidgets.QDoubleSpinBox
         self.spinbox_hese4: QtWidgets.QDoubleSpinBox
         self.spinbox_hece8: QtWidgets.QDoubleSpinBox
         self.spinbox_abphi: QtWidgets.QDoubleSpinBox
-        self.spinbox_ara: QtWidgets.QDoubleSpinBox
+        self.spinbox_aba: QtWidgets.QDoubleSpinBox
         self.spinbox_npae: QtWidgets.QDoubleSpinBox
         self.spinbox_ia: QtWidgets.QDoubleSpinBox
         self.spinbox_eces: QtWidgets.QDoubleSpinBox
@@ -420,7 +420,13 @@ class MainView(QtWidgets.QMainWindow):
         :rtype: list[QtCore.QObject]
         """
         all_widgets: list[QtCore.QObject] = self.findChildren(
-            (QtWidgets.QLineEdit, QtWidgets.QPushButton, QtWidgets.QComboBox)
+            (
+                QtWidgets.QLineEdit,
+                QtWidgets.QPushButton,
+                QtWidgets.QComboBox,
+                QtWidgets.QDoubleSpinBox,
+                QtWidgets.QLabel,
+            )
         )
         opcua_widgets: list[QtCore.QObject] = []
         for wgt in all_widgets:
