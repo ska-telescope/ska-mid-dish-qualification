@@ -1,7 +1,6 @@
 [MAIN]
 ignore=
     _version.py,
-    sculib.py,
 
 extension-pkg-allow-list=PyQt6
 
