@@ -268,26 +268,6 @@ class MainView(QtWidgets.QMainWindow):
         self.line_edit_slew_only_indexer_velocity: QtWidgets.QLineEdit
         # Point tab static pointing model widgets
         self.button_toggle_point_model: QtWidgets.QPushButton
-        self.display_asec: QtWidgets.QLabel
-        self.display_an: QtWidgets.QLabel
-        self.display_ara: QtWidgets.QLabel
-        self.display_hece4: QtWidgets.QLabel
-        self.display_hese8: QtWidgets.QLabel
-        self.display_abphi: QtWidgets.QLabel
-        self.display_aw: QtWidgets.QLabel
-        self.display_an0: QtWidgets.QLabel
-        self.display_hese4: QtWidgets.QLabel
-        self.display_aces: QtWidgets.QLabel
-        self.display_ecec: QtWidgets.QLabel
-        self.display_aw0: QtWidgets.QLabel
-        self.display_ie: QtWidgets.QLabel
-        self.display_hece8: QtWidgets.QLabel
-        self.display_eces: QtWidgets.QLabel
-        self.display_npae: QtWidgets.QLabel
-        self.display_ca: QtWidgets.QLabel
-        self.display_ia: QtWidgets.QLabel
-        self.display_model_elev: QtWidgets.QLabel
-        self.display_model_azim: QtWidgets.QLabel
         self.spinbox_aw: QtWidgets.QDoubleSpinBox
         self.spinbox_hece4: QtWidgets.QDoubleSpinBox
         self.spinbox_hese8: QtWidgets.QDoubleSpinBox
@@ -307,33 +287,11 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_an: QtWidgets.QDoubleSpinBox
         self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
         self.spinbox_offset_elev: QtWidgets.QDoubleSpinBox
-        # Point tab static pointing offset widgets
-        self.display_offset_elev: QtWidgets.QLabel
-        self.display_offest_xelev: QtWidgets.QLabel
         # Point tab tilt correction widgets
         self.button_toggle_tilt_correction: QtWidgets.QPushButton
         self.button_toggle_tilt_correction_1or2: QtWidgets.QPushButton
-        self.display_tilt_meas_x1: QtWidgets.QLabel
-        self.display_tilt_meas_y1: QtWidgets.QLabel
-        self.display_tilt_corrected_x: QtWidgets.QLabel
-        self.display_tilt_corrected_y: QtWidgets.QLabel
-        self.display_tilt_meas_x2: QtWidgets.QLabel
-        self.display_tilt_meas_y2: QtWidgets.QLabel
-        self.display_tilt_filtered_x: QtWidgets.QLabel
-        self.display_tilt_filtered_y: QtWidgets.QLabel
-        self.display_tilt_elev: QtWidgets.QLabel
-        self.display_tilt_azim: QtWidgets.QLabel
         # Point tab ambient temperature correction widgets
         self.button_toggle_temp_correction: QtWidgets.QPushButton
-        self.display_temp_east: QtWidgets.QLabel
-        self.display_temp_south: QtWidgets.QLabel
-        self.display_temp_west: QtWidgets.QLabel
-        self.display_param1: QtWidgets.QLabel
-        self.display_param2: QtWidgets.QLabel
-        self.display_param3: QtWidgets.QLabel
-        self.display_param4: QtWidgets.QLabel
-        self.display_temp_elev: QtWidgets.QLabel
-        self.display_temp_azim: QtWidgets.QLabel
         self.spinbox_ecec: QtWidgets.QDoubleSpinBox
         self.spinbox_param1: QtWidgets.QDoubleSpinBox
         self.spinbox_param3: QtWidgets.QDoubleSpinBox
@@ -416,9 +374,9 @@ class MainView(QtWidgets.QMainWindow):
 
         :return: {name: (widget, func)}
         """
-        # re = QtCore.QRegularExpression("opcua_")
-        # opcua_widgets = self.findChildren(QtWidgets.QLineEdit, re)
-        all_widgets: list[QtCore.QObject] = self.findChildren(QtWidgets.QLineEdit)
+        all_widgets: list[QtCore.QObject] = self.findChildren(
+            QtWidgets.QLineEdit
+        ) + self.findChildren(QtWidgets.QLabel)
         opcua_widget_updates: dict = {}
         for wgt in all_widgets:
             if "opcua" not in wgt.dynamicPropertyNames():

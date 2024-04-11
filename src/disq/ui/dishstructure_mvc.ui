@@ -2713,7 +2713,7 @@
               </widget>
              </item>
              <item row="8" column="1">
-              <widget class="QLabel" name="display_asec">
+              <widget class="QLabel" name="opcua_asec">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -2721,7 +2721,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2729,7 +2729,7 @@
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QLabel" name="display_an">
+              <widget class="QLabel" name="opcua_an">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -2737,7 +2737,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2745,7 +2745,7 @@
               </widget>
              </item>
              <item row="10" column="1">
-              <widget class="QLabel" name="display_ara">
+              <widget class="QLabel" name="opcua_ara">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -2753,7 +2753,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2854,7 +2854,7 @@
               </widget>
              </item>
              <item row="15" column="1">
-              <widget class="QLabel" name="display_hece4">
+              <widget class="QLabel" name="opcua_hece4">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -2862,7 +2862,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2870,7 +2870,7 @@
               </widget>
              </item>
              <item row="18" column="1">
-              <widget class="QLabel" name="display_hese8">
+              <widget class="QLabel" name="opcua_hese8">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -2878,7 +2878,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2916,7 +2916,7 @@
               </widget>
              </item>
              <item row="11" column="1">
-              <widget class="QLabel" name="display_abphi">
+              <widget class="QLabel" name="opcua_abphi">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -2924,7 +2924,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2961,7 +2961,7 @@
               </widget>
              </item>
              <item row="19" column="1">
-              <widget class="QLabel" name="display_model_elev">
+              <widget class="QLabel" name="opcua_model_elev">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -2969,7 +2969,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3054,7 +3054,7 @@
               </widget>
              </item>
              <item row="6" column="1">
-              <widget class="QLabel" name="display_aw">
+              <widget class="QLabel" name="opcua_aw">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3062,7 +3062,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3090,7 +3090,7 @@
               </widget>
              </item>
              <item row="5" column="1">
-              <widget class="QLabel" name="display_an0">
+              <widget class="QLabel" name="opcua_an0">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3098,7 +3098,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3106,7 +3106,7 @@
               </widget>
              </item>
              <item row="20" column="1">
-              <widget class="QLabel" name="display_model_azim">
+              <widget class="QLabel" name="opcua_model_azim">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3114,7 +3114,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3219,7 +3219,7 @@
               </widget>
              </item>
              <item row="16" column="1">
-              <widget class="QLabel" name="display_hese4">
+              <widget class="QLabel" name="opcua_hese4">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3227,7 +3227,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3235,7 +3235,7 @@
               </widget>
              </item>
              <item row="9" column="1">
-              <widget class="QLabel" name="display_aces">
+              <widget class="QLabel" name="opcua_aces">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3243,7 +3243,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3328,7 +3328,7 @@
               </widget>
              </item>
              <item row="13" column="1">
-              <widget class="QLabel" name="display_ecec">
+              <widget class="QLabel" name="opcua_ecec">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3336,7 +3336,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3363,7 +3363,7 @@
               </widget>
              </item>
              <item row="7" column="1">
-              <widget class="QLabel" name="display_aw0">
+              <widget class="QLabel" name="opcua_aw0">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3371,7 +3371,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3428,7 +3428,7 @@
               </widget>
              </item>
              <item row="12" column="1">
-              <widget class="QLabel" name="display_ie">
+              <widget class="QLabel" name="opcua_ie">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3436,7 +3436,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3463,7 +3463,7 @@
               </widget>
              </item>
              <item row="17" column="1">
-              <widget class="QLabel" name="display_hece8">
+              <widget class="QLabel" name="opcua_hece8">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3471,7 +3471,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3508,7 +3508,7 @@
               </widget>
              </item>
              <item row="14" column="1">
-              <widget class="QLabel" name="display_eces">
+              <widget class="QLabel" name="opcua_eces">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3516,7 +3516,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3524,7 +3524,7 @@
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QLabel" name="display_npae">
+              <widget class="QLabel" name="opcua_npae">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3532,7 +3532,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3540,7 +3540,7 @@
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QLabel" name="display_ca">
+              <widget class="QLabel" name="opcua_ca">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3548,7 +3548,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3556,7 +3556,7 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QLabel" name="display_ia">
+              <widget class="QLabel" name="opcua_ia">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3564,7 +3564,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3645,7 +3645,7 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QLabel" name="display_offest_xelev">
+              <widget class="QLabel" name="opcua_act_statOffset_Value_Az">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3653,15 +3653,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Tracking.TrackStatus.act_statOffset_Value_Az</string>
                </property>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLabel" name="display_offset_elev">
+              <widget class="QLabel" name="opcua_act_statOffset_Value_El">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3669,10 +3672,13 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Tracking.TrackStatus.act_statOffset_Value_El</string>
                </property>
               </widget>
              </item>
@@ -3852,7 +3858,7 @@
               </widget>
              </item>
              <item row="5" column="1">
-              <widget class="QLabel" name="display_tilt_meas_x1">
+              <widget class="QLabel" name="opcua_TiltXArcsec_One">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3860,15 +3866,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.TiltXArcsec_One</string>
                </property>
               </widget>
              </item>
              <item row="6" column="1">
-              <widget class="QLabel" name="display_tilt_meas_y1">
+              <widget class="QLabel" name="opcua_TiltYArcsec_One">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3876,15 +3885,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.TiltYArcsec_One</string>
                </property>
               </widget>
              </item>
              <item row="5" column="2">
-              <widget class="QLabel" name="display_tilt_corrected_x">
+              <widget class="QLabel" name="opcua_TiltXArcsec_Two">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3892,15 +3904,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.TiltXArcsec_Two</string>
                </property>
               </widget>
              </item>
              <item row="6" column="2">
-              <widget class="QLabel" name="display_tilt_corrected_y">
+              <widget class="QLabel" name="opcua_TiltYArcsec_Two">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3908,15 +3923,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.TiltYArcsec_Two</string>
                </property>
               </widget>
              </item>
              <item row="10" column="1">
-              <widget class="QLabel" name="display_tilt_meas_x2">
+              <widget class="QLabel" name="opcua_TiltXFilt_One">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3924,15 +3942,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.TiltXFilt_One</string>
                </property>
               </widget>
              </item>
              <item row="11" column="1">
-              <widget class="QLabel" name="display_tilt_meas_y2">
+              <widget class="QLabel" name="opcua_TiltYFilt_One">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3940,15 +3961,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.TiltYFilt_One</string>
                </property>
               </widget>
              </item>
              <item row="10" column="2">
-              <widget class="QLabel" name="display_tilt_filtered_x">
+              <widget class="QLabel" name="opcua_TiltXFilt_Two">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3956,15 +3980,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.TiltXFilt_Two</string>
                </property>
               </widget>
              </item>
              <item row="11" column="2">
-              <widget class="QLabel" name="display_tilt_filtered_y">
+              <widget class="QLabel" name="opcua_TiltYFilt_Two">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3972,15 +3999,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.TiltYFilt_Two</string>
                </property>
               </widget>
              </item>
              <item row="13" column="1">
-              <widget class="QLabel" name="display_tilt_elev">
+              <widget class="QLabel" name="opcua_TiltCorrVal_El">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3988,15 +4018,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.TiltCorrVal_El</string>
                </property>
               </widget>
              </item>
              <item row="15" column="1">
-              <widget class="QLabel" name="display_tilt_azim">
+              <widget class="QLabel" name="opcua_TiltCorrVal_Az">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4004,10 +4037,13 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.TiltCorrVal_Az</string>
                </property>
               </widget>
              </item>
@@ -4037,7 +4073,7 @@
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QLabel" name="display_temp_east">
+              <widget class="QLabel" name="opcua_ActAmbTemp_East">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4045,10 +4081,13 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.ActAmbTemp_East</string>
                </property>
               </widget>
              </item>
@@ -4222,7 +4261,7 @@
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QLabel" name="display_temp_south">
+              <widget class="QLabel" name="opcua_ActAmbTemp_South">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4230,10 +4269,13 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.ActAmbTemp_South</string>
                </property>
               </widget>
              </item>
@@ -4267,7 +4309,7 @@
               </widget>
              </item>
              <item row="5" column="2">
-              <widget class="QLabel" name="display_temp_west">
+              <widget class="QLabel" name="opcua_ActAmbTemp_West">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4275,15 +4317,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.ActAmbTemp_West</string>
                </property>
               </widget>
              </item>
              <item row="6" column="1">
-              <widget class="QLabel" name="display_param1">
+              <widget class="QLabel" name="opcua_ambTempParam1">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4291,15 +4336,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.AmbTempParam.ambTempParam1</string>
                </property>
               </widget>
              </item>
              <item row="7" column="1">
-              <widget class="QLabel" name="display_param2">
+              <widget class="QLabel" name="opcua_ambTempParam2">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4307,15 +4355,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.AmbTempParam.ambTempParam2</string>
                </property>
               </widget>
              </item>
              <item row="8" column="1">
-              <widget class="QLabel" name="display_param3">
+              <widget class="QLabel" name="opcua_ambTempParam3">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4323,15 +4374,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.AmbTempParam.ambTempParam3</string>
                </property>
               </widget>
              </item>
              <item row="9" column="1">
-              <widget class="QLabel" name="display_param4">
+              <widget class="QLabel" name="opcua_ambTempParam4">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4339,15 +4393,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.AmbTempParam.ambTempParam4</string>
                </property>
               </widget>
              </item>
              <item row="13" column="1">
-              <widget class="QLabel" name="display_temp_elev">
+              <widget class="QLabel" name="opcua_AmbTempCorrVal_1">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4355,15 +4412,18 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.AmbTempCorrVal_1</string>
                </property>
               </widget>
              </item>
              <item row="14" column="1">
-              <widget class="QLabel" name="display_temp_azim">
+              <widget class="QLabel" name="opcua_AmbTempCorrVal_2">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4371,10 +4431,13 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="text">
-                <string>0.0</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.AmbTempCorrVal_2</string>
                </property>
               </widget>
              </item>
