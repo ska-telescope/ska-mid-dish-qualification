@@ -5,6 +5,7 @@ import os
 from functools import cached_property
 from pathlib import Path
 from queue import Empty, Queue
+from typing import Callable
 
 from asyncua import ua
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
@@ -204,7 +205,7 @@ class Model(QObject):
             self._scu is not None
         )  # TODO: MAJOR assumption here: OPC-UA is connected if scu is instantiated...
 
-    def register_event_updates(self, registrations: dict) -> None:
+    def register_event_updates(self, registrations: dict[str, Callable]) -> None:
         """
         Register event updates for specific event registrations.
 

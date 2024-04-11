@@ -136,7 +136,7 @@ def get_configurations(config_filename: str | None = None) -> configparser.Confi
 
 def get_config_sculib_args(
     config_filename: str | None = None, server_name: str = "DEFAULT"
-) -> dict[str, str | int]:
+) -> dict[str, str]:
     """
     Reads the configuration file and returns a dictionary of SCU library arguments.
 
@@ -147,9 +147,10 @@ def get_config_sculib_args(
         listed in the .ini file.
     :return: A dictionary containing the SCU library arguments, including the host,
         port, endpoint, and namespace.
-    :rtype: dict[str, str | int]
+    :rtype: dict[str, str]
     :raises FileNotFoundError: If the specified configuration file is not found.
     :raises KeyError: If specified server name is not found in the configuration file.
+    :raises ValueError: If server port is not an integer.
     """
     config: configparser.ConfigParser = get_configurations(config_filename)
     if server_name == "DEFAULT":
@@ -157,19 +158,26 @@ def get_config_sculib_args(
     else:
         server_name = f"opcua_server.{server_name}"
     server_config: dict[str, str] = dict(config[server_name])
-    sculib_args: dict[str, str | int]
 
+    # Try to cast port to integer to validate input
+    try:
+        int(server_config["port"])
+    except ValueError as e:
+        logging.exception(
+            "Specified port in config is not valid: %s", server_config["port"]
+        )
+        raise e
     # Every controller MUST have a host and port to be able to establish a connection
     sculib_args: dict[str, str | int] = {
-        "host": str(server_config["host"]),
-        "port": int(server_config["port"]),
+        "host": server_config["host"],
+        "port": server_config["port"],
     }
     # The remaining args are optional so we add them if defined in config
     # (PLC controller does not have these defined)
     optional_args = ["endpoint", "namespace", "username", "password"]
     for arg in optional_args:
         if arg in server_config:
-            sculib_args[arg] = str(server_config[arg])
+            sculib_args[arg] = server_config[arg]
     logging.debug("SCU library args: %s", sculib_args)
     return sculib_args
 

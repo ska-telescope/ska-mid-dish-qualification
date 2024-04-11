@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+from typing import Callable
 
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
@@ -96,7 +97,7 @@ class Controller(QObject):
             logger.warning("Unable to find config file")
         return server_list
 
-    def get_config_server_args(self, server_name: str) -> dict[str, str | int]:
+    def get_config_server_args(self, server_name: str) -> dict[str, str]:
         """
         Get the server arguments from the configuration file.
 
@@ -106,7 +107,7 @@ class Controller(QObject):
         :rtype: dict[str, str | int]
         :raises FileNotFoundError: If the configuration file is not found.
         """
-        server_args: dict[str, str | int] = {}
+        server_args: dict[str, str] = {}
         try:
             server_args = configuration.get_config_sculib_args(
                 config_filename=_LOCAL_DIR_CONFIGFILE, server_name=server_name
@@ -165,7 +166,7 @@ class Controller(QObject):
         self.ui_status_message.emit("Disconnected from server")
         self.server_disconnected.emit()
 
-    def subscribe_opcua_updates(self, registrations: dict):
+    def subscribe_opcua_updates(self, registrations: dict[str, Callable]) -> None:
         """
         Subscribe to the requested OPC UA variable data updates with the given callback.
 

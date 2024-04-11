@@ -23,8 +23,8 @@ PYTHON_SWITCHES_FOR_BLACK = --force-exclude "src/disq/_version.py"
 PYTHON_SWITCHES_FOR_FLAKE8 = --config .flake8
 PYTHON_SWITCHES_FOR_PYLINT = --rcfile .pylintrc
 
-# python-post-lint:
-# 	$(PYTHON_RUNNER) mypy --exclude sculib.py src/
+python-post-lint: # TODO: fix issues with excluded files
+	$(PYTHON_RUNNER) mypy --exclude "sculib.py|server_validator.py|logger.py|hdf5_to_graph.py" src/
 
 #######################################
 # DOCS

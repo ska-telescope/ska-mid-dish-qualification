@@ -657,13 +657,13 @@ class MainView(QtWidgets.QMainWindow):
             # Populate the widgets with the server config args
             if "endpoint" in server_config and "namespace" in server_config:
                 self.input_server_address.setText(server_config["host"])
-                self.input_server_port.setText(str(server_config["port"]))
+                self.input_server_port.setText(server_config["port"])
                 self.input_server_endpoint.setText(server_config["endpoint"])
                 self.input_server_namespace.setText(server_config["namespace"])
             else:
                 # First physical controller does not have an endpoint or namespace
                 self.input_server_address.setText(server_config["host"])
-                self.input_server_port.setText(str(server_config["port"]))
+                self.input_server_port.setText(server_config["port"])
             # Disable editing of the widgets
             self.enable_server_widgets(False)
 
