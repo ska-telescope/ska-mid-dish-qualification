@@ -29,7 +29,7 @@ class Controller(QObject):
 
     def __init__(self, mvc_model: model.Model, parent: QObject | None = None) -> None:
         """
-        Initialize a new instance of a class.
+        Initialize a new instance of the `Controller` class.
 
         :param mvc_model: A `model.Model` object.
         :type mvc_model: model.Model
@@ -43,7 +43,7 @@ class Controller(QObject):
         self, command: str, result_code: int, result_msg: str
     ) -> str:
         """
-        Generate a response message based on a command.
+        Generate a response message based on the result of issuing a command.
 
         :param command: The command that was executed.
         :type command: str
@@ -81,7 +81,7 @@ class Controller(QObject):
 
     def get_config_servers(self) -> list[str]:
         """
-        Get the list of configuration servers.
+        Get the list of servers found in the configuration file.
 
         :return: A list of server names.
         :rtype: list[str]
@@ -129,7 +129,7 @@ class Controller(QObject):
         Connect to a server using the provided connection details.
 
         :param connection_details: A dictionary containing server connection details,
-            including 'host' and 'port'.
+            including as a minimum 'host' and 'port' keys.
         :type connection_details: dict
         :raises ValueError: If the port number provided is not a valid integer.
         :raises OSError: If an OS level error occurs during the connection.
@@ -181,7 +181,7 @@ class Controller(QObject):
         elevation_velocity: float,
     ):
         """
-        Command to slew to absolute azimuth and elevation positions.
+        Issue command to slew to absolute azimuth and elevation positions.
 
         :param azimuth_position: The azimuth position to slew to (in degrees).
         :type azimuth_position: float
@@ -212,7 +212,7 @@ class Controller(QObject):
 
     def command_slew_single_axis(self, axis: str, position: float, velocity: float):
         """
-        Command to slew a single axis to a specific position with a given velocity.
+        Issue command to slew a single axis to a specific position with given velocity.
 
         :param axis: The axis identifier.
         :type axis: str
@@ -233,7 +233,7 @@ class Controller(QObject):
     @pyqtSlot()
     def command_activate(self, axis: str = "AzEl"):
         """
-        Activate a specific axis.
+        Issue command to activate a specific axis.
 
         :param axis: The axis to activate (default is 'AzEl').
         :type axis: str
@@ -244,7 +244,7 @@ class Controller(QObject):
     @pyqtSlot()
     def command_deactivate(self, axis: str = "AzEl"):
         """
-        Deactivate a specific axis.
+        Issue command to deactivate a specific axis.
 
         :param axis: The axis to deactivate (default is 'AzEl').
         :type axis: str
@@ -255,7 +255,7 @@ class Controller(QObject):
     @pyqtSlot()
     def command_stop(self, axis: str = "AzEl"):
         """
-        Stop a specific axis movement.
+        Issue command to stop a specific axis movement.
 
         :param axis: The axis for which the movement should be stopped. Default is
             'AzEl'.
@@ -267,7 +267,7 @@ class Controller(QObject):
     @pyqtSlot(bool)
     def command_stow(self, stow: bool = True):
         """
-        Command to stow or unstow the device.
+        Issue command to stow or unstow the device.
 
         :param stow: A flag indicating whether to stow or unstow the device. Default is
             True (stow).
@@ -288,7 +288,7 @@ class Controller(QObject):
 
     def command_move2band(self, band: str):
         """
-        Move the device to a specified band.
+        Issue command to move the device to a specified band.
 
         :param band: The band to move the device to.
         :type band: str
@@ -327,7 +327,15 @@ class Controller(QObject):
 
     @pyqtSlot(str)
     def load_track_table(self, filename: str):
-        """Load a track table from a file."""
+        """
+        Load a track table from a file.
+
+        Will only attempt to load the track table if the file exist.
+        Emits UI status messages.
+
+        :param filename: The name of the file containing the track table.
+        :type filename: str
+        """
         fname = Path(filename)
         logger.debug("Loading track table from file: %s", fname.absolute())
         if not fname.exists():
@@ -348,7 +356,18 @@ class Controller(QObject):
 
     @pyqtSlot(str)
     def recording_start(self, filename: str):
-        """Start recording."""
+        """
+        Start recording OPC-UA parameter updates to `filename`.
+
+        Emits UI status messages as feedback to user.
+
+        To avoid accidental overwrite of existing data, this function first checks for
+        existence of `filename` and only starts recording if a file does not already
+        exist.
+
+        :param filename: Name of HDF5 file to write to.
+        :type filename: str
+        """
         fname = Path(filename)
         logger.debug("Recording to file: %s", fname.absolute())
         if fname.exists():
@@ -368,7 +387,11 @@ class Controller(QObject):
 
     @pyqtSlot()
     def recording_stop(self):
-        """Stop recording."""
+        """
+        Stop recording.
+
+        Emits UI status update.
+        """
         self._model.stop_recording()
         self.emit_ui_status_message("INFO", "Recording stopped")
         self.recording_status.emit(False)

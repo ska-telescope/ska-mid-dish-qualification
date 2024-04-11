@@ -1,4 +1,4 @@
-"""Server validator."""
+"""Server ICD validator."""
 
 import argparse
 import asyncio

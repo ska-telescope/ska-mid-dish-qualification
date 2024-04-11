@@ -17,7 +17,7 @@ app_logger = logging.getLogger("datalog")
 
 # pylint: disable=too-many-instance-attributes
 class Logger:
-    """Logger for DiSQ software."""
+    """Data logger class for DiSQ software."""
 
     # Constants
     _MAX_ENUM_STR_LEN_BYTES: Final = 64
@@ -297,7 +297,6 @@ class Logger:
 
         This method does not have any parameters or return values.
 
-        This method does not raise any exceptions.
         """
         next_flush_interval = datetime.now() + timedelta(
             milliseconds=self._FLUSH_PERIOD_MSECS

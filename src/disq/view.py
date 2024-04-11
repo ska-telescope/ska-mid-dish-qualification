@@ -17,7 +17,7 @@ logger = logging.getLogger("gui.view")
 # pylint: disable=too-few-public-methods
 class RecordingConfigDialog(QtWidgets.QDialog):
     """
-    A dialog class for recording configuration.
+    A dialog-window class for selecting OPC-UA parameters to be recorded.
 
     :param parent: The parent widget of the dialog.
     :type parent: QtWidgets.QWidget
@@ -81,7 +81,7 @@ class RecordingConfigDialog(QtWidgets.QDialog):
 # pylint: disable=too-many-instance-attributes
 class MainView(QtWidgets.QMainWindow):
     """
-    A class representing the MainView of a GUI application.
+    A class representing the main Window of the DiSQ GUI application.
 
     :param disq_model: The model instance for the MainView.
     :type disq_model: model.Model
@@ -340,6 +340,9 @@ class MainView(QtWidgets.QMainWindow):
         """
         Return a dict of of all 'opcua' widgets and their update method.
 
+        This is a cached property, meaning the function will only run once and
+        subsequent calls will return the cached result.
+
         :return: {name: (widget, func)}
         """
         # re = QtCore.QRegularExpression("opcua_")
@@ -381,6 +384,9 @@ class MainView(QtWidgets.QMainWindow):
         QtWidgets.QPushButton, or QtWidgets.QComboBox and have a dynamic property that
         starts with 'opcua'.
 
+        This is a cached property, meaning the function will only run once and
+        subsequent calls will return the cached result.
+
         :return: List of OPC UA widgets.
         :rtype: list[QtCore.QObject]
         """
@@ -397,7 +403,11 @@ class MainView(QtWidgets.QMainWindow):
         return opcua_widgets
 
     def enable_opcua_widgets(self):
-        """Enable all the OPC-UA widgets."""
+        """
+        Enable all the OPC-UA widgets.
+
+        By default the widgets should always start up in the disabled state.
+        """
         for widget in self.all_opcua_widgets:
             widget.setEnabled(True)
 
@@ -689,6 +699,8 @@ class MainView(QtWidgets.QMainWindow):
     def slew2abs_button_clicked(self):
         """
         Slew to absolute position.
+
+        QT slot that gets called when the slew2abs button is clicked.
 
         Convert slew simulation position and velocity values to absolute position and
         velocity and send the command to the controller.

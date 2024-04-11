@@ -19,7 +19,7 @@ class Reader:
 
     def __init__(self, file: str):
         """
-        Initialize the object with a file path.
+        Initialize the `Reader` object with a file path.
 
         :param file: Path to the file.
         :type file: str

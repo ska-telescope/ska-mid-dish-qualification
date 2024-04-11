@@ -73,10 +73,10 @@ class QueuePollThread(QThread):
 
     def stop(self) -> None:
         """
-        Stop the process.
+        Stop the thread.
 
         This method sets the `_running` flag to False and waits for 1 second.
-        If the process does not stop within that time, it is terminated.
+        If the thread does not stop within that time, it is terminated.
         """
         self._running = False
         if not self.wait(1):
@@ -116,7 +116,7 @@ class Model(QObject):
 
     def __init__(self, parent: QObject | None = None) -> None:
         """
-        Initialize a new instance of the class.
+        Initialize a new instance of the `Model` class.
 
         :param parent: The parent object, if any.
         :type parent: QObject or None
@@ -195,7 +195,7 @@ class Model(QObject):
 
     def is_connected(self) -> bool:
         """
-        Check if the object is connected.
+        Check if the `Model` instance object has a connection to the OPC-UA server.
 
         :return: True if the object is connected, False otherwise.
         :rtype: bool
@@ -287,7 +287,7 @@ class Model(QObject):
         Retrieve a dictionary of OPC-UA enum types.
 
         :return: A dictionary mapping OPC-UA enum type names to their corresponding
-            values.
+            value. The value being an enumerated type.
         :rtype: dict
         :raises AttributeError: If any of the required enum types are not found in the
             UA namespace.
@@ -387,7 +387,7 @@ class Model(QObject):
         """
         Get the recording configuration.
 
-        :return: The recording configuration as a list of strings.
+        :return: The recording configuration as a list of OPC-UA parameter names.
         :rtype: list[str]
         """
         return self._recording_config
@@ -397,7 +397,7 @@ class Model(QObject):
         """
         Set the recording configuration.
 
-        :param config: A list of strings specifying the recording configuration.
+        :param config: A list of strings specifying which OPC-UA parameters to record.
         :type config: list[str]
         """
         self._recording_config = config
