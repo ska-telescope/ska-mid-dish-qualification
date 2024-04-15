@@ -13,6 +13,7 @@ logger = logging.getLogger("gui.controller")
 _LOCAL_DIR_CONFIGFILE = "disq.ini"
 
 
+# pylint: disable=too-many-public-methods
 class Controller(QObject):
     """
     Controller for managing server connections and issuing commands.
@@ -309,6 +310,30 @@ class Controller(QObject):
         cmd = "CommandArbiter.TakeReleaseAuth"
         # Arguments are: (bool TakeCommand, string Username)
         self._issue_command(cmd, take_command, username)
+
+    def command_pointing_model_correction(
+        self, static: bool, tilt: str, temperature: bool, band: str
+    ):
+        """
+        Issue command to enable/disable the pointing model corrections.
+
+        The command has four input arguments:
+        - StaticOn
+        - TiltOn
+        - AmbTOn
+        - Band
+
+        :param static: Enable static pointing.
+        :type static: bool
+        :param tilt: Enable tilt correction meter one or two.
+        :type tilt: str
+        :param temperature: Enable ambient temperature correction.
+        :type temperature: bool
+        :param band: The band to apply the model to.
+        :type band: str
+        """
+        cmd = "Pointing.PmCorrOnOff"
+        self._issue_command(cmd, static, tilt, temperature, band)
 
     def _issue_command(self, cmd: str, *args):
         """

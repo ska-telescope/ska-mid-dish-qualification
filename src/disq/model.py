@@ -225,6 +225,22 @@ class Model(QObject):
         else:
             logger.warning("Model: register_event_updates: scu is None!?!?!")
 
+    def _convert_band_to_type(self, band: str) -> int:
+        try:
+            return ua.BandType[band]
+        except AttributeError:
+            logger.warning("OPC-UA server has no 'BandType' enum. Attempting a guess.")
+            return {
+                "Band_1": 0,
+                "Band_2": 1,
+                "Band_3": 2,
+                "Band_4": 3,
+                "Band_5a": 4,
+                "Band_5b": 5,
+                "Band_6": 6,
+                "Optical": 7,
+            }[band]
+
     def run_opcua_command(self, command: str, *args) -> tuple:
         """
         Run an OPC-UA command on the server.
@@ -259,23 +275,24 @@ class Model(QObject):
             )
             result = self._scu.commands[command](arg, *args[1:])
         elif command == "Management.Move2Band":
+            band = self._convert_band_to_type(args[0])
+            logger.debug("Model: run_opcua_command:  %s(%d)", command, band)
+            result = self._scu.commands[command](band)
+        elif command == "Pointing.PmCorrOnOff":
+            band = self._convert_band_to_type(args[3])
+            logger.debug(
+                "Model: run_opcua_command:  %s, args: %r %d", command, *args[:3], band
+            )
+            static = args[0]
             try:
-                arg = ua.BandType[args[0]]
+                tilt = ua.TiltOnEnumType[args[1]]
             except AttributeError:
                 logger.warning(
-                    "OPC-UA server has no 'BandType' enum. Attempting a guess."
+                    "OPC-UA server has no 'TiltOnEnumType' enum. Attempting a guess."
                 )
-                arg = {
-                    "Band_1": 0,
-                    "Band_2": 1,
-                    "Band_3": 2,
-                    "Band_4": 3,
-                    "Band_5a": 4,
-                    "Band_5b": 5,
-                    "Optical": 6,
-                }[args[0]]
-            logger.debug("Model: run_opcua_command:  %s(%d)", command, arg)
-            result = self._scu.commands[command](arg)
+                arg = {"Off": 0, "TiltmeterOne": 1, "TiltmeterTwo": 2}[args[1]]
+            temperature = args[2]
+            result = self._scu.commands[command](static, tilt, temperature, band)
         else:
             # Commands that take none or more parameters of base types: float,bool,etc.
             logger.debug("Model: run_opcua_command: %s, args: %r", command, args)

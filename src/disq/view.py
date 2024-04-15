@@ -267,7 +267,24 @@ class MainView(QtWidgets.QMainWindow):
         self.line_edit_slew_only_indexer_position: QtWidgets.QLineEdit
         self.line_edit_slew_only_indexer_velocity: QtWidgets.QLineEdit
         # Point tab static pointing model widgets
-        self.button_toggle_point_model: QtWidgets.QPushButton
+        self.button_static_point_model_off: QtWidgets.QRadioButton
+        self.button_static_point_model_off.setChecked(True)
+        self.button_static_point_model_on: QtWidgets.QRadioButton
+        self.button_group_static_point_model = QtWidgets.QButtonGroup()
+        self.button_group_static_point_model.buttonClicked.connect(
+            self.pointing_model_button_clicked
+        )
+        self.button_group_static_point_model.addButton(
+            self.button_static_point_model_off, 0
+        )
+        self.button_group_static_point_model.addButton(
+            self.button_static_point_model_on, 1
+        )
+        self.combo_static_point_model_band: QtWidgets.QComboBox
+        self.combo_static_point_model_band.setCurrentIndex(0)
+        self.combo_static_point_model_band.currentTextChanged.connect(
+            self.pointing_model_button_clicked
+        )
         self.spinbox_aw: QtWidgets.QDoubleSpinBox
         self.spinbox_hece4: QtWidgets.QDoubleSpinBox
         self.spinbox_hese8: QtWidgets.QDoubleSpinBox
@@ -288,10 +305,31 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
         self.spinbox_offset_elev: QtWidgets.QDoubleSpinBox
         # Point tab tilt correction widgets
-        self.button_toggle_tilt_correction: QtWidgets.QPushButton
-        self.button_toggle_tilt_correction_1or2: QtWidgets.QPushButton
+        self.button_tilt_correction_off: QtWidgets.QRadioButton
+        self.button_tilt_correction_off.setChecked(True)
+        self.button_tilt_correction_on_meter_1: QtWidgets.QRadioButton
+        self.button_tilt_correction_on_meter_2: QtWidgets.QRadioButton
+        self.button_group_tilt_correction = QtWidgets.QButtonGroup()
+        self.button_group_tilt_correction.buttonClicked.connect(
+            self.pointing_model_button_clicked
+        )
+        self.button_group_tilt_correction.addButton(self.button_tilt_correction_off, 0)
+        self.button_group_tilt_correction.addButton(
+            self.button_tilt_correction_on_meter_1, 1
+        )
+        self.button_group_tilt_correction.addButton(
+            self.button_tilt_correction_on_meter_2, 2
+        )
         # Point tab ambient temperature correction widgets
-        self.button_toggle_temp_correction: QtWidgets.QPushButton
+        self.button_temp_correction_off: QtWidgets.QRadioButton
+        self.button_temp_correction_off.setChecked(True)
+        self.button_temp_correction_on: QtWidgets.QRadioButton
+        self.button_group_temp_correction = QtWidgets.QButtonGroup()
+        self.button_group_temp_correction.buttonClicked.connect(
+            self.pointing_model_button_clicked
+        )
+        self.button_group_temp_correction.addButton(self.button_temp_correction_off, 0)
+        self.button_group_temp_correction.addButton(self.button_temp_correction_on, 1)
         self.spinbox_ecec: QtWidgets.QDoubleSpinBox
         self.spinbox_param1: QtWidgets.QDoubleSpinBox
         self.spinbox_param3: QtWidgets.QDoubleSpinBox
@@ -423,6 +461,7 @@ class MainView(QtWidgets.QMainWindow):
             (
                 QtWidgets.QLineEdit,
                 QtWidgets.QPushButton,
+                QtWidgets.QRadioButton,
                 QtWidgets.QComboBox,
                 QtWidgets.QDoubleSpinBox,
                 QtWidgets.QLabel,
@@ -644,6 +683,9 @@ class MainView(QtWidgets.QMainWindow):
         self.enable_server_widgets(True, connect_button=True)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
+        self.button_static_point_model_off.setChecked(True)
+        self.button_tilt_correction_off.setChecked(True)
+        self.button_temp_correction_off.setChecked(True)
 
     @QtCore.pyqtSlot()
     def connect_button_clicked(self):
@@ -893,3 +935,19 @@ class MainView(QtWidgets.QMainWindow):
     def move2band_button_clicked(self, band: str):
         """Move to the given band."""
         self.controller.command_move2band(band)
+
+    @QtCore.pyqtSlot()
+    def pointing_model_button_clicked(self):
+        """Any pointing model toggle button clicked slot function."""
+        try:
+            static = self.button_group_static_point_model.checkedId()
+            tilt = {0: "Off", 1: "TiltmeterOne", 2: "TiltmeterTwo"}[
+                self.button_group_tilt_correction.checkedId()
+            ]
+            temperature = self.button_group_temp_correction.checkedId()
+            band = self.combo_static_point_model_band.currentText().replace(" ", "_")
+            self.controller.command_pointing_model_correction(
+                bool(static), tilt, bool(temperature), band
+            )
+        except KeyError:
+            logger.exception("Invalid button ID.")
