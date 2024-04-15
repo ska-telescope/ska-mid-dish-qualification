@@ -58,7 +58,7 @@ def find_config_file(config_filename: str | None = None) -> Path:
     The logic for finding the configuration file is as follows in mermaid diagram
     syntax:
 
-    mermaid:
+    .. mermaid:
         graph TD
             A[Start] --> B{CLI option provided?}
             B -->|No| E
@@ -73,16 +73,12 @@ def find_config_file(config_filename: str | None = None) -> Path:
             H -->|Yes| RET
             H -->|No| ERR[Raise exception]
 
-    Args:
-        config_filename (str, optional): The name and path to a configuration file.
-            If provided, it will be checked first. Defaults to None.
-
-    Returns:
-        Path: The path to the configuration file.
-
-    Raises:
-        FileNotFoundError: If the configuration file is not found.
-
+    :param config_filename: The name and path to a configuration file.
+        If provided, it will be checked first. Defaults to None.
+    :type config_filename: str, optional
+    :return: The path to the configuration file.
+    :rtype: Path
+    :raises FileNotFoundError: If the configuration file is not found.
     """
     # Check if the CLI option was provided
     if config_filename is not None:
@@ -122,12 +118,11 @@ def get_configurations(config_filename: str | None = None) -> configparser.Confi
     """
     Reads the configuration file and returns a ConfigParser object.
 
-    Args:
-        config_filename (str, optional): The name of the configuration file.
-            If None, the default configuration file is used.
-
-    Returns:
-        configparser.ConfigParser: A ConfigParser object.
+    :param config_filename: The name of the configuration file. If None, the default
+        configuration file is used.
+    :type config_filename: str, optional
+    :return: A ConfigParser object.
+    :rtype: configparser.ConfigParser
     """
     # Find the configuration file
     config_file_path = find_config_file(config_filename)
@@ -141,24 +136,21 @@ def get_configurations(config_filename: str | None = None) -> configparser.Confi
 
 def get_config_sculib_args(
     config_filename: str | None = None, server_name: str = "DEFAULT"
-) -> dict[str, str | int]:
+) -> dict[str, str]:
     """
     Reads the configuration file and returns a dictionary of SCU library arguments.
 
-    Args:
-        config_filename (str, optional): The name of the configuration file. If None,
-            the default configuration file is used.
-        server_name (str, optional): The name of the server to read from the
-            configuration file. Defaults to "DEFAULT" which just picks the first server
-            listed in the .ini file.
-
-    Returns:
-        dict[str, str | int]: A dictionary containing the SCU library arguments,
-        including the host, port, endpoint, and namespace.
-
-    Raises:
-        FileNotFoundError: If the specified configuration file is not found.
-        KeyError: If the specified server name is not found in the configuration file.
+    :param config_filename: (str, optional) The name of the configuration file. If None,
+        the default configuration file is used.
+    :param server_name: (str, optional) The name of the server to read from the
+        configuration file. Defaults to "DEFAULT" which just picks the first server
+        listed in the .ini file.
+    :return: A dictionary containing the SCU library arguments, including the host,
+        port, endpoint, and namespace.
+    :rtype: dict[str, str]
+    :raises FileNotFoundError: If the specified configuration file is not found.
+    :raises KeyError: If specified server name is not found in the configuration file.
+    :raises ValueError: If server port is not an integer.
     """
     config: configparser.ConfigParser = get_configurations(config_filename)
     if server_name == "DEFAULT":
@@ -166,19 +158,26 @@ def get_config_sculib_args(
     else:
         server_name = f"opcua_server.{server_name}"
     server_config: dict[str, str] = dict(config[server_name])
-    sculib_args: dict[str, str | int]
 
+    # Try to cast port to integer to validate input
+    try:
+        int(server_config["port"])
+    except ValueError as e:
+        logging.exception(
+            "Specified port in config is not valid: %s", server_config["port"]
+        )
+        raise e
     # Every controller MUST have a host and port to be able to establish a connection
     sculib_args: dict[str, str | int] = {
-        "host": str(server_config["host"]),
-        "port": int(server_config["port"]),
+        "host": server_config["host"],
+        "port": server_config["port"],
     }
     # The remaining args are optional so we add them if defined in config
     # (PLC controller does not have these defined)
     optional_args = ["endpoint", "namespace", "username", "password"]
     for arg in optional_args:
         if arg in server_config:
-            sculib_args[arg] = str(server_config[arg])
+            sculib_args[arg] = server_config[arg]
     logging.debug("SCU library args: %s", sculib_args)
     return sculib_args
 
@@ -187,12 +186,11 @@ def get_config_server_list(config_filename: str | None = None) -> list[str]:
     """
     Reads the configuration file and returns a list of server names.
 
-    Args:
-        config_filename (str, optional): The name of the configuration file. If None,
-            the default configuration file is used.
-
-    Returns:
-        list[str]: A list containing the server names.
+    :param config_filename: The name of the configuration file. If None, the default
+        configuration file is used.
+    :type config_filename: str, optional
+    :return: A list containing the server names.
+    :rtype: list[str]
     """
     config: configparser.ConfigParser = get_configurations(config_filename)
     server_list = [server.split(".")[1] for server in config.sections()]

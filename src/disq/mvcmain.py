@@ -1,3 +1,5 @@
+"""DiSQ GUI main."""
+
 import logging
 
 from dotenv import load_dotenv
@@ -10,6 +12,12 @@ from disq.view import MainView
 
 
 def main():
+    """
+    Entry point for the application.
+
+    Loads environment variables, configures logging, creates the application and
+    necessary components, displays the main view, and starts the event loop.
+    """
     load_dotenv()
     configure_logging(default_log_level=logging.DEBUG)
     app = QApplication([])

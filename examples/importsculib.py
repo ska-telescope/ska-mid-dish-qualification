@@ -1,3 +1,3 @@
-from disq.sculib import scu
+from disq.sculib import SCU
 
-print(scu)
+print(SCU)

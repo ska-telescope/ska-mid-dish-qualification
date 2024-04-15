@@ -11,6 +11,7 @@
         "ryanluker.vscode-coverage-gutters",
         "lextudio.restructuredtext",
         "trond-snekvik.simple-rst",
-        "mhutchie.git-graph"
+        "mhutchie.git-graph",
+        "njpwerner.autodocstring"
     ]
 }

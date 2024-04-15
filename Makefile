@@ -19,11 +19,16 @@ include .make/python.mk
 PYTHON_LINE_LENGTH = 88
 PYTHON_LINT_TARGET = tests/ src/
 
-PYTHON_SWITCHES_FOR_BLACK = --force-exclude "src/disq/sculib.py|src/disq/_version.py"
+PYTHON_SWITCHES_FOR_BLACK = --force-exclude "src/disq/_version.py"
 PYTHON_SWITCHES_FOR_FLAKE8 = --config .flake8
 PYTHON_SWITCHES_FOR_PYLINT = --rcfile .pylintrc
+
+python-post-lint: # TODO: fix issues with excluded files
+	$(PYTHON_RUNNER) mypy --exclude "sculib.py|server_validator.py|logger.py|hdf5_to_graph.py" src/
 
 #######################################
 # DOCS
 #######################################
 include .make/docs.mk
+
+DOCS_SPHINXOPTS = -Q

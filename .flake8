@@ -5,27 +5,13 @@ max-line-length = 88
 # support typing.overload decorator
 # allow Annotated[typ, some_func("some string")]
 # conflicts with black
-# TODO: docstrings - remove all Dxxx rules from ignore
+# docstring summary imperative mood
 extend-ignore = E203, 
     F811, 
     F722, 
     W503,
-    D100,D101,D102,D103,D105,D107,D200,D205,D209,D400,D401
+    D401,
     
 docstring-style = sphinx
 rst-roles = py:attr, py:class, py:const, py:exc, py:func, py:meth, py:mod
 rst-directives = literalinclude, uml
-
-exclude = src/disq/sculib.py,
-    src/disq/cam_sensors.py,
-    ; src/disq/configuration.py,
-    ; src/disq/controller.py,
-    ; src/disq/hdf5_to_csv.py,
-    ; src/disq/hdf5_to_graph.py,
-    ; src/disq/logger.py,
-    ; src/disq/model.py,
-    ; src/disq/reader.py,
-    ; src/disq/serval_internal_server.py,
-    ; src/disq/server_validator.py,
-    ; src/disq/view.py,
-    ; tests/*.py,

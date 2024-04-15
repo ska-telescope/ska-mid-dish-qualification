@@ -4,7 +4,7 @@ import sys
 from PyQt6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton, QStatusBar
 from qasync import QEventLoop, asyncSlot
 
-from disq.sculib import scu
+from disq.sculib import SCU
 
 
 class Window(QMainWindow):
@@ -44,7 +44,7 @@ class Window(QMainWindow):
     async def button2_clicked(self):
         print("btn2 clicked")
         print("Instantiating sculib object with no eventloop defined")
-        self._scu = scu(
+        self._scu = SCU(
             host="localhost",
             endpoint="/dish-structure/server/",
             namespace="http://skao.int/DS_ICD/",
@@ -56,7 +56,7 @@ class Window(QMainWindow):
     async def button3_clicked(self):
         print("btn3 clicked")
         print(f"Instantiating sculib object with eventloop: {self._loop}")
-        self._scu = scu(
+        self._scu = SCU(
             host="localhost",
             endpoint="/dish-structure/server/",
             namespace="http://skao.int/DS_ICD/",

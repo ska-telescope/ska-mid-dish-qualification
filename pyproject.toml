@@ -93,9 +93,14 @@ disq-gui = "disq.mvcmain:main"
 disq-validate-server = "disq.server_validator:main"
 
 [[tool.poetry.source]]
+name = "PyPI-public"
+url = "https://pypi.org/simple"
+priority = "primary"
+
+[[tool.poetry.source]]
 name = "ska"
-url = "https://artefact.skatelescope.org/repository/pypi-internal/simple"
-priority = "supplemental"
+url = "https://artefact.skao.int/repository/pypi-all/simple"
+priority = "primary"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -141,6 +146,9 @@ write_to = "src/disq/_version.py"
 
 [tool.mypy]
 ignore_missing_imports = true # Ignore missing stubs in imported modules
+strict_optional = false       # TODO: Remove, see https://mypy.readthedocs.io/en/stable/config_file.html#none-and-optional-handling
+# disallow_incomplete_defs = true
+disable_error_code = "import-untyped, var-annotated, has-type, call-overload, return-value, attr-defined"
 
 [tool.isort]
 profile = "black"
