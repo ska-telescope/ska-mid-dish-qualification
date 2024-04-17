@@ -2443,6 +2443,11 @@
       <property name="currentIndex">
        <number>1</number>
       </property>
+      <widget class="QWidget" name="power">
+       <attribute name="title">
+        <string>Power</string>
+       </attribute>
+      </widget>
       <widget class="QWidget" name="axis">
        <attribute name="title">
         <string>Axis</string>
@@ -4915,11 +4920,6 @@
          </layout>
         </item>
        </layout>
-      </widget>
-      <widget class="QWidget" name="power">
-       <attribute name="title">
-        <string>Power</string>
-       </attribute>
       </widget>
       <widget class="QWidget" name="track">
        <attribute name="title">
