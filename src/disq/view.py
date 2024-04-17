@@ -91,6 +91,19 @@ class MainView(QtWidgets.QMainWindow):
     """
 
     _DECIMAL_PLACES: Final = 3
+    _LED_COLOURS: Final[dict[str, dict[bool | str, str]]] = {
+        "red": {True: "rgb(255, 0, 0)", False: "rgb(128, 0, 0)"},
+        "green": {True: "rgb(10, 250, 0)", False: "rgb(10, 80, 0)"},
+        "yellow": {True: "rgb(250, 255, 0)", False: "rgb(180, 180, 45)"},
+        "orange": {True: "rgb(255, 185, 35)", False: "rgb(180, 135, 35)"},
+        "StowPinStatusType": {
+            "retracted": "green",
+            "deploying": "yellow",
+            "retracting": "yellow",
+            "deployed": "red",
+            "motiontimeout": "red",
+        },
+    }
 
     def __init__(
         self,
@@ -678,6 +691,9 @@ class MainView(QtWidgets.QMainWindow):
         The Event data is an OPC-UA Enum type. The value arrives as an integer and
         it is converted to a string here before updating the text of the widget.
 
+        If the widget's name is found in the `_LED_COLOURS` dict, then the background
+        colour of the widget is set accordingly.
+
         The event update dict contains:
         - name: name
         - node: node
@@ -701,6 +717,18 @@ class MainView(QtWidgets.QMainWindow):
             str_val = val.name
         finally:
             widget.setText(str_val)
+        if opcua_type in self._LED_COLOURS:
+            try:
+                led_colour = self._LED_COLOURS[opcua_type][str_val.lower()]
+            except KeyError:
+                logger.warning(
+                    "Enum value '%s' for opcua type '%s' not found in LED colours dict",
+                    str_val.lower(),
+                    opcua_type,
+                )
+            widget.setStyleSheet(
+                f"background-color: {led_colour};" "border-color: black;"
+            )
 
     def _update_opcua_boolean_radio_button_widget(
         self, button: QtWidgets.QRadioButton, event: dict
