@@ -79,7 +79,7 @@ class Controller(QObject):
             logger.error("UI status msg: %s %s", sevr_symbol, message)
         else:
             logger.debug(message)
-        self.ui_status_message.emit(f"{sevr_symbol} {message}")
+        self.ui_status_message.emit(f"{sevr_symbol} {message[:200]}")
 
     def get_config_servers(self) -> list[str]:
         """
@@ -326,6 +326,22 @@ class Controller(QObject):
         """
         cmd = "Pointing.PmCorrOnOff"
         return self._issue_command(cmd, static, tilt, temperature, band)
+
+    def command_set_static_pointing_parameters(
+        self, band: str, params: list[float]
+    ) -> tuple[int, str]:
+        """
+        Issue command to set the static pointing model parameters.
+
+        :param band: The band to apply the model to.
+        :type band: str
+        :param params: list of parameter values to apply (20 values)
+        :type params: list[float]
+        :return: A tuple containing the result code and result message
+        :rtype: tuple[int, str]
+        """
+        cmd = "Pointing.StaticPmSetup"
+        return self._issue_command(cmd, band, *params)
 
     def _issue_command(self, cmd: str, *args) -> tuple[int, str]:
         """

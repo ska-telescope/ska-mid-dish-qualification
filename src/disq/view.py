@@ -274,6 +274,7 @@ class MainView(QtWidgets.QMainWindow):
         self.button_group_static_point_model.buttonClicked.connect(
             self.pointing_model_button_clicked
         )
+        self.static_point_model_checked_prev: int = 0
         self.button_group_static_point_model.addButton(
             self.button_static_point_model_off, 0
         )
@@ -282,10 +283,10 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.combo_static_point_model_band: QtWidgets.QComboBox
         self.combo_static_point_model_band.setCurrentIndex(0)
+        self.static_point_model_band_index_prev: int = 0
         self.combo_static_point_model_band.currentTextChanged.connect(
             self.pointing_model_band_selected
         )
-        self.static_pointing_enabled: bool = False
         self.static_pointing_values: list[QtWidgets.QLabel] = [
             self.opcua_aw,
             self.opcua_hece4,
@@ -305,31 +306,37 @@ class MainView(QtWidgets.QMainWindow):
             self.opcua_ecec,
             self.opcua_eces,
             self.opcua_an,
-            self.opcua_offset_xelev,
-            self.opcua_offset_elev,
+            self.opcua_caobs,
+            self.opcua_eobs,
         ]
+        self.opcua_offset_xelev: QtWidgets.QLabel
+        self.opcua_offset_elev: QtWidgets.QLabel
+        # NB: The order of this list MUST match the order of the Pointing.StaticPmSetup
+        # command's arguments
         self.static_pointing_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
-            self.spinbox_aw,
-            self.spinbox_hece4,
-            self.spinbox_hese8,
-            self.spinbox_ie,
+            self.spinbox_ia,
             self.spinbox_ca,
+            self.spinbox_npae,
+            self.spinbox_an,
+            self.spinbox_an0,
+            self.spinbox_aw,
             self.spinbox_aw0,
             self.spinbox_acec,
             self.spinbox_aces,
-            self.spinbox_an0,
-            self.spinbox_hese4,
-            self.spinbox_hece8,
-            self.spinbox_abphi,
             self.spinbox_aba,
-            self.spinbox_npae,
-            self.spinbox_ia,
+            self.spinbox_abphi,
+            self.spinbox_caobs,
+            self.spinbox_ie,
             self.spinbox_ecec,
             self.spinbox_eces,
-            self.spinbox_an,
-            self.spinbox_offset_xelev,
-            self.spinbox_offset_elev,
+            self.spinbox_hece4,
+            self.spinbox_hese4,
+            self.spinbox_hece8,
+            self.spinbox_hese8,
+            self.spinbox_eobs,
         ]
+        self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
+        self.spinbox_offset_elev: QtWidgets.QDoubleSpinBox
         for spinbox in self.static_pointing_spinboxes:
             spinbox.valueChanged.connect(self.static_pointing_changed)
         # Point tab tilt correction widgets
@@ -341,6 +348,7 @@ class MainView(QtWidgets.QMainWindow):
         self.button_group_tilt_correction.buttonClicked.connect(
             self.pointing_model_button_clicked
         )
+        self.tilt_correction_checked_prev: int = 0
         self.button_group_tilt_correction.addButton(self.button_tilt_correction_off, 0)
         self.button_group_tilt_correction.addButton(
             self.button_tilt_correction_on_meter_1, 1
@@ -356,9 +364,9 @@ class MainView(QtWidgets.QMainWindow):
         self.button_group_temp_correction.buttonClicked.connect(
             self.pointing_model_button_clicked
         )
+        self.temp_correction_checked_prev: int = 0
         self.button_group_temp_correction.addButton(self.button_temp_correction_off, 0)
         self.button_group_temp_correction.addButton(self.button_temp_correction_on, 1)
-        self.ambtemp_correction_enabled: bool = False
         self.ambtemp_correction_values: list[QtWidgets.QLabel] = [
             self.opcua_ambtempparam1,
             self.opcua_ambtempparam2,
@@ -704,8 +712,10 @@ class MainView(QtWidgets.QMainWindow):
         self.label_conn_status.setText(f"Connected to: {self.model.get_server_uri()}")
         self.enable_server_widgets(False, connect_button=True)
         self.enable_opcua_widgets()
-        self._enable_point_tab_inputs(False, True)
-        self._enable_point_tab_inputs(False, False)
+        if self.button_static_point_model_off.isChecked():
+            self._enable_point_tab_inputs(False, True)
+        if self.button_temp_correction_off.isChecked():
+            self._enable_point_tab_inputs(False, False)
         self.enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
         if self._track_table_file_exist():
@@ -721,9 +731,6 @@ class MainView(QtWidgets.QMainWindow):
         self.enable_server_widgets(True, connect_button=True)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
-        self.button_static_point_model_off.setChecked(True)
-        self.button_tilt_correction_off.setChecked(True)
-        self.button_temp_correction_off.setChecked(True)
 
     @QtCore.pyqtSlot()
     def connect_button_clicked(self):
@@ -975,53 +982,85 @@ class MainView(QtWidgets.QMainWindow):
         self.controller.command_move2band(band)
 
     @QtCore.pyqtSlot()
+    def static_pointing_changed(self):
+        """Update static pointing model parameter."""
+        band = self.combo_static_point_model_band.currentText().replace(" ", "_")
+        params = []
+        for spinbox in self.static_pointing_spinboxes:
+            params.append(spinbox.value())
+        self.controller.command_set_static_pointing_parameters(band, params)
+
+    @QtCore.pyqtSlot()
     def pointing_model_band_selected(self):
         """Static pointing model band changed slot function."""
-        static = bool(self.button_group_static_point_model.checkedId())
-        if static:
+        if self.button_group_static_point_model.checkedId() != 0:  # Not OFF
             self.pointing_model_button_clicked()
+            self.static_pointing_changed()
 
     @QtCore.pyqtSlot()
     def pointing_model_button_clicked(self):
         """Any pointing model toggle button clicked slot function."""
+        static_point_model_checked_id = self.button_group_static_point_model.checkedId()
+        static_point_model_band_idx = self.combo_static_point_model_band.currentIndex()
+        tilt_correction_checked_id = self.button_group_tilt_correction.checkedId()
+        temp_correction_checked_id = self.button_group_temp_correction.checkedId()
         # Validate command parameters
         try:
-            static = {0: False, 1: True}[
-                self.button_group_static_point_model.checkedId()
-            ]
+            static = {0: False, 1: True}[static_point_model_checked_id]
             tilt = {0: "Off", 1: "TiltmeterOne", 2: "TiltmeterTwo"}[
-                self.button_group_tilt_correction.checkedId()
+                tilt_correction_checked_id
             ]
-            temperature = {0: False, 1: True}[
-                self.button_group_temp_correction.checkedId()
-            ]
-            band = self.combo_static_point_model_band.currentText().replace(" ", "_")
+            temperature = {0: False, 1: True}[temp_correction_checked_id]
         except KeyError:
             logger.exception("Invalid button ID.")
             return
+        band = self.combo_static_point_model_band.currentText().replace(" ", "_")
         # Send command and check result
         _, result_msg = self.controller.command_pointing_model_correction(
             static, tilt, temperature, band
         )
         if result_msg == "CommandDone":
-            if self.static_pointing_enabled != static:
-                self.static_pointing_enabled = static
+            if self.static_point_model_checked_prev != static_point_model_checked_id:
+                self.static_point_model_checked_prev = static_point_model_checked_id
                 self._enable_point_tab_inputs(static, True)
-            if self.ambtemp_correction_enabled != temperature:
-                self.ambtemp_correction_enabled = temperature
+            if self.static_point_model_band_index_prev != static_point_model_band_idx:
+                self.static_point_model_band_index_prev = static_point_model_band_idx
+            if self.tilt_correction_checked_prev != tilt_correction_checked_id:
+                self.tilt_correction_checked_prev = tilt_correction_checked_id
+            if self.temp_correction_checked_prev != temp_correction_checked_id:
+                self.temp_correction_checked_prev = temp_correction_checked_id
                 self._enable_point_tab_inputs(temperature, False)
-
-    @QtCore.pyqtSlot()
-    def static_pointing_changed(self):
-        """Update static pointing model parameter."""
-        return
+        else:
+            self.button_group_static_point_model.button(
+                self.static_point_model_checked_prev
+            ).setChecked(True)
+            self.combo_static_point_model_band.setCurrentIndex(
+                self.static_point_model_band_index_prev
+            )
+            self.button_group_tilt_correction.button(
+                self.tilt_correction_checked_prev
+            ).setChecked(True)
+            self.button_group_temp_correction.button(
+                self.temp_correction_checked_prev
+            ).setChecked(True)
 
     def _enable_point_tab_inputs(self, enable: bool, static_not_temp: bool):
-        widgets = (
-            zip(self.static_pointing_spinboxes, self.static_pointing_values)
-            if static_not_temp
-            else zip(self.ambtemp_correction_spinboxes, self.ambtemp_correction_values)
-        )
+        if static_not_temp:
+            self.spinbox_offset_xelev.setEnabled(enable)
+            self.spinbox_offset_elev.setEnabled(enable)
+            try:
+                self.spinbox_offset_xelev.setValue(
+                    float(self.opcua_offset_xelev.text())
+                )
+                self.spinbox_offset_elev.setValue(float(self.opcua_offset_elev.text()))
+            except ValueError:
+                self.spinbox_offset_xelev.setValue(0)
+                self.spinbox_offset_elev.setValue(0)
+            widgets = zip(self.static_pointing_spinboxes, self.static_pointing_values)
+        else:
+            widgets = zip(
+                self.ambtemp_correction_spinboxes, self.ambtemp_correction_values
+            )
         for spinbox, value in widgets:
             spinbox.setEnabled(enable)
             try:

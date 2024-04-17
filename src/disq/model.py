@@ -278,6 +278,12 @@ class Model(QObject):
             band = self._convert_band_to_type(args[0])
             logger.debug("Model: run_opcua_command:  %s(%d)", command, band)
             result = self._scu.commands[command](band)
+        elif command == "Pointing.StaticPmSetup":
+            band = self._convert_band_to_type(args[0])
+            logger.debug(
+                "Model: run_opcua_command:  %s, args: %d %r", command, band, *args[1:]
+            )
+            result = self._scu.commands[command](band, *args[1:])
         elif command == "Pointing.PmCorrOnOff":
             band = self._convert_band_to_type(args[3])
             logger.debug(
