@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1518</width>
+    <width>1600</width>
     <height>900</height>
    </rect>
   </property>
@@ -5008,6 +5008,23 @@
         <string>Error</string>
        </attribute>
       </widget>
+      <widget class="QWidget" name="logs">
+       <attribute name="title">
+        <string>Logs</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QLabel" name="label_63">
+          <property name="text">
+           <string>OPC-UA command history:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListWidget" name="list_cmd_history"/>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -5017,7 +5034,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1518</width>
+     <width>1600</width>
      <height>21</height>
     </rect>
    </property>
