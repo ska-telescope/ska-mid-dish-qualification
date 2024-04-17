@@ -2,6 +2,7 @@
 
 import logging
 import os
+from datetime import datetime
 from enum import Enum
 from functools import cached_property
 from importlib import resources
@@ -152,6 +153,7 @@ class MainView(QtWidgets.QMainWindow):
         self.status_bar = QtWidgets.QStatusBar()
         self.setStatusBar(self.status_bar)
         self.status_bar.addWidget(self.cmd_status_label)
+        self.list_cmd_history: QtWidgets.QListWidget  # Command history list widget
 
         # Set the server URI from environment variable if defined
         server_address: str | None = os.environ.get("DISQ_OPCUA_SERVER_ADDRESS", None)
@@ -1082,6 +1084,9 @@ class MainView(QtWidgets.QMainWindow):
     def command_response_status_update(self, status: str):
         """Update the main window status bar with a status update."""
         self.cmd_status_label.setText(status[:200])
+        history_line: str = f"{datetime.now().strftime('%H:%M:%S')} - {status}"
+        self.list_cmd_history.addItem(history_line)
+        self.list_cmd_history.scrollToBottom()
 
     @QtCore.pyqtSlot(str)
     def move2band_button_clicked(self, band: str):
