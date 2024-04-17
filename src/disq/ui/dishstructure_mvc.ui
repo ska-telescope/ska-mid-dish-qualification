@@ -2694,7 +2694,7 @@
             </property>
             <layout class="QGridLayout" name="gridLayout_13">
              <item row="15" column="1">
-              <widget class="QLabel" name="opcua_ECEC">
+              <widget class="QLabel" name="opcua_ecec">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -2796,7 +2796,7 @@
               </widget>
              </item>
              <item row="9" column="1">
-              <widget class="QLabel" name="opcua_AW0">
+              <widget class="QLabel" name="opcua_aw0">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -2872,7 +2872,7 @@
               </widget>
              </item>
              <item row="16" column="1">
-              <widget class="QLabel" name="opcua_ECES">
+              <widget class="QLabel" name="opcua_eces">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -2891,7 +2891,7 @@
               </widget>
              </item>
              <item row="10" column="1">
-              <widget class="QLabel" name="opcua_ACEC">
+              <widget class="QLabel" name="opcua_acec">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -2986,7 +2986,7 @@
               </widget>
              </item>
              <item row="19" column="1">
-              <widget class="QLabel" name="opcua_HECE8">
+              <widget class="QLabel" name="opcua_hece8">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3015,7 +3015,7 @@
               </widget>
              </item>
              <item row="12" column="1">
-              <widget class="QLabel" name="opcua_ABA">
+              <widget class="QLabel" name="opcua_aba">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3125,7 +3125,7 @@
               </widget>
              </item>
              <item row="11" column="1">
-              <widget class="QLabel" name="opcua_ACES">
+              <widget class="QLabel" name="opcua_aces">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3144,7 +3144,7 @@
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QLabel" name="opcua_CA">
+              <widget class="QLabel" name="opcua_ca">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3205,7 +3205,7 @@
               </widget>
              </item>
              <item row="20" column="1">
-              <widget class="QLabel" name="opcua_HESE8">
+              <widget class="QLabel" name="opcua_hese8">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3256,7 +3256,7 @@
               </widget>
              </item>
              <item row="14" column="1">
-              <widget class="QLabel" name="opcua_IE">
+              <widget class="QLabel" name="opcua_ie">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3341,7 +3341,7 @@
               </widget>
              </item>
              <item row="8" column="1">
-              <widget class="QLabel" name="opcua_AW">
+              <widget class="QLabel" name="opcua_aw">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3404,7 +3404,7 @@
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QLabel" name="opcua_IA">
+              <widget class="QLabel" name="opcua_ia">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3497,7 +3497,7 @@
               </widget>
              </item>
              <item row="18" column="1">
-              <widget class="QLabel" name="opcua_HESE4">
+              <widget class="QLabel" name="opcua_hese4">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3516,7 +3516,7 @@
               </widget>
              </item>
              <item row="5" column="1">
-              <widget class="QLabel" name="opcua_NPAE">
+              <widget class="QLabel" name="opcua_npae">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3545,7 +3545,7 @@
               </widget>
              </item>
              <item row="7" column="1">
-              <widget class="QLabel" name="opcua_AN0">
+              <widget class="QLabel" name="opcua_an0">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3564,7 +3564,7 @@
               </widget>
              </item>
              <item row="17" column="1">
-              <widget class="QLabel" name="opcua_HECE4">
+              <widget class="QLabel" name="opcua_hece4">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3669,7 +3669,7 @@
               </widget>
              </item>
              <item row="13" column="1">
-              <widget class="QLabel" name="opcua_ABphi">
+              <widget class="QLabel" name="opcua_abphi">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3688,7 +3688,7 @@
               </widget>
              </item>
              <item row="6" column="1">
-              <widget class="QLabel" name="opcua_AN">
+              <widget class="QLabel" name="opcua_an">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3822,7 +3822,7 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QLabel" name="opcua_act_staticOffset_value_Xel">
+              <widget class="QLabel" name="opcua_offset_xelev">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3841,7 +3841,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLabel" name="opcua_act_staticOffset_value_El">
+              <widget class="QLabel" name="opcua_offset_elev">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4276,7 +4276,7 @@
               </widget>
              </item>
              <item row="8" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_param4">
+              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam4">
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -4352,7 +4352,7 @@
               </spacer>
              </item>
              <item row="8" column="1">
-              <widget class="QLabel" name="opcua_ambTempParam4">
+              <widget class="QLabel" name="opcua_ambtempparam4">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4371,7 +4371,7 @@
               </widget>
              </item>
              <item row="6" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_param2">
+              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam2">
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -4393,7 +4393,7 @@
               </widget>
              </item>
              <item row="7" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_param3">
+              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam3">
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -4455,7 +4455,7 @@
               </widget>
              </item>
              <item row="5" column="1">
-              <widget class="QLabel" name="opcua_ambTempParam1">
+              <widget class="QLabel" name="opcua_ambtempparam1">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4474,7 +4474,7 @@
               </widget>
              </item>
              <item row="5" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_param1">
+              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam1">
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -4600,7 +4600,7 @@
               </widget>
              </item>
              <item row="6" column="1">
-              <widget class="QLabel" name="opcua_ambTempParam2">
+              <widget class="QLabel" name="opcua_ambtempparam2">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4619,7 +4619,7 @@
               </widget>
              </item>
              <item row="7" column="1">
-              <widget class="QLabel" name="opcua_ambTempParam3">
+              <widget class="QLabel" name="opcua_ambtempparam3">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>

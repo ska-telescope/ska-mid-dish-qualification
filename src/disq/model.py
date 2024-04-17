@@ -241,7 +241,7 @@ class Model(QObject):
                 "Optical": 7,
             }[band]
 
-    def run_opcua_command(self, command: str, *args) -> tuple:
+    def run_opcua_command(self, command: str, *args) -> tuple[int, str]:
         """
         Run an OPC-UA command on the server.
 

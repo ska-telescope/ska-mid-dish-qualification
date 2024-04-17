@@ -14,7 +14,7 @@ from disq import controller, model
 logger = logging.getLogger("gui.view")
 
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,too-many-lines
 class RecordingConfigDialog(QtWidgets.QDialog):
     """
     A dialog-window class for selecting OPC-UA parameters to be recorded.
@@ -131,7 +131,7 @@ class MainView(QtWidgets.QMainWindow):
 
         # Add a label widget to the status bar for command/response status
         # The QT Designer doesn't allow us to add this label so we have to do it here
-        self.cmd_status_label = QtWidgets.QLabel("command status: ")
+        self.cmd_status_label = QtWidgets.QLabel("ℹ️ Status")
         self.status_bar = QtWidgets.QStatusBar()
         self.setStatusBar(self.status_bar)
         self.status_bar.addWidget(self.cmd_status_label)
@@ -283,27 +283,55 @@ class MainView(QtWidgets.QMainWindow):
         self.combo_static_point_model_band: QtWidgets.QComboBox
         self.combo_static_point_model_band.setCurrentIndex(0)
         self.combo_static_point_model_band.currentTextChanged.connect(
-            self.pointing_model_button_clicked
+            self.pointing_model_band_selected
         )
-        self.spinbox_aw: QtWidgets.QDoubleSpinBox
-        self.spinbox_hece4: QtWidgets.QDoubleSpinBox
-        self.spinbox_hese8: QtWidgets.QDoubleSpinBox
-        self.spinbox_ie: QtWidgets.QDoubleSpinBox
-        self.spinbox_ca: QtWidgets.QDoubleSpinBox
-        self.spinbox_aw0: QtWidgets.QDoubleSpinBox
-        self.spinbox_acec: QtWidgets.QDoubleSpinBox
-        self.spinbox_aces: QtWidgets.QDoubleSpinBox
-        self.spinbox_an0: QtWidgets.QDoubleSpinBox
-        self.spinbox_hese4: QtWidgets.QDoubleSpinBox
-        self.spinbox_hece8: QtWidgets.QDoubleSpinBox
-        self.spinbox_abphi: QtWidgets.QDoubleSpinBox
-        self.spinbox_aba: QtWidgets.QDoubleSpinBox
-        self.spinbox_npae: QtWidgets.QDoubleSpinBox
-        self.spinbox_ia: QtWidgets.QDoubleSpinBox
-        self.spinbox_eces: QtWidgets.QDoubleSpinBox
-        self.spinbox_an: QtWidgets.QDoubleSpinBox
-        self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
-        self.spinbox_offset_elev: QtWidgets.QDoubleSpinBox
+        self.static_pointing_enabled: bool = False
+        self.static_pointing_values: list[QtWidgets.QLabel] = [
+            self.opcua_aw,
+            self.opcua_hece4,
+            self.opcua_hese8,
+            self.opcua_ie,
+            self.opcua_ca,
+            self.opcua_aw0,
+            self.opcua_acec,
+            self.opcua_aces,
+            self.opcua_an0,
+            self.opcua_hese4,
+            self.opcua_hece8,
+            self.opcua_abphi,
+            self.opcua_aba,
+            self.opcua_npae,
+            self.opcua_ia,
+            self.opcua_ecec,
+            self.opcua_eces,
+            self.opcua_an,
+            self.opcua_offset_xelev,
+            self.opcua_offset_elev,
+        ]
+        self.static_pointing_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
+            self.spinbox_aw,
+            self.spinbox_hece4,
+            self.spinbox_hese8,
+            self.spinbox_ie,
+            self.spinbox_ca,
+            self.spinbox_aw0,
+            self.spinbox_acec,
+            self.spinbox_aces,
+            self.spinbox_an0,
+            self.spinbox_hese4,
+            self.spinbox_hece8,
+            self.spinbox_abphi,
+            self.spinbox_aba,
+            self.spinbox_npae,
+            self.spinbox_ia,
+            self.spinbox_ecec,
+            self.spinbox_eces,
+            self.spinbox_an,
+            self.spinbox_offset_xelev,
+            self.spinbox_offset_elev,
+        ]
+        for spinbox in self.static_pointing_spinboxes:
+            spinbox.valueChanged.connect(self.static_pointing_changed)
         # Point tab tilt correction widgets
         self.button_tilt_correction_off: QtWidgets.QRadioButton
         self.button_tilt_correction_off.setChecked(True)
@@ -330,11 +358,19 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.button_group_temp_correction.addButton(self.button_temp_correction_off, 0)
         self.button_group_temp_correction.addButton(self.button_temp_correction_on, 1)
-        self.spinbox_ecec: QtWidgets.QDoubleSpinBox
-        self.spinbox_param1: QtWidgets.QDoubleSpinBox
-        self.spinbox_param3: QtWidgets.QDoubleSpinBox
-        self.spinbox_param2: QtWidgets.QDoubleSpinBox
-        self.spinbox_param4: QtWidgets.QDoubleSpinBox
+        self.ambtemp_correction_enabled: bool = False
+        self.ambtemp_correction_values: list[QtWidgets.QLabel] = [
+            self.opcua_ambtempparam1,
+            self.opcua_ambtempparam2,
+            self.opcua_ambtempparam3,
+            self.opcua_ambtempparam4,
+        ]
+        self.ambtemp_correction_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
+            self.spinbox_ambtempparam1,
+            self.spinbox_ambtempparam2,
+            self.spinbox_ambtempparam3,
+            self.spinbox_ambtempparam4,
+        ]
         # Bands group widgets
         self.button_band1: QtWidgets.QPushButton
         self.button_band1.clicked.connect(
@@ -668,6 +704,8 @@ class MainView(QtWidgets.QMainWindow):
         self.label_conn_status.setText(f"Connected to: {self.model.get_server_uri()}")
         self.enable_server_widgets(False, connect_button=True)
         self.enable_opcua_widgets()
+        self._enable_point_tab_inputs(False, True)
+        self._enable_point_tab_inputs(False, False)
         self.enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
         if self._track_table_file_exist():
@@ -937,17 +975,56 @@ class MainView(QtWidgets.QMainWindow):
         self.controller.command_move2band(band)
 
     @QtCore.pyqtSlot()
+    def pointing_model_band_selected(self):
+        """Static pointing model band changed slot function."""
+        static = bool(self.button_group_static_point_model.checkedId())
+        if static:
+            self.pointing_model_button_clicked()
+
+    @QtCore.pyqtSlot()
     def pointing_model_button_clicked(self):
         """Any pointing model toggle button clicked slot function."""
+        # Validate command parameters
         try:
-            static = self.button_group_static_point_model.checkedId()
+            static = {0: False, 1: True}[
+                self.button_group_static_point_model.checkedId()
+            ]
             tilt = {0: "Off", 1: "TiltmeterOne", 2: "TiltmeterTwo"}[
                 self.button_group_tilt_correction.checkedId()
             ]
-            temperature = self.button_group_temp_correction.checkedId()
+            temperature = {0: False, 1: True}[
+                self.button_group_temp_correction.checkedId()
+            ]
             band = self.combo_static_point_model_band.currentText().replace(" ", "_")
-            self.controller.command_pointing_model_correction(
-                bool(static), tilt, bool(temperature), band
-            )
         except KeyError:
             logger.exception("Invalid button ID.")
+            return
+        # Send command and check result
+        _, result_msg = self.controller.command_pointing_model_correction(
+            static, tilt, temperature, band
+        )
+        if result_msg == "CommandDone":
+            if self.static_pointing_enabled != static:
+                self.static_pointing_enabled = static
+                self._enable_point_tab_inputs(static, True)
+            if self.ambtemp_correction_enabled != temperature:
+                self.ambtemp_correction_enabled = temperature
+                self._enable_point_tab_inputs(temperature, False)
+
+    @QtCore.pyqtSlot()
+    def static_pointing_changed(self):
+        """Update static pointing model parameter."""
+        return
+
+    def _enable_point_tab_inputs(self, enable: bool, static_not_temp: bool):
+        widgets = (
+            zip(self.static_pointing_spinboxes, self.static_pointing_values)
+            if static_not_temp
+            else zip(self.ambtemp_correction_spinboxes, self.ambtemp_correction_values)
+        )
+        for spinbox, value in widgets:
+            spinbox.setEnabled(enable)
+            try:
+                spinbox.setValue(float(value.text()))
+            except ValueError:
+                spinbox.setValue(0)

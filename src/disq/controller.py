@@ -57,8 +57,8 @@ class Controller(QObject):
             message.
         :rtype: str
         """
-        r = f'Command "{command}" response: ({result_code}) "{result_msg}"'
-        self.ui_status_message.emit(r)
+        r = f"Command: {command}; Response: {result_msg} [{result_code}]"
+        self.emit_ui_status_message("INFO", r)
         return r
 
     def emit_ui_status_message(self, severity: str, message: str):
@@ -137,22 +137,25 @@ class Controller(QObject):
         :raises OSError: If an OS level error occurs during the connection.
         :raises RuntimeError: If a runtime error occurs during the connection.
         """
-        self.ui_status_message.emit("Connecting to server...")
+        self.emit_ui_status_message("INFO", "Connecting to server...")
         try:
             connection_details["port"] = int(connection_details["port"].strip())
         except ValueError:
-            self.ui_status_message.emit(
-                f"Invalid port number, should be integer: {connection_details['port']}"
+            self.emit_ui_status_message(
+                "ERROR",
+                f"Invalid port number, should be integer: {connection_details['port']}",
             )
             return
         try:
             self._model.connect(connection_details)
         except (OSError, RuntimeError) as e:
-            self.ui_status_message.emit(f"Unable to connect to server. Error: {e}")
+            self.emit_ui_status_message(
+                "ERROR", f"Unable to connect to server. Error: {e}"
+            )
             self.server_disconnected.emit()
             return
-        self.ui_status_message.emit(
-            f"Connected to server: {self._model.get_server_uri()}"
+        self.emit_ui_status_message(
+            "INFO", f"Connected to server: {self._model.get_server_uri()}"
         )
         self.server_connected.emit()
 
@@ -164,7 +167,7 @@ class Controller(QObject):
         emits a server disconnected signal.
         """
         self._model.disconnect()
-        self.ui_status_message.emit("Disconnected from server")
+        self.emit_ui_status_message("INFO", "Disconnected from server")
         self.server_disconnected.emit()
 
     def subscribe_opcua_updates(self, registrations: dict[str, Callable]) -> None:
@@ -197,20 +200,13 @@ class Controller(QObject):
         :type elevation_velocity: float
         """
         cmd = "Management.Slew2AbsAzEl"
-        desc = (
-            f"Command: {cmd}  args: {azimuth_position}, {elevation_position}, "
-            f"{azimuth_velocity}, {elevation_velocity}"
-        )
-        logger.debug(desc)
-        self.ui_status_message.emit(desc)
-        result_code, result_msg = self._model.run_opcua_command(
+        self._issue_command(
             cmd,
             azimuth_position,
             elevation_position,
             azimuth_velocity,
             elevation_velocity,
         )
-        self._command_response_str(cmd, result_code, result_msg)
 
     def command_slew_single_axis(self, axis: str, position: float, velocity: float):
         """
@@ -224,13 +220,7 @@ class Controller(QObject):
         :type velocity: float
         """
         cmd = "Management.Slew2AbsSingleAx"
-        desc = f"Command: {cmd}  args: {axis}, {position}, {velocity}"
-        logger.debug(desc)
-        self.ui_status_message.emit(desc)
-        result_code, result_msg = self._model.run_opcua_command(
-            cmd, axis, position, velocity
-        )
-        self._command_response_str(cmd, result_code, result_msg)
+        self._issue_command(cmd, axis, position, velocity)
 
     @pyqtSlot()
     def command_activate(self, axis: str = "AzEl"):
@@ -313,7 +303,7 @@ class Controller(QObject):
 
     def command_pointing_model_correction(
         self, static: bool, tilt: str, temperature: bool, band: str
-    ):
+    ) -> tuple[int, str]:
         """
         Issue command to enable/disable the pointing model corrections.
 
@@ -331,11 +321,13 @@ class Controller(QObject):
         :type temperature: bool
         :param band: The band to apply the model to.
         :type band: str
+        :return: A tuple containing the result code and result message.
+        :rtype: tuple
         """
         cmd = "Pointing.PmCorrOnOff"
-        self._issue_command(cmd, static, tilt, temperature, band)
+        return self._issue_command(cmd, static, tilt, temperature, band)
 
-    def _issue_command(self, cmd: str, *args):
+    def _issue_command(self, cmd: str, *args) -> tuple[int, str]:
         """
         Issue a command to the OPCUA server.
 
@@ -347,9 +339,9 @@ class Controller(QObject):
         :rtype: tuple
         """
         logger.debug("Command: %s, args: %s", cmd, args)
-        self.ui_status_message.emit(f"Issuing command: {cmd} {args}")
         result_code, result_msg = self._model.run_opcua_command(cmd, *args)
         self._command_response_str(f"{cmd}{args}", result_code, result_msg)
+        return (result_code, result_msg)
 
     @pyqtSlot(str)
     def load_track_table(self, filename: str):
