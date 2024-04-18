@@ -1082,6 +1082,12 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="opcua_type" stdset="0">
             <string>DscCmdAuthorityType</string>
            </property>
@@ -1089,6 +1095,12 @@
          </item>
          <item row="1" column="1">
           <widget class="QLineEdit" name="opcua_cmd_authority">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
@@ -1256,6 +1268,12 @@
          </item>
          <item row="2" column="1">
           <widget class="QLineEdit" name="line_edit_slew_simul_azim_position">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
@@ -1296,6 +1314,12 @@
          </item>
          <item row="2" column="2">
           <widget class="QLineEdit" name="line_edit_slew_simul_azim_velocity">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
@@ -1313,6 +1337,12 @@
          </item>
          <item row="3" column="1">
           <widget class="QLineEdit" name="line_edit_slew_simul_elev_position">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
@@ -1333,6 +1363,12 @@
          </item>
          <item row="3" column="2">
           <widget class="QLineEdit" name="line_edit_slew_simul_elev_velocity">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
@@ -1476,6 +1512,12 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
@@ -1492,7 +1534,7 @@
            <property name="minimumSize">
             <size>
              <width>55</width>
-             <height>0</height>
+             <height>22</height>
             </size>
            </property>
            <property name="focusPolicy">
@@ -1543,6 +1585,12 @@
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="4" column="2">
           <widget class="QLineEdit" name="opcua_Azimuth_v_Shape">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -1568,6 +1616,12 @@
          </item>
          <item row="2" column="2">
           <widget class="QLineEdit" name="opcua_Azimuth_v_SetMax">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -1606,6 +1660,12 @@
          </item>
          <item row="3" column="1">
           <widget class="QLineEdit" name="opcua_Azimuth_p_Act">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -1644,6 +1704,12 @@
          </item>
          <item row="3" column="2">
           <widget class="QLineEdit" name="opcua_Azimuth_v_Act">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -1669,6 +1735,12 @@
          </item>
          <item row="4" column="1">
           <widget class="QLineEdit" name="opcua_Azimuth_p_Dev">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -1704,6 +1776,12 @@
          </item>
          <item row="2" column="1">
           <widget class="QLineEdit" name="opcua_Azimuth_p_Set">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -1729,6 +1807,12 @@
          </item>
          <item row="0" column="1">
           <widget class="QLineEdit" name="opcua_Azimuth_AxisState">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -1790,7 +1874,7 @@
            <property name="minimumSize">
             <size>
              <width>55</width>
-             <height>0</height>
+             <height>22</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -1865,6 +1949,12 @@
          </item>
          <item row="3" column="1">
           <widget class="QLineEdit" name="opcua_Elevation_p_Act">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -1890,6 +1980,12 @@
          </item>
          <item row="2" column="2">
           <widget class="QLineEdit" name="opcua_Elevation_v_SetMax">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -1925,6 +2021,12 @@
          </item>
          <item row="4" column="1">
           <widget class="QLineEdit" name="opcua_Elevation_p_Dev">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -1970,6 +2072,12 @@
          </item>
          <item row="3" column="2">
           <widget class="QLineEdit" name="opcua_Elevation_v_Act">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -1995,6 +2103,12 @@
          </item>
          <item row="2" column="1">
           <widget class="QLineEdit" name="opcua_Elevation_p_Set">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -2020,6 +2134,12 @@
          </item>
          <item row="4" column="2">
           <widget class="QLineEdit" name="opcua_Elevation_v_Shape">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -2055,6 +2175,12 @@
          </item>
          <item row="0" column="1">
           <widget class="QLineEdit" name="opcua_Elevation_AxisState">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -2086,7 +2212,7 @@
            <property name="minimumSize">
             <size>
              <width>55</width>
-             <height>0</height>
+             <height>22</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -2145,6 +2271,12 @@
          </item>
          <item row="0" column="1">
           <widget class="QLineEdit" name="opcua_Azimuth_AxisState_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -2176,7 +2308,7 @@
            <property name="minimumSize">
             <size>
              <width>55</width>
-             <height>0</height>
+             <height>22</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -2210,6 +2342,12 @@
          </item>
          <item row="4" column="2">
           <widget class="QLineEdit" name="opcua_Azimuth_v_Shape_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -2255,6 +2393,12 @@
          </item>
          <item row="4" column="1">
           <widget class="QLineEdit" name="opcua_Azimuth_p_Dev_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -2290,6 +2434,12 @@
          </item>
          <item row="3" column="2">
           <widget class="QLineEdit" name="opcua_Azimuth_v_Act_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -2315,6 +2465,12 @@
          </item>
          <item row="2" column="2">
           <widget class="QLineEdit" name="opcua_Azimuth_v_SetMax_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -2340,6 +2496,12 @@
          </item>
          <item row="2" column="1">
           <widget class="QLineEdit" name="opcua_Azimuth_p_Set_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -2391,6 +2553,12 @@
          </item>
          <item row="3" column="1">
           <widget class="QLineEdit" name="opcua_Azimuth_p_Act_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
@@ -2441,7 +2609,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="power">
        <attribute name="title">
@@ -2831,6 +2999,12 @@
             <layout class="QGridLayout" name="gridLayout_13">
              <item row="4" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_ca">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -2891,6 +3065,12 @@
              </item>
              <item row="9" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_aw0">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -2913,6 +3093,12 @@
              </item>
              <item row="16" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_ecec">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -2935,6 +3121,12 @@
              </item>
              <item row="10" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_acec">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -2986,6 +3178,12 @@
              </item>
              <item row="8" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_aw">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3037,6 +3235,12 @@
              </item>
              <item row="3" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_ia">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3059,6 +3263,12 @@
              </item>
              <item row="22" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_eobs">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3133,6 +3343,12 @@
              </item>
              <item row="5" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_npae">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3252,6 +3468,12 @@
              </item>
              <item row="15" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_ie">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3381,6 +3603,12 @@
              </item>
              <item row="20" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_hece8">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3403,6 +3631,12 @@
              </item>
              <item row="19" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_hese4">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3444,6 +3678,12 @@
              </item>
              <item row="17" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_eces">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3466,6 +3706,12 @@
              </item>
              <item row="14" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_caobs">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3488,6 +3734,12 @@
              </item>
              <item row="21" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_hese8">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3620,6 +3872,12 @@
              </item>
              <item row="13" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_abphi">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3642,6 +3900,12 @@
              </item>
              <item row="11" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_aces">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3674,6 +3938,12 @@
              </item>
              <item row="18" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_hece4">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3696,6 +3966,12 @@
              </item>
              <item row="7" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_an0">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3909,6 +4185,12 @@
              </item>
              <item row="12" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_aba">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -3950,6 +4232,12 @@
              </item>
              <item row="6" column="3">
               <widget class="QDoubleSpinBox" name="spinbox_an">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -4000,6 +4288,12 @@
             <layout class="QGridLayout" name="gridLayout_19">
              <item row="1" column="2">
               <widget class="QDoubleSpinBox" name="spinbox_offset_xelev">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
@@ -4028,6 +4322,12 @@
              </item>
              <item row="0" column="2">
               <widget class="QDoubleSpinBox" name="spinbox_offset_elev">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
@@ -4554,6 +4854,12 @@
              </item>
              <item row="8" column="2">
               <widget class="QDoubleSpinBox" name="spinbox_ambtempparam4">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -4649,6 +4955,12 @@
              </item>
              <item row="6" column="2">
               <widget class="QDoubleSpinBox" name="spinbox_ambtempparam2">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -4671,6 +4983,12 @@
              </item>
              <item row="7" column="2">
               <widget class="QDoubleSpinBox" name="spinbox_ambtempparam3">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -4752,6 +5070,12 @@
              </item>
              <item row="5" column="2">
               <widget class="QDoubleSpinBox" name="spinbox_ambtempparam1">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
