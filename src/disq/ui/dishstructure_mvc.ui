@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1600</width>
+    <width>1527</width>
     <height>900</height>
    </rect>
   </property>
@@ -33,7 +33,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_10">
-    <item row="0" column="0" colspan="4">
+    <item row="0" column="0" colspan="3">
      <widget class="QGroupBox" name="groupBox_server">
       <property name="maximumSize">
        <size>
@@ -219,7 +219,7 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="0" colspan="4">
+    <item row="1" column="0" colspan="3">
      <widget class="QGroupBox" name="groupBox_status">
       <property name="maximumSize">
        <size>
@@ -1583,273 +1583,7 @@
          <string>Azimuth</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
-         <item row="4" column="2">
-          <widget class="QLineEdit" name="opcua_Azimuth_v_Shape">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>velocity</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Azimuth.v_Shape</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLineEdit" name="opcua_Azimuth_v_SetMax">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>velocity</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Azimuth.v_SetMax</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="label_10">
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Position [deg]</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="opcua_Azimuth_p_Act">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>position</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Azimuth.p_Act</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="label_11">
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Velocity [deg/s]</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QLineEdit" name="opcua_Azimuth_v_Act">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>velocity</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Azimuth.v_Act</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QLineEdit" name="opcua_Azimuth_p_Dev">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>position</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Azimuth.p_Dev</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>Set:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="opcua_Azimuth_p_Set">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>position</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Azimuth.p_Set</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="opcua_Azimuth_AxisState">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>status</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Azimuth.AxisState</string>
-           </property>
-           <property name="opcua_type" stdset="0">
-            <string>AxisStateType</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>Actual:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
+         <item row="5" column="0">
           <widget class="QLabel" name="label_14">
            <property name="text">
             <string>Deviation:</string>
@@ -1906,49 +1640,73 @@
            </property>
           </widget>
          </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="groupBox_elevation">
-        <property name="maximumSize">
-         <size>
-          <width>360</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="title">
-         <string>Elevation</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="1" column="2">
-          <widget class="QLabel" name="label_9">
+         <item row="5" column="2">
+          <widget class="QLineEdit" name="opcua_Azimuth_v_Shape">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
              <height>16777215</height>
             </size>
            </property>
-           <property name="text">
-            <string>Velocity [deg/s]</string>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Azimuth.v_Shape</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="label_8">
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_AxisState">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>120</width>
              <height>16777215</height>
             </size>
            </property>
-           <property name="text">
-            <string>Position [deg]</string>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>status</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Azimuth.AxisState</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>AxisStateType</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="opcua_Elevation_p_Act">
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_p_Act">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -1974,11 +1732,363 @@
             <string>position</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Elevation.p_Act</string>
+            <string>Azimuth.p_Act</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLineEdit" name="opcua_Azimuth_v_SetMax">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Azimuth.v_SetMax</string>
            </property>
           </widget>
          </item>
          <item row="2" column="2">
+          <widget class="QLabel" name="label_11">
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Velocity [deg/s]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Actual:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLineEdit" name="opcua_Azimuth_v_Act">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Azimuth.v_Act</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_p_Set">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Azimuth.p_Set</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Set:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="label_10">
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Position [deg]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_p_Dev">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Azimuth.p_Dev</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_11">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLineEdit" name="azimuth_err_lim2ccw">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>CCS2</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Azimuth.ErrorStatus.errLim2CCW</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>red</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="azimuth_warn_lim1ccw">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>CCW1</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Azimuth.WarningStatus.waLim1CCW</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>yellow</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_27">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>ERR</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Management.ManagementStatus.ErrorStatus.errAzimuth</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>red</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_28">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>WARN</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Management.ManagementStatus.WarningStatus.waAzimuth</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>orange</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_29">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>CW1</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Azimuth.WarningStatus.waLim1CW</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>yellow</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_30">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>CW2</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Azimuth.ErrorStatus.errLim2CW</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>red</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_elevation">
+        <property name="maximumSize">
+         <size>
+          <width>360</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Elevation</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Actual:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
           <widget class="QLineEdit" name="opcua_Elevation_v_SetMax">
            <property name="minimumSize">
             <size>
@@ -2006,170 +2116,6 @@
            </property>
            <property name="opcua" stdset="0">
             <string>Elevation.v_SetMax</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Actual:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QLineEdit" name="opcua_Elevation_p_Dev">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>position</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Elevation.p_Dev</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Set:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Deviation:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QLineEdit" name="opcua_Elevation_v_Act">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>velocity</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Elevation.v_Act</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="opcua_Elevation_p_Set">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>position</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Elevation.p_Set</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
-          <widget class="QLineEdit" name="opcua_Elevation_v_Shape">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>velocity</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Elevation.v_Shape</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>Status:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -2204,6 +2150,119 @@
            </property>
            <property name="opcua_type" stdset="0">
             <string>AxisStateType</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="opcua_Elevation_p_Act">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Elevation.p_Act</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Set:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLineEdit" name="opcua_Elevation_v_Act">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Elevation.v_Act</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="opcua_Elevation_p_Set">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Elevation.p_Set</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>Status:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -2244,6 +2303,261 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_9">
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Velocity [deg/s]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Deviation:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="label_8">
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Position [deg]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="opcua_Elevation_p_Dev">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Elevation.p_Dev</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QLineEdit" name="opcua_Elevation_v_Shape">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Elevation.v_Shape</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_10">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLineEdit" name="elevation_err_lim2ccw_2">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>DOWN2</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Elevation.ErrorStatus.errLim2CW</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>red</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="elevation_warn_lim1ccw_2">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>DOWN1</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Elevation.WarningStatus.waLim1CW</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>yellow</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="elevation_error">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>ERR</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Management.ManagementStatus.ErrorStatus.errElevation</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>red</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="elevation_warn">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>WARN</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Management.ManagementStatus.WarningStatus.waElavation</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>orange</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="elevation_warn_lim1cw">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="inputMask">
+              <string>UP1</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Elevation.WarningStatus.waLim1CCW</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>yellow</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="elevation_err_lim2cw">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="inputMask">
+              <string>UP2</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Elevation.ErrorStatus.errLim2CCW</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>red</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
         </layout>
        </widget>
       </item>
@@ -2259,13 +2573,47 @@
          <string>Feed Indexer</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_28">
-           <property name="text">
-            <string>Status:</string>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_p_Set_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.p_Set</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="label_17">
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Position [deg]</string>
            </property>
           </widget>
          </item>
@@ -2300,6 +2648,26 @@
            </property>
            <property name="opcua_type" stdset="0">
             <string>AxisStateType</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_25">
+           <property name="text">
+            <string>Set:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_27">
+           <property name="text">
+            <string>Deviation:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -2340,205 +2708,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="2">
-          <widget class="QLineEdit" name="opcua_Azimuth_v_Shape_2">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>velocity</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>FeedIndexer.v_Shape</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_25">
-           <property name="text">
-            <string>Set:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_26">
-           <property name="text">
-            <string>Actual:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QLineEdit" name="opcua_Azimuth_p_Dev_2">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>position</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>FeedIndexer.p_Dev</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_27">
-           <property name="text">
-            <string>Deviation:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QLineEdit" name="opcua_Azimuth_v_Act_2">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>velocity</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>FeedIndexer.v_Act</string>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="2">
-          <widget class="QLineEdit" name="opcua_Azimuth_v_SetMax_2">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>velocity</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>FeedIndexer.v_SetMax</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="opcua_Azimuth_p_Set_2">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>position</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>FeedIndexer.p_Set</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="label_17">
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Position [deg]</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
           <widget class="QLabel" name="label_24">
            <property name="maximumSize">
             <size>
@@ -2551,7 +2721,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <widget class="QLineEdit" name="opcua_Azimuth_p_Act_2">
            <property name="minimumSize">
             <size>
@@ -2582,21 +2752,309 @@
            </property>
           </widget>
          </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_28">
+           <property name="text">
+            <string>Status:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QLineEdit" name="opcua_Azimuth_v_Shape_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.v_Shape</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_p_Dev_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.p_Dev</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLineEdit" name="opcua_Azimuth_v_Act_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.v_Act</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_26">
+           <property name="text">
+            <string>Actual:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLineEdit" name="opcua_Azimuth_v_SetMax_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>FeedIndexer.v_SetMax</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLineEdit" name="lineEdit">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>CCW2</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>FeedIndexer.ErrorStatus.errLim2CCW</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>red</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_2">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>CCW1</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>FeedIndexer.WarningStatus.waLim1CCW</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>yellow</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_3">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>ERR</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Management.ManagementStatus.ErrorStatus.errFeedindexer</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>red</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_4">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>WARN</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Management.ManagementStatus.WarningStatus.waFeedindexer</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>orange</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_5">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>CW1</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>FeedIndexer.WarningStatus.waLim1CW</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>yellow</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_6">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>CW2</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>FeedIndexer.ErrorStatus.errLim2CW</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+             <property name="led_colour" stdset="0">
+              <string>red</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
         </layout>
        </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>58</width>
-          <height>18</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </item>
@@ -5358,7 +5816,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1600</width>
+     <width>1527</width>
      <height>21</height>
     </rect>
    </property>
