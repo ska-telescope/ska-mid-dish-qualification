@@ -225,7 +225,15 @@ class Model(QObject):
         else:
             logger.warning("Model: register_event_updates: scu is None!?!?!")
 
-    def _convert_band_to_type(self, band: str) -> int:
+    def convert_band_to_type(self, band: str) -> int:
+        """
+        Convert string to BandType enum (integer value).
+
+        :param band: the band to convert to enum
+        :type band: str
+        :return: BandType enum integer value
+        :rtype: int
+        """
         try:
             return ua.BandType[band]
         except AttributeError:
@@ -275,17 +283,17 @@ class Model(QObject):
             )
             result = self._scu.commands[command](arg, *args[1:])
         elif command == "Management.Move2Band":
-            band = self._convert_band_to_type(args[0])
+            band = self.convert_band_to_type(args[0])
             logger.debug("Model: run_opcua_command:  %s(%d)", command, band)
             result = self._scu.commands[command](band)
         elif command == "Pointing.StaticPmSetup":
-            band = self._convert_band_to_type(args[0])
+            band = self.convert_band_to_type(args[0])
             logger.debug(
                 "Model: run_opcua_command:  %s, args: %d %r", command, band, *args[1:]
             )
             result = self._scu.commands[command](band, *args[1:])
         elif command == "Pointing.PmCorrOnOff":
-            band = self._convert_band_to_type(args[3])
+            band = self.convert_band_to_type(args[3])
             logger.debug(
                 "Model: run_opcua_command:  %s, args: %r %d", command, *args[:3], band
             )

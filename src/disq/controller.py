@@ -301,11 +301,11 @@ class Controller(QObject):
         # Arguments are: (bool TakeCommand, string Username)
         self._issue_command(cmd, take_command, username)
 
-    def command_pointing_model_correction(
+    def command_config_pointing_model_corrections(
         self, static: bool, tilt: str, temperature: bool, band: str
     ) -> tuple[int, str]:
         """
-        Issue command to enable/disable the pointing model corrections.
+        Issue command to configure the pointing model corrections.
 
         The command has four input arguments:
         - StaticOn
@@ -342,6 +342,36 @@ class Controller(QObject):
         """
         cmd = "Pointing.StaticPmSetup"
         return self._issue_command(cmd, band, *params)
+
+    def command_set_static_pointing_offsets(
+        self, azim: float, elev: float
+    ) -> tuple[int, str]:
+        """
+        Issue command to set the static pointing tracking offsets.
+
+        :param azim: Azimuth offset
+        :type params: float
+        :param elev: Elevation offset
+        :type params: float
+        :return: A tuple containing the result code and result message
+        :rtype: tuple[int, str]
+        """
+        cmd = "Tracking.TrackLoadStaticOff"
+        return self._issue_command(cmd, azim, elev)
+
+    def command_set_ambtemp_correction_parameters(
+        self, params: list[float]
+    ) -> tuple[int, str]:
+        """
+        Issue command to set the ambient temperature correction parameters.
+
+        :param params: list of parameter values to apply
+        :type params: list[float]
+        :return: A tuple containing the result code and result message
+        :rtype: tuple[int, str]
+        """
+        cmd = "Pointing.AmbCorrSetup"
+        return self._issue_command(cmd, *params)
 
     def _issue_command(self, cmd: str, *args) -> tuple[int, str]:
         """
