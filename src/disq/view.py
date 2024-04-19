@@ -6,6 +6,7 @@ from enum import Enum
 from functools import cached_property
 from importlib import resources
 from pathlib import Path
+from typing import Callable
 
 from PyQt6 import QtCore, QtWidgets, uic
 
@@ -124,7 +125,7 @@ class MainView(QtWidgets.QMainWindow):
         :param kwargs: Additional keyword arguments.
         """
         super().__init__(*args, **kwargs)
-        # logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
         # Load the UI from the XML .ui file
         ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
         uic.loadUi(ui_xml_filename, self)
@@ -497,15 +498,21 @@ class MainView(QtWidgets.QMainWindow):
                 continue
 
             opcua_parameter_name: str = wgt.property("opcua")
-            opcua_widget_update_func = (
-                self._update_opcua_text_widget
-            )  # the default update callback
+            # the default update callback
+            opcua_widget_update_func: Callable = self._update_opcua_text_widget
             logger.debug("OPCUA widget: %s", opcua_parameter_name)
 
             if "opcua_type" in wgt.dynamicPropertyNames():
                 opcua_type = wgt.property("opcua_type")
                 if opcua_type == "Boolean":
-                    opcua_widget_update_func = self._update_opcua_boolean_widget
+                    if isinstance(wgt, QtWidgets.QRadioButton):
+                        opcua_widget_update_func = (
+                            self._update_opcua_boolean_radio_button_widget
+                        )
+                    else:
+                        opcua_widget_update_func = (
+                            self._update_opcua_boolean_text_widget
+                        )
                 else:
                     opcua_widget_update_func = self._update_opcua_enum_widget
                 logger.debug("OPCUA widget type: %s", opcua_type)
@@ -692,49 +699,55 @@ class MainView(QtWidgets.QMainWindow):
         finally:
             widget.setText(str_val)
 
-    # TODO: Split this into separate update functions for LineEdits and RadioButtons
-    # pylint: disable=too-many-branches
-    def _update_opcua_boolean_widget(
-        self, widget: QtWidgets.QLineEdit | QtWidgets.QRadioButton, event: dict
+    def _update_opcua_boolean_radio_button_widget(
+        self, button: QtWidgets.QRadioButton, event: dict
+    ) -> None:
+        """
+        Set radio button in exclusive group based on its boolean OPC-UA parameter.
+
+        :param button: Button that signal came from.
+        :type button: QtWidgets.QRadioButton
+        :param event: A dictionary containing event data.
+        :type event: dict
+        """
+        logger.debug(
+            "Widget: %s. Boolean OPCUA update: %s value=%s",
+            button.objectName(),
+            event["name"],
+            event["value"],
+        )
+        # Update can come from either OFF or ON radio button, but need to explicitly
+        # set one of the two in a group with setChecked(True)
+        if event["value"]:
+            button = getattr(self, button.objectName().replace("_off", "_on"))
+        else:
+            button = getattr(self, button.objectName().replace("_on", "_off"))
+        button.setChecked(True)
+        # Block or unblock tilt meter selection signal whether function is active
+        if event["name"] == "Pointing.TiltCorrActive":
+            self.button_group_tilt_correction_meter.blockSignals(not event["value"])
+        # Populate input boxes with current read values after connecting to server
+        elif event["name"] == "Pointing.StaticCorrActive":
+            if self._update_static_pointing_inputs_text:
+                self._update_static_pointing_inputs_text = False
+                self._set_static_pointing_inputs_text(not event["value"])
+        elif event["name"] == "Pointing.TempCorrActive":
+            if self._update_temp_correction_inputs_text:
+                self._update_temp_correction_inputs_text = False
+                self._set_temp_correction_inputs_text(not event["value"])
+
+    def _update_opcua_boolean_text_widget(
+        self, widget: QtWidgets.QLineEdit, event: dict
     ) -> None:
         """
         Update background colour of widget to reflect boolean state of OPC-UA parameter.
 
-        The event udpdate 'value' field can take 3 states:
+        The event update 'value' field can take 3 states:
          - None: the OPC-UA parameter is not defined. Colour background grey/disabled.
          - True: the OPC-UA parameter is True. Colour background light green (LED on).
          - False: the OPC-UA parameter is False. Colour background dark green (LED off).
         """
         logger.debug("Boolean OPCUA update: %s value=%s", event["name"], event["value"])
-        if isinstance(widget, QtWidgets.QRadioButton):
-            if event["name"] == "Pointing.StaticCorrActive":
-                if event["value"]:
-                    self.button_static_point_model_on.setChecked(True)
-                    static_block_signals = False
-                else:
-                    self.button_static_point_model_off.setChecked(True)
-                    static_block_signals = True
-                if self._update_static_pointing_inputs_text:
-                    self._update_static_pointing_inputs_text = False
-                    self._set_static_pointing_inputs_text(static_block_signals)
-            elif event["name"] == "Pointing.TiltCorrActive":
-                if event["value"]:
-                    self.button_tilt_correction_on.setChecked(True)
-                    self.button_group_tilt_correction_meter.blockSignals(False)
-                else:
-                    self.button_tilt_correction_off.setChecked(True)
-                    self.button_group_tilt_correction_meter.blockSignals(True)
-            elif event["name"] == "Pointing.TempCorrActive":
-                if event["value"]:
-                    self.button_temp_correction_on.setChecked(True)
-                    temperature_block_signals = False
-                else:
-                    self.button_temp_correction_off.setChecked(True)
-                    temperature_block_signals = True
-                if self._update_temp_correction_inputs_text:
-                    self._update_temp_correction_inputs_text = False
-                    self._set_temp_correction_inputs_text(temperature_block_signals)
-            return
         # TODO: modify background colour of widget (LED style on/off) to reflect the
         # boolean state
         led_colours = {
@@ -1114,6 +1127,12 @@ class MainView(QtWidgets.QMainWindow):
                     spinbox.blockSignals(True)
 
     def _set_static_pointing_inputs_text(self, block_signals: bool):
+        """
+        Set static pointing inputs' text to current read values.
+
+        :param block_signals: Block or unblock the widgets' signals.
+        :type block_signals: bool
+        """
         # Static pointing band
         self.combo_static_point_model_band.blockSignals(True)
         self.combo_static_point_model_band.setCurrentIndex(
@@ -1143,6 +1162,12 @@ class MainView(QtWidgets.QMainWindow):
             spinbox.blockSignals(block_signals)
 
     def _set_temp_correction_inputs_text(self, block_signals: bool):
+        """
+        Set ambient temperature correction inputs' text to current read values.
+
+        :param block_signals: Block or unblock the widgets' signals.
+        :type block_signals: bool
+        """
         for spinbox, value in zip(
             self.ambtemp_correction_spinboxes, self.ambtemp_correction_values
         ):
