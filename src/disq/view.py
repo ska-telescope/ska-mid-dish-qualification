@@ -93,16 +93,16 @@ class MainView(QtWidgets.QMainWindow):
 
     _DECIMAL_PLACES: Final = 3
     _LED_COLOURS: Final[dict[str, dict[bool | str, str]]] = {
-        "red": {True: "rgb(255, 0, 0)", False: "rgb(128, 0, 0)"},
-        "green": {True: "rgb(10, 250, 0)", False: "rgb(10, 80, 0)"},
-        "yellow": {True: "rgb(250, 255, 0)", False: "rgb(180, 180, 45)"},
-        "orange": {True: "rgb(255, 185, 35)", False: "rgb(180, 135, 35)"},
+        "red": {True: "rgb(255, 0, 0)", False: "rgb(60, 0, 0)"},
+        "green": {True: "rgb(10, 250, 25)", False: "rgb(10, 60, 0)"},
+        "yellow": {True: "rgb(250, 255, 0)", False: "rgb(45, 44, 0)"},
+        "orange": {True: "rgb(255, 170, 0)", False: "rgb(92, 61, 0)"},
         "StowPinStatusType": {
-            "retracted": "green",
-            "deploying": "yellow",
-            "retracting": "yellow",
-            "deployed": "red",
-            "motiontimeout": "red",
+            "retracted": "rgb(10, 250, 25)",
+            "deploying": "rgb(250, 255, 0)",
+            "retracting": "rgb(250, 255, 0)",
+            "deployed": "rgb(255, 0, 0)",
+            "motiontimeout": "rgb(255, 0, 0)",
         },
     }
 
@@ -779,30 +779,32 @@ class MainView(QtWidgets.QMainWindow):
         Update background colour of widget to reflect boolean state of OPC-UA parameter.
 
         The event update 'value' field can take 3 states:
-         - None: the OPC-UA parameter is not defined. Colour background grey/disabled.
+         - None: the OPC-UA parameter is not initialised yet. Colour background grey.
          - True: the OPC-UA parameter is True. Colour background light green (LED on).
          - False: the OPC-UA parameter is False. Colour background dark green (LED off).
         """
         logger.debug("Boolean OPCUA update: %s value=%s", event["name"], event["value"])
-        # TODO: modify background colour of widget (LED style on/off) to reflect the
-        # boolean state
-        led_colours = {
-            "red": {True: "rgb(255, 0, 0)", False: "rgb(128, 0, 0)"},
-            "green": {True: "rgb(10, 250, 0)", False: "rgb(10, 80, 0)"},
-            "yellow": {True: "rgb(250, 255, 0)", False: "rgb(180, 180, 45)"},
-            "orange": {True: "rgb(255, 185, 35)", False: "rgb(180, 135, 35)"},
-        }
         if event["value"] is None:
             widget.setEnabled(False)
             widget.setStyleSheet("border-color: white;")
         else:
-            led_colour = "green"  # default colour
+            led_base_colour = "green"  # default colour
             if "led_colour" in widget.dynamicPropertyNames():
-                led_colour = widget.property("led_colour")
+                led_base_colour = widget.property("led_colour")
+            try:
+                background_colour_rbg: str = self._LED_COLOURS[led_base_colour][
+                    event["value"]
+                ]
+            except KeyError:
+                logger.warning(
+                    "LED colour for base colour '%s' and value '%s' not found",
+                    led_base_colour,
+                    event["value"],
+                )
+                return
             widget.setEnabled(True)
             widget.setStyleSheet(
-                f"background-color: {led_colours[led_colour][event['value']]};"
-                "border-color: black;"
+                f"background-color: {background_colour_rbg};" "border-color: black;"
             )
 
     def _track_table_file_exist(self) -> bool:
