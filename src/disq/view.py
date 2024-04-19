@@ -371,6 +371,7 @@ class MainView(QtWidgets.QMainWindow):
         self.button_group_tilt_correction_meter.buttonClicked.connect(
             self.pointing_model_button_clicked
         )
+        self.tilt_correction_meter_checked_prev: int = 1
         self.button_group_tilt_correction_meter.blockSignals(True)
         self.button_group_tilt_correction_meter.addButton(
             self.button_tilt_correction_meter_1, 1
@@ -728,15 +729,18 @@ class MainView(QtWidgets.QMainWindow):
         # Block or unblock tilt meter selection signal whether function is active
         if event["name"] == "Pointing.TiltCorrActive":
             self.button_group_tilt_correction_meter.blockSignals(not event["value"])
+            self.tilt_correction_checked_prev = int(event["value"])
         # Populate input boxes with current read values after connecting to server
         elif event["name"] == "Pointing.StaticCorrActive":
             if self._update_static_pointing_inputs_text:
                 self._update_static_pointing_inputs_text = False
                 self._set_static_pointing_inputs_text(not event["value"])
+                self.static_point_model_checked_prev = int(event["value"])
         elif event["name"] == "Pointing.TempCorrActive":
             if self._update_temp_correction_inputs_text:
                 self._update_temp_correction_inputs_text = False
                 self._set_temp_correction_inputs_text(not event["value"])
+                self.temp_correction_checked_prev = int(event["value"])
 
     def _update_opcua_boolean_text_widget(
         self, widget: QtWidgets.QLineEdit, event: dict
@@ -1089,16 +1093,20 @@ class MainView(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def pointing_model_button_clicked(self):
         """Any pointing model toggle button clicked slot function."""
+        static_point_model_checked_id = self.button_group_static_point_model.checkedId()
+        temp_correction_checked_id = self.button_group_temp_correction.checkedId()
+        tilt_correction_checked_id = self.button_group_tilt_correction.checkedId()
+        tilt_corr_meter_checked_id = self.button_group_tilt_correction_meter.checkedId()
         tilt_correction = (
-            self.button_group_tilt_correction_meter.checkedId()
+            tilt_corr_meter_checked_id
             if self.button_tilt_correction_on.isChecked()
             else 0
         )
         # Validate command parameters
         try:
-            stat = {0: False, 1: True}[self.button_group_static_point_model.checkedId()]
+            stat = {0: False, 1: True}[static_point_model_checked_id]
             tilt = {0: "Off", 1: "TiltmeterOne", 2: "TiltmeterTwo"}[tilt_correction]
-            ambtemp = {0: False, 1: True}[self.button_group_temp_correction.checkedId()]
+            ambtemp = {0: False, 1: True}[temp_correction_checked_id]
         except KeyError:
             logger.exception("Invalid button ID.")
             return
@@ -1127,6 +1135,25 @@ class MainView(QtWidgets.QMainWindow):
             else:
                 for spinbox in self.ambtemp_correction_spinboxes:
                     spinbox.blockSignals(True)
+            # Keep track of radio buttons' previous states
+            self.static_point_model_checked_prev = static_point_model_checked_id
+            self.tilt_correction_checked_prev = tilt_correction_checked_id
+            self.tilt_correction_meter_checked_prev = tilt_corr_meter_checked_id
+            self.temp_correction_checked_prev = temp_correction_checked_id
+        else:
+            # If command did not execute for any reason, restore buttons to prev states
+            self.button_group_static_point_model.button(
+                self.static_point_model_checked_prev
+            ).setChecked(True)
+            self.button_group_tilt_correction.button(
+                self.tilt_correction_checked_prev
+            ).setChecked(True)
+            self.button_group_tilt_correction_meter.button(
+                self.tilt_correction_meter_checked_prev
+            ).setChecked(True)
+            self.button_group_temp_correction.button(
+                self.temp_correction_checked_prev
+            ).setChecked(True)
 
     def _set_static_pointing_inputs_text(self, block_signals: bool):
         """
