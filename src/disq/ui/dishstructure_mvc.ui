@@ -1026,6 +1026,9 @@
     </item>
     <item row="2" column="0">
      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>2</number>
+      </property>
       <item>
        <widget class="QGroupBox" name="groupBox_commands_2">
         <property name="maximumSize">
@@ -1571,6 +1574,9 @@
     </item>
     <item row="2" column="1">
      <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>2</number>
+      </property>
       <item>
        <widget class="QGroupBox" name="groupBox_azimuth">
         <property name="maximumSize">
@@ -1613,7 +1619,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -1650,7 +1656,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -1681,7 +1687,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -1715,7 +1721,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -1746,7 +1752,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -1800,7 +1806,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -1831,7 +1837,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -1885,7 +1891,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -1906,7 +1912,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1" colspan="2">
+         <item row="1" column="0" colspan="3">
           <layout class="QHBoxLayout" name="horizontalLayout_11">
            <property name="spacing">
             <number>0</number>
@@ -1924,6 +1930,9 @@
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
               <string>Azimuth.ErrorStatus.errLim2CCW</string>
@@ -1950,6 +1959,9 @@
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="opcua" stdset="0">
               <string>Azimuth.WarningStatus.waLim1CCW</string>
              </property>
@@ -1974,6 +1986,9 @@
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
               <string>Management.ManagementStatus.ErrorStatus.errAzimuth</string>
@@ -2000,6 +2015,9 @@
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="opcua" stdset="0">
               <string>Management.ManagementStatus.WarningStatus.waAzimuth</string>
              </property>
@@ -2025,6 +2043,9 @@
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="opcua" stdset="0">
               <string>Azimuth.WarningStatus.waLim1CW</string>
              </property>
@@ -2049,6 +2070,9 @@
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
               <string>Azimuth.ErrorStatus.errLim2CW</string>
@@ -2098,7 +2122,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2123,13 +2147,13 @@
           <widget class="QLineEdit" name="opcua_Elevation_AxisState">
            <property name="minimumSize">
             <size>
-             <width>0</width>
+             <width>120</width>
              <height>22</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2163,7 +2187,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2204,7 +2228,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2235,7 +2259,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2276,7 +2300,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2349,7 +2373,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2380,7 +2404,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2401,7 +2425,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1" colspan="2">
+         <item row="1" column="0" colspan="3">
           <layout class="QHBoxLayout" name="horizontalLayout_10">
            <property name="spacing">
             <number>0</number>
@@ -2419,6 +2443,9 @@
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
               <string>Elevation.ErrorStatus.errLim2CW</string>
@@ -2445,6 +2472,9 @@
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="opcua" stdset="0">
               <string>Elevation.WarningStatus.waLim1CW</string>
              </property>
@@ -2469,6 +2499,9 @@
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
               <string>Management.ManagementStatus.ErrorStatus.errElevation</string>
@@ -2495,6 +2528,9 @@
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="opcua" stdset="0">
               <string>Management.ManagementStatus.WarningStatus.waElavation</string>
              </property>
@@ -2520,6 +2556,9 @@
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="opcua" stdset="0">
               <string>Elevation.WarningStatus.waLim1CCW</string>
              </property>
@@ -2544,6 +2583,9 @@
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
               <string>Elevation.ErrorStatus.errLim2CCW</string>
@@ -2583,7 +2625,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2627,7 +2669,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2681,7 +2723,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2731,7 +2773,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2772,7 +2814,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2803,7 +2845,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2834,7 +2876,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2875,7 +2917,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2896,7 +2938,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1" colspan="2">
+         <item row="1" column="0" colspan="3">
           <layout class="QHBoxLayout" name="horizontalLayout_7">
            <property name="spacing">
             <number>0</number>
@@ -2914,6 +2956,9 @@
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
               <string>FeedIndexer.ErrorStatus.errLim2CCW</string>
@@ -2940,6 +2985,9 @@
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="opcua" stdset="0">
               <string>FeedIndexer.WarningStatus.waLim1CCW</string>
              </property>
@@ -2964,6 +3012,9 @@
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
               <string>Management.ManagementStatus.ErrorStatus.errFeedindexer</string>
@@ -2990,6 +3041,9 @@
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="opcua" stdset="0">
               <string>Management.ManagementStatus.WarningStatus.waFeedindexer</string>
              </property>
@@ -3015,6 +3069,9 @@
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="opcua" stdset="0">
               <string>FeedIndexer.WarningStatus.waLim1CW</string>
              </property>
@@ -3039,6 +3096,9 @@
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
               <string>FeedIndexer.ErrorStatus.errLim2CW</string>
