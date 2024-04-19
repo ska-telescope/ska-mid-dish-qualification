@@ -6,7 +6,7 @@ from enum import Enum
 from functools import cached_property
 from importlib import resources
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Final
 
 from PyQt6 import QtCore, QtWidgets, uic
 
@@ -90,6 +90,8 @@ class MainView(QtWidgets.QMainWindow):
     :type disq_controller: controller.Controller
     """
 
+    _DECIMAL_PLACES: Final = 3
+
     def __init__(
         self,
         disq_model: model.Model,
@@ -125,7 +127,7 @@ class MainView(QtWidgets.QMainWindow):
         :param kwargs: Additional keyword arguments.
         """
         super().__init__(*args, **kwargs)
-        logger.setLevel(logging.DEBUG)
+        # logger.setLevel(logging.DEBUG)
         # Load the UI from the XML .ui file
         ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
         uic.loadUi(ui_xml_filename, self)
@@ -1060,14 +1062,14 @@ class MainView(QtWidgets.QMainWindow):
         band = self.combo_static_point_model_band.currentText().replace(" ", "_")
         params = []
         for spinbox in self.static_pointing_spinboxes:
-            params.append(spinbox.value())
+            params.append(round(spinbox.value(), self._DECIMAL_PLACES))
         self.controller.command_set_static_pointing_parameters(band, params)
 
     @QtCore.pyqtSlot()
     def static_pointing_offset_changed(self):
         """Static pointing offset changed slot function."""
-        xelev = self.spinbox_offset_xelev.value()
-        elev = self.spinbox_offset_elev.value()
+        xelev = round(self.spinbox_offset_xelev.value(), self._DECIMAL_PLACES)
+        elev = round(self.spinbox_offset_elev.value(), self._DECIMAL_PLACES)
         self.controller.command_set_static_pointing_offsets(xelev, elev)
 
     @QtCore.pyqtSlot()
@@ -1075,7 +1077,7 @@ class MainView(QtWidgets.QMainWindow):
         """Ambient temperature correction parameter changed slot function."""
         params = []
         for spinbox in self.ambtemp_correction_spinboxes:
-            params.append(spinbox.value())
+            params.append(round(spinbox.value(), self._DECIMAL_PLACES))
         self.controller.command_set_ambtemp_correction_parameters(params)
 
     @QtCore.pyqtSlot()
