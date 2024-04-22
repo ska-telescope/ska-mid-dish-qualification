@@ -83,11 +83,12 @@ def test_start_stop_past_file(capsys):
     converter.make_csv(input_file, output_file, nodes, start, stop, step)
     captured = capsys.readouterr()
     expected_stdout = (
-        "Requested start time 2023-10-30 16:14:52.138859 is before earliest file start "
-        "2023-10-30 16:14:56.138859. Output CSV will start from 2023-10-30 "
-        "16:14:56.138859\nRequested stop time 2023-10-30 16:15:01.315888 is after "
-        "latest file stop 2023-10-30 16:14:57.315888. Output CSV will stop at "
-        "2023-10-30 16:14:57.315888\n"
+        "Requested start time 2023-10-30 16:14:52.138859+00:00 is before earliest "
+        "file start 2023-10-30 16:14:56.138859+00:00. Output CSV will start from "
+        "2023-10-30 16:14:56.138859+00:00\nRequested stop time 2023-10-30 "
+        "16:15:01.315888+00:00 is after latest file stop 2023-10-30 "
+        "16:14:57.315888+00:00. Output CSV will stop at 2023-10-30 "
+        "16:14:57.315888+00:00\n"
     )
     # Check that error message matches expected
     assert captured.out == expected_stdout
@@ -151,7 +152,8 @@ def test_simple_input_file_double_speed(capsys):
     # Check the output file matches the expected.
     assert (
         filecmp.cmp(
-            output_file, "tests/expected_files/simple_input_file_double_speed.csv"
+            output_file,
+            "tests/expected_files/simple_input_file_double_speed.csv",
         )
         is True
     )
