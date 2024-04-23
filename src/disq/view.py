@@ -2,6 +2,7 @@
 
 import logging
 import os
+from datetime import datetime
 from enum import Enum
 from functools import cached_property
 from importlib import resources
@@ -91,6 +92,19 @@ class MainView(QtWidgets.QMainWindow):
     """
 
     _DECIMAL_PLACES: Final = 3
+    _LED_COLOURS: Final[dict[str, dict[bool | str, str]]] = {
+        "red": {True: "rgb(255, 0, 0)", False: "rgb(60, 0, 0)"},
+        "green": {True: "rgb(10, 250, 25)", False: "rgb(10, 60, 0)"},
+        "yellow": {True: "rgb(250, 255, 0)", False: "rgb(45, 44, 0)"},
+        "orange": {True: "rgb(255, 170, 0)", False: "rgb(92, 61, 0)"},
+        "StowPinStatusType": {
+            "retracted": "rgb(10, 250, 25)",
+            "deploying": "rgb(250, 255, 0)",
+            "retracting": "rgb(250, 255, 0)",
+            "deployed": "rgb(255, 0, 0)",
+            "motiontimeout": "rgb(255, 0, 0)",
+        },
+    }
 
     def __init__(
         self,
@@ -139,6 +153,7 @@ class MainView(QtWidgets.QMainWindow):
         self.status_bar = QtWidgets.QStatusBar()
         self.setStatusBar(self.status_bar)
         self.status_bar.addWidget(self.cmd_status_label)
+        self.list_cmd_history: QtWidgets.QListWidget  # Command history list widget
 
         # Set the server URI from environment variable if defined
         server_address: str | None = os.environ.get("DISQ_OPCUA_SERVER_ADDRESS", None)
@@ -678,6 +693,9 @@ class MainView(QtWidgets.QMainWindow):
         The Event data is an OPC-UA Enum type. The value arrives as an integer and
         it is converted to a string here before updating the text of the widget.
 
+        If the widget's name is found in the `_LED_COLOURS` dict, then the background
+        colour of the widget is set accordingly.
+
         The event update dict contains:
         - name: name
         - node: node
@@ -701,6 +719,18 @@ class MainView(QtWidgets.QMainWindow):
             str_val = val.name
         finally:
             widget.setText(str_val)
+        if opcua_type in self._LED_COLOURS:
+            try:
+                led_colour = self._LED_COLOURS[opcua_type][str_val.lower()]
+            except KeyError:
+                logger.warning(
+                    "Enum value '%s' for opcua type '%s' not found in LED colours dict",
+                    str_val.lower(),
+                    opcua_type,
+                )
+            widget.setStyleSheet(
+                f"background-color: {led_colour};" "border-color: black;"
+            )
 
     def _update_opcua_boolean_radio_button_widget(
         self, button: QtWidgets.QRadioButton, event: dict
@@ -749,30 +779,32 @@ class MainView(QtWidgets.QMainWindow):
         Update background colour of widget to reflect boolean state of OPC-UA parameter.
 
         The event update 'value' field can take 3 states:
-         - None: the OPC-UA parameter is not defined. Colour background grey/disabled.
+         - None: the OPC-UA parameter is not initialised yet. Colour background grey.
          - True: the OPC-UA parameter is True. Colour background light green (LED on).
          - False: the OPC-UA parameter is False. Colour background dark green (LED off).
         """
         logger.debug("Boolean OPCUA update: %s value=%s", event["name"], event["value"])
-        # TODO: modify background colour of widget (LED style on/off) to reflect the
-        # boolean state
-        led_colours = {
-            "red": {True: "rgb(255, 0, 0)", False: "rgb(128, 0, 0)"},
-            "green": {True: "rgb(10, 250, 0)", False: "rgb(10, 80, 0)"},
-            "yellow": {True: "rgb(250, 255, 0)", False: "rgb(180, 180, 45)"},
-            "orange": {True: "rgb(255, 185, 35)", False: "rgb(180, 135, 35)"},
-        }
         if event["value"] is None:
             widget.setEnabled(False)
             widget.setStyleSheet("border-color: white;")
         else:
-            led_colour = "green"  # default colour
+            led_base_colour = "green"  # default colour
             if "led_colour" in widget.dynamicPropertyNames():
-                led_colour = widget.property("led_colour")
+                led_base_colour = widget.property("led_colour")
+            try:
+                background_colour_rbg: str = self._LED_COLOURS[led_base_colour][
+                    event["value"]
+                ]
+            except KeyError:
+                logger.warning(
+                    "LED colour for base colour '%s' and value '%s' not found",
+                    led_base_colour,
+                    event["value"],
+                )
+                return
             widget.setEnabled(True)
             widget.setStyleSheet(
-                f"background-color: {led_colours[led_colour][event['value']]};"
-                "border-color: black;"
+                f"background-color: {background_colour_rbg};" "border-color: black;"
             )
 
     def _track_table_file_exist(self) -> bool:
@@ -1054,6 +1086,9 @@ class MainView(QtWidgets.QMainWindow):
     def command_response_status_update(self, status: str):
         """Update the main window status bar with a status update."""
         self.cmd_status_label.setText(status[:200])
+        history_line: str = f"{datetime.now().strftime('%H:%M:%S')} - {status}"
+        self.list_cmd_history.addItem(history_line)
+        self.list_cmd_history.scrollToBottom()
 
     @QtCore.pyqtSlot(str)
     def move2band_button_clicked(self, band: str):
