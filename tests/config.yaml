@@ -1,6 +1,0 @@
-connection:
-  protocol: 'opc.tcp://'
-  address: '127.0.0.1'
-  port: '4840'
-  endpoint: '/dish-structure/server/'
-  namespace: 'http://skao.int/DS_ICD/'
