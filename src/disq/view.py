@@ -338,16 +338,16 @@ class MainView(QtWidgets.QMainWindow):
             self.spinbox_eobs,
         ]
         for spinbox in self.static_pointing_spinboxes:
-            spinbox.valueChanged.connect(self.static_pointing_parameter_changed)
+            spinbox.editingFinished.connect(self.static_pointing_parameter_changed)
             spinbox.blockSignals(True)
         self.opcua_offset_xelev: QtWidgets.QLabel
         self.opcua_offset_elev: QtWidgets.QLabel
         self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
         self.spinbox_offset_elev: QtWidgets.QDoubleSpinBox
-        self.spinbox_offset_xelev.valueChanged.connect(
+        self.spinbox_offset_xelev.editingFinished.connect(
             self.static_pointing_offset_changed
         )
-        self.spinbox_offset_elev.valueChanged.connect(
+        self.spinbox_offset_elev.editingFinished.connect(
             self.static_pointing_offset_changed
         )
         self.spinbox_offset_xelev.blockSignals(True)
@@ -409,7 +409,7 @@ class MainView(QtWidgets.QMainWindow):
             self.spinbox_ambtempparam6,
         ]
         for spinbox in self.ambtemp_correction_spinboxes:
-            spinbox.valueChanged.connect(self.ambtemp_correction_parameter_changed)
+            spinbox.editingFinished.connect(self.ambtemp_correction_parameter_changed)
             spinbox.blockSignals(True)
         self._update_temp_correction_inputs_text = False
         # Bands group widgets
