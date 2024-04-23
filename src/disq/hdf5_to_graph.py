@@ -160,7 +160,7 @@ class Grapher:
         self,
         node: str,
         axis: axes.Axes,
-        x: list[datetime],
+        x: list,
         y: list,
         num: int,
         categories: list[str],
@@ -195,7 +195,7 @@ class Grapher:
         )
         if len(categories) > 0:
             axis.set_yticks(ticks=range(len(categories)), labels=categories)
-            axis.format_ydata = categorical_ydata(categories)
+            axis.format_ydata = categorical_ydata(categories)  # type: ignore
 
         axis.legend(
             bbox_to_anchor=(0, 1.02, 1, 0.2),
@@ -239,15 +239,16 @@ class Grapher:
                 )
 
         # Build graph
+        y1: axes.Axes
         fig, y1 = pyplot.subplots(figsize=(12, 4.8))
         y1.xaxis.set_major_formatter(dates.DateFormatter("%y-%m-%d %H:%M:%S.%f"))
         self._build_axis(node1, y1, y1_dts, y1_data, 0, y1_categories)
 
         if node2 is not None:
             y2 = y1.twinx()
+            assert isinstance(y2, axes.Axes)  # so MyPy does not flag assignment above
             self._build_axis(node2, y2, y2_dts, y2_data, 1, y2_categories)
-
-            y2.format_coord = make_format(y2, y1, node2, node1)
+            y2.format_coord = make_format(y2, y1, node2, node1)  # type: ignore
 
         fig.autofmt_xdate(rotation=20)
         pyplot.grid(

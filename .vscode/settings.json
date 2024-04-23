@@ -24,5 +24,8 @@
     "autoDocstring.docstringFormat": "sphinx",
     "autoDocstring.guessTypes": true,
     "autoDocstring.includeExtendedSummary": true,
-    "autoDocstring.startOnNewLine": true
+    "autoDocstring.startOnNewLine": true,
+    "editor.rulers": [
+        88
+    ]
 }

@@ -6,17 +6,18 @@ import os
 import sys
 import threading
 from difflib import SequenceMatcher
+from typing import Any
 
-import asyncua
+from asyncua import Node, ua
 
 from disq import configuration, sculib
-from disq.serval_internal_server import ServalInternalServer
+from disq.serval_internal_server import SerValInternalServer
 
 
 # pylint: disable=too-many-instance-attributes
-class Serval:
+class OPCUAServerValidator:
     """
-    A class representing an OPC UA server and its functionalities.
+    A class representing an OPC UA server validator and its functionalities.
 
     :param include_namespace: Flag to indicate whether to include namespace in node
         names. Default is False.
@@ -104,7 +105,7 @@ class Serval:
         :param xml_file: The path to the XML file for configuring the internal server.
         :type xml_file: str
         """
-        async with ServalInternalServer(xml_file):
+        async with SerValInternalServer(xml_file):
             self.internal_server_started_barrier.wait()
             while not self.internal_server_stop.is_set():
                 await asyncio.sleep(1)
@@ -119,7 +120,7 @@ class Serval:
         """
         asyncio.run(self._run_internal_server(xml_file))
 
-    def _read_node_name(self, node: asyncua.Node) -> asyncua.ua.uatypes.QualifiedName:
+    def _read_node_name(self, node: Node) -> ua.uatypes.QualifiedName:
         """
         Read the browse name of a given Node.
 
@@ -132,7 +133,9 @@ class Serval:
             node.read_browse_name(), self.event_loop
         ).result()
 
-    def _get_node_info(self, node: asyncua.Node) -> tuple:
+    def _get_node_info(
+        self, node: Node
+    ) -> tuple[ua.uatypes.QualifiedName, ua.NodeClass, list[Node]]:
         """
         Get information about a Node in the OPC UA server.
 
@@ -151,7 +154,7 @@ class Serval:
 
         return (name, node_class, children)
 
-    def _get_param_type_tuple(self, node_id: asyncua.ua.uatypes.NodeId) -> tuple:
+    def _get_param_type_tuple(self, node_id: ua.uatypes.NodeId) -> tuple:
         """
         Get the parameter type tuple for a given NodeId.
 
@@ -167,7 +170,7 @@ class Serval:
 
         return (param_type,)
 
-    def _get_method_info(self, node: asyncua.Node) -> dict:
+    def _get_method_info(self, node: Node) -> dict:
         """
         Get information about the method associated with a Node.
 
@@ -217,7 +220,7 @@ class Serval:
 
         return (data_type,)
 
-    def _fill_tree_recursive(self, node: asyncua.Node, ancestors: list[str]) -> dict:
+    def _fill_tree_recursive(self, node: Node, ancestors: list[str]) -> dict:
         """
         Fill a dictionary representing the OPC UA nodes starting from a given node.
 
@@ -228,7 +231,7 @@ class Serval:
         :return: A dictionary representing the OPC UA nodes starting from the given node
         :rtype: dict
         """
-        node_dict = {}
+        node_dict: dict[str, Any] = {}
         # Fill node info
         name, node_class, node_children = self._get_node_info(node)
         short_name = name.Name
@@ -260,8 +263,15 @@ class Serval:
 
         return node_dict
 
+    # pylint: disable=too-many-arguments
     def _scan_opcua_server(
-        self, host: str, port: str, endpoint: str, namespace: str
+        self,
+        host: str,
+        port: str,
+        endpoint: str,
+        namespace: str,
+        username: str | None = None,
+        password: str | None = None,
     ) -> dict:
         # Use sculib for encryption and getting PLC_PRG node.
         """
@@ -275,11 +285,15 @@ class Serval:
         :type endpoint: str
         :param namespace: The namespace of the OPC UA server.
         :type namespace: str
+        :param username: The username of the OPC UA server.
+        :type username: str
+        :param password: The password of the OPC UA server.
+        :type password: str
         :return: A dictionary representing the server tree.
         :rtype: dict
         """
         self.server = sculib.SCU(
-            host=host, port=int(port), endpoint=endpoint, namespace=namespace
+            host, int(port), endpoint, namespace, username, password
         )
         self.event_loop = self.server.event_loop
         # Fill tree dict for server
@@ -380,7 +394,7 @@ class Serval:
         diff_tree = {}
         for node, node_info in expected.items():
             if node in actual:
-                current_diff = {}
+                current_diff: dict[str, list | bool] = {}
                 node_children = {}
                 if node == self.in_args:
                     current_diff["params_match"] = self._args_match(
@@ -636,12 +650,22 @@ class Serval:
         # First build tree of dubious server
         server_args = configuration.get_config_sculib_args(server_file, server_config)
         if "endpoint" in server_args and "namespace" in server_args:
-            actual_tree = self._scan_opcua_server(
-                server_args["host"],
-                server_args["port"],
-                server_args["endpoint"],
-                server_args["namespace"],
-            )
+            if "username" in server_args and "password" in server_args:
+                actual_tree = self._scan_opcua_server(
+                    server_args["host"],
+                    server_args["port"],
+                    server_args["endpoint"],
+                    server_args["namespace"],
+                    server_args["username"],
+                    server_args["password"],
+                )
+            else:
+                actual_tree = self._scan_opcua_server(
+                    server_args["host"],
+                    server_args["port"],
+                    server_args["endpoint"],
+                    server_args["namespace"],
+                )
         else:
             # First physical controller does not have an endpoint or namespace
             actual_tree = self._scan_opcua_server(
@@ -799,7 +823,7 @@ def main():
     if not os.path.isfile(xml):
         sys.exit(f"ERROR: Could not find file {xml}")
 
-    validator = Serval()
+    validator = OPCUAServerValidator()
     valid, actual, expected, diff = validator.validate(xml, config_file, config)
     if valid:
         print("The servers match! No significant differences found.")

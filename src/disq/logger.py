@@ -79,7 +79,7 @@ class Logger:
         )
         self.queue = queue.Queue(maxsize=0)
         self._data_count = 0
-        self._nodes = None
+        self._nodes: dict | None = None
         self._stop_logging = threading.Event()
         self._start_invoked = False
         self._cache = {}
@@ -89,7 +89,7 @@ class Logger:
             if server is None:
                 self.hll = sculib.SCU()
             else:
-                self.hll = sculib.SCU(host=server, port=port)
+                self.hll = sculib.SCU(host=server, port=int(port))
         else:
             self.hll = high_level_library
 

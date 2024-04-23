@@ -1,12 +1,12 @@
-"""Internal server for the Serval system."""
+"""Internal server for the OPC UA server validator system."""
 
 from asyncua import Server
 from asyncua.common.node import Node
 
 
-class ServalInternalServer:
+class SerValInternalServer:
     """
-    A class representing an internal server for the Serval system.
+    A class representing an internal server for the OPC UA server validator system.
 
     :param xml: The XML configuration file for the internal server.
     :type xml: str
@@ -22,7 +22,7 @@ class ServalInternalServer:
         self.xml = xml
         self.server = Server()
         self.server.set_endpoint("opc.tcp://0.0.0.0:57344/dish-structure/server/")
-        self.server.set_server_name("Serval internal OPC-UA server")
+        self.server.set_server_name("OPCUAServerValidator internal server")
         self.namespace_to_use = "http://skao.int/DS_ICD/"
         self.idx: int
         self.plc_prg: Node
@@ -73,12 +73,12 @@ class ServalInternalServer:
 
 async def main(xml: str):
     """
-    Asynchronous function to run a ServalInternalServer.
+    Asynchronous function to run a SerValInternalServer.
 
     :param xml: XML configuration for the server.
     :type xml: str
     """
-    async with ServalInternalServer(xml):
+    async with SerValInternalServer(xml):
         while True:
             await asyncio.sleep(1)
 

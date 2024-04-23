@@ -14,8 +14,8 @@ disable=
     duplicate-code,
     fixme,
 
-; enable=
-;     useless-suppression,
+enable=
+    useless-suppression,
 
 [SIMILARITIES]
 min-similarity-lines=7

@@ -2,7 +2,23 @@
 
 ## unreleased
 
+- WOM-333: Fix server validator script crash
+- WOM-256: DiSQ GUI layout improvements
+- WOM-260: Add static pointing model tab in GUI
+- WOM-337: Fix hdf5_to_csv offset naive datetime
+- WOM-330: Sphinx docstrings and linting
+- WOM-259: Add individual axes control to Axis tab in GUI
+- WOM-323: Enable configuration of username and password
+- WOM-236: Fix GUI crash on connection error
+- WOM-275: Extend sculib
+- WOM-237: Minor corrections to opc-ua parameter name on GUI
 - WOM-281: Add make module, sphinx docs and update pipeline
+- WOM-277: Server validator printt to file
+- WOM-321: Change unsubscribe to delete
+- WOM-306: Change CSV output to use commas
+- WOM-269: Fix reconnect button
+- WOM-267: Fix node name error
+- WOM-262: Fix abs_azel typo
 
 ## 0.2.1
 
