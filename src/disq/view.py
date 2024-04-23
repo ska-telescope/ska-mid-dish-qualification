@@ -1053,7 +1053,7 @@ class MainView(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot(str)
     def command_response_status_update(self, status: str):
         """Update the main window status bar with a status update."""
-        self.cmd_status_label.setText(status)
+        self.cmd_status_label.setText(status[:200])
 
     @QtCore.pyqtSlot(str)
     def move2band_button_clicked(self, band: str):

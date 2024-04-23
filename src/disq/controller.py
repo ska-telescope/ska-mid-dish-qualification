@@ -79,7 +79,7 @@ class Controller(QObject):
             logger.error("UI status msg: %s %s", sevr_symbol, message)
         else:
             logger.debug(message)
-        self.ui_status_message.emit(f"{sevr_symbol} {message[:200]}")
+        self.ui_status_message.emit(f"{sevr_symbol} {message}")
 
     def get_config_servers(self) -> list[str]:
         """
