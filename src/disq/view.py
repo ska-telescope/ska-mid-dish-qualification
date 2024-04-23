@@ -6,6 +6,7 @@ from enum import Enum
 from functools import cached_property
 from importlib import resources
 from pathlib import Path
+from typing import Callable, Final
 
 from PyQt6 import QtCore, QtWidgets, uic
 
@@ -14,7 +15,7 @@ from disq import controller, model
 logger = logging.getLogger("gui.view")
 
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,too-many-lines
 class RecordingConfigDialog(QtWidgets.QDialog):
     """
     A dialog-window class for selecting OPC-UA parameters to be recorded.
@@ -89,6 +90,8 @@ class MainView(QtWidgets.QMainWindow):
     :type disq_controller: controller.Controller
     """
 
+    _DECIMAL_PLACES: Final = 3
+
     def __init__(
         self,
         disq_model: model.Model,
@@ -124,6 +127,7 @@ class MainView(QtWidgets.QMainWindow):
         :param kwargs: Additional keyword arguments.
         """
         super().__init__(*args, **kwargs)
+        # logger.setLevel(logging.DEBUG)
         # Load the UI from the XML .ui file
         ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
         uic.loadUi(ui_xml_filename, self)
@@ -131,7 +135,7 @@ class MainView(QtWidgets.QMainWindow):
 
         # Add a label widget to the status bar for command/response status
         # The QT Designer doesn't allow us to add this label so we have to do it here
-        self.cmd_status_label = QtWidgets.QLabel("command status: ")
+        self.cmd_status_label = QtWidgets.QLabel("ℹ️ Status")
         self.status_bar = QtWidgets.QStatusBar()
         self.setStatusBar(self.status_bar)
         self.status_bar.addWidget(self.cmd_status_label)
@@ -183,6 +187,7 @@ class MainView(QtWidgets.QMainWindow):
         # Listen for Model event signals
         self.model.data_received.connect(self.event_update)
 
+        # Authority status group widgets
         self.combobox_authority: QtWidgets.QComboBox
         self.button_take_auth: QtWidgets.QPushButton
         self.button_take_auth.clicked.connect(
@@ -194,12 +199,14 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.button_interlock_ack: QtWidgets.QPushButton
         self.button_interlock_ack.clicked.connect(self.controller.command_interlock_ack)
-        # pb_slew2abs: QtWidgets.QPushButton = self.findChild(
-        #     QtWidgets.QPushButton, name="button_slew2abs"
-        # )
-        # pb_slew2abs.clicked.connect(self.slew2abs_button_clicked)
+        # Slew group widgets
+        self.line_edit_slew_simul_azim_position: QtWidgets.QLineEdit
+        self.line_edit_slew_simul_elev_position: QtWidgets.QLineEdit
+        self.line_edit_slew_simul_azim_velocity: QtWidgets.QLineEdit
+        self.line_edit_slew_simul_elev_velocity: QtWidgets.QLineEdit
         self.button_slew2abs: QtWidgets.QPushButton
         self.button_slew2abs.clicked.connect(self.slew2abs_button_clicked)
+        # Commands group widgets
         self.button_stop: QtWidgets.QPushButton
         self.button_stop.clicked.connect(lambda: self.stop_button_clicked("AzEl"))
         self.button_stow: QtWidgets.QPushButton
@@ -214,7 +221,7 @@ class MainView(QtWidgets.QMainWindow):
         self.button_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("AzEl")
         )
-
+        # Axis tab elevation group widgets
         self.button_elevation_slew: QtWidgets.QPushButton
         self.button_elevation_slew.clicked.connect(
             lambda: self.slew_button_clicked("El")
@@ -231,7 +238,9 @@ class MainView(QtWidgets.QMainWindow):
         self.button_elevation_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("El")
         )
-
+        self.line_edit_slew_only_elevation_position: QtWidgets.QLineEdit
+        self.line_edit_slew_only_elevation_velocity: QtWidgets.QLineEdit
+        # Axis tab azimuth group widgets
         self.button_azimuth_slew: QtWidgets.QPushButton
         self.button_azimuth_slew.clicked.connect(lambda: self.slew_button_clicked("Az"))
         self.button_azimuth_stop: QtWidgets.QPushButton
@@ -244,7 +253,9 @@ class MainView(QtWidgets.QMainWindow):
         self.button_azimuth_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Az")
         )
-
+        self.line_edit_slew_only_azimuth_position: QtWidgets.QLineEdit
+        self.line_edit_slew_only_azimuth_velocity: QtWidgets.QLineEdit
+        # Axis tab feed indexer group widgets
         self.button_indexer_slew: QtWidgets.QPushButton
         self.button_indexer_slew.clicked.connect(lambda: self.slew_button_clicked("Fi"))
         self.button_indexer_stop: QtWidgets.QPushButton
@@ -257,18 +268,151 @@ class MainView(QtWidgets.QMainWindow):
         self.button_indexer_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Fi")
         )
-
-        self.line_edit_slew_simul_azim_position: QtWidgets.QLineEdit
-        self.line_edit_slew_simul_elev_position: QtWidgets.QLineEdit
-        self.line_edit_slew_simul_azim_velocity: QtWidgets.QLineEdit
-        self.line_edit_slew_simul_elev_velocity: QtWidgets.QLineEdit
-        self.line_edit_slew_only_elevation_position: QtWidgets.QLineEdit
-        self.line_edit_slew_only_elevation_velocity: QtWidgets.QLineEdit
-        self.line_edit_slew_only_azimuth_position: QtWidgets.QLineEdit
-        self.line_edit_slew_only_azimuth_velocity: QtWidgets.QLineEdit
         self.line_edit_slew_only_indexer_position: QtWidgets.QLineEdit
         self.line_edit_slew_only_indexer_velocity: QtWidgets.QLineEdit
-
+        # Point tab static pointing model widgets
+        self.button_static_point_model_off: QtWidgets.QRadioButton
+        self.button_static_point_model_off.setChecked(True)
+        self.button_static_point_model_on: QtWidgets.QRadioButton
+        self.button_group_static_point_model = QtWidgets.QButtonGroup()
+        self.button_group_static_point_model.buttonClicked.connect(
+            self.pointing_model_button_clicked
+        )
+        self.static_point_model_checked_prev: int = 0
+        self.button_group_static_point_model.addButton(
+            self.button_static_point_model_off, 0
+        )
+        self.button_group_static_point_model.addButton(
+            self.button_static_point_model_on, 1
+        )
+        self.static_point_model_band: QtWidgets.QLabel
+        self.combo_static_point_model_band: QtWidgets.QComboBox
+        self.static_point_model_band_index_prev: int = 0
+        self.combo_static_point_model_band.currentTextChanged.connect(
+            self.pointing_model_band_selected
+        )
+        # NB: The order of the following two lists MUST match the order of the
+        # Pointing.StaticPmSetup command's arguments
+        self.static_pointing_values: list[QtWidgets.QLabel] = [
+            self.opcua_ia,
+            self.opcua_ca,
+            self.opcua_npae,
+            self.opcua_an,
+            self.opcua_an0,
+            self.opcua_aw,
+            self.opcua_aw0,
+            self.opcua_acec,
+            self.opcua_aces,
+            self.opcua_aba,
+            self.opcua_abphi,
+            self.opcua_caobs,
+            self.opcua_ie,
+            self.opcua_ecec,
+            self.opcua_eces,
+            self.opcua_hece4,
+            self.opcua_hese4,
+            self.opcua_hece8,
+            self.opcua_hese8,
+            self.opcua_eobs,
+        ]
+        self.static_pointing_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
+            self.spinbox_ia,
+            self.spinbox_ca,
+            self.spinbox_npae,
+            self.spinbox_an,
+            self.spinbox_an0,
+            self.spinbox_aw,
+            self.spinbox_aw0,
+            self.spinbox_acec,
+            self.spinbox_aces,
+            self.spinbox_aba,
+            self.spinbox_abphi,
+            self.spinbox_caobs,
+            self.spinbox_ie,
+            self.spinbox_ecec,
+            self.spinbox_eces,
+            self.spinbox_hece4,
+            self.spinbox_hese4,
+            self.spinbox_hece8,
+            self.spinbox_hese8,
+            self.spinbox_eobs,
+        ]
+        for spinbox in self.static_pointing_spinboxes:
+            spinbox.editingFinished.connect(self.static_pointing_parameter_changed)
+            spinbox.blockSignals(True)
+        self.opcua_offset_xelev: QtWidgets.QLabel
+        self.opcua_offset_elev: QtWidgets.QLabel
+        self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
+        self.spinbox_offset_elev: QtWidgets.QDoubleSpinBox
+        self.spinbox_offset_xelev.editingFinished.connect(
+            self.static_pointing_offset_changed
+        )
+        self.spinbox_offset_elev.editingFinished.connect(
+            self.static_pointing_offset_changed
+        )
+        self.spinbox_offset_xelev.blockSignals(True)
+        self.spinbox_offset_elev.blockSignals(True)
+        self._update_static_pointing_inputs_text = False
+        # Point tab tilt correction widgets
+        self.button_tilt_correction_off: QtWidgets.QRadioButton
+        self.button_tilt_correction_off.setChecked(True)
+        self.button_tilt_correction_on: QtWidgets.QRadioButton
+        self.button_tilt_correction_meter_1: QtWidgets.QRadioButton
+        self.button_tilt_correction_meter_1.setChecked(True)
+        self.button_tilt_correction_meter_2: QtWidgets.QRadioButton
+        self.button_group_tilt_correction = QtWidgets.QButtonGroup()
+        self.button_group_tilt_correction.buttonClicked.connect(
+            self.pointing_model_button_clicked
+        )
+        self.tilt_correction_checked_prev: int = 0
+        self.button_group_tilt_correction.addButton(self.button_tilt_correction_off, 0)
+        self.button_group_tilt_correction.addButton(self.button_tilt_correction_on, 1)
+        self.button_group_tilt_correction_meter = QtWidgets.QButtonGroup()
+        self.button_group_tilt_correction_meter.buttonClicked.connect(
+            self.pointing_model_button_clicked
+        )
+        self.tilt_correction_meter_checked_prev: int = 1
+        self.button_group_tilt_correction_meter.blockSignals(True)
+        self.button_group_tilt_correction_meter.addButton(
+            self.button_tilt_correction_meter_1, 1
+        )
+        self.button_group_tilt_correction_meter.addButton(
+            self.button_tilt_correction_meter_2, 2
+        )
+        # Point tab ambient temperature correction widgets
+        self.button_temp_correction_off: QtWidgets.QRadioButton
+        self.button_temp_correction_off.setChecked(True)
+        self.button_temp_correction_on: QtWidgets.QRadioButton
+        self.button_group_temp_correction = QtWidgets.QButtonGroup()
+        self.button_group_temp_correction.buttonClicked.connect(
+            self.pointing_model_button_clicked
+        )
+        self.temp_correction_checked_prev: int = 0
+        self.button_group_temp_correction.addButton(self.button_temp_correction_off, 0)
+        self.button_group_temp_correction.addButton(self.button_temp_correction_on, 1)
+        self.ambtemp_correction_values: list[QtWidgets.QLabel] = [
+            self.opcua_ambtempfiltdt,
+            self.opcua_ambtempparam1,
+            self.opcua_ambtempparam2,
+            self.opcua_ambtempparam3,
+            self.opcua_ambtempparam4,
+            self.opcua_ambtempparam5,
+            self.opcua_ambtempparam6,
+        ]
+        self.ambtemp_correction_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
+            self.spinbox_ambtempfiltdt,
+            self.spinbox_ambtempparam1,
+            self.spinbox_ambtempparam2,
+            self.spinbox_ambtempparam3,
+            self.spinbox_ambtempparam4,
+            self.spinbox_ambtempparam5,
+            self.spinbox_ambtempparam6,
+        ]
+        for spinbox in self.ambtemp_correction_spinboxes:
+            spinbox.editingFinished.connect(self.ambtemp_correction_parameter_changed)
+            spinbox.blockSignals(True)
+        self._update_temp_correction_inputs_text = False
+        # Bands group widgets
         self.button_band1: QtWidgets.QPushButton
         self.button_band1.clicked.connect(
             lambda: self.move2band_button_clicked("Band_1")
@@ -302,7 +446,7 @@ class MainView(QtWidgets.QMainWindow):
             lambda: self.move2band_button_clicked("Optical")
         )
         self.disable_opcua_widgets()
-
+        # Recording group widgets
         self.button_recording_start: QtWidgets.QPushButton
         self.line_edit_recording_file: QtWidgets.QLineEdit
         self.line_edit_recording_status: QtWidgets.QLineEdit
@@ -345,9 +489,11 @@ class MainView(QtWidgets.QMainWindow):
 
         :return: {name: (widget, func)}
         """
-        # re = QtCore.QRegularExpression("opcua_")
-        # opcua_widgets = self.findChildren(QtWidgets.QLineEdit, re)
-        all_widgets: list[QtCore.QObject] = self.findChildren(QtWidgets.QLineEdit)
+        all_widgets: list[QtCore.QObject] = (
+            self.findChildren(QtWidgets.QLineEdit)
+            + self.findChildren(QtWidgets.QLabel)
+            + self.findChildren(QtWidgets.QRadioButton)
+        )
         opcua_widget_updates: dict = {}
         for wgt in all_widgets:
             if "opcua" not in wgt.dynamicPropertyNames():
@@ -355,15 +501,21 @@ class MainView(QtWidgets.QMainWindow):
                 continue
 
             opcua_parameter_name: str = wgt.property("opcua")
-            opcua_widget_update_func = (
-                self._update_opcua_text_widget
-            )  # the default update callback
+            # the default update callback
+            opcua_widget_update_func: Callable = self._update_opcua_text_widget
             logger.debug("OPCUA widget: %s", opcua_parameter_name)
 
             if "opcua_type" in wgt.dynamicPropertyNames():
                 opcua_type = wgt.property("opcua_type")
                 if opcua_type == "Boolean":
-                    opcua_widget_update_func = self._update_opcua_boolean_widget
+                    if isinstance(wgt, QtWidgets.QRadioButton):
+                        opcua_widget_update_func = (
+                            self._update_opcua_boolean_radio_button_widget
+                        )
+                    else:
+                        opcua_widget_update_func = (
+                            self._update_opcua_boolean_text_widget
+                        )
                 else:
                     opcua_widget_update_func = self._update_opcua_enum_widget
                 logger.debug("OPCUA widget type: %s", opcua_type)
@@ -391,7 +543,14 @@ class MainView(QtWidgets.QMainWindow):
         :rtype: list[QtCore.QObject]
         """
         all_widgets: list[QtCore.QObject] = self.findChildren(
-            (QtWidgets.QLineEdit, QtWidgets.QPushButton, QtWidgets.QComboBox)
+            (
+                QtWidgets.QLineEdit,
+                QtWidgets.QPushButton,
+                QtWidgets.QRadioButton,
+                QtWidgets.QComboBox,
+                QtWidgets.QDoubleSpinBox,
+                QtWidgets.QLabel,
+            )
         )
         opcua_widgets: list[QtCore.QObject] = []
         for wgt in all_widgets:
@@ -543,13 +702,53 @@ class MainView(QtWidgets.QMainWindow):
         finally:
             widget.setText(str_val)
 
-    def _update_opcua_boolean_widget(
+    def _update_opcua_boolean_radio_button_widget(
+        self, button: QtWidgets.QRadioButton, event: dict
+    ) -> None:
+        """
+        Set radio button in exclusive group based on its boolean OPC-UA parameter.
+
+        :param button: Button that signal came from.
+        :type button: QtWidgets.QRadioButton
+        :param event: A dictionary containing event data.
+        :type event: dict
+        """
+        logger.debug(
+            "Widget: %s. Boolean OPCUA update: %s value=%s",
+            button.objectName(),
+            event["name"],
+            event["value"],
+        )
+        # Update can come from either OFF or ON radio button, but need to explicitly
+        # set one of the two in a group with setChecked(True)
+        if event["value"]:
+            button = getattr(self, button.objectName().replace("_off", "_on"))
+        else:
+            button = getattr(self, button.objectName().replace("_on", "_off"))
+        button.setChecked(True)
+        # Block or unblock tilt meter selection signal whether function is active
+        if event["name"] == "Pointing.TiltCorrActive":
+            self.button_group_tilt_correction_meter.blockSignals(not event["value"])
+            self.tilt_correction_checked_prev = int(event["value"])
+        # Populate input boxes with current read values after connecting to server
+        elif event["name"] == "Pointing.StaticCorrActive":
+            if self._update_static_pointing_inputs_text:
+                self._update_static_pointing_inputs_text = False
+                self._set_static_pointing_inputs_text(not event["value"])
+                self.static_point_model_checked_prev = int(event["value"])
+        elif event["name"] == "Pointing.TempCorrActive":
+            if self._update_temp_correction_inputs_text:
+                self._update_temp_correction_inputs_text = False
+                self._set_temp_correction_inputs_text(not event["value"])
+                self.temp_correction_checked_prev = int(event["value"])
+
+    def _update_opcua_boolean_text_widget(
         self, widget: QtWidgets.QLineEdit, event: dict
     ) -> None:
         """
         Update background colour of widget to reflect boolean state of OPC-UA parameter.
 
-        The event udpdate 'value' field can take 3 states:
+        The event update 'value' field can take 3 states:
          - None: the OPC-UA parameter is not defined. Colour background grey/disabled.
          - True: the OPC-UA parameter is True. Colour background light green (LED on).
          - False: the OPC-UA parameter is False. Colour background dark green (LED off).
@@ -598,6 +797,8 @@ class MainView(QtWidgets.QMainWindow):
         self._init_opcua_combo_widgets()
         if self._track_table_file_exist():
             self.button_load_track_table.setEnabled(True)
+        self._update_static_pointing_inputs_text = True
+        self._update_temp_correction_inputs_text = True
 
     @QtCore.pyqtSlot()
     def server_disconnected_event(self):
@@ -852,9 +1053,156 @@ class MainView(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot(str)
     def command_response_status_update(self, status: str):
         """Update the main window status bar with a status update."""
-        self.cmd_status_label.setText(status)
+        self.cmd_status_label.setText(status[:200])
 
     @QtCore.pyqtSlot(str)
     def move2band_button_clicked(self, band: str):
         """Move to the given band."""
         self.controller.command_move2band(band)
+
+    @QtCore.pyqtSlot()
+    def static_pointing_parameter_changed(self):
+        """Static pointing model parameter changed slot function."""
+        band = self.combo_static_point_model_band.currentText().replace(" ", "_")
+        params = []
+        for spinbox in self.static_pointing_spinboxes:
+            params.append(round(spinbox.value(), self._DECIMAL_PLACES))
+        self.controller.command_set_static_pointing_parameters(band, params)
+
+    @QtCore.pyqtSlot()
+    def static_pointing_offset_changed(self):
+        """Static pointing offset changed slot function."""
+        xelev = round(self.spinbox_offset_xelev.value(), self._DECIMAL_PLACES)
+        elev = round(self.spinbox_offset_elev.value(), self._DECIMAL_PLACES)
+        self.controller.command_set_static_pointing_offsets(xelev, elev)
+
+    @QtCore.pyqtSlot()
+    def ambtemp_correction_parameter_changed(self):
+        """Ambient temperature correction parameter changed slot function."""
+        params = []
+        for spinbox in self.ambtemp_correction_spinboxes:
+            params.append(round(spinbox.value(), self._DECIMAL_PLACES))
+        self.controller.command_set_ambtemp_correction_parameters(params)
+
+    @QtCore.pyqtSlot()
+    def pointing_model_band_selected(self):
+        """Static pointing model band changed slot function."""
+        if self.button_group_static_point_model.checkedId() != 0:  # Not OFF
+            self.pointing_model_button_clicked()
+
+    @QtCore.pyqtSlot()
+    def pointing_model_button_clicked(self):
+        """Any pointing model toggle button clicked slot function."""
+        static_point_model_checked_id = self.button_group_static_point_model.checkedId()
+        temp_correction_checked_id = self.button_group_temp_correction.checkedId()
+        tilt_correction_checked_id = self.button_group_tilt_correction.checkedId()
+        tilt_corr_meter_checked_id = self.button_group_tilt_correction_meter.checkedId()
+        tilt_correction = (
+            tilt_corr_meter_checked_id
+            if self.button_tilt_correction_on.isChecked()
+            else 0
+        )
+        # Validate command parameters
+        try:
+            stat = {0: False, 1: True}[static_point_model_checked_id]
+            tilt = {0: "Off", 1: "TiltmeterOne", 2: "TiltmeterTwo"}[tilt_correction]
+            ambtemp = {0: False, 1: True}[temp_correction_checked_id]
+        except KeyError:
+            logger.exception("Invalid button ID.")
+            return
+        band = self.combo_static_point_model_band.currentText().replace(" ", "_")
+        # Send command and check result
+        _, result_msg = self.controller.command_config_pointing_model_corrections(
+            stat, tilt, ambtemp, band
+        )
+        if result_msg == "CommandDone":
+            if stat:
+                self.static_pointing_parameter_changed()
+                self.static_pointing_offset_changed()
+                self.spinbox_offset_xelev.blockSignals(False)
+                self.spinbox_offset_elev.blockSignals(False)
+                for spinbox in self.static_pointing_spinboxes:
+                    spinbox.blockSignals(False)
+            else:
+                self.spinbox_offset_xelev.blockSignals(True)
+                self.spinbox_offset_elev.blockSignals(True)
+                for spinbox in self.static_pointing_spinboxes:
+                    spinbox.blockSignals(True)
+            if ambtemp:
+                self.ambtemp_correction_parameter_changed()
+                for spinbox in self.ambtemp_correction_spinboxes:
+                    spinbox.blockSignals(False)
+            else:
+                for spinbox in self.ambtemp_correction_spinboxes:
+                    spinbox.blockSignals(True)
+            # Keep track of radio buttons' previous states
+            self.static_point_model_checked_prev = static_point_model_checked_id
+            self.tilt_correction_checked_prev = tilt_correction_checked_id
+            self.tilt_correction_meter_checked_prev = tilt_corr_meter_checked_id
+            self.temp_correction_checked_prev = temp_correction_checked_id
+        else:
+            # If command did not execute for any reason, restore buttons to prev states
+            self.button_group_static_point_model.button(
+                self.static_point_model_checked_prev
+            ).setChecked(True)
+            self.button_group_tilt_correction.button(
+                self.tilt_correction_checked_prev
+            ).setChecked(True)
+            self.button_group_tilt_correction_meter.button(
+                self.tilt_correction_meter_checked_prev
+            ).setChecked(True)
+            self.button_group_temp_correction.button(
+                self.temp_correction_checked_prev
+            ).setChecked(True)
+
+    def _set_static_pointing_inputs_text(self, block_signals: bool):
+        """
+        Set static pointing inputs' text to current read values.
+
+        :param block_signals: Block or unblock the widgets' signals.
+        :type block_signals: bool
+        """
+        # Static pointing band
+        self.combo_static_point_model_band.blockSignals(True)
+        self.combo_static_point_model_band.setCurrentIndex(
+            self.model.convert_band_to_type(self.static_point_model_band.text())
+        )
+        self.combo_static_point_model_band.blockSignals(block_signals)
+        # Static pointing offsets
+        self.spinbox_offset_xelev.blockSignals(True)
+        self.spinbox_offset_elev.blockSignals(True)
+        try:
+            self.spinbox_offset_xelev.setValue(float(self.opcua_offset_xelev.text()))
+            self.spinbox_offset_elev.setValue(float(self.opcua_offset_elev.text()))
+        except ValueError:
+            self.spinbox_offset_xelev.setValue(0)
+            self.spinbox_offset_elev.setValue(0)
+        self.spinbox_offset_xelev.blockSignals(block_signals)
+        self.spinbox_offset_elev.blockSignals(block_signals)
+        # Static pointing parameters
+        for spinbox, value in zip(
+            self.static_pointing_spinboxes, self.static_pointing_values
+        ):
+            spinbox.blockSignals(True)
+            try:
+                spinbox.setValue(float(value.text()))
+            except ValueError:
+                spinbox.setValue(0)
+            spinbox.blockSignals(block_signals)
+
+    def _set_temp_correction_inputs_text(self, block_signals: bool):
+        """
+        Set ambient temperature correction inputs' text to current read values.
+
+        :param block_signals: Block or unblock the widgets' signals.
+        :type block_signals: bool
+        """
+        for spinbox, value in zip(
+            self.ambtemp_correction_spinboxes, self.ambtemp_correction_values
+        ):
+            spinbox.blockSignals(True)
+            try:
+                spinbox.setValue(float(value.text()))
+            except ValueError:
+                spinbox.setValue(0)
+            spinbox.blockSignals(block_signals)
