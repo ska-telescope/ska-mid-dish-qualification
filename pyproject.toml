@@ -121,7 +121,7 @@ platformdirs = "^4.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
-# pytest-qt = "^4.4.0"
+pytest-qt = "^4.4.0"
 pytest-cov = "^4.0.0"
 assertpy = "^1.1"
 isort = "^5.13.2"
@@ -170,7 +170,7 @@ addopts = """
 filterwarnings = "error"
 # Doctest python code in docs, python code in src docstrings, test functions in tests
 testpaths = "docs src tests"
-# qt_api = "pyqt6"
+qt_api = "pyqt6"
 
 [tool.coverage.run]
 omit = ["__init__.py", "_version.py"]
