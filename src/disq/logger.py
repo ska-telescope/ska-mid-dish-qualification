@@ -298,7 +298,7 @@ class Logger:
         This method does not have any parameters or return values.
 
         """
-        next_flush_interval = datetime.now() + timedelta(
+        next_flush_interval = datetime.now(timezone.utc) + timedelta(
             milliseconds=self._FLUSH_PERIOD_MSECS
         )
         while not self._stop_logging.is_set():
@@ -330,7 +330,7 @@ class Logger:
                     )
 
             # Write to file at least every self._FLUSH_PERIOD_MSECS
-            if next_flush_interval < datetime.now():
+            if next_flush_interval < datetime.now(timezone.utc):
                 for cache_node, cache in self._cache.items():
                     if cache[self._COUNT_IDX] > 0:
                         self._write_cache_to_group(cache_node)
