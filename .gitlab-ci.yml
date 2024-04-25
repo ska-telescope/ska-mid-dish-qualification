@@ -34,25 +34,6 @@ include:
     file: "gitlab-ci/includes/finaliser.gitlab-ci.yml"
 
 python-test:
-  before_script:
-    - sudo apt-get update && sudo apt-get xvfb --fix-missing -y
-    - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
-    - "make help | grep python-test"
-    - poetry config virtualenvs.in-project true
-    - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
-    - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
-    - |
-      if [[ -f pyproject.toml ]]; then
-        if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
-          echo "python-test: Updating poetry to $CI_POETRY_VERSION";
-          time poetry self update $CI_POETRY_VERSION;
-        fi;
-
-        echo "python-test: Installing with poetry";
-        time poetry install --all-extras;
-      else
-        if  [[ -f requirements.txt ]]; then
-          echo "python-test: Installing with pip";
-          time pip3 install -r requirements.txt;
-        fi;
-      fi;
+  image: registry.gitlab.com/ska-telescope/ska-mid-dish-qualification/ci-tests:latest
+  script:
+    - make python-test PYTHON_VARS_BEFORE_PYTEST=xvfb-run
