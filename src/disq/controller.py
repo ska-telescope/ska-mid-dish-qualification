@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import Callable
 
-from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, pyqtSignal
 
 from disq import configuration, model
 
@@ -222,7 +222,6 @@ class Controller(QObject):
         cmd = "Management.Slew2AbsSingleAx"
         self._issue_command(cmd, axis, position, velocity)
 
-    @pyqtSlot()
     def command_activate(self, axis: str = "AzEl"):
         """
         Issue command to activate a specific axis.
@@ -233,7 +232,6 @@ class Controller(QObject):
         cmd = "Management.Activate"
         self._issue_command(cmd, axis)
 
-    @pyqtSlot()
     def command_deactivate(self, axis: str = "AzEl"):
         """
         Issue command to deactivate a specific axis.
@@ -244,7 +242,6 @@ class Controller(QObject):
         cmd = "Management.DeActivate"
         self._issue_command(cmd, axis)
 
-    @pyqtSlot()
     def command_stop(self, axis: str = "AzEl"):
         """
         Issue command to stop a specific axis movement.
@@ -256,7 +253,6 @@ class Controller(QObject):
         cmd = "Management.Stop"
         self._issue_command(cmd, axis)
 
-    @pyqtSlot(bool)
     def command_stow(self, stow: bool = True):
         """
         Issue command to stow or unstow the device.
@@ -268,7 +264,6 @@ class Controller(QObject):
         cmd = "Management.Stow"
         self._issue_command(cmd, stow)  # argument to stow or not...
 
-    @pyqtSlot()
     def command_interlock_ack(self):
         """
         Send a command to acknowledge the safety interlock.
@@ -389,7 +384,6 @@ class Controller(QObject):
         self._command_response_str(f"{cmd}{args}", result_code, result_msg)
         return (result_code, result_msg)
 
-    @pyqtSlot(str)
     def load_track_table(self, filename: str):
         """
         Load a track table from a file.
@@ -418,7 +412,6 @@ class Controller(QObject):
             "INFO", f"Track table loaded from file: {fname.absolute()}"
         )
 
-    @pyqtSlot(str)
     def recording_start(self, filename: str):
         """
         Start recording OPC-UA parameter updates to `filename`.
@@ -449,7 +442,6 @@ class Controller(QObject):
         )
         self.recording_status.emit(True)
 
-    @pyqtSlot()
     def recording_stop(self):
         """
         Stop recording.
