@@ -84,6 +84,7 @@ authors = [
     "Oliver Skivington <oliver.skivington@criticalsoftware.com>",
     "Thomas Juerges <thomas.juerges@skao.int>",
     "Ulrik Pedersen <ukp@observatorysciences.co.uk>",
+    "Jarrett Engelbrecht <jarrett@vivosa.co.za>",
 ]
 license = "BSD-3-Clause"
 readme = "README.md"
@@ -158,7 +159,7 @@ disable_error_code = "import-untyped, var-annotated, has-type, call-overload, re
 profile = "black"
 
 [tool.black] # See https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-format
-force-exclude = "src/disq/sculib.py|src/disq/_version.py" # RegEx - Exclude formatting the legacy code
+force-exclude = "src/disq/_version.py" # RegEx
 line-length = 88
 
 [tool.pytest.ini_options]

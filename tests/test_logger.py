@@ -128,8 +128,7 @@ def put_hdf5_file_in_queue(nodes: list[str], input_f_o: h5py.File, logger: log.L
 def high_level_library_fixture():
     """SCU library with active connection fixture."""
     high_level_library = StubScu()
-    yield high_level_library
-    high_level_library.disconnect()
+    return high_level_library
 
 
 # TODO: Fix test
