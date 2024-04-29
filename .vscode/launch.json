@@ -29,11 +29,11 @@
             "request": "launch",
             "args": [
                 "-x",
-                "tests/ds_icd_0.0.4.xml",
+                "resources/ds_icd_0.0.5.xml",
                 "-c",
-                "tests/config_cetc.yaml",
-                ">",
-                "delme"
+                "cetc54_simulator",
+                "-f",
+                "disq.ini"
             ],
             "program": "${workspaceFolder}/src/disq/server_validator.py",
             "console": "integratedTerminal",

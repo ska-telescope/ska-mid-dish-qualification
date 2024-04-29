@@ -11,7 +11,7 @@ import os
 import random
 import subprocess
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import h5py
 import pytest
@@ -24,6 +24,26 @@ class StubScu(sculib.SCU):
     """High level library stub class (no real subscriptions)."""
 
     subscriptions: dict = {}
+
+    # pylint: disable=too-many-arguments
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 4840,
+        endpoint: str = "/OPCUA/SimpleServer",
+        namespace: str = "CETC54",
+        username: str = "LMC",
+        password: str = "lmc",
+    ) -> None:
+        """Init."""
+        super().__init__(
+            host=host,
+            port=port,
+            endpoint=endpoint,
+            namespace=namespace,
+            username=username,
+            password=password,
+        )
 
     def subscribe(self, attributes=None, period=None, data_queue=None) -> int:
         """
@@ -38,7 +58,7 @@ class StubScu(sculib.SCU):
         :return: Unique identifier for the subscription.
         :rtype: int
         """
-        uid = time.clock_gettime_ns(time.CLOCK_MONOTONIC)
+        uid = time.monotonic_ns()
         self.subscriptions[uid] = {}
         return uid
 
@@ -74,7 +94,7 @@ def put_hdf5_file_in_queue(nodes: list[str], input_f_o: h5py.File, logger: log.L
     num_datapoints = sum(node_start_count.values())
     total_count = 0
     interval = timedelta(milliseconds=5000)
-    next_print_interval = datetime.now()
+    next_print_interval = datetime.now(timezone.utc)
     while total_count < num_datapoints:
         first_rand = random.randint(0, len(nodes) - 1)
         if node_current_count[nodes[first_rand]] < node_start_count[nodes[first_rand]]:
@@ -96,7 +116,7 @@ def put_hdf5_file_in_queue(nodes: list[str], input_f_o: h5py.File, logger: log.L
             node_current_count[nodes[first_rand]] += 1
             total_count += 1
 
-        if next_print_interval < datetime.utcnow():
+        if next_print_interval < datetime.now(timezone.utc):
             # print(f"Put {total_count} data points in queue so far")
             next_print_interval += interval
 
@@ -104,28 +124,38 @@ def put_hdf5_file_in_queue(nodes: list[str], input_f_o: h5py.File, logger: log.L
     # print(f"Test put {total_count} data points in queue")
 
 
-@pytest.mark.xfail(reason="Needs running simulator to connect to")
-def test_performance():
+@pytest.fixture(scope="module", name="high_level_library")
+def high_level_library_fixture():
+    """SCU library with active connection fixture."""
+    high_level_library = StubScu()
+    return high_level_library
+
+
+# TODO: Fix test
+@pytest.mark.skip
+@pytest.mark.skipif(
+    os.getenv("CI_JOB_ID") is not None, reason="Needs running simulator to connect to"
+)
+def test_performance(high_level_library):
     """
     Test the performance of the logger class.
 
     By quickly reading a HDF5 file into the shared queue. Ensure the logging was
     completed within a certain time and the contents of he input and output files match.
     """
-    input_file = "tests/input_files/60_minutes.hdf5"
-    output_file = "tests/output_files/performance.hdf5"
+    input_file = "tests/resources/input_files/60_minutes.hdf5"
+    output_file = "tests/resources/output_files/performance.hdf5"
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
-    start_time = datetime.now()
-    hll = StubScu()
-    logger = log.Logger(file_name=output_file, high_level_library=hll)
+    start_time = datetime.now(timezone.utc)
+    logger = log.Logger(file_name=output_file, high_level_library=high_level_library)
     logger.add_nodes(nodes, 50)
 
     logger.start()
     put_hdf5_file_in_queue(nodes, input_f_o, logger)
     logger.stop()
     logger.wait_for_completion()
-    stop_time = datetime.now()
+    stop_time = datetime.now(timezone.utc)
     input_f_o.close()
 
     test_duration = stop_time - start_time
@@ -141,15 +171,18 @@ def test_performance():
     # assert result.returncode == 0 # assert excluded because of tool bug
 
 
-@pytest.mark.xfail(reason="Needs running simulator to connect to")
-def test_add_nodes(caplog):
+# TODO: Fix test
+@pytest.mark.skipif(
+    os.getenv("CI_JOB_ID") is not None, reason="Needs running simulator to connect to"
+)
+def test_add_nodes(caplog, high_level_library):
     """
     Test the add_nodes method.
 
     Nodes are added correctly, logging matches expected, and nothing happens if
     _start_invoked is set.
     """
-    logger = log.Logger(file_name="n/a")
+    logger = log.Logger(file_name="n/a", high_level_library=high_level_library)
     nodes = ["MockData.increment", "MockData.sine_value", "MockData.cosine_value", "a"]
     nodes1 = [
         "MockData.increment",
@@ -185,16 +218,19 @@ def test_add_nodes(caplog):
     assert logger._nodes == expected_object_nodes
 
 
-@pytest.mark.xfail(reason="Needs running simulator to connect to")
-def test_build_hdf5_structure():
+# TODO: Fix test
+@pytest.mark.skipif(
+    os.getenv("CI_JOB_ID") is not None, reason="Needs running simulator to connect to"
+)
+def test_build_hdf5_structure(high_level_library):
     """
     Test the _build_hdf5_structure() method.
 
     Checks the correct hierarchical structure is created and the file object is set to
     SWMR mode.
     """
-    output_file = "tests/output_files/_build_hdf5_structure.hdf5"
-    logger = log.Logger(file_name=output_file)
+    output_file = "tests/resources/output_files/_build_hdf5_structure.hdf5"
+    logger = log.Logger(file_name=output_file, high_level_library=high_level_library)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
     logger.add_nodes(nodes, 100)
     logger.file_object = h5py.File(output_file, "w", libver="latest")
@@ -205,17 +241,19 @@ def test_build_hdf5_structure():
     logger.file_object.close()
 
 
-@pytest.mark.xfail(reason="Needs running simulator to connect to")
-def test_start(caplog):
+# TODO: Fix test
+@pytest.mark.skipif(
+    os.getenv("CI_JOB_ID") is not None, reason="Needs running simulator to connect to"
+)
+def test_start(caplog, high_level_library):
     """
     Test the start() method.
 
     Check that a file (and directory) is made with the input file name, and that it
     cannot be invoked twice, logging the correct messages.
     """
-    output_file = "tests/output_files/start.hdf5"
-    hll = StubScu()
-    logger = log.Logger(file_name=output_file, high_level_library=hll)
+    output_file = "tests/resources/output_files/start.hdf5"
+    logger = log.Logger(file_name=output_file, high_level_library=high_level_library)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
     logger.add_nodes(nodes, 100)
     logger.start()
@@ -239,16 +277,17 @@ def test_start(caplog):
     logger.wait_for_completion()
 
 
-@pytest.mark.xfail(reason="Needs running simulator to connect to")
-def test_stop():
+@pytest.mark.skipif(
+    os.getenv("CI_JOB_ID") is not None, reason="Needs running simulator to connect to"
+)
+def test_stop(high_level_library):
     """
     Test the stop() method.
 
     Check _stop_logging is being set.
     """
-    output_file = "tests/output_files/stop.hdf5"
-    hll = StubScu()
-    logger = log.Logger(file_name=output_file, high_level_library=hll)
+    output_file = "tests/resources/output_files/stop.hdf5"
+    logger = log.Logger(file_name=output_file, high_level_library=high_level_library)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
     logger.add_nodes(nodes, 100)
     logger.start()
@@ -257,16 +296,18 @@ def test_stop():
     logger.wait_for_completion()
 
 
-@pytest.mark.xfail(reason="Needs running simulator to connect to")
-def test_write_cache_to_group():
+# TODO: Fix test
+@pytest.mark.skipif(
+    os.getenv("CI_JOB_ID") is not None, reason="Needs running simulator to connect to"
+)
+def test_write_cache_to_group(high_level_library):
     """
     Test the _write_cache_to_group() method.
 
     Check that values are written to the output file.
     """
-    output_file = "tests/output_files/_write_cache_to_group.hdf5"
-    hll = StubScu()
-    logger = log.Logger(file_name=output_file, high_level_library=hll)
+    output_file = "tests/resources/output_files/_write_cache_to_group.hdf5"
+    logger = log.Logger(file_name=output_file, high_level_library=high_level_library)
     nodes = ["MockData.increment"]
     logger.add_nodes(nodes, 100)
     logger.file_object = h5py.File(output_file, "w", libver="latest")
@@ -297,20 +338,25 @@ def test_write_cache_to_group():
     f_o.close()
 
 
-@pytest.mark.xfail(reason="Needs running simulator to connect to")
-def test_log():
+# TODO: Fix test
+
+
+@pytest.mark.skip
+@pytest.mark.skipif(
+    os.getenv("CI_JOB_ID") is not None, reason="Needs running simulator to connect to"
+)
+def test_log(high_level_library):
     """
     Test the log() method.
 
     Add datapoints to the queue from a known input file, check the output file contains
     all expected values.
     """
-    input_file = "tests/input_files/_log.hdf5"
-    output_file = "tests/output_files/_log.hdf5"
+    input_file = "tests/resources/input_files/_log.hdf5"
+    output_file = "tests/resources/output_files/_log.hdf5"
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
-    hll = StubScu()
-    logger = log.Logger(file_name=output_file, high_level_library=hll)
+    logger = log.Logger(file_name=output_file, high_level_library=high_level_library)
     logger.add_nodes(nodes, 50)
 
     logger.start()
@@ -333,14 +379,17 @@ def test_log():
     output_f_o.close()
 
 
-@pytest.mark.xfail(reason="Needs running simulator to connect to")
-def test_wait_for_completion(caplog):
+# TODO: Fix test
+@pytest.mark.skipif(
+    os.getenv("CI_JOB_ID") is not None, reason="Needs running simulator to connect to"
+)
+def test_wait_for_completion(caplog, high_level_library):
     """
     Test the wait_for_completion method.
 
     Check the log messages.
     """
-    logger = log.Logger(file_name="n/a")
+    logger = log.Logger(file_name="n/a", high_level_library=high_level_library)
     logger._start_invoked = False
     logger._stop_logging.clear()
     logger.logging_complete.set()
@@ -363,16 +412,19 @@ def test_wait_for_completion(caplog):
     assert caplog.messages == expected_log or caplog.messages == expected_log2
 
 
-@pytest.mark.xfail(reason="Needs running simulator to connect to")
-def test_enum_attribute():
+# TODO: Fix test
+@pytest.mark.skipif(
+    os.getenv("CI_JOB_ID") is not None, reason="Needs running simulator to connect to"
+)
+def test_enum_attribute(high_level_library):
     """
     Enum attribute.
 
     Test that an attribute containing a comma separated string of available enum string
     states is added to enum type node value datasets.
     """
-    output_file = "tests/output_files/enum_attribute.hdf5"
-    logger = log.Logger(file_name=output_file)
+    output_file = "tests/resources/output_files/enum_attribute.hdf5"
+    logger = log.Logger(file_name=output_file, high_level_library=high_level_library)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
     logger.add_nodes(nodes, 100)
     logger.start()
@@ -386,3 +438,4 @@ def test_enum_attribute():
     assert (
         output_f_o["MockData.enum"]["Value"].attrs["Enumerations"] == expected_attribute
     )
+    output_f_o.close()

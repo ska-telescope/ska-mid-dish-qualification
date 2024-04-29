@@ -11,6 +11,7 @@ classifiers = [
 ]
 description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
 dependencies = [
+    "cryptography==41.0.7", # TODO, deprecation warning originating from asyncua
     "asyncua",
     "PyQt6==6.4.2",
     "pyqt6-tools",
@@ -32,6 +33,7 @@ requires-python = ">=3.10"
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "pytest-qt",
     "pytest-cov",
     "assertpy",
     "isort",
@@ -82,6 +84,7 @@ authors = [
     "Oliver Skivington <oliver.skivington@criticalsoftware.com>",
     "Thomas Juerges <thomas.juerges@skao.int>",
     "Ulrik Pedersen <ukp@observatorysciences.co.uk>",
+    "Jarrett Engelbrecht <jarrett@vivosa.co.za>",
 ]
 license = "BSD-3-Clause"
 readme = "README.md"
@@ -103,6 +106,7 @@ url = "https://artefact.skao.int/repository/pypi-all/simple"
 priority = "primary"
 
 [tool.poetry.dependencies]
+cryptography = "41.0.7"  # TODO, deprecation warning originating from asyncua
 python = "^3.10"
 asyncua = "^1.0.0"
 PyQt6 = "^6.4.0"
@@ -118,6 +122,7 @@ platformdirs = "^4.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
+pytest-qt = "^4.4.0"
 pytest-cov = "^4.0.0"
 assertpy = "^1.1"
 isort = "^5.13.2"
@@ -154,7 +159,7 @@ disable_error_code = "import-untyped, var-annotated, has-type, call-overload, re
 profile = "black"
 
 [tool.black] # See https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-format
-force-exclude = "src/disq/sculib.py|src/disq/_version.py" # RegEx - Exclude formatting the legacy code
+force-exclude = "src/disq/_version.py" # RegEx
 line-length = 88
 
 [tool.pytest.ini_options]
@@ -166,6 +171,7 @@ addopts = """
 filterwarnings = "error"
 # Doctest python code in docs, python code in src docstrings, test functions in tests
 testpaths = "docs src tests"
+qt_api = "pyqt6"
 
 [tool.coverage.run]
 omit = ["__init__.py", "_version.py"]

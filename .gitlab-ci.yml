@@ -14,8 +14,8 @@ stages:
 
 include:
   # Python packages build,lint, test and publish
-  - project: 'ska-telescope/templates-repository'
-    file: 'gitlab-ci/includes/python.gitlab-ci.yml'
+  - project: "ska-telescope/templates-repository"
+    file: "gitlab-ci/includes/python.gitlab-ci.yml"
 
   # Jupyter Notebooks
   # - project: "ska-telescope/templates-repository"
@@ -30,5 +30,10 @@ include:
     file: "gitlab-ci/includes/release.gitlab-ci.yml"
 
   # Create Gitlab CI badges from CI metrics
-  - project: 'ska-telescope/templates-repository'
-    file: 'gitlab-ci/includes/finaliser.gitlab-ci.yml'
+  - project: "ska-telescope/templates-repository"
+    file: "gitlab-ci/includes/finaliser.gitlab-ci.yml"
+
+python-test:
+  image: registry.gitlab.com/ska-telescope/ska-mid-dish-qualification/ci-tests:latest
+  script:
+    - make python-test PYTHON_VARS_BEFORE_PYTEST=xvfb-run

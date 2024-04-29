@@ -86,7 +86,7 @@ async def main(xml: str):
 if __name__ == "__main__":
     import asyncio
 
-    XML = "tests/ds_icd_0.0.4.xml"
+    XML = "resources/ds_icd_0.0.5.xml"
     import os
     import sys
 

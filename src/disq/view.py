@@ -69,7 +69,6 @@ class RecordingConfigDialog(QtWidgets.QDialog):
         self.setLayout(self.vbox_layout)
         self.config_parameters: list[str] = []
 
-    @QtCore.pyqtSlot()
     def accept_selection(self):
         """Accepts the selection made in the configuration dialog."""
         logger.debug("Recording config dialog accepted")
@@ -460,7 +459,7 @@ class MainView(QtWidgets.QMainWindow):
         self.button_band_optical.clicked.connect(
             lambda: self.move2band_button_clicked("Optical")
         )
-        self.disable_opcua_widgets()
+        self._disable_opcua_widgets()
         # Recording group widgets
         self.button_recording_start: QtWidgets.QPushButton
         self.line_edit_recording_file: QtWidgets.QLineEdit
@@ -576,7 +575,7 @@ class MainView(QtWidgets.QMainWindow):
                     break
         return opcua_widgets
 
-    def enable_opcua_widgets(self):
+    def _enable_opcua_widgets(self):
         """
         Enable all the OPC-UA widgets.
 
@@ -585,12 +584,12 @@ class MainView(QtWidgets.QMainWindow):
         for widget in self.all_opcua_widgets:
             widget.setEnabled(True)
 
-    def disable_opcua_widgets(self):
+    def _disable_opcua_widgets(self):
         """Disable all the OPC-UA widgets."""
         for widget in self.all_opcua_widgets:
             widget.setEnabled(False)
 
-    def enable_data_logger_widgets(self, enable: bool = True):
+    def _enable_data_logger_widgets(self, enable: bool = True):
         """
         Enable or disable data logger widgets.
 
@@ -603,7 +602,7 @@ class MainView(QtWidgets.QMainWindow):
         self.line_edit_recording_status.setEnabled(enable)
         self.button_recording_config.setEnabled(enable)
 
-    def enable_server_widgets(self, enable: bool = True, connect_button: bool = False):
+    def _enable_server_widgets(self, enable: bool = True, connect_button: bool = False):
         """
         Enable or disable server widgets and optionally update the connect button text.
 
@@ -619,7 +618,6 @@ class MainView(QtWidgets.QMainWindow):
         if connect_button:
             self.button_server_connect.setText("Connect" if enable else "Disconnect")
 
-    @QtCore.pyqtSlot(bool)
     def recording_status_update(self, status: bool):
         """Update the recording status."""
         if status:
@@ -639,7 +637,6 @@ class MainView(QtWidgets.QMainWindow):
             self.button_recording_stop.setEnabled(False)
             self.button_recording_config.setEnabled(True)
 
-    @QtCore.pyqtSlot(dict)
     def event_update(self, event: dict) -> None:
         """
         Update the view with event data.
@@ -812,7 +809,6 @@ class MainView(QtWidgets.QMainWindow):
         tt_filename = Path(self.line_edit_track_table_file.text())
         return tt_filename.exists()
 
-    @QtCore.pyqtSlot()
     def server_connected_event(self):
         """
         Handle the server connected event.
@@ -823,27 +819,25 @@ class MainView(QtWidgets.QMainWindow):
         self.label_conn_status.setText("Subscribing to OPC-UA updates...")
         self.controller.subscribe_opcua_updates(self.opcua_widgets)
         self.label_conn_status.setText(f"Connected to: {self.model.get_server_uri()}")
-        self.enable_server_widgets(False, connect_button=True)
-        self.enable_opcua_widgets()
-        self.enable_data_logger_widgets(True)
+        self._enable_server_widgets(False, connect_button=True)
+        self._enable_opcua_widgets()
+        self._enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
         if self._track_table_file_exist():
             self.button_load_track_table.setEnabled(True)
         self._update_static_pointing_inputs_text = True
         self._update_temp_correction_inputs_text = True
 
-    @QtCore.pyqtSlot()
     def server_disconnected_event(self):
         """Handle the server disconnected event."""
         logger.debug("server disconnected event")
-        self.disable_opcua_widgets()
-        self.enable_data_logger_widgets(False)
+        self._disable_opcua_widgets()
+        self._enable_data_logger_widgets(False)
         self.label_conn_status.setText("Status: disconnected")
-        self.enable_server_widgets(True, connect_button=True)
+        self._enable_server_widgets(True, connect_button=True)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
 
-    @QtCore.pyqtSlot()
     def connect_button_clicked(self):
         """Setup a connection to the server."""
         if not self.controller.is_server_connected():
@@ -869,7 +863,6 @@ class MainView(QtWidgets.QMainWindow):
             logger.debug("disconnecting from server")
             self.controller.disconnect_server()
 
-    @QtCore.pyqtSlot(str)
     def server_config_select_changed(self, server_name: str):
         """
         User changed server selection in drop-down box.
@@ -878,7 +871,7 @@ class MainView(QtWidgets.QMainWindow):
         """
         logger.debug("server config select changed: %s", server_name)
         if server_name is None or server_name == "":
-            self.enable_server_widgets(True)
+            self._enable_server_widgets(True)
         else:
             # Clear the input boxes first
             self.input_server_address.clear()
@@ -898,9 +891,8 @@ class MainView(QtWidgets.QMainWindow):
                 self.input_server_address.setText(server_config["host"])
                 self.input_server_port.setText(server_config["port"])
             # Disable editing of the widgets
-            self.enable_server_widgets(False)
+            self._enable_server_widgets(False)
 
-    @QtCore.pyqtSlot(str)
     def track_table_file_changed(self):
         """Update the track table file path in the model."""
         if self._track_table_file_exist() and self.controller.is_server_connected():
@@ -908,7 +900,6 @@ class MainView(QtWidgets.QMainWindow):
         else:
             self.button_load_track_table.setEnabled(False)
 
-    @QtCore.pyqtSlot()
     def track_table_file_button_clicked(self) -> None:
         """Open a file dialog to select a track table file."""
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -917,7 +908,6 @@ class MainView(QtWidgets.QMainWindow):
         if filename:
             self.line_edit_track_table_file.setText(filename)
 
-    @QtCore.pyqtSlot()
     def recording_config_button_clicked(self):
         """Open the recording configuration dialog."""
         dialog = RecordingConfigDialog(self, self.model.opcua_attributes)
@@ -928,7 +918,6 @@ class MainView(QtWidgets.QMainWindow):
         else:
             logger.debug("Recording config dialog cancelled")
 
-    @QtCore.pyqtSlot()
     def slew2abs_button_clicked(self):
         """
         Slew to absolute position.
@@ -963,7 +952,6 @@ class MainView(QtWidgets.QMainWindow):
         logger.debug("args: %s", args)
         self.controller.command_slew2abs_azim_elev(*args)
 
-    @QtCore.pyqtSlot(str)
     def slew_button_clicked(self, axis: str):
         """
         Slot function to handle the click event of a slew button.
@@ -1020,7 +1008,6 @@ class MainView(QtWidgets.QMainWindow):
             self.controller.command_slew_single_axis(axis, *args)
         return
 
-    @QtCore.pyqtSlot(str)
     def stop_button_clicked(self, axis: str):
         """
         Handle the signal emitted when the stop button is clicked.
@@ -1030,12 +1017,10 @@ class MainView(QtWidgets.QMainWindow):
         """
         self.controller.command_stop(axis)
 
-    @QtCore.pyqtSlot()
     def stow_button_clicked(self):
         """Handle the click event of the stow button."""
         self.controller.command_stow()
 
-    @QtCore.pyqtSlot()
     def unstow_button_clicked(self):
         """
         Unstow button clicked callback function.
@@ -1048,7 +1033,6 @@ class MainView(QtWidgets.QMainWindow):
         """
         self.controller.command_stow(False)
 
-    @QtCore.pyqtSlot(str)
     def activate_button_clicked(self, axis: str):
         """
         Activate the button clicked for a specific axis.
@@ -1058,7 +1042,6 @@ class MainView(QtWidgets.QMainWindow):
         """
         self.controller.command_activate(axis)
 
-    @QtCore.pyqtSlot(str)
     def deactivate_button_clicked(self, axis: str):
         """
         Deactivate button clicked slot function.
@@ -1068,7 +1051,6 @@ class MainView(QtWidgets.QMainWindow):
         """
         self.controller.command_deactivate(axis)
 
-    @QtCore.pyqtSlot(bool)
     def authority_button_clicked(self, take_command: bool):
         """
         Handle the click event of an authority button.
@@ -1082,7 +1064,6 @@ class MainView(QtWidgets.QMainWindow):
             take_command=take_command, username=username
         )
 
-    @QtCore.pyqtSlot(str)
     def command_response_status_update(self, status: str):
         """Update the main window status bar with a status update."""
         self.cmd_status_label.setText(status[:200])
@@ -1090,12 +1071,10 @@ class MainView(QtWidgets.QMainWindow):
         self.list_cmd_history.addItem(history_line)
         self.list_cmd_history.scrollToBottom()
 
-    @QtCore.pyqtSlot(str)
     def move2band_button_clicked(self, band: str):
         """Move to the given band."""
         self.controller.command_move2band(band)
 
-    @QtCore.pyqtSlot()
     def static_pointing_parameter_changed(self):
         """Static pointing model parameter changed slot function."""
         band = self.combo_static_point_model_band.currentText().replace(" ", "_")
@@ -1104,14 +1083,12 @@ class MainView(QtWidgets.QMainWindow):
             params.append(round(spinbox.value(), self._DECIMAL_PLACES))
         self.controller.command_set_static_pointing_parameters(band, params)
 
-    @QtCore.pyqtSlot()
     def static_pointing_offset_changed(self):
         """Static pointing offset changed slot function."""
         xelev = round(self.spinbox_offset_xelev.value(), self._DECIMAL_PLACES)
         elev = round(self.spinbox_offset_elev.value(), self._DECIMAL_PLACES)
         self.controller.command_set_static_pointing_offsets(xelev, elev)
 
-    @QtCore.pyqtSlot()
     def ambtemp_correction_parameter_changed(self):
         """Ambient temperature correction parameter changed slot function."""
         params = []
@@ -1119,13 +1096,11 @@ class MainView(QtWidgets.QMainWindow):
             params.append(round(spinbox.value(), self._DECIMAL_PLACES))
         self.controller.command_set_ambtemp_correction_parameters(params)
 
-    @QtCore.pyqtSlot()
     def pointing_model_band_selected(self):
         """Static pointing model band changed slot function."""
         if self.button_group_static_point_model.checkedId() != 0:  # Not OFF
             self.pointing_model_button_clicked()
 
-    @QtCore.pyqtSlot()
     def pointing_model_button_clicked(self):
         """Any pointing model toggle button clicked slot function."""
         static_point_model_checked_id = self.button_group_static_point_model.checkedId()

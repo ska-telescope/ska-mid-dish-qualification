@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- WOM-339: Add pytest-qt GUI tests in CI job
 - WOM-333: Fix server validator script crash
 - WOM-256: DiSQ GUI layout improvements
 - WOM-260: Add static pointing model tab in GUI
