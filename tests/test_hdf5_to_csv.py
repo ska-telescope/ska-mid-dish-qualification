@@ -26,9 +26,9 @@ def test_node_not_in_file(capsys, base_path):
     When one of the requested nodes is not in the input file, print a message but
     continue making CSV for the remaining nodes.
     """
-    input_files = base_path / "input_files/node_not_in_file.hdf5"
-    output_file = base_path / "output_files/node_not_in_file.csv"
-    expected_file = base_path / "expected_files/node_not_in_file.csv"
+    input_files = base_path / "resources/input_files/node_not_in_file.hdf5"
+    output_file = base_path / "resources/output_files/node_not_in_file.csv"
+    expected_file = base_path / "resources/expected_files/node_not_in_file.csv"
     nodes = ["not_a_node", "MockData.increment"]
     fo = h5py.File(input_files, "r")
     start = datetime.fromisoformat(fo.attrs["Start time"])
@@ -52,8 +52,8 @@ def test_no_matching_nodes(capsys, base_path):
     When the input file does not contain any of the requested nodes, print error message
     and exit.
     """
-    input_file = base_path / "input_files/no_matching_nodes.hdf5"
-    output_file = base_path / "output_files/no_matching_nodes.csv"
+    input_file = base_path / "resources/input_files/no_matching_nodes.hdf5"
+    output_file = base_path / "resources/output_files/no_matching_nodes.csv"
     nodes = "not_a_node"
     fo = h5py.File(input_file, "r")
     start = datetime.fromisoformat(fo.attrs["Start time"])
@@ -83,9 +83,9 @@ def test_start_stop_past_file(capsys, base_path):
     requested stop time is later than the input file stop time print messages and
     shorten range to existing file times.
     """
-    input_file = base_path / "input_files/start_stop_past_file.hdf5"
-    output_file = base_path / "output_files/start_stop_past_files.csv"
-    expected_file = base_path / "expected_files/start_stop_past_files.csv"
+    input_file = base_path / "resources/input_files/start_stop_past_file.hdf5"
+    output_file = base_path / "resources/output_files/start_stop_past_files.csv"
+    expected_file = base_path / "resources/expected_files/start_stop_past_files.csv"
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     fo = h5py.File(input_file, "r")
     # Cause the requested start and end times to be past the file ranges
@@ -120,9 +120,9 @@ def test_simple_input_file(capsys, base_path):
     A simple HDF5 input file will be correctly converted to the expected CSV file
     without error.
     """
-    input_file = base_path / "input_files/simple_input_file.hdf5"
-    output_file = base_path / "output_files/simple_input_file.csv"
-    expected_file = base_path / "expected_files/simple_input_file.csv"
+    input_file = base_path / "resources/input_files/simple_input_file.hdf5"
+    output_file = base_path / "resources/output_files/simple_input_file.csv"
+    expected_file = base_path / "resources/expected_files/simple_input_file.csv"
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     fo = h5py.File(input_file, "r")
     start = datetime.fromisoformat(fo.attrs["Start time"])
@@ -149,9 +149,13 @@ def test_simple_input_file_double_speed(capsys, base_path):
     file with asterisks to indicate values that are older than the line time minus the
     step_ms given.
     """
-    input_file = base_path / "input_files/simple_input_file_double_speed.hdf5"
-    output_file = base_path / "output_files/simple_input_file_double_speed.csv"
-    expected_file = base_path / "expected_files/simple_input_file_double_speed.csv"
+    input_file = base_path / "resources/input_files/simple_input_file_double_speed.hdf5"
+    output_file = (
+        base_path / "resources/output_files/simple_input_file_double_speed.csv"
+    )
+    expected_file = (
+        base_path / "resources/expected_files/simple_input_file_double_speed.csv"
+    )
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     fo = h5py.File(input_file, "r")
     start = datetime.fromisoformat(fo.attrs["Start time"])

@@ -5,7 +5,7 @@
     </NamespaceUris>
     <Models>
         <Model ModelUri="http://skao.int/DS_ICD/" PublicationDate="2023-09-01T06:37:45Z" Version="0.0.5">
-            <RequiredModel ModelUri="http://opcfoundation.org/UA/" PublicationDate="2022-11-01T00:00:00Z" Version="1.05.02"/>
+            <!-- <RequiredModel ModelUri="http://opcfoundation.org/UA/" PublicationDate="2022-11-01T00:00:00Z" Version="1.05.02"/> -->
         </Model>
     </Models>
     <Aliases>
