@@ -693,7 +693,7 @@ class MainView(QtWidgets.QMainWindow):
         The Event data is an OPC-UA Enum type. The value arrives as an integer and
         it is converted to a string here before updating the text of the widget.
 
-        If the widget's name is found in the `_LED_COLOURS` dict, then the background
+        If the OPC UA type name is found in the `_LED_COLOURS` dict, then the background
         colour of the widget is set accordingly.
 
         The event update dict contains:
@@ -713,12 +713,12 @@ class MainView(QtWidgets.QMainWindow):
                 "OPC-UA Enum type '%s' not found. Using integer value instead.",
                 opcua_type,
             )
-            str_val = str(int_val)
+            str_val: str = str(int_val)
         else:
-            val = opcua_enum(int_val)
+            val: Enum = opcua_enum(int_val)
             str_val = val.name
         finally:
-            widget.setText(str_val)
+            widget.setText(str_val.replace("_", " "))  # For BandType
         if opcua_type in self._LED_COLOURS:
             try:
                 led_colour = self._LED_COLOURS[opcua_type][str_val.lower()]
@@ -1200,7 +1200,9 @@ class MainView(QtWidgets.QMainWindow):
         # Static pointing band
         self.combo_static_point_model_band.blockSignals(True)
         self.combo_static_point_model_band.setCurrentIndex(
-            self.model.convert_band_to_type(self.static_point_model_band.text())
+            self.model.convert_band_to_type(
+                self.static_point_model_band.text().replace(" ", "_")
+            )
         )
         self.combo_static_point_model_band.blockSignals(block_signals)
         # Static pointing offsets
