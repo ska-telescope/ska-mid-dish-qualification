@@ -3,6 +3,7 @@ FROM artefact.skao.int/ska-tango-images-pytango-builder:9.5.0 AS buildenv
 RUN apt-get update && apt-get install libxkbcommon-x11-0 libgl1 libegl1 libwayland-client0 libwayland-server0 libfontconfig1 -y
 RUN apt-get update && apt-get install $(apt-cache search --names-only '^libxcb.*-dev$' | awk '{ print $1 }') -y
 RUN apt-get update && apt-get install xvfb -y
+RUN apt-get update && apt-get install hdf5-tools -y
 RUN poetry self update -n 1.8.2
 
 # COPY --chown=tango:tango pyproject.toml poetry.lock ./

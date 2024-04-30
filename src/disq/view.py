@@ -2,7 +2,7 @@
 
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from functools import cached_property
 from importlib import resources
@@ -140,7 +140,6 @@ class MainView(QtWidgets.QMainWindow):
         :param kwargs: Additional keyword arguments.
         """
         super().__init__(*args, **kwargs)
-        # logger.setLevel(logging.DEBUG)
         # Load the UI from the XML .ui file
         ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
         uic.loadUi(ui_xml_filename, self)
@@ -1067,7 +1066,9 @@ class MainView(QtWidgets.QMainWindow):
     def command_response_status_update(self, status: str):
         """Update the main window status bar with a status update."""
         self.cmd_status_label.setText(status[:200])
-        history_line: str = f"{datetime.now().strftime('%H:%M:%S')} - {status}"
+        history_line: str = (
+            f"{datetime.now(timezone.utc).strftime('%H:%M:%S')} - {status}"
+        )
         self.list_cmd_history.addItem(history_line)
         self.list_cmd_history.scrollToBottom()
 

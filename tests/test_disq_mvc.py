@@ -1,6 +1,5 @@
 """Tests of the GUI."""
 
-import os
 import time
 
 import pytest
@@ -8,25 +7,26 @@ from PyQt6 import QtWidgets
 
 from disq.view import MainView
 
-OPCUA_SERVER_MOCKED = "CI_JOB_ID" in os.environ
-# OPCUA_SERVER_MOCKED = True
-
 
 @pytest.fixture(name="disq_app")
 def disq_app_fixture(qtbot, request: pytest.FixtureRequest) -> MainView:  # type: ignore
     """Fixture to setup the qtbot with the DiSQ application."""
     # Switch the MainView between two fixtures defined in conftest.py
-    if OPCUA_SERVER_MOCKED:
-        disq_fixture: MainView = request.getfixturevalue("disq_mock_model")
+    with_cetc_simulator = request.config.getoption("--with-cetc-sim")
+    if with_cetc_simulator:
+        disq_fixture: MainView = request.getfixturevalue("disq_cetc_simulator")
     else:
-        disq_fixture = request.getfixturevalue("disq_cetc_simulator")
+        disq_fixture = request.getfixturevalue("disq_mock_model")
     qtbot.addWidget(disq_fixture)
-    if not OPCUA_SERVER_MOCKED:
+    if with_cetc_simulator:
         disq_fixture.controller.command_stow(False)
         disq_fixture.controller.command_activate("AzEl")
         disq_fixture.controller.command_activate("Fi")
+    else:
+        # The options are read from the OPCUA server - workaround for mocked test
+        disq_fixture.combobox_authority.addItem("Tester")
     yield disq_fixture
-    if not OPCUA_SERVER_MOCKED:
+    if with_cetc_simulator:
         disq_fixture.controller.command_stop("AzEl")
         disq_fixture.controller.command_stop("Fi")
         time.sleep(0.05)
@@ -188,7 +188,7 @@ ambtemp_correction_input_widgets = [
             "authority_button_clicked",
             True,
             "CommandArbiter.TakeReleaseAuth",
-            ("",) if OPCUA_SERVER_MOCKED else ("Tester",),
+            ("Tester",),
             ["combobox_authority"],
             ("CommandActivated", 9),
         ),
