@@ -1,6 +1,6 @@
 """Graphing data from HDF5 files."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import h5py
 from matplotlib import axes, dates, pyplot
@@ -137,13 +137,14 @@ class Grapher:
         dts = []
         data = []
         for i in range(fo[node]["SourceTimestamp"].len()):
-            dt = datetime.fromtimestamp(fo[node]["SourceTimestamp"][i])
+            naive_dt = datetime.fromtimestamp(fo[node]["SourceTimestamp"][i])
+            dt = naive_dt.replace(tzinfo=timezone.utc)
             if dt > start:
                 if dt < stop:
                     dts.append(dt)
                     data.append(fo[node]["Value"][i])
                 else:
-                    # Datapointes are store chronologically; stop here.
+                    # Datapointes are stored chronologically; stop here.
                     break
 
         node_type = fo[node]["Value"].attrs["Type"]
