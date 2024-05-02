@@ -46,7 +46,9 @@ class StubScu(SCU):
         namespace: str = "http://skao.int/DS_ICD/",
     ) -> None:
         """Init."""
-        super().__init__(host=host, port=port, endpoint=endpoint, namespace=namespace)
+        super().__init__(
+            host=host, port=port, endpoint=endpoint, namespace=namespace, timeout=20
+        )
 
     def subscribe(self, attributes=None, period=None, data_queue=None) -> int:
         """
@@ -134,39 +136,23 @@ def high_level_library_fixture() -> StubScu:
     return high_level_library
 
 
-def test_performance(high_level_library: StubScu):
+def test_build_hdf5_structure(high_level_library: StubScu):
     """
-    Test the performance of the logger class.
+    Test the _build_hdf5_structure() method.
 
-    By quickly reading a HDF5 file into the shared queue. Ensure the logging was
-    completed within a certain time and the contents of he input and output files match.
+    Checks the correct hierarchical structure is created and the file object is set to
+    SWMR mode.
     """
-    input_file = "tests/resources/input_files/60_minutes.hdf5"
-    output_file = "tests/resources/output_files/performance.hdf5"
-    input_f_o = h5py.File(input_file, "r", libver="latest")
-    nodes = list(input_f_o.keys())
-    start_time = datetime.now(timezone.utc)
+    output_file = "tests/resources/output_files/_build_hdf5_structure.hdf5"
     logger = Logger(file_name=output_file, high_level_library=high_level_library)
-    logger.add_nodes(nodes, 50)
-
-    logger.start()
-    put_hdf5_file_in_queue(nodes, input_f_o, logger)
-    logger.stop()
-    logger.wait_for_completion()
-    stop_time = datetime.now(timezone.utc)
-    input_f_o.close()
-
-    test_duration = stop_time - start_time
-    print(f"Performance test duration: {test_duration}")
-    # Check test ran in a reasonable time (1/10th of input file duration).
-    assert test_duration < timedelta(minutes=6)
-    # pylint: disable=subprocess-run-check
-    subprocess.run(["h5diff", "-v", input_file, output_file])
-    # result = subprocess.run(["h5diff", "-v", input_file, output_file])
-    # Check output file contents match input file contents
-    # The h5diff linux tool is returning 2 (i.e. error code) for 0 differences
-    # found on the MockData.bool dataset.
-    # assert result.returncode == 0 # assert excluded because of tool bug
+    nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
+    logger.add_nodes(nodes, 100)
+    logger.file_object = h5py.File(output_file, "w", libver="latest")
+    logger._build_hdf5_structure()
+    expected_node_list = nodes
+    assert list(logger.file_object.keys()) == expected_node_list
+    assert logger.file_object.swmr_mode is True
+    logger.file_object.close()
 
 
 # TODO: Fix test
@@ -212,25 +198,6 @@ def test_add_nodes(caplog, high_level_library: StubScu):
         "MockData.enum": 50,
     }
     assert logger._nodes == expected_object_nodes
-
-
-def test_build_hdf5_structure(high_level_library: StubScu):
-    """
-    Test the _build_hdf5_structure() method.
-
-    Checks the correct hierarchical structure is created and the file object is set to
-    SWMR mode.
-    """
-    output_file = "tests/resources/output_files/_build_hdf5_structure.hdf5"
-    logger = Logger(file_name=output_file, high_level_library=high_level_library)
-    nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
-    logger.add_nodes(nodes, 100)
-    logger.file_object = h5py.File(output_file, "w", libver="latest")
-    logger._build_hdf5_structure()
-    expected_node_list = nodes
-    assert list(logger.file_object.keys()) == expected_node_list
-    assert logger.file_object.swmr_mode is True
-    logger.file_object.close()
 
 
 # TODO: Fix test
@@ -407,3 +374,38 @@ def test_enum_attribute(high_level_library: StubScu):
         output_f_o["MockData.enum"]["Value"].attrs["Enumerations"] == expected_attribute
     )
     output_f_o.close()
+
+
+def test_performance(high_level_library: StubScu):
+    """
+    Test the performance of the logger class.
+
+    By quickly reading a HDF5 file into the shared queue. Ensure the logging was
+    completed within a certain time and the contents of he input and output files match.
+    """
+    input_file = "tests/resources/input_files/60_minutes.hdf5"
+    output_file = "tests/resources/output_files/performance.hdf5"
+    input_f_o = h5py.File(input_file, "r", libver="latest")
+    nodes = list(input_f_o.keys())
+    start_time = datetime.now(timezone.utc)
+    logger = Logger(file_name=output_file, high_level_library=high_level_library)
+    logger.add_nodes(nodes, 50)
+
+    logger.start()
+    put_hdf5_file_in_queue(nodes, input_f_o, logger)
+    logger.stop()
+    logger.wait_for_completion()
+    stop_time = datetime.now(timezone.utc)
+    input_f_o.close()
+
+    test_duration = stop_time - start_time
+    print(f"Performance test duration: {test_duration}")
+    # Check test ran in a reasonable time (1/10th of input file duration).
+    assert test_duration < timedelta(minutes=6)
+    # pylint: disable=subprocess-run-check
+    subprocess.run(["h5diff", "-v", input_file, output_file])
+    # result = subprocess.run(["h5diff", "-v", input_file, output_file])
+    # Check output file contents match input file contents
+    # The h5diff linux tool is returning 2 (i.e. error code) for 0 differences
+    # found on the MockData.bool dataset.
+    # assert result.returncode == 0 # assert excluded because of tool bug
