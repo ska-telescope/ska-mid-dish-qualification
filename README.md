@@ -103,12 +103,29 @@ There is a small powershell script in the repository root directory named log.ps
 to easily create logs of git commands run in a Windows powershell.
 WARNING: This will only work with commands that output to the terminal. Commands that open a text editor will not behave correctly.
 
+## Testing
+
+At the time of writing, manual exploratory testing of the GUI application is done against the latest CETC54 simulator, which lags behind the current ICD version.
+
+### Regression tests
+
+Some regression tests with limited coverage are run as part of the CI/CD pipeline. If you have a development installation, these test should always be run locally with `make python-test` before pushing any commits.
+
+The GUI tests mock the `model.run_opcua_command` method, so no simulator is involved other than the basic `DSSimulatorOPCUAServer` for the Logger's tests. This is what is done in the CI job.
+
+Additionally, if you have the CETC simulator running on your local machine, the GUI tests can be run against it using:
+
+    make python-test PYTHON_VARS_AFTER_PYTEST=--with-cetc-sim
+
+`--with-cetc-sim` is a custom pytest argument. When using it, nothing is mocked, and the GUI and SCU library is more thoroughly tested against whatever version of the ICD the simulator is using.
+
 ## Authors and acknowledgment
 SKAO Team Wombat is developing this project:
 
 * Thomas Juerges
 * Oliver Skivington
 * Ulrik Pedersen
+* Jarrett Engelbrecht
 
 ## License
 Copyright 2020 SARAO - see LICENSE file for details.

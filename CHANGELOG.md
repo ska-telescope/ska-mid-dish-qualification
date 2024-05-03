@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- WOM-346: Add DS sim as fixture for Logger tests to run against
 - WOM-341: Display selected FI band and set tab order of widgets
 - WOM-339: Add pytest-qt GUI tests in CI job
 - WOM-333: Fix server validator script crash
