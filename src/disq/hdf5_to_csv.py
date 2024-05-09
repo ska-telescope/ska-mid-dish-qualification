@@ -78,12 +78,11 @@ class Converter:
             else:
                 value = str(self._file_object[node]["Value"][idx])
 
-            naive_datetime = datetime.fromtimestamp(
-                self._file_object[node]["SourceTimestamp"][idx]
-            )
             # The timestamp stored in the hdf5 file (read: returned from the OPCUA
             # server) must be UTC
-            aware_datetime = naive_datetime.replace(tzinfo=timezone.utc)
+            aware_datetime = datetime.fromtimestamp(
+                self._file_object[node]["SourceTimestamp"][idx], tz=timezone.utc
+            )
             after = (
                 aware_datetime,
                 value,

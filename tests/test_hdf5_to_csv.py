@@ -17,8 +17,7 @@ def base_path_fixture():
     return Path(__file__).parent
 
 
-# TODO
-@pytest.mark.skipif(os.getenv("CI_JOB_ID") is None, reason="Fails in local venv!")
+# TODO: Fails in local venv!
 def test_node_not_in_file(capsys, base_path):
     """
     Test node not in file.
@@ -73,8 +72,7 @@ def test_no_matching_nodes(capsys, base_path):
     assert os.path.exists(output_file) is False
 
 
-# TODO
-@pytest.mark.skipif(os.getenv("CI_JOB_ID") is None, reason="Fails in local venv!")
+# TODO: Fails in local venv!
 def test_start_stop_past_file(capsys, base_path):
     """
     Test start and stop past ends of file.
@@ -111,8 +109,7 @@ def test_start_stop_past_file(capsys, base_path):
     assert filecmp.cmp(output_file, expected_file) is True
 
 
-# TODO
-@pytest.mark.skipif(os.getenv("CI_JOB_ID") is None, reason="Fails in local venv!")
+# TODO: Fails in local venv!
 def test_simple_input_file(capsys, base_path):
     """
     Test simple input file.
@@ -139,8 +136,7 @@ def test_simple_input_file(capsys, base_path):
     assert filecmp.cmp(output_file, expected_file) is True
 
 
-# TODO
-@pytest.mark.skipif(os.getenv("CI_JOB_ID") is None, reason="Fails in local venv!")
+# TODO: Fails in local venv!
 def test_simple_input_file_double_speed(capsys, base_path):
     """
     Test simple input file double speed.

@@ -395,3 +395,6 @@ class Logger:
 
         while not self.logging_complete.is_set():
             sleep(self._COMPLETION_LOOP_TIMEOUT_SECS)
+
+        if self._stop_logging.is_set() and self._thread.is_alive():
+            self._thread.join()
