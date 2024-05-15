@@ -495,10 +495,14 @@ class MainView(QtWidgets.QMainWindow):
     @cached_property
     def opcua_widgets(self) -> dict:
         """
-        Return a dict of of all 'opcua' widgets and their update method.
+        A dict of of all 'opcua' widgets and their update method.
 
-        This is a cached property, meaning the function will only run once and
-        subsequent calls will return the cached result.
+        A widget on the UI is defined as an 'opcua' widget if it has a dynamic property
+        named 'opcua'. Only widgets of types `QLineEdit`, `QLabel` and `QRadioButton`
+        are supported. The value of this property is the dot-notated OPC-UA parameter.
+
+        This is a cached property, meaning the function will only run once, scanning
+        the UI for 'opcua widgets' and subsequent calls will return the cached result.
 
         :return: {name: (widget, func)}
         """
@@ -648,6 +652,14 @@ class MainView(QtWidgets.QMainWindow):
         _widget = self.opcua_widgets[event["name"]][0]
         _widget_update_func = self.opcua_widgets[event["name"]][1]
         _widget_update_func(_widget, event)
+        self._update_opcua_widget_tooltip(_widget, event)
+
+    def _update_opcua_widget_tooltip(
+        self, widget: QtWidgets.QWidget, opcua_event: dict
+    ) -> None:
+        """Update the tooltip of the OPCUA widget."""
+        tooltip = f"<b>OPCUA param:</b> {opcua_event['name']}\n<b>Value:</b> {opcua_event['value']}"
+        widget.setToolTip(tooltip)
 
     def _init_opcua_combo_widgets(self) -> None:
         """Initialise all the OPC-UA combo widgets."""
@@ -725,7 +737,7 @@ class MainView(QtWidgets.QMainWindow):
                     opcua_type,
                 )
             widget.setStyleSheet(
-                f"background-color: {led_colour};" "border-color: black;"
+                "QLineEdit {" f"background-color: {led_colour};" "border-color: black;}"
             )
 
     def _update_opcua_boolean_radio_button_widget(
