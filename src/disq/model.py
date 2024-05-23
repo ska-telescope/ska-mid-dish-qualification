@@ -5,7 +5,7 @@ import os
 from functools import cached_property
 from pathlib import Path
 from queue import Empty, Queue
-from typing import Callable
+from typing import Any, Callable
 
 from asyncua import ua
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
@@ -261,6 +261,11 @@ class Model(QObject):
         :rtype: tuple
         :raises RuntimeError: If the server is not connected.
         """
+
+        def _log_and_call(command, *args) -> Any:
+            logger.debug("Model: run_opcua_command: %s, args: %s", command, args)
+            return self._scu.commands[command](*args)
+
         if self._scu is None:
             raise RuntimeError("server not connected")
         if command in [
@@ -272,31 +277,21 @@ class Model(QObject):
         ]:
             # Commands that take a single AxisSelectType parameter input
             try:
-                arg = ua.AxisSelectType[args[0]]
+                axis = ua.AxisSelectType[args[0]]
             except AttributeError:
                 logger.warning(
                     "OPC-UA server has no 'AxisSelectType' enum. Attempting a guess."
                 )
-                arg = {"Az": 0, "El": 1, "Fi": 2, "AzEl": 3}[args[0]]
-            logger.debug(
-                "Model: run_opcua_command: %s, args: %d, %r", command, arg, args[1:]
-            )
-            result = self._scu.commands[command](arg, *args[1:])
+                axis = {"Az": 0, "El": 1, "Fi": 2, "AzEl": 3}[args[0]]
+            result = _log_and_call(command, axis, *args[1:])
         elif command == "Management.Move2Band":
             band = self.convert_band_to_type(args[0])
-            logger.debug("Model: run_opcua_command:  %s(%d)", command, band)
-            result = self._scu.commands[command](band)
+            result = _log_and_call(command, band)
         elif command == "Pointing.StaticPmSetup":
             band = self.convert_band_to_type(args[0])
-            logger.debug(
-                "Model: run_opcua_command:  %s, args: %d %r", command, band, *args[1:]
-            )
-            result = self._scu.commands[command](band, *args[1:])
+            result = _log_and_call(command, band, *args[1:])
         elif command == "Pointing.PmCorrOnOff":
             band = self.convert_band_to_type(args[3])
-            logger.debug(
-                "Model: run_opcua_command:  %s, args: %r %d", command, *args[:3], band
-            )
             static = args[0]
             try:
                 tilt = ua.TiltOnEnumType[args[1]]
@@ -304,13 +299,12 @@ class Model(QObject):
                 logger.warning(
                     "OPC-UA server has no 'TiltOnEnumType' enum. Attempting a guess."
                 )
-                arg = {"Off": 0, "TiltmeterOne": 1, "TiltmeterTwo": 2}[args[1]]
+                tilt = {"Off": 0, "TiltmeterOne": 1, "TiltmeterTwo": 2}[args[1]]
             temperature = args[2]
-            result = self._scu.commands[command](static, tilt, temperature, band)
+            result = _log_and_call(command, static, tilt, temperature, band)
         else:
             # Commands that take none or more parameters of base types: float,bool,etc.
-            logger.debug("Model: run_opcua_command: %s, args: %r", command, args)
-            result = self._scu.commands[command](*args)
+            result = _log_and_call(command, *args)
         return result
 
     @cached_property
