@@ -18,8 +18,8 @@ include:
     file: "gitlab-ci/includes/python.gitlab-ci.yml"
 
   # Jupyter Notebooks
-  # - project: "ska-telescope/templates-repository"
-  #   file: "gitlab-ci/includes/notebook.gitlab-ci.yml"
+  - project: "ska-telescope/templates-repository"
+    file: "gitlab-ci/includes/notebook.gitlab-ci.yml"
 
   # Docs pages
   - project: "ska-telescope/templates-repository"
@@ -32,6 +32,12 @@ include:
   # Create Gitlab CI badges from CI metrics
   - project: "ska-telescope/templates-repository"
     file: "gitlab-ci/includes/finaliser.gitlab-ci.yml"
+
+notebook-lint:
+  when: manual
+
+notebook-test:
+  when: manual
 
 python-test:
   image: registry.gitlab.com/ska-telescope/ska-mid-dish-qualification/ci-tests:latest
