@@ -40,6 +40,9 @@ class Controller(QObject):
         """
         super().__init__(parent)
         self._model = mvc_model
+        self._static_pointing_parameters: list[str | float] = []
+        self._static_pointing_offsets: list[float] = []
+        self._ambtemp_correction_parameters: list[float] = []
 
     def _command_response_str(
         self, command: str, result_code: int, result_msg: str
@@ -324,7 +327,7 @@ class Controller(QObject):
 
     def command_set_static_pointing_parameters(
         self, band: str, params: list[float]
-    ) -> tuple[int, str]:
+    ) -> tuple[int, str] | None:
         """
         Issue command to set the static pointing model parameters.
 
@@ -332,15 +335,19 @@ class Controller(QObject):
         :type band: str
         :param params: list of parameter values to apply (20 values)
         :type params: list[float]
-        :return: A tuple containing the result code and result message
-        :rtype: tuple[int, str]
+        :return: A tuple containing the result code and result message,
+            or None if the command was not issued.
+        :rtype: tuple[int, str] | None
         """
         cmd = "Pointing.StaticPmSetup"
-        return self._issue_command(cmd, band, *params)
+        if self._static_pointing_parameters != [band, *params]:
+            self._static_pointing_parameters = [band, *params]
+            return self._issue_command(cmd, band, *params)
+        return None
 
     def command_set_static_pointing_offsets(
         self, azim: float, elev: float
-    ) -> tuple[int, str]:
+    ) -> tuple[int, str] | None:
         """
         Issue command to set the static pointing tracking offsets.
 
@@ -348,25 +355,33 @@ class Controller(QObject):
         :type params: float
         :param elev: Elevation offset
         :type params: float
-        :return: A tuple containing the result code and result message
-        :rtype: tuple[int, str]
+        :return: A tuple containing the result code and result message,
+            or None if the command was not issued.
+        :rtype: tuple[int, str] | None
         """
         cmd = "Tracking.TrackLoadStaticOff"
-        return self._issue_command(cmd, azim, elev)
+        if self._static_pointing_offsets != [azim, elev]:
+            self._static_pointing_offsets = [azim, elev]
+            return self._issue_command(cmd, azim, elev)
+        return None
 
     def command_set_ambtemp_correction_parameters(
         self, params: list[float]
-    ) -> tuple[int, str]:
+    ) -> tuple[int, str] | None:
         """
         Issue command to set the ambient temperature correction parameters.
 
         :param params: list of parameter values to apply
         :type params: list[float]
-        :return: A tuple containing the result code and result message
-        :rtype: tuple[int, str]
+        :return: A tuple containing the result code and result message,
+            or None if the command was not issued.
+        :rtype: tuple[int, str] | None
         """
         cmd = "Pointing.AmbCorrSetup"
-        return self._issue_command(cmd, *params)
+        if self._ambtemp_correction_parameters != params:
+            self._ambtemp_correction_parameters = params
+            return self._issue_command(cmd, *params)
+        return None
 
     def _issue_command(self, cmd: str, *args) -> tuple[int, str]:
         """

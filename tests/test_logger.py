@@ -27,7 +27,7 @@ def ds_simulator_opcua_server_mock_fixture():
         ["python", "tests/resources/ds_opcua_server_mock.py"]
     )
     # Wait for some time to ensure the simulator is fully started
-    time.sleep(5)
+    time.sleep(10)
     yield simulator_process
     simulator_process.terminate()
     simulator_process.wait()  # Wait for the process to terminate completely
@@ -47,7 +47,7 @@ class StubScu(SCU):
     ) -> None:
         """Init."""
         super().__init__(
-            host=host, port=port, endpoint=endpoint, namespace=namespace, timeout=20
+            host=host, port=port, endpoint=endpoint, namespace=namespace, timeout=25
         )
 
     def subscribe(self, attributes=None, period=None, data_queue=None) -> int:
