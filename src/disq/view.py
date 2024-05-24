@@ -145,6 +145,15 @@ class MainView(QtWidgets.QMainWindow):
         uic.loadUi(ui_xml_filename, self)
         self.setWindowTitle("DiSQ GUI")
 
+        # Adding a default style for the tooltip with a white background and black text
+        # This is a work-around for the issue that tooltips inherit style from the
+        # parent widget - and this choice of colour-scheme is at least readable.
+        self.setStyleSheet(
+            # "QToolTip { color: #ffffff; background-color: #2a82da;"
+            "QToolTip { color: black; background-color: white;"
+            "border: 1px solid black; }"
+        )
+
         # Add a label widget to the status bar for command/response status
         # The QT Designer doesn't allow us to add this label so we have to do it here
         self.cmd_status_label = QtWidgets.QLabel("ℹ️ Status")
@@ -495,10 +504,14 @@ class MainView(QtWidgets.QMainWindow):
     @cached_property
     def opcua_widgets(self) -> dict:
         """
-        Return a dict of of all 'opcua' widgets and their update method.
+        A dict of of all 'opcua' widgets and their update method.
 
-        This is a cached property, meaning the function will only run once and
-        subsequent calls will return the cached result.
+        A widget on the UI is defined as an 'opcua' widget if it has a dynamic property
+        named 'opcua'. Only widgets of types `QLineEdit`, `QLabel` and `QRadioButton`
+        are supported. The value of this property is the dot-notated OPC-UA parameter.
+
+        This is a cached property, meaning the function will only run once, scanning
+        the UI for 'opcua widgets' and subsequent calls will return the cached result.
 
         :return: {name: (widget, func)}
         """
@@ -646,8 +659,25 @@ class MainView(QtWidgets.QMainWindow):
         logger.debug("View: data update: %s value=%s", event["name"], event["value"])
         # Get the widget update method from the dict of opcua widgets
         _widget = self.opcua_widgets[event["name"]][0]
+        self._update_opcua_widget_tooltip(_widget, event)
         _widget_update_func = self.opcua_widgets[event["name"]][1]
         _widget_update_func(_widget, event)
+
+    def _update_opcua_widget_tooltip(
+        self, widget: QtWidgets.QWidget, opcua_event: dict
+    ) -> None:
+        """Update the tooltip of the OPCUA widget."""
+        str_val = str(opcua_event["value"])
+        if "opcua_type" in widget.dynamicPropertyNames():
+            opcua_type = widget.property("opcua_type")
+            if opcua_type in self.model.opcua_enum_types:
+                opcua_enum: type = self.model.opcua_enum_types[opcua_type]
+                enum_val: Enum = opcua_enum(int(str_val))
+                str_val = enum_val.name
+        tooltip = (
+            f"<b>OPCUA param:</b> {opcua_event['name']}<br>" f"<b>Value:</b> {str_val}"
+        )
+        widget.setToolTip(tooltip)
 
     def _init_opcua_combo_widgets(self) -> None:
         """Initialise all the OPC-UA combo widgets."""
@@ -715,6 +745,7 @@ class MainView(QtWidgets.QMainWindow):
             str_val = val.name
         finally:
             widget.setText(str_val.replace("_", " "))  # For BandType
+
         if opcua_type in self._LED_COLOURS:
             try:
                 led_colour = self._LED_COLOURS[opcua_type][str_val.lower()]
@@ -725,7 +756,9 @@ class MainView(QtWidgets.QMainWindow):
                     opcua_type,
                 )
             widget.setStyleSheet(
-                f"background-color: {led_colour};" "border-color: black;"
+                "QLineEdit {"
+                f"background-color: {led_colour};"
+                "border-color: black;} "
             )
 
     def _update_opcua_boolean_radio_button_widget(
@@ -745,6 +778,7 @@ class MainView(QtWidgets.QMainWindow):
             event["name"],
             event["value"],
         )
+
         # Update can come from either OFF or ON radio button, but need to explicitly
         # set one of the two in a group with setChecked(True)
         if event["value"]:
@@ -782,7 +816,7 @@ class MainView(QtWidgets.QMainWindow):
         logger.debug("Boolean OPCUA update: %s value=%s", event["name"], event["value"])
         if event["value"] is None:
             widget.setEnabled(False)
-            widget.setStyleSheet("border-color: white;")
+            widget.setStyleSheet("QLineEdit { border-color: white;} ")
         else:
             led_base_colour = "green"  # default colour
             if "led_colour" in widget.dynamicPropertyNames():
@@ -800,7 +834,9 @@ class MainView(QtWidgets.QMainWindow):
                 return
             widget.setEnabled(True)
             widget.setStyleSheet(
-                f"background-color: {background_colour_rbg};" "border-color: black;"
+                "QLineEdit { "
+                f"background-color: {background_colour_rbg}; "
+                "border-color: black;} "
             )
 
     def _track_table_file_exist(self) -> bool:
