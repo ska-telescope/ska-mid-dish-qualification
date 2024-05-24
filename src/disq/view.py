@@ -816,7 +816,7 @@ class MainView(QtWidgets.QMainWindow):
         logger.debug("Boolean OPCUA update: %s value=%s", event["name"], event["value"])
         if event["value"] is None:
             widget.setEnabled(False)
-            widget.setStyleSheet("QLineEdit { " "border-color: white;} ")
+            widget.setStyleSheet("QLineEdit { border-color: white;} ")
         else:
             led_base_colour = "green"  # default colour
             if "led_colour" in widget.dynamicPropertyNames():
