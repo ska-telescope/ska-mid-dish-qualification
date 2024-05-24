@@ -739,12 +739,12 @@ class MainView(QtWidgets.QMainWindow):
                 "OPC-UA Enum type '%s' not found. Using integer value instead.",
                 opcua_type,
             )
-            str_val: str = str(int_val).replace("_", " ")
+            str_val: str = str(int_val)
         else:
             val: Enum = opcua_enum(int_val)
             str_val = val.name
         finally:
-            widget.setText(str_val)  # For BandType
+            widget.setText(str_val.replace("_", " "))  # For BandType
 
         if opcua_type in self._LED_COLOURS:
             try:
