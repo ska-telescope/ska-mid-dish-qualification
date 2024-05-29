@@ -2,6 +2,10 @@
 
 ## unreleased
 
+## 0.3.0
+
+- WOM-223: DiSQ: GUI Tooltips
+- WOM-353: DiSQ GUI throws exception in logging message
 - WOM-346: Add DS sim as fixture for Logger tests to run against
 - WOM-341: Display selected FI band and set tab order of widgets
 - WOM-339: Add pytest-qt GUI tests in CI job

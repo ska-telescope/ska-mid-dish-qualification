@@ -78,7 +78,7 @@ name = "Ulrik Pedersen"
 [tool.poetry]
 include = ["MANIFEST.skao.int"]
 name = "DiSQ"
-version = "0.2.1"
+version = "0.3.0"
 description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
 authors = [
     "Oliver Skivington <oliver.skivington@criticalsoftware.com>",
