@@ -327,9 +327,9 @@ class Model(QObject):
             "AxisSelectType",
             "DscCmdAuthorityType",
             "BandType",
-            "DscTimeSourceType",
+            "DscTimeSyncSourceType",
             "InterpolType",
-            "LoadModeType",
+            "LoadEnumType",
             "SafetyStateType",
             "TiltOnType",
         ]:

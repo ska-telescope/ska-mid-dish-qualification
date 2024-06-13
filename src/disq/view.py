@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 """DiSQ GUI View."""
 
 import logging
@@ -16,7 +17,6 @@ from disq import controller, model
 logger = logging.getLogger("gui.view")
 
 
-# pylint: disable=too-few-public-methods,too-many-lines
 class RecordingConfigDialog(QtWidgets.QDialog):
     """
     A dialog-window class for selecting OPC-UA parameters to be recorded.
@@ -97,10 +97,11 @@ class MainView(QtWidgets.QMainWindow):
         "yellow": {True: "rgb(250, 255, 0)", False: "rgb(45, 44, 0)"},
         "orange": {True: "rgb(255, 170, 0)", False: "rgb(92, 61, 0)"},
         "StowPinStatusType": {
+            "unkown": "rgb(10, 10, 10)",  # TODO: typo in simulator
             "retracted": "rgb(10, 250, 25)",
-            "deploying": "rgb(250, 255, 0)",
             "retracting": "rgb(250, 255, 0)",
             "deployed": "rgb(255, 0, 0)",
+            "deploying": "rgb(250, 255, 0)",
             "motiontimeout": "rgb(255, 0, 0)",
         },
     }

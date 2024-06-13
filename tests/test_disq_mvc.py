@@ -115,7 +115,7 @@ ambtemp_correction_input_widgets = [
         (
             "activate_button_clicked",
             "AzEl",
-            "Management.Activate",
+            "Management.Commands.Activate",
             None,
             None,
             ("CommandAborted", 2),
@@ -123,7 +123,7 @@ ambtemp_correction_input_widgets = [
         (
             "deactivate_button_clicked",
             "AzEl",
-            "Management.DeActivate",
+            "Management.Commands.DeActivate",
             None,
             None,
             ("CommandDone", 10),
@@ -131,7 +131,7 @@ ambtemp_correction_input_widgets = [
         (
             "unstow_button_clicked",
             None,
-            "Management.Stow",
+            "Management.Commands.Stow",
             (False,),
             None,
             ("CommandAborted", 2),
@@ -139,7 +139,7 @@ ambtemp_correction_input_widgets = [
         (
             "stow_button_clicked",
             None,
-            "Management.Stow",
+            "Management.Commands.Stow",
             (True,),
             None,
             ("CommandActivated", 9),
@@ -147,7 +147,7 @@ ambtemp_correction_input_widgets = [
         (
             "slew2abs_button_clicked",
             None,
-            "Management.Slew2AbsAzEl",
+            "Management.Commands.Slew2AbsAzEl",
             (10.0, 20.0, 0.5, 0.3),
             slew2abs_input_widgets,
             ("CommandActivated", 9),
@@ -155,7 +155,7 @@ ambtemp_correction_input_widgets = [
         (
             "slew2abs_button_clicked",
             None,
-            "Management.Slew2AbsAzEl",
+            "Management.Commands.Slew2AbsAzEl",
             (-10.0, 15.0, 0.5, 0.3),
             slew2abs_input_widgets,
             ("CommandActivated", 9),
@@ -163,7 +163,7 @@ ambtemp_correction_input_widgets = [
         (
             "slew_button_clicked",
             "Az",
-            "Management.Slew2AbsSingleAx",
+            "Management.Commands.Slew2AbsSingleAx",
             (10.0, 1.0),
             slew_azimuth_input_widgets,
             ("CommandActivated", 9),
@@ -171,7 +171,7 @@ ambtemp_correction_input_widgets = [
         (
             "slew_button_clicked",
             "El",
-            "Management.Slew2AbsSingleAx",
+            "Management.Commands.Slew2AbsSingleAx",
             (20.0, 1.0),
             slew_elevation_input_widgets,
             ("CommandActivated", 9),
@@ -179,7 +179,7 @@ ambtemp_correction_input_widgets = [
         (
             "stop_button_clicked",
             "AzEl",
-            "Management.Stop",
+            "Management.Commands.Stop",
             None,
             None,
             None,
@@ -187,7 +187,7 @@ ambtemp_correction_input_widgets = [
         (
             "authority_button_clicked",
             True,
-            "CommandArbiter.TakeReleaseAuth",
+            "CommandArbiter.Commands.TakeReleaseAuth",
             ("Tester",),
             ["combobox_authority"],
             ("CommandActivated", 9),
@@ -195,7 +195,7 @@ ambtemp_correction_input_widgets = [
         (
             "move2band_button_clicked",
             "Band_2",
-            "Management.Move2Band",
+            "Management.Commands.Move2Band",
             None,
             None,
             ("CommandActivated", 9),
@@ -203,7 +203,7 @@ ambtemp_correction_input_widgets = [
         (
             "move2band_button_clicked",
             "Optical",
-            "Management.Move2Band",
+            "Management.Commands.Move2Band",
             None,
             None,
             ("CommandActivated", 9),
@@ -213,7 +213,7 @@ ambtemp_correction_input_widgets = [
         (
             "pointing_model_button_clicked",
             None,
-            "Pointing.PmCorrOnOff",
+            "Pointing.Commands.PmCorrOnOff",
             (False, "Off", False, "Band_1"),
             pointing_model_setup_input_widgets,
             ("CommandDone", 10),
@@ -221,7 +221,7 @@ ambtemp_correction_input_widgets = [
         (
             "static_pointing_parameter_changed",
             None,
-            "Pointing.StaticPmSetup",
+            "Pointing.Commands.StaticPmSetup",
             ("Band_1",) + (0.0,) * 20,
             static_pointing_params_input_widgets,
             ("CommandActivated", 9),
@@ -229,7 +229,7 @@ ambtemp_correction_input_widgets = [
         (
             "static_pointing_offset_changed",
             None,
-            "Tracking.TrackLoadStaticOff",
+            "Tracking.Commands.TrackLoadStaticOff",
             (10.0, -10.0),
             static_pointing_offset_input_widgets,
             ("CommandActivated", 9),
@@ -237,7 +237,7 @@ ambtemp_correction_input_widgets = [
         (
             "ambtemp_correction_parameter_changed",
             None,
-            "Pointing.AmbCorrSetup",
+            "Pointing.Commands.AmbCorrSetup",
             (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0),
             ambtemp_correction_input_widgets,
             ("CommandActivated", 9),

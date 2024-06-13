@@ -409,7 +409,7 @@
           <string>system</string>
          </property>
          <property name="opcua" stdset="0">
-          <string>Management.ManagementStatus.DscState</string>
+          <string>Management.Status.DscState</string>
          </property>
          <property name="opcua_type" stdset="0">
           <string>DscStateType</string>
@@ -454,7 +454,7 @@
             <string>replace 4 LED</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Safety.EStopPed</string>
+            <string>Safety.Status.EStopPed</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -494,7 +494,7 @@
             <string/>
            </property>
            <property name="opcua" stdset="0">
-            <string>Safety.EStopHHP</string>
+            <string>Safety.Status.EStopHHP</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -534,7 +534,7 @@
             <string>replace 4 LED</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Safety.EStopFi</string>
+            <string>Safety.Status.EStopFi</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -574,7 +574,7 @@
             <string>replace 4 LED</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Safety.EStopTurnHead</string>
+            <string>Safety.Status.EStopTurnHead</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -631,7 +631,7 @@
             <string>replace 3 LED</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Safety.STO_Az</string>
+            <string>Safety.Status.STO_Az</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -665,7 +665,7 @@
             <string>replace 3 LED</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Safety.STO_El</string>
+            <string>Safety.Status.STO_El</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -699,7 +699,7 @@
             <string>replace 3 LED</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Safety.STO_Fi</string>
+            <string>Safety.Status.STO_Fi</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -756,7 +756,7 @@
             <string>system</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Management.ManagementStatus.WarningStatus.waHatchPscRoof</string>
+            <string>Management.WarningStatus.waHatchPscRoof</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -790,7 +790,7 @@
             <string>system</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Safety.HatchAzBearing</string>
+            <string>Safety.Status.HatchAzBearing</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -824,7 +824,7 @@
             <string>system</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Safety.HatchTurnHeadRoof</string>
+            <string>Safety.Status.HatchTurnHeadRoof</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -881,7 +881,7 @@
             <string>system</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Management.ManagementStatus.WarningStatus.waDoorPED</string>
+            <string>Management.WarningStatus.waDoorPED</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -915,7 +915,7 @@
             <string>system</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Management.ManagementStatus.WarningStatus.waDoorPSC</string>
+            <string>Management.WarningStatus.waDoorPSC</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -949,7 +949,7 @@
             <string>system</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Management.ManagementStatus.WarningStatus.waDoorEMISC</string>
+            <string>Management.WarningStatus.waDoorEMISC</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -1001,7 +1001,7 @@
           <string>system</string>
          </property>
          <property name="opcua" stdset="0">
-          <string>Safety.StowPinStatus</string>
+          <string>Safety.Status.StowPinStatus</string>
          </property>
          <property name="opcua_type" stdset="0">
           <string>StowPinStatusType</string>
@@ -1050,7 +1050,7 @@
             <string>Take Authority</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>CommandArbiter.TakeReleaseAuth</string>
+            <string>CommandArbiter.Commands.TakeReleaseAuth</string>
            </property>
           </widget>
          </item>
@@ -1076,7 +1076,7 @@
             <string>Interlock Ack</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Safety.InterlockAck</string>
+            <string>Safety.Status.Commands.InterlockAck</string>
            </property>
           </widget>
          </item>
@@ -1117,7 +1117,7 @@
             <string>LMC</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>CommandArbiter.DscCmdAuthority</string>
+            <string>CommandArbiter.Status.DscCmdAuthority</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>DscCmdAuthorityType</string>
@@ -1146,7 +1146,7 @@
             <string>Release Authority</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>CommandArbiter.TakeReleaseAuth</string>
+            <string>CommandArbiter.Commands.TakeReleaseAuth</string>
            </property>
           </widget>
          </item>
@@ -1194,7 +1194,7 @@
             <string>Activate</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Activate</string>
+            <string>Management.Commands.Activate</string>
            </property>
           </widget>
          </item>
@@ -1204,7 +1204,7 @@
             <string>Un-Stow</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Stow</string>
+            <string>Management.Commands.Stow</string>
            </property>
           </widget>
          </item>
@@ -1214,7 +1214,7 @@
             <string>De-Activate</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.DeActivate</string>
+            <string>Management.Commands.DeActivate</string>
            </property>
           </widget>
          </item>
@@ -1224,7 +1224,7 @@
             <string>Stow</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Stow</string>
+            <string>Management.Commands.Stow</string>
            </property>
           </widget>
          </item>
@@ -1240,7 +1240,7 @@
             <string>Stop</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Stop</string>
+            <string>Management.Commands.Stop</string>
            </property>
           </widget>
          </item>
@@ -1265,7 +1265,7 @@
             <string>Slew2Abs</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Slew2AbsAzEl</string>
+            <string>Management.Commands.Slew2AbsAzEl</string>
            </property>
           </widget>
          </item>
@@ -1401,7 +1401,7 @@
             <string>Band 1</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Move2Band</string>
+            <string>Management.Commands.Move2Band</string>
            </property>
           </widget>
          </item>
@@ -1411,7 +1411,7 @@
             <string>Band 2</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Move2Band</string>
+            <string>Management.Commands.Move2Band</string>
            </property>
           </widget>
          </item>
@@ -1421,7 +1421,7 @@
             <string>Band 3</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Move2Band</string>
+            <string>Management.Commands.Move2Band</string>
            </property>
           </widget>
          </item>
@@ -1431,7 +1431,7 @@
             <string>Band 4</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Move2Band</string>
+            <string>Management.Commands.Move2Band</string>
            </property>
           </widget>
          </item>
@@ -1441,7 +1441,7 @@
             <string>Band 5a</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Move2Band</string>
+            <string>Management.Commands.Move2Band</string>
            </property>
           </widget>
          </item>
@@ -1451,7 +1451,7 @@
             <string>Band 5b</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Move2Band</string>
+            <string>Management.Commands.Move2Band</string>
            </property>
           </widget>
          </item>
@@ -1461,7 +1461,7 @@
             <string>Band 6</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Move2Band</string>
+            <string>Management.Commands.Move2Band</string>
            </property>
           </widget>
          </item>
@@ -1471,7 +1471,7 @@
             <string>Optical</string>
            </property>
            <property name="opcua_cmd" stdset="0">
-            <string>Management.Move2Band</string>
+            <string>Management.Commands.Move2Band</string>
            </property>
           </widget>
          </item>
@@ -1636,7 +1636,7 @@
             <bool>true</bool>
            </property>
            <property name="opcua" stdset="0">
-            <string>Azimuth.AxisMoving</string>
+            <string>Azimuth.Status.AxisMoving</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -1673,7 +1673,7 @@
             <string>velocity</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Azimuth.v_Shape</string>
+            <string>Azimuth.Status.v_Shape</string>
            </property>
           </widget>
          </item>
@@ -1704,7 +1704,7 @@
             <string>status</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Azimuth.AxisState</string>
+            <string>Azimuth.Status.AxisState</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>AxisStateType</string>
@@ -1738,7 +1738,7 @@
             <string>position</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Azimuth.p_Act</string>
+            <string>Azimuth.Status.p_Act</string>
            </property>
           </widget>
          </item>
@@ -1769,7 +1769,7 @@
             <string>velocity</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Azimuth.v_SetMax</string>
+            <string>Azimuth.Status.v_SetMax</string>
            </property>
           </widget>
          </item>
@@ -1823,7 +1823,7 @@
             <string>velocity</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Azimuth.v_Act</string>
+            <string>Azimuth.Status.v_Act</string>
            </property>
           </widget>
          </item>
@@ -1854,7 +1854,7 @@
             <string>position</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Azimuth.p_Set</string>
+            <string>Azimuth.Status.p_Set</string>
            </property>
           </widget>
          </item>
@@ -1908,7 +1908,7 @@
             <string>position</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Azimuth.p_Dev</string>
+            <string>Azimuth.Status.p_Dev</string>
            </property>
           </widget>
          </item>
@@ -2000,7 +2000,7 @@
               <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
-              <string>Management.ManagementStatus.ErrorStatus.errAzimuth</string>
+              <string>Management.ErrorStatus.errAzimuth</string>
              </property>
              <property name="opcua_type" stdset="0">
               <string>Boolean</string>
@@ -2031,7 +2031,7 @@
               <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
-              <string>Management.ManagementStatus.WarningStatus.waAzimuth</string>
+              <string>Management.WarningStatus.waAzimuth</string>
              </property>
              <property name="opcua_type" stdset="0">
               <string>Boolean</string>
@@ -2157,7 +2157,7 @@
             <string>velocity</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Elevation.v_SetMax</string>
+            <string>Elevation.Status.v_SetMax</string>
            </property>
           </widget>
          </item>
@@ -2188,7 +2188,7 @@
             <string>status</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Elevation.AxisState</string>
+            <string>Elevation.Status.AxisState</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>AxisStateType</string>
@@ -2222,7 +2222,7 @@
             <string>position</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Elevation.p_Act</string>
+            <string>Elevation.Status.p_Act</string>
            </property>
           </widget>
          </item>
@@ -2263,7 +2263,7 @@
             <string>velocity</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Elevation.v_Act</string>
+            <string>Elevation.Status.v_Act</string>
            </property>
           </widget>
          </item>
@@ -2294,7 +2294,7 @@
             <string>position</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Elevation.p_Set</string>
+            <string>Elevation.Status.p_Set</string>
            </property>
           </widget>
          </item>
@@ -2335,7 +2335,7 @@
             <bool>true</bool>
            </property>
            <property name="opcua" stdset="0">
-            <string>Elevation.AxisMoving</string>
+            <string>Elevation.Status.AxisMoving</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -2408,7 +2408,7 @@
             <string>position</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Elevation.p_Dev</string>
+            <string>Elevation.Status.p_Dev</string>
            </property>
           </widget>
          </item>
@@ -2439,7 +2439,7 @@
             <string>velocity</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Elevation.v_Shape</string>
+            <string>Elevation.Status.v_Shape</string>
            </property>
           </widget>
          </item>
@@ -2531,7 +2531,7 @@
               <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
-              <string>Management.ManagementStatus.ErrorStatus.errElevation</string>
+              <string>Management.ErrorStatus.errElevation</string>
              </property>
              <property name="opcua_type" stdset="0">
               <string>Boolean</string>
@@ -2562,7 +2562,7 @@
               <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
-              <string>Management.ManagementStatus.WarningStatus.waElavation</string>
+              <string>Management.WarningStatus.waElevation</string>
              </property>
              <property name="opcua_type" stdset="0">
               <string>Boolean</string>
@@ -2678,7 +2678,7 @@
             <string>velocity</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>FeedIndexer.v_Shape</string>
+            <string>FeedIndexer.Status.v_Shape</string>
            </property>
           </widget>
          </item>
@@ -2719,7 +2719,7 @@
             <string>velocity</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>FeedIndexer.v_Act</string>
+            <string>FeedIndexer.Status.v_Act</string>
            </property>
           </widget>
          </item>
@@ -2750,7 +2750,7 @@
             <string>velocity</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>FeedIndexer.v_SetMax</string>
+            <string>FeedIndexer.Status.v_SetMax</string>
            </property>
           </widget>
          </item>
@@ -2781,7 +2781,7 @@
             <bool>true</bool>
            </property>
            <property name="opcua" stdset="0">
-            <string>FeedIndexer.AxisMoving</string>
+            <string>FeedIndexer.Status.AxisMoving</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>Boolean</string>
@@ -2889,7 +2889,7 @@
               <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
-              <string>Management.ManagementStatus.ErrorStatus.errFeedindexer</string>
+              <string>Management.ErrorStatus.errFeedindexer</string>
              </property>
              <property name="opcua_type" stdset="0">
               <string>Boolean</string>
@@ -2920,7 +2920,7 @@
               <bool>true</bool>
              </property>
              <property name="opcua" stdset="0">
-              <string>Management.ManagementStatus.WarningStatus.waFeedindexer</string>
+              <string>Management.WarningStatus.waFeedindexer</string>
              </property>
              <property name="opcua_type" stdset="0">
               <string>Boolean</string>
@@ -3021,7 +3021,7 @@
             <string>position</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>FeedIndexer.p_Dev</string>
+            <string>FeedIndexer.Status.p_Dev</string>
            </property>
           </widget>
          </item>
@@ -3065,7 +3065,7 @@
             <string>position</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>FeedIndexer.p_Set</string>
+            <string>FeedIndexer.Status.p_Set</string>
            </property>
           </widget>
          </item>
@@ -3116,7 +3116,7 @@
             <string>position</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>FeedIndexer.p_Act</string>
+            <string>FeedIndexer.Status.p_Act</string>
            </property>
           </widget>
          </item>
@@ -3160,7 +3160,7 @@
             <string>status</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>FeedIndexer.AxisState</string>
+            <string>FeedIndexer.Status.AxisState</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>AxisStateType</string>
@@ -3204,7 +3204,7 @@
             <string>unknown</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Management.ManagementStatus.FiPos</string>
+            <string>Management.Status.FiPos</string>
            </property>
            <property name="opcua_type" stdset="0">
             <string>BandType</string>
@@ -3275,7 +3275,7 @@
               <string>Activate</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.Activate</string>
+              <string>Management.Commands.Activate</string>
              </property>
             </widget>
            </item>
@@ -3311,7 +3311,7 @@
               <string>De-Activate</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.DeActivate</string>
+              <string>Management.Commands.DeActivate</string>
              </property>
             </widget>
            </item>
@@ -3327,7 +3327,7 @@
               <string>Slew2Abs Azimuth</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.Slew2AbsSingleAx</string>
+              <string>Management.Commands.Slew2AbsSingleAx</string>
              </property>
             </widget>
            </item>
@@ -3343,7 +3343,7 @@
               <string>Stop</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.Stop</string>
+              <string>Management.Commands.Stop</string>
              </property>
             </widget>
            </item>
@@ -3388,7 +3388,7 @@
               <string>Activate</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.Activate</string>
+              <string>Management.Commands.Activate</string>
              </property>
             </widget>
            </item>
@@ -3424,7 +3424,7 @@
               <string>De-Activate</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.DeActivate</string>
+              <string>Management.Commands.DeActivate</string>
              </property>
             </widget>
            </item>
@@ -3440,7 +3440,7 @@
               <string>Slew2Abs Elevation</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.Slew2AbsSingleAx</string>
+              <string>Management.Commands.Slew2AbsSingleAx</string>
              </property>
             </widget>
            </item>
@@ -3456,7 +3456,7 @@
               <string>Stop</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.Stop</string>
+              <string>Management.Commands.Stop</string>
              </property>
             </widget>
            </item>
@@ -3481,7 +3481,7 @@
               <string>Activate</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.Activate</string>
+              <string>Management.Commands.Activate</string>
              </property>
             </widget>
            </item>
@@ -3517,7 +3517,7 @@
               <string>De-Activate</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.DeActivate</string>
+              <string>Management.Commands.DeActivate</string>
              </property>
             </widget>
            </item>
@@ -3553,7 +3553,7 @@
               <string>Slew2Abs Feed Indexer</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.Slew2AbsSingleAx</string>
+              <string>Management.Commands.Slew2AbsSingleAx</string>
              </property>
             </widget>
            </item>
@@ -3569,7 +3569,7 @@
               <string>Stop</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.Stop</string>
+              <string>Management.Commands.Stop</string>
              </property>
             </widget>
            </item>
@@ -3628,7 +3628,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.ECEC</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].ECEC</string>
                </property>
               </widget>
              </item>
@@ -3667,7 +3667,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.HECE8</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].HECE8</string>
                </property>
               </widget>
              </item>
@@ -3708,7 +3708,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.AN</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].AN</string>
                </property>
               </widget>
              </item>
@@ -3771,7 +3771,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.AN0</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].AN0</string>
                </property>
               </widget>
              </item>
@@ -3800,7 +3800,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.IA</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].IA</string>
                </property>
               </widget>
              </item>
@@ -3851,7 +3851,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.CA</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].CA</string>
                </property>
               </widget>
              </item>
@@ -3945,9 +3945,9 @@
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.CAobs</string>
-               </property>
+               <!-- <property name="opcua" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].CAobs</string>
+               </property> -->
               </widget>
              </item>
              <item row="20" column="0">
@@ -3983,7 +3983,7 @@
               </widget>
              </item>
              <item row="23" column="2">
-              <widget class="QLabel" name="opcua_PmCorrVal_Az">
+              <widget class="QLabel" name="opcua_StaticPmCorrVal_Az">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -3997,7 +3997,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.PmCorrVal_Az</string>
+                <string>Pointing.Status.StaticPmCorrVal_Az</string>
                </property>
               </widget>
              </item>
@@ -4016,7 +4016,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.ECES</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].ECES</string>
                </property>
               </widget>
              </item>
@@ -4035,7 +4035,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.NPAE</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].NPAE</string>
                </property>
               </widget>
              </item>
@@ -4076,7 +4076,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.ACEC</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].ACEC</string>
                </property>
               </widget>
              </item>
@@ -4127,7 +4127,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.IE</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].IE</string>
                </property>
               </widget>
              </item>
@@ -4156,7 +4156,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.AW0</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].AW0</string>
                </property>
               </widget>
              </item>
@@ -4197,7 +4197,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.AW</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].AW</string>
                </property>
               </widget>
              </item>
@@ -4216,7 +4216,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.HESE8</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].HESE8</string>
                </property>
               </widget>
              </item>
@@ -4245,7 +4245,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.ABphi</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].ABphi</string>
                </property>
               </widget>
              </item>
@@ -4296,7 +4296,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.HECE4</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].HECE4</string>
                </property>
               </widget>
              </item>
@@ -4337,7 +4337,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.ACES</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].ACES</string>
                </property>
               </widget>
              </item>
@@ -4376,7 +4376,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.HESE4</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].HESE4</string>
                </property>
               </widget>
              </item>
@@ -4395,7 +4395,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.BandForCorr</string>
+                <string>Pointing.Status.BandForCorr</string>
                </property>
                <property name="opcua_type" stdset="0">
                 <string>BandType</string>
@@ -4439,7 +4439,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.ABA</string>
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].ABA</string>
                </property>
               </widget>
              </item>
@@ -4551,9 +4551,9 @@
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParam.Eobs</string>
-               </property>
+               <!-- <property name="opcua" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[0].Eobs</string>
+               </property> -->
               </widget>
              </item>
              <item row="20" column="2">
@@ -4642,49 +4642,9 @@
              </item>
              <item row="1" column="2">
               <widget class="QComboBox" name="combo_static_point_model_band">
-               <property name="opcua_cmd" stdset="0">
-                <string/>
+               <property name="opcua_type" stdset="0">
+                   <string>BandType</string>
                </property>
-               <item>
-                <property name="text">
-                 <string>Band 1</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Band 2</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Band 3</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Band 4</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Band 5a</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Band 5b</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Band 6</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Optical</string>
-                </property>
-               </item>
               </widget>
              </item>
              <item row="19" column="0">
@@ -4742,7 +4702,7 @@
               </widget>
              </item>
              <item row="23" column="1">
-              <widget class="QLabel" name="opcua_PmCorrVal_El">
+              <widget class="QLabel" name="opcua_StaticPmCorrVal_El">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -4756,7 +4716,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.PmCorrVal_El</string>
+                <string>Pointing.Status.StaticPmCorrVal_El</string>
                </property>
               </widget>
              </item>
@@ -4766,7 +4726,7 @@
                 <string>ON</string>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticCorrActive</string>
+                <string>Pointing.Status.StaticCorrActive</string>
                </property>
                <property name="opcua_type" stdset="0">
                 <string>Boolean</string>
@@ -4779,7 +4739,7 @@
                 <string>OFF</string>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticCorrActive</string>
+                <string>Pointing.Status.StaticCorrActive</string>
                </property>
                <property name="opcua_type" stdset="0">
                 <string>Boolean</string>
@@ -4910,7 +4870,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Tracking.TrackStatus.act_statOffset_value_Xel</string>
+                <string>Tracking.Status.act_statOffset_value_Xel</string>
                </property>
               </widget>
              </item>
@@ -4935,7 +4895,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Tracking.TrackStatus.act_statOffset_value_El</string>
+                <string>Tracking.Status.act_statOffset_value_El</string>
                </property>
               </widget>
              </item>
@@ -4983,7 +4943,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TiltXFilt_Two</string>
+                <string>Pointing.Status.TiltXFilt_Two</string>
                </property>
               </widget>
              </item>
@@ -4993,7 +4953,7 @@
                 <string>Tilt 1</string>
                </property>
                <property name="opcua_cmd" stdset="0">
-                <string>Pointing.PmCorrOnOff</string>
+                <string>Pointing.Commands.PmCorrOnOff</string>
                </property>
               </widget>
              </item>
@@ -5013,7 +4973,7 @@
                 <string>ON</string>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TiltCorrActive</string>
+                <string>Pointing.Status.TiltCorrActive</string>
                </property>
                <property name="opcua_type" stdset="0">
                 <string>Boolean</string>
@@ -5045,7 +5005,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TiltYArcsec_Two</string>
+                <string>Pointing.Status.TiltYArcsec_Two</string>
                </property>
               </widget>
              </item>
@@ -5064,7 +5024,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TiltCorrVal_Az</string>
+                <string>Pointing.Status.TiltCorrVal_Az</string>
                </property>
               </widget>
              </item>
@@ -5083,7 +5043,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TiltXArcsec_One</string>
+                <string>Pointing.Status.TiltXArcsec_One</string>
                </property>
               </widget>
              </item>
@@ -5103,7 +5063,7 @@
                 <string>Tilt 2</string>
                </property>
                <property name="opcua_cmd" stdset="0">
-                <string>Pointing.PmCorrOnOff</string>
+                <string>Pointing.Commands.PmCorrOnOff</string>
                </property>
               </widget>
              </item>
@@ -5164,7 +5124,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TiltYFilt_One</string>
+                <string>Pointing.Status.TiltYFilt_One</string>
                </property>
               </widget>
              </item>
@@ -5183,7 +5143,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TiltCorrVal_El</string>
+                <string>Pointing.Status.TiltCorrVal_El</string>
                </property>
               </widget>
              </item>
@@ -5193,7 +5153,7 @@
                 <string>OFF</string>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TiltCorrActive</string>
+                <string>Pointing.Status.TiltCorrActive</string>
                </property>
                <property name="opcua_type" stdset="0">
                 <string>Boolean</string>
@@ -5215,7 +5175,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TiltYArcsec_One</string>
+                <string>Pointing.Status.TiltYArcsec_One</string>
                </property>
               </widget>
              </item>
@@ -5234,7 +5194,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TiltXFilt_One</string>
+                <string>Pointing.Status.TiltXFilt_One</string>
                </property>
               </widget>
              </item>
@@ -5253,7 +5213,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TiltXArcsec_Two</string>
+                <string>Pointing.Status.TiltXArcsec_Two</string>
                </property>
               </widget>
              </item>
@@ -5282,7 +5242,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TiltYFilt_Two</string>
+                <string>Pointing.Status.TiltYFilt_Two</string>
                </property>
               </widget>
              </item>
@@ -5316,7 +5276,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParam.ambTempParam3</string>
+                <string>Pointing.AmbTempParameters.AmbTempParam3</string>
                </property>
               </widget>
              </item>
@@ -5336,7 +5296,7 @@
                 <string>ON</string>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TempCorrActive</string>
+                <string>Pointing.Status.AmbTempCorrActive</string>
                </property>
                <property name="opcua_type" stdset="0">
                 <string>Boolean</string>
@@ -5358,7 +5318,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParam.ambTempParam6</string>
+                <string>Pointing.AmbTempParameters.AmbTempParam6</string>
                </property>
               </widget>
              </item>
@@ -5387,7 +5347,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParam.ambTempParam4</string>
+                <string>Pointing.AmbTempParameters.AmbTempParam4</string>
                </property>
               </widget>
              </item>
@@ -5449,7 +5409,7 @@
                 <string>OFF</string>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.TempCorrActive</string>
+                <string>Pointing.Status.AmbTempCorrActive</string>
                </property>
                <property name="opcua_type" stdset="0">
                 <string>Boolean</string>
@@ -5515,7 +5475,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.ActAmbTemp_East</string>
+                <string>Pointing.Status.ActAmbTemp_East</string>
                </property>
               </widget>
              </item>
@@ -5576,7 +5536,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParam.ambTempParam2</string>
+                <string>Pointing.AmbTempParameters.AmbTempParam2</string>
                </property>
               </widget>
              </item>
@@ -5595,7 +5555,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.ActAmbTemp_West</string>
+                <string>Pointing.Status.ActAmbTemp_West</string>
                </property>
               </widget>
              </item>
@@ -5664,7 +5624,7 @@
               </widget>
              </item>
              <item row="17" column="1">
-              <widget class="QLabel" name="opcua_AmbTempCorrVal_2">
+              <widget class="QLabel" name="opcua_AmbTempCorrVal_El">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -5678,12 +5638,12 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempCorrVal_2</string>
+                <string>Pointing.Status.AmbTempCorrVal_El</string>
                </property>
               </widget>
              </item>
              <item row="16" column="1">
-              <widget class="QLabel" name="opcua_AmbTempCorrVal_1">
+              <widget class="QLabel" name="opcua_AmbTempCorrVal_Az">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -5697,7 +5657,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempCorrVal_1</string>
+                <string>Pointing.Status.AmbTempCorrVal_Az</string>
                </property>
               </widget>
              </item>
@@ -5716,7 +5676,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.ActAmbTemp_South</string>
+                <string>Pointing.Status.ActAmbTemp_South</string>
                </property>
               </widget>
              </item>
@@ -5745,7 +5705,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParam.ambTempParam5</string>
+                <string>Pointing.AmbTempParameters.AmbTempParam5</string>
                </property>
               </widget>
              </item>
@@ -5764,7 +5724,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParam.filt_dt</string>
+                <string>Pointing.AmbTempParameters.Filt_dt</string>
                </property>
               </widget>
              </item>
@@ -5783,7 +5743,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParam.ambTempParam1</string>
+                <string>Pointing.AmbTempParameters.AmbTempParam1</string>
                </property>
               </widget>
              </item>
