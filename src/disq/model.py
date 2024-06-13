@@ -201,9 +201,9 @@ class Model(QObject):
         :return: True if the object is connected, False otherwise.
         :rtype: bool
         """
-        return (
-            self._scu is not None
-        )  # TODO: MAJOR assumption here: OPC-UA is connected if scu is instantiated...
+        if self._scu is not None:
+            return self._scu.is_connected()
+        return False
 
     def register_event_updates(self, registrations: dict[str, Callable]) -> None:
         """

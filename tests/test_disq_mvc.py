@@ -254,6 +254,9 @@ def test_opcua_command_slot_function(
     expected_response: tuple[str, int] | None,
 ):
     """Test the successful sending and response of OPC UA commands."""
+    # Check whether test fixture is connected to an OPC UA server
+    opcua_server: bool = disq_app.controller.is_server_connected()
+
     if input_values is not None:
         # Setup the input widgets with valid values
         if input_widgets is not None:
@@ -264,7 +267,9 @@ def test_opcua_command_slot_function(
                 elif isinstance(widget, QtWidgets.QDoubleSpinBox):
                     widget.setValue(value)
                 elif isinstance(widget, QtWidgets.QComboBox):
-                    set_combobox_to_string(widget, value)
+                    if not opcua_server:
+                        widget.addItem(value)
+                    assert set_combobox_to_string(widget, value)
                 elif isinstance(widget, QtWidgets.QButtonGroup) and isinstance(
                     value, bool
                 ):
@@ -284,8 +289,7 @@ def test_opcua_command_slot_function(
     # Verify the command status bar was updated
     assert f"Command: {command}{tuple(cmd_args)}" in disq_app.cmd_status_label.text()
 
-    # Check whether test fixture is connected to an OPC UA server
-    if disq_app.controller.is_server_connected():
+    if opcua_server:
         # Check for expected response from the OPC UA server
         if expected_response is not None:
             assert (
