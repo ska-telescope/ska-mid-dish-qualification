@@ -17,6 +17,7 @@ from disq import controller, model
 logger = logging.getLogger("gui.view")
 
 
+# pylint: disable=too-few-public-methods
 class RecordingConfigDialog(QtWidgets.QDialog):
     """
     A dialog-window class for selecting OPC-UA parameters to be recorded.

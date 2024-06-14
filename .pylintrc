@@ -14,9 +14,6 @@ disable=
     duplicate-code,
     fixme,
 
-enable=
-    useless-suppression,
-
 [SIMILARITIES]
 min-similarity-lines=7
 ignore-imports=yes

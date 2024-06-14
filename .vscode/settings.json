@@ -10,6 +10,7 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
+    "black-formatter.importStrategy": "fromEnvironment",
     "pylint.args": [
         "--rcfile=.pylintrc"
     ],
