@@ -76,7 +76,6 @@ static_pointing_params_input_widgets = [
     "spinbox_aces",
     "spinbox_aba",
     "spinbox_abphi",
-    "spinbox_caobs",
     "spinbox_ie",
     "spinbox_ecec",
     "spinbox_eces",
@@ -84,7 +83,6 @@ static_pointing_params_input_widgets = [
     "spinbox_hese4",
     "spinbox_hece8",
     "spinbox_hese8",
-    "spinbox_eobs",
 ]
 static_pointing_offset_input_widgets = [
     "spinbox_offset_xelev",
@@ -230,7 +228,7 @@ ambtemp_correction_input_widgets = [
             "static_pointing_parameter_changed",
             None,
             "Pointing.Commands.StaticPmSetup",
-            ("Band_1",) + (0.0,) * 20,
+            ("Band_1",) + (0.0,) * 18,
             static_pointing_params_input_widgets,
             ("CommandActivated", 9),
         ),

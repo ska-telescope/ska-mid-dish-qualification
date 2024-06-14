@@ -324,7 +324,6 @@ class MainView(QtWidgets.QMainWindow):
             self.opcua_aces,
             self.opcua_aba,
             self.opcua_abphi,
-            self.opcua_caobs,
             self.opcua_ie,
             self.opcua_ecec,
             self.opcua_eces,
@@ -332,7 +331,6 @@ class MainView(QtWidgets.QMainWindow):
             self.opcua_hese4,
             self.opcua_hece8,
             self.opcua_hese8,
-            self.opcua_eobs,
         ]
         self.static_pointing_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
             self.spinbox_ia,
@@ -346,7 +344,6 @@ class MainView(QtWidgets.QMainWindow):
             self.spinbox_aces,
             self.spinbox_aba,
             self.spinbox_abphi,
-            self.spinbox_caobs,
             self.spinbox_ie,
             self.spinbox_ecec,
             self.spinbox_eces,
@@ -354,7 +351,6 @@ class MainView(QtWidgets.QMainWindow):
             self.spinbox_hese4,
             self.spinbox_hece8,
             self.spinbox_hese8,
-            self.spinbox_eobs,
         ]
         for spinbox in self.static_pointing_spinboxes:
             spinbox.editingFinished.connect(self.static_pointing_parameter_changed)
