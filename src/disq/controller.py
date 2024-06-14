@@ -286,18 +286,25 @@ class Controller(QObject):
         cmd = "Management.Commands.Move2Band"
         self._issue_command(cmd, band)
 
-    def command_take_authority(self, take_command: bool, username: str):
+    def command_take_authority(self, username: str):
         """
         Issue a command to take or release authority.
 
-        :param take_command: A boolean indicating whether to take or release authority.
-        :type take_command: bool
         :param username: The username of the user performing the command.
         :type username: str
         """
-        cmd = "CommandArbiter.Commands.TakeReleaseAuth"
-        # Arguments are: (bool TakeCommand, string Username)
-        self._issue_command(cmd, take_command, username)
+        cmd = "CommandArbiter.Commands.TakeAuth"
+        self._issue_command(cmd, username)
+
+    def command_release_authority(self, username: str):
+        """
+        Issue a command to take or release authority.
+
+        :param username: The username of the user performing the command.
+        :type username: str
+        """
+        cmd = "CommandArbiter.Commands.ReleaseAuth"
+        self._issue_command(cmd, username)
 
     def command_config_pointing_model_corrections(
         self, static: bool, tilt: str, temperature: bool, band: str
@@ -377,7 +384,7 @@ class Controller(QObject):
             or None if the command was not issued.
         :rtype: tuple[int, str] | None
         """
-        cmd = "Pointing.Commands.AmbCorrSetup"
+        cmd = "Pointing.Commands.AmbTempCorrSetup"
         if self._ambtemp_correction_parameters != params:
             self._ambtemp_correction_parameters = params
             return self._issue_command(cmd, *params)
@@ -395,7 +402,8 @@ class Controller(QObject):
         :rtype: tuple
         """
         logger.debug("Command: %s, args: %s", cmd, args)
-        result_code, result_msg = self._model.run_opcua_command(cmd, *args)
+        # TODO: Nothing is currently done with other possible return values
+        result_code, result_msg, _ = self._model.run_opcua_command(cmd, *args)
         self._command_response_str(f"{cmd}{args}", result_code, result_msg)
         return (result_code, result_msg)
 

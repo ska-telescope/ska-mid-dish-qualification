@@ -213,13 +213,9 @@ class MainView(QtWidgets.QMainWindow):
         # Authority status group widgets
         self.combobox_authority: QtWidgets.QComboBox
         self.button_take_auth: QtWidgets.QPushButton
-        self.button_take_auth.clicked.connect(
-            lambda: self.authority_button_clicked(True)
-        )
+        self.button_take_auth.clicked.connect(self.take_authority_button_clicked)
         self.button_release_auth: QtWidgets.QPushButton
-        self.button_release_auth.clicked.connect(
-            lambda: self.authority_button_clicked(False)
-        )
+        self.button_release_auth.clicked.connect(self.release_authority_button_clicked)
         self.button_interlock_ack: QtWidgets.QPushButton
         self.button_interlock_ack.clicked.connect(self.controller.command_interlock_ack)
         # Slew group widgets
@@ -1087,18 +1083,15 @@ class MainView(QtWidgets.QMainWindow):
         """
         self.controller.command_deactivate(axis)
 
-    def authority_button_clicked(self, take_command: bool):
-        """
-        Handle the click event of an authority button.
-
-        :param take_command: A boolean value indicating whether to take or release
-            authority.
-        :type take_command: bool
-        """
+    def take_authority_button_clicked(self):
+        """Handle the click event of the take authority button."""
         username = self.combobox_authority.currentText()
-        self.controller.command_take_authority(
-            take_command=take_command, username=username
-        )
+        self.controller.command_take_authority(username)
+
+    def release_authority_button_clicked(self):
+        """Handle the click event of the release authority button."""
+        username = self.combobox_authority.currentText()
+        self.controller.command_release_authority(username)
 
     def command_response_status_update(self, status: str):
         """Update the main window status bar with a status update."""

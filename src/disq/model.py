@@ -5,7 +5,7 @@ import os
 from functools import cached_property
 from pathlib import Path
 from queue import Empty, Queue
-from typing import Any, Callable
+from typing import Callable
 
 from asyncua import ua
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
@@ -124,6 +124,7 @@ class Model(QObject):
         """
         super().__init__(parent)
         self._scu: SCU | None = None
+        self._session_id: int | None = None
         self._data_logger: Logger | None = None
         self._recording_config: list[str] = []
         self._namespace = str(
@@ -249,7 +250,32 @@ class Model(QObject):
                 "Optical": 7,
             }[band]
 
-    def run_opcua_command(self, command: str, *args) -> tuple[int, str]:
+    def convert_user_to_type(self, user: str) -> int:
+        """
+        Convert string to DscCmdAuthorityType enum (integer value).
+
+        :param user: the user to convert to enum
+        :type user: str
+        :return: DscCmdAuthorityType enum integer value
+        :rtype: int
+        """
+        try:
+            return ua.DscCmdAuthorityType[user]
+        except AttributeError:
+            logger.warning(
+                "OPC-UA server has no 'DscCmdAuthorityType' enum. Attempting a guess."
+            )
+            return {
+                "NoAuthority": 0,
+                "LMC": 1,
+                "HHP": 2,
+                "EGUI": 3,
+                "Tester": 4,
+            }[user]
+
+    def run_opcua_command(
+        self, command: str, *args
+    ) -> tuple[int, str, list[int | None] | None]:
         """
         Run an OPC-UA command on the server.
 
@@ -262,18 +288,18 @@ class Model(QObject):
         :raises RuntimeError: If the server is not connected.
         """
 
-        def _log_and_call(command, *args) -> Any:
+        def _log_and_call(command, *args) -> tuple[int, str, list[int | None] | None]:
             logger.debug("Model: run_opcua_command: %s, args: %s", command, args)
             return self._scu.commands[command](*args)
 
         if self._scu is None:
             raise RuntimeError("server not connected")
         if command in [
-            "Management.Stop",
-            "Management.Activate",
-            "Management.DeActivate",
-            "Management.Reset",
-            "Management.Slew2AbsSingleAx",
+            "Management.Commands.Stop",
+            "Management.Commands.Activate",
+            "Management.Commands.DeActivate",
+            "Management.Commands.Reset",
+            "Management.Commands.Slew2AbsSingleAx",
         ]:
             # Commands that take a single AxisSelectType parameter input
             try:
@@ -283,28 +309,37 @@ class Model(QObject):
                     "OPC-UA server has no 'AxisSelectType' enum. Attempting a guess."
                 )
                 axis = {"Az": 0, "El": 1, "Fi": 2, "AzEl": 3}[args[0]]
-            result = _log_and_call(command, axis, *args[1:])
-        elif command == "Management.Move2Band":
+            result = _log_and_call(command, self._session_id, axis, *args[1:])
+        elif command == "Management.Commands.Move2Band":
             band = self.convert_band_to_type(args[0])
-            result = _log_and_call(command, band)
-        elif command == "Pointing.StaticPmSetup":
+            result = _log_and_call(command, self._session_id, band)
+        elif command == "Pointing.Commands.StaticPmSetup":
             band = self.convert_band_to_type(args[0])
-            result = _log_and_call(command, band, *args[1:])
-        elif command == "Pointing.PmCorrOnOff":
+            result = _log_and_call(command, self._session_id, band, *args[1:])
+        elif command == "Pointing.Commands.PmCorrOnOff":
             band = self.convert_band_to_type(args[3])
             static = args[0]
             try:
-                tilt = ua.TiltOnEnumType[args[1]]
+                tilt = ua.TiltOnType[args[1]]
             except AttributeError:
                 logger.warning(
-                    "OPC-UA server has no 'TiltOnEnumType' enum. Attempting a guess."
+                    "OPC-UA server has no 'TiltOnType' enum. Attempting a guess."
                 )
                 tilt = {"Off": 0, "TiltmeterOne": 1, "TiltmeterTwo": 2}[args[1]]
             temperature = args[2]
-            result = _log_and_call(command, static, tilt, temperature, band)
+            result = _log_and_call(
+                command, self._session_id, static, tilt, temperature, band
+            )
+        elif command == "CommandArbiter.Commands.TakeAuth":
+            user = self.convert_user_to_type(args[0])
+            result = _log_and_call(command, user)
+            self._session_id = result[2][0]
+        elif command == "CommandArbiter.Commands.ReleaseAuth":
+            user = self.convert_user_to_type(args[0])
+            result = _log_and_call(command, self._session_id, user)
         else:
             # Commands that take none or more parameters of base types: float,bool,etc.
-            result = _log_and_call(command, *args)
+            result = _log_and_call(command, self._session_id, *args)
         return result
 
     @cached_property

@@ -49,6 +49,6 @@ def disq_cetc_simulator_fixture(main_view: MainView) -> MainView:  # type: ignor
 def disq_mock_model_fixture(main_view: MainView) -> MainView:
     """Fixture of DiSQ with mocks for model methods."""
     main_view.model.run_opcua_command = MagicMock(  # type: ignore
-        return_value=(0, "CommandStatus")
+        return_value=(0, "CommandStatus", None)
     )
     return main_view
