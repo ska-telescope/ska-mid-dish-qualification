@@ -1,6 +1,5 @@
 [MAIN]
 ignore=
-    _version.py,
     ds_opcua_server_mock.py,
 
 extension-pkg-allow-list=PyQt6

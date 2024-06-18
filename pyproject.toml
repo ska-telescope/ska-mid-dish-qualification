@@ -1,15 +1,17 @@
 [build-system]
-requires = ["setuptools>=64", "setuptools_scm[toml]>=6.2", "wheel"]
+requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "DiSQ"
+version = "0.3.0"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: BSD 3-Clause License",
     "Programming Language :: Python :: 3.10",
 ]
 description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
+requires-python = ">=3.10"
 dependencies = [
     "cryptography==41.0.7", # TODO, deprecation warning originating from asyncua
     "asyncua",
@@ -24,11 +26,8 @@ dependencies = [
     "pyyaml",
     "platformdirs",
 ]
-
-dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.md"
-requires-python = ">=3.10"
 
 [project.optional-dependencies]
 dev = [
@@ -74,6 +73,9 @@ name = "Oliver Skivington"
 [[project.authors]]
 email = "ukp@observatorysciences.co.uk"
 name = "Ulrik Pedersen"
+[[project.authors]]
+email = "jarrett@vivosa.co.za"
+name = "Jarrett Engelbrecht"
 
 [tool.poetry]
 include = ["MANIFEST.skao.int"]
@@ -146,9 +148,6 @@ sphinx-autodoc-typehints = "^2.0.0"
 ska-ser-sphinx-theme = "^0.1.2"
 sphinx-argparse = "^0.4.0"
 
-[tool.setuptools_scm]
-write_to = "src/disq/_version.py"
-
 [tool.mypy]
 ignore_missing_imports = true # Ignore missing stubs in imported modules
 strict_optional = false       # TODO: Remove, see https://mypy.readthedocs.io/en/stable/config_file.html#none-and-optional-handling
@@ -159,7 +158,6 @@ disable_error_code = "import-untyped, var-annotated, has-type, call-overload, re
 profile = "black"
 
 [tool.black] # See https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-format
-force-exclude = "src/disq/_version.py" # RegEx
 line-length = 88
 
 [tool.pytest.ini_options]
@@ -174,7 +172,7 @@ testpaths = "docs src tests"
 qt_api = "pyqt6"
 
 [tool.coverage.run]
-omit = ["__init__.py", "_version.py"]
+omit = ["__init__.py"]
 
 [tool.coverage.paths]
 # Tests are run from installed location, map back to the src directory

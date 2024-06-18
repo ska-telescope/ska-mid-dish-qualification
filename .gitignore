@@ -28,7 +28,6 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-**/_version.py
 MANIFEST.skao.int
 
 # PyInstaller
