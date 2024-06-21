@@ -101,24 +101,24 @@ class Controller(QObject):
             logger.warning("Unable to find config file")
         return server_list
 
-    def get_config_server_args(self, server_name: str) -> dict[str, str]:
+    def get_config_server_args(self, server_name: str) -> dict[str, str] | None:
         """
         Get the server arguments from the configuration file.
 
         :param server_name: The name of the server to retrieve arguments for.
         :type server_name: str
         :return: A dictionary containing the server arguments.
-        :rtype: dict[str, str | int]
-        :raises FileNotFoundError: If the configuration file is not found.
+        :rtype: dict[str, str | int] | None
         """
-        server_args: dict[str, str] = {}
         try:
-            server_args = configuration.get_config_sculib_args(
+            return configuration.get_config_sculib_args(
                 config_filename=_LOCAL_DIR_CONFIGFILE, server_name=server_name
             )
         except FileNotFoundError:
             logger.warning("Unable to find config file")
-        return server_args
+        except KeyError:
+            logger.warning("Specified server not found in the configuration file")
+        return None
 
     def is_server_connected(self) -> bool:
         """

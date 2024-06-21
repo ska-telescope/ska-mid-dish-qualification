@@ -168,7 +168,7 @@ def get_config_sculib_args(
         )
         raise e
     # Every controller MUST have a host and port to be able to establish a connection
-    sculib_args: dict[str, str | int] = {
+    sculib_args = {
         "host": server_config["host"],
         "port": server_config["port"],
     }
