@@ -18,7 +18,9 @@ def disq_app_fixture(qtbot, request: pytest.FixtureRequest) -> MainView:  # type
     else:
         disq_fixture = request.getfixturevalue("disq_mock_model")
     qtbot.addWidget(disq_fixture)
+    # Setup simulator before running test
     if with_cetc_simulator:
+        disq_fixture.controller.command_take_authority("Tester")
         disq_fixture.controller.command_stow(False)
         disq_fixture.controller.command_activate("AzEl")
         disq_fixture.controller.command_activate("Fi")
@@ -26,9 +28,11 @@ def disq_app_fixture(qtbot, request: pytest.FixtureRequest) -> MainView:  # type
         # The options are read from the OPCUA server - workaround for mocked test
         disq_fixture.combobox_authority.addItem("Tester")
     yield disq_fixture
+    # Stop any running slews and release authority after test (also done if test failed)
     if with_cetc_simulator:
         disq_fixture.controller.command_stop("AzEl")
         disq_fixture.controller.command_stop("Fi")
+        disq_fixture.controller.command_release_authority("Tester")
         time.sleep(0.05)
 
 
@@ -186,17 +190,17 @@ ambtemp_correction_input_widgets = [
             "take_authority_button_clicked",
             None,
             "CommandArbiter.Commands.TakeAuth",
-            ("Tester",),
+            ("LMC",),
             ["combobox_authority"],
-            ("CommandActivated", 9),
+            ("NoCmdAuth", 0),
         ),
         (
             "release_authority_button_clicked",
             None,
             "CommandArbiter.Commands.ReleaseAuth",
-            ("Tester",),
+            ("LMC",),
             ["combobox_authority"],
-            ("CommandActivated", 9),
+            ("NoCmdAuth", 0),
         ),
         (
             "move2band_button_clicked",

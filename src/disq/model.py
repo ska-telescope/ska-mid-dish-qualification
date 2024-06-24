@@ -124,7 +124,7 @@ class Model(QObject):
         """
         super().__init__(parent)
         self._scu: SCU | None = None
-        self._session_id: int | None = None
+        self._session_id: ua.UInt16 | None = None
         self._data_logger: Logger | None = None
         self._recording_config: list[str] = []
         self._namespace = str(
@@ -333,7 +333,8 @@ class Model(QObject):
         elif command == "CommandArbiter.Commands.TakeAuth":
             user = self.convert_user_to_type(args[0])
             result = _log_and_call(command, user)
-            self._session_id = result[2][0]
+            if result[2][0] is not None:
+                self._session_id = ua.UInt16(result[2][0])
         elif command == "CommandArbiter.Commands.ReleaseAuth":
             user = self.convert_user_to_type(args[0])
             result = _log_and_call(command, self._session_id, user)
