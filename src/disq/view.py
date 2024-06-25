@@ -1092,8 +1092,7 @@ class MainView(QtWidgets.QMainWindow):
 
     def release_authority_button_clicked(self):
         """Handle the click event of the release authority button."""
-        username = self.combobox_authority.currentText()
-        self.controller.command_release_authority(username)
+        self.controller.command_release_authority()
 
     def command_response_status_update(self, status: str):
         """Update the main window status bar with a status update."""

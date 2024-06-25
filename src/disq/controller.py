@@ -296,15 +296,10 @@ class Controller(QObject):
         cmd = "CommandArbiter.Commands.TakeAuth"
         self._issue_command(cmd, username)
 
-    def command_release_authority(self, username: str):
-        """
-        Issue a command to take or release authority.
-
-        :param username: The username of the user performing the command.
-        :type username: str
-        """
+    def command_release_authority(self):
+        """Issue a command to take or release authority."""
         cmd = "CommandArbiter.Commands.ReleaseAuth"
-        self._issue_command(cmd, username)
+        self._issue_command(cmd)
 
     def command_config_pointing_model_corrections(
         self, static: bool, tilt: str, temperature: bool, band: str
