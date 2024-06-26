@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 """DiSQ GUI View."""
 
 import logging
@@ -16,7 +17,7 @@ from disq import controller, model
 logger = logging.getLogger("gui.view")
 
 
-# pylint: disable=too-few-public-methods,too-many-lines
+# pylint: disable=too-few-public-methods
 class RecordingConfigDialog(QtWidgets.QDialog):
     """
     A dialog-window class for selecting OPC-UA parameters to be recorded.
@@ -97,10 +98,11 @@ class MainView(QtWidgets.QMainWindow):
         "yellow": {True: "rgb(250, 255, 0)", False: "rgb(45, 44, 0)"},
         "orange": {True: "rgb(255, 170, 0)", False: "rgb(92, 61, 0)"},
         "StowPinStatusType": {
+            "unkown": "rgb(10, 10, 10)",  # TODO: typo in simulator
             "retracted": "rgb(10, 250, 25)",
-            "deploying": "rgb(250, 255, 0)",
             "retracting": "rgb(250, 255, 0)",
             "deployed": "rgb(255, 0, 0)",
+            "deploying": "rgb(250, 255, 0)",
             "motiontimeout": "rgb(255, 0, 0)",
         },
     }
@@ -212,13 +214,9 @@ class MainView(QtWidgets.QMainWindow):
         # Authority status group widgets
         self.combobox_authority: QtWidgets.QComboBox
         self.button_take_auth: QtWidgets.QPushButton
-        self.button_take_auth.clicked.connect(
-            lambda: self.authority_button_clicked(True)
-        )
+        self.button_take_auth.clicked.connect(self.take_authority_button_clicked)
         self.button_release_auth: QtWidgets.QPushButton
-        self.button_release_auth.clicked.connect(
-            lambda: self.authority_button_clicked(False)
-        )
+        self.button_release_auth.clicked.connect(self.release_authority_button_clicked)
         self.button_interlock_ack: QtWidgets.QPushButton
         self.button_interlock_ack.clicked.connect(self.controller.command_interlock_ack)
         # Slew group widgets
@@ -327,7 +325,6 @@ class MainView(QtWidgets.QMainWindow):
             self.opcua_aces,
             self.opcua_aba,
             self.opcua_abphi,
-            self.opcua_caobs,
             self.opcua_ie,
             self.opcua_ecec,
             self.opcua_eces,
@@ -335,7 +332,6 @@ class MainView(QtWidgets.QMainWindow):
             self.opcua_hese4,
             self.opcua_hece8,
             self.opcua_hese8,
-            self.opcua_eobs,
         ]
         self.static_pointing_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
             self.spinbox_ia,
@@ -349,7 +345,6 @@ class MainView(QtWidgets.QMainWindow):
             self.spinbox_aces,
             self.spinbox_aba,
             self.spinbox_abphi,
-            self.spinbox_caobs,
             self.spinbox_ie,
             self.spinbox_ecec,
             self.spinbox_eces,
@@ -357,7 +352,6 @@ class MainView(QtWidgets.QMainWindow):
             self.spinbox_hese4,
             self.spinbox_hece8,
             self.spinbox_hese8,
-            self.spinbox_eobs,
         ]
         for spinbox in self.static_pointing_spinboxes:
             spinbox.editingFinished.connect(self.static_pointing_parameter_changed)
@@ -878,19 +872,24 @@ class MainView(QtWidgets.QMainWindow):
         if not self.controller.is_server_connected():
             connect_details = {
                 "host": self.input_server_address.text(),
-                "port": self.input_server_port.text(),
+                "port": (
+                    self.input_server_port.text()
+                    if self.input_server_port.text() != ""
+                    else self.input_server_port.placeholderText()
+                ),
                 "endpoint": self.input_server_endpoint.text(),
                 "namespace": self.input_server_namespace.text(),
             }
             config_connection_details = self.controller.get_config_server_args(
                 self.dropdown_server_config_select.currentText()
             )
-            connect_details["username"] = config_connection_details.get(
-                "username", None
-            )
-            connect_details["password"] = config_connection_details.get(
-                "password", None
-            )
+            if config_connection_details is not None:
+                connect_details["username"] = config_connection_details.get(
+                    "username", None
+                )
+                connect_details["password"] = config_connection_details.get(
+                    "password", None
+                )
             logger.debug("connecting to server: %s", connect_details)
             self.label_conn_status.setText("connecting...")
             self.controller.connect_server(connect_details)
@@ -1086,18 +1085,14 @@ class MainView(QtWidgets.QMainWindow):
         """
         self.controller.command_deactivate(axis)
 
-    def authority_button_clicked(self, take_command: bool):
-        """
-        Handle the click event of an authority button.
-
-        :param take_command: A boolean value indicating whether to take or release
-            authority.
-        :type take_command: bool
-        """
+    def take_authority_button_clicked(self):
+        """Handle the click event of the take authority button."""
         username = self.combobox_authority.currentText()
-        self.controller.command_take_authority(
-            take_command=take_command, username=username
-        )
+        self.controller.command_take_authority(username)
+
+    def release_authority_button_clicked(self):
+        """Handle the click event of the release authority button."""
+        self.controller.command_release_authority()
 
     def command_response_status_update(self, status: str):
         """Update the main window status bar with a status update."""

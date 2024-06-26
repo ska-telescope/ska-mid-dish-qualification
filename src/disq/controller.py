@@ -101,24 +101,24 @@ class Controller(QObject):
             logger.warning("Unable to find config file")
         return server_list
 
-    def get_config_server_args(self, server_name: str) -> dict[str, str]:
+    def get_config_server_args(self, server_name: str) -> dict[str, str] | None:
         """
         Get the server arguments from the configuration file.
 
         :param server_name: The name of the server to retrieve arguments for.
         :type server_name: str
         :return: A dictionary containing the server arguments.
-        :rtype: dict[str, str | int]
-        :raises FileNotFoundError: If the configuration file is not found.
+        :rtype: dict[str, str | int] | None
         """
-        server_args: dict[str, str] = {}
         try:
-            server_args = configuration.get_config_sculib_args(
+            return configuration.get_config_sculib_args(
                 config_filename=_LOCAL_DIR_CONFIGFILE, server_name=server_name
             )
         except FileNotFoundError:
             logger.warning("Unable to find config file")
-        return server_args
+        except KeyError:
+            logger.warning("Specified server not found in the configuration file")
+        return None
 
     def is_server_connected(self) -> bool:
         """
@@ -202,7 +202,7 @@ class Controller(QObject):
             second).
         :type elevation_velocity: float
         """
-        cmd = "Management.Slew2AbsAzEl"
+        cmd = "Management.Commands.Slew2AbsAzEl"
         self._issue_command(
             cmd,
             azimuth_position,
@@ -222,7 +222,7 @@ class Controller(QObject):
         :param velocity: The velocity at which to slew.
         :type velocity: float
         """
-        cmd = "Management.Slew2AbsSingleAx"
+        cmd = "Management.Commands.Slew2AbsSingleAx"
         self._issue_command(cmd, axis, position, velocity)
 
     def command_activate(self, axis: str = "AzEl"):
@@ -232,7 +232,7 @@ class Controller(QObject):
         :param axis: The axis to activate (default is 'AzEl').
         :type axis: str
         """
-        cmd = "Management.Activate"
+        cmd = "Management.Commands.Activate"
         self._issue_command(cmd, axis)
 
     def command_deactivate(self, axis: str = "AzEl"):
@@ -242,7 +242,7 @@ class Controller(QObject):
         :param axis: The axis to deactivate (default is 'AzEl').
         :type axis: str
         """
-        cmd = "Management.DeActivate"
+        cmd = "Management.Commands.DeActivate"
         self._issue_command(cmd, axis)
 
     def command_stop(self, axis: str = "AzEl"):
@@ -253,7 +253,7 @@ class Controller(QObject):
             'AzEl'.
         :type axis: str
         """
-        cmd = "Management.Stop"
+        cmd = "Management.Commands.Stop"
         self._issue_command(cmd, axis)
 
     def command_stow(self, stow: bool = True):
@@ -264,7 +264,7 @@ class Controller(QObject):
             True (stow).
         :type stow: bool
         """
-        cmd = "Management.Stow"
+        cmd = "Management.Commands.Stow"
         self._issue_command(cmd, stow)  # argument to stow or not...
 
     def command_interlock_ack(self):
@@ -273,7 +273,7 @@ class Controller(QObject):
 
         This function sends a command to acknowledge the safety interlock in the system.
         """
-        cmd = "Safety.InterlockAck"
+        cmd = "Safety.Commands.InterlockAck"
         self._issue_command(cmd)
 
     def command_move2band(self, band: str):
@@ -283,21 +283,23 @@ class Controller(QObject):
         :param band: The band to move the device to.
         :type band: str
         """
-        cmd = "Management.Move2Band"
+        cmd = "Management.Commands.Move2Band"
         self._issue_command(cmd, band)
 
-    def command_take_authority(self, take_command: bool, username: str):
+    def command_take_authority(self, username: str):
         """
         Issue a command to take or release authority.
 
-        :param take_command: A boolean indicating whether to take or release authority.
-        :type take_command: bool
         :param username: The username of the user performing the command.
         :type username: str
         """
-        cmd = "CommandArbiter.TakeReleaseAuth"
-        # Arguments are: (bool TakeCommand, string Username)
-        self._issue_command(cmd, take_command, username)
+        cmd = "CommandArbiter.Commands.TakeAuth"
+        self._issue_command(cmd, username)
+
+    def command_release_authority(self):
+        """Issue a command to take or release authority."""
+        cmd = "CommandArbiter.Commands.ReleaseAuth"
+        self._issue_command(cmd)
 
     def command_config_pointing_model_corrections(
         self, static: bool, tilt: str, temperature: bool, band: str
@@ -322,7 +324,7 @@ class Controller(QObject):
         :return: A tuple containing the result code and result message.
         :rtype: tuple
         """
-        cmd = "Pointing.PmCorrOnOff"
+        cmd = "Pointing.Commands.PmCorrOnOff"
         return self._issue_command(cmd, static, tilt, temperature, band)
 
     def command_set_static_pointing_parameters(
@@ -339,7 +341,7 @@ class Controller(QObject):
             or None if the command was not issued.
         :rtype: tuple[int, str] | None
         """
-        cmd = "Pointing.StaticPmSetup"
+        cmd = "Pointing.Commands.StaticPmSetup"
         if self._static_pointing_parameters != [band, *params]:
             self._static_pointing_parameters = [band, *params]
             return self._issue_command(cmd, band, *params)
@@ -359,7 +361,7 @@ class Controller(QObject):
             or None if the command was not issued.
         :rtype: tuple[int, str] | None
         """
-        cmd = "Tracking.TrackLoadStaticOff"
+        cmd = "Tracking.Commands.TrackLoadStaticOff"
         if self._static_pointing_offsets != [azim, elev]:
             self._static_pointing_offsets = [azim, elev]
             return self._issue_command(cmd, azim, elev)
@@ -377,7 +379,7 @@ class Controller(QObject):
             or None if the command was not issued.
         :rtype: tuple[int, str] | None
         """
-        cmd = "Pointing.AmbCorrSetup"
+        cmd = "Pointing.Commands.AmbTempCorrSetup"
         if self._ambtemp_correction_parameters != params:
             self._ambtemp_correction_parameters = params
             return self._issue_command(cmd, *params)
@@ -395,7 +397,8 @@ class Controller(QObject):
         :rtype: tuple
         """
         logger.debug("Command: %s, args: %s", cmd, args)
-        result_code, result_msg = self._model.run_opcua_command(cmd, *args)
+        # TODO: Nothing is currently done with other possible return values
+        result_code, result_msg, _ = self._model.run_opcua_command(cmd, *args)
         self._command_response_str(f"{cmd}{args}", result_code, result_msg)
         return (result_code, result_msg)
 

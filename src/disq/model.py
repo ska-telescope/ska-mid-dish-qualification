@@ -5,7 +5,7 @@ import os
 from functools import cached_property
 from pathlib import Path
 from queue import Empty, Queue
-from typing import Any, Callable
+from typing import Callable
 
 from asyncua import ua
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
@@ -152,9 +152,7 @@ class Model(QObject):
         """
         logger.debug("Connecting to server: %s", connect_details)
         try:
-            self._scu = SCU(
-                **connect_details,
-            )
+            self._scu = SCU(**connect_details, gui_app=True)
         except RuntimeError as e:
             logger.debug(
                 "Exception while creating sculib object server "
@@ -201,9 +199,9 @@ class Model(QObject):
         :return: True if the object is connected, False otherwise.
         :rtype: bool
         """
-        return (
-            self._scu is not None
-        )  # TODO: MAJOR assumption here: OPC-UA is connected if scu is instantiated...
+        if self._scu is not None:
+            return self._scu.is_connected()
+        return False
 
     def register_event_updates(self, registrations: dict[str, Callable]) -> None:
         """
@@ -249,7 +247,9 @@ class Model(QObject):
                 "Optical": 7,
             }[band]
 
-    def run_opcua_command(self, command: str, *args) -> tuple[int, str]:
+    def run_opcua_command(
+        self, command: str, *args
+    ) -> tuple[int, str, list[int | None] | None]:
         """
         Run an OPC-UA command on the server.
 
@@ -262,18 +262,18 @@ class Model(QObject):
         :raises RuntimeError: If the server is not connected.
         """
 
-        def _log_and_call(command, *args) -> Any:
+        def _log_and_call(command, *args) -> tuple[int, str, list[int | None] | None]:
             logger.debug("Model: run_opcua_command: %s, args: %s", command, args)
             return self._scu.commands[command](*args)
 
         if self._scu is None:
             raise RuntimeError("server not connected")
         if command in [
-            "Management.Stop",
-            "Management.Activate",
-            "Management.DeActivate",
-            "Management.Reset",
-            "Management.Slew2AbsSingleAx",
+            "Management.Commands.Stop",
+            "Management.Commands.Activate",
+            "Management.Commands.DeActivate",
+            "Management.Commands.Reset",
+            "Management.Commands.Slew2AbsSingleAx",
         ]:
             # Commands that take a single AxisSelectType parameter input
             try:
@@ -284,24 +284,32 @@ class Model(QObject):
                 )
                 axis = {"Az": 0, "El": 1, "Fi": 2, "AzEl": 3}[args[0]]
             result = _log_and_call(command, axis, *args[1:])
-        elif command == "Management.Move2Band":
+        elif command == "Management.Commands.Move2Band":
             band = self.convert_band_to_type(args[0])
             result = _log_and_call(command, band)
-        elif command == "Pointing.StaticPmSetup":
+        elif command == "Pointing.Commands.StaticPmSetup":
             band = self.convert_band_to_type(args[0])
             result = _log_and_call(command, band, *args[1:])
-        elif command == "Pointing.PmCorrOnOff":
+        elif command == "Pointing.Commands.PmCorrOnOff":
             band = self.convert_band_to_type(args[3])
             static = args[0]
             try:
-                tilt = ua.TiltOnEnumType[args[1]]
+                tilt = ua.TiltOnType[args[1]]
             except AttributeError:
                 logger.warning(
-                    "OPC-UA server has no 'TiltOnEnumType' enum. Attempting a guess."
+                    "OPC-UA server has no 'TiltOnType' enum. Attempting a guess."
                 )
                 tilt = {"Off": 0, "TiltmeterOne": 1, "TiltmeterTwo": 2}[args[1]]
             temperature = args[2]
             result = _log_and_call(command, static, tilt, temperature, band)
+        elif command == "CommandArbiter.Commands.TakeAuth":
+            logger.debug("Model: run_opcua_command: %s, args: %s", command, args)
+            code, msg = self._scu.take_authority(args[0])
+            result = code, msg, None
+        elif command == "CommandArbiter.Commands.ReleaseAuth":
+            logger.debug("Model: run_opcua_command: %s, args: %s", command, args)
+            code, msg = self._scu.release_authority()
+            result = code, msg, None
         else:
             # Commands that take none or more parameters of base types: float,bool,etc.
             result = _log_and_call(command, *args)
@@ -327,9 +335,9 @@ class Model(QObject):
             "AxisSelectType",
             "DscCmdAuthorityType",
             "BandType",
-            "DscTimeSourceType",
+            "DscTimeSyncSourceType",
             "InterpolType",
-            "LoadModeType",
+            "LoadEnumType",
             "SafetyStateType",
             "TiltOnType",
         ]:

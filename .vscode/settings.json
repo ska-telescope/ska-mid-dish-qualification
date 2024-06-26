@@ -1,5 +1,8 @@
 {
     "python.testing.pytestEnabled": true,
+    // "python.testing.pytestArgs": [
+    //     "--with-cetc-sim"
+    // ],
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
@@ -7,6 +10,7 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
+    "black-formatter.importStrategy": "fromEnvironment",
     "pylint.args": [
         "--rcfile=.pylintrc"
     ],
