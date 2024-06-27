@@ -13,23 +13,23 @@ def disq_app_fixture(qtbot, request: pytest.FixtureRequest) -> MainView:  # type
     """Fixture to setup the qtbot with the DiSQ application."""
     # Switch the MainView between two fixtures defined in conftest.py
     with_cetc_simulator = request.config.getoption("--with-cetc-sim")
+    with_plc = request.config.getoption("--with-plc")
     if with_cetc_simulator:
         disq_fixture: MainView = request.getfixturevalue("disq_cetc_simulator")
+    elif with_plc:
+        disq_fixture = request.getfixturevalue("disq_mid_itf_plc")
     else:
         disq_fixture = request.getfixturevalue("disq_mock_model")
     qtbot.addWidget(disq_fixture)
-    # Setup simulator before running test
-    if with_cetc_simulator:
-        disq_fixture.controller.command_take_authority("Tester")
+    # Setup simulator/PLC before running test
+    if with_cetc_simulator or with_plc:
+        disq_fixture.controller.command_take_authority("EGUI")
         disq_fixture.controller.command_stow(False)
         disq_fixture.controller.command_activate("AzEl")
         disq_fixture.controller.command_activate("Fi")
-    else:
-        # The options are read from the OPCUA server - workaround for mocked test
-        disq_fixture.combobox_authority.addItem("Tester")
     yield disq_fixture
     # Stop any running slews and release authority after test (also done if test failed)
-    if with_cetc_simulator:
+    if with_cetc_simulator or with_plc:
         disq_fixture.controller.command_stop("AzEl")
         disq_fixture.controller.command_stop("Fi")
         disq_fixture.controller.command_release_authority()
