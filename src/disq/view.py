@@ -1210,8 +1210,8 @@ class MainView(QtWidgets.QMainWindow):
         # Static pointing band
         self.combo_static_point_model_band.blockSignals(True)
         self.combo_static_point_model_band.setCurrentIndex(
-            self.model.convert_band_to_type(
-                self.static_point_model_band.text().replace(" ", "_")
+            self.model._scu.convert_enum_to_int(  # pylint: disable=protected-access
+                "BandType", self.static_point_model_band.text().replace(" ", "_")
             )
         )
         self.combo_static_point_model_band.blockSignals(block_signals)

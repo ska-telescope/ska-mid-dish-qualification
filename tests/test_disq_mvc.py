@@ -193,7 +193,7 @@ ambtemp_correction_input_widgets = [
             "CommandArbiter.Commands.TakeAuth",
             ("LMC",),
             ["combobox_authority"],
-            ("DiSQ already has command authority with user 4", -1),
+            ("DiSQ already has command authority with user 3", -1),
         ),
         (
             "release_authority_button_clicked",
