@@ -163,8 +163,6 @@ class Model(QObject):
             self._scu = None
             raise e
         logger.debug("Connected to server on URI: %s", self.get_server_uri())
-        logger.debug("Getting node list")
-        self._scu.get_node_list()
 
     def get_server_uri(self) -> str:
         """
@@ -176,6 +174,18 @@ class Model(QObject):
         if self._scu is None:
             return ""
         return self._scu.connection.server_url.geturl()
+
+    def get_server_version(self) -> str:
+        """
+        Get the software/firmware version of the server that the client is connected to.
+
+        :return: The version of the server.
+        :rtype: str
+        """
+        if self._scu is None:
+            return ""
+        version = self._scu.attributes.get("Management.NamePlate.DscSoftwareVersion")
+        return version.value if version is not None else "Not found"
 
     def disconnect(self):
         """
@@ -263,8 +273,14 @@ class Model(QObject):
         """
 
         def _log_and_call(command, *args) -> tuple[int, str, list[int | None] | None]:
-            logger.debug("Model: run_opcua_command: %s, args: %s", command, args)
-            return self._scu.commands[command](*args)
+            logger.debug("Calling command: %s, args: %s", command, args)
+            try:
+                result = self._scu.commands[command](*args)
+            except KeyError:
+                msg = f"Exception: Key '{command}' not found!"
+                logger.error(msg)
+                result = -1, msg, None
+            return result
 
         if self._scu is None:
             raise RuntimeError("server not connected")
@@ -282,7 +298,7 @@ class Model(QObject):
                 logger.warning(
                     "OPC-UA server has no 'AxisSelectType' enum. Attempting a guess."
                 )
-                axis = {"Az": 0, "El": 1, "Fi": 2, "AzEl": 3}[args[0]]
+                axis = {"Az": 1, "El": 2, "Fi": 3, "AzEl": 4}[args[0]]
             result = _log_and_call(command, axis, *args[1:])
         elif command == "Management.Commands.Move2Band":
             band = self.convert_band_to_type(args[0])
@@ -303,11 +319,11 @@ class Model(QObject):
             temperature = args[2]
             result = _log_and_call(command, static, tilt, temperature, band)
         elif command == "CommandArbiter.Commands.TakeAuth":
-            logger.debug("Model: run_opcua_command: %s, args: %s", command, args)
+            logger.debug("Calling command: %s, args: %s", command, args)
             code, msg = self._scu.take_authority(args[0])
             result = code, msg, None
         elif command == "CommandArbiter.Commands.ReleaseAuth":
-            logger.debug("Model: run_opcua_command: %s, args: %s", command, args)
+            logger.debug("Calling command: %s, args: %s", command, args)
             code, msg = self._scu.release_authority()
             result = code, msg, None
         else:
@@ -315,7 +331,7 @@ class Model(QObject):
             result = _log_and_call(command, *args)
         return result
 
-    @cached_property
+    @property
     def opcua_enum_types(self) -> dict:
         """
         Retrieve a dictionary of OPC-UA enum types.
@@ -326,32 +342,7 @@ class Model(QObject):
         :raises AttributeError: If any of the required enum types are not found in the
             UA namespace.
         """
-        result = {}
-        missing_types = []
-        for opcua_type in [
-            "AxisStateType",
-            "DscStateType",
-            "StowPinStatusType",
-            "AxisSelectType",
-            "DscCmdAuthorityType",
-            "BandType",
-            "DscTimeSyncSourceType",
-            "InterpolType",
-            "LoadEnumType",
-            "SafetyStateType",
-            "TiltOnType",
-        ]:
-            try:
-                result.update({opcua_type: getattr(ua, opcua_type)})
-            except AttributeError:
-                missing_types.append(opcua_type)
-        if missing_types:
-            logger.warning(
-                "OPC-UA server does not implement the following Enumerated types "
-                "as expected: %s",
-                str(missing_types),
-            )
-        return result
+        return self._scu.opcua_enum_types
 
     @cached_property
     def opcua_attributes(self) -> list[str]:
