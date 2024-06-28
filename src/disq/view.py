@@ -720,8 +720,8 @@ class MainView(QtWidgets.QMainWindow):
         - name: name
         - node: node
         - value: value
-        - source_timestamp: source_timestamp
-        - server_timestamp: server_timestamp
+        - source_timestamp: source_timestamp [datetime.datetime]
+        - server_timestamp: server_timestamp [float]
         - data: data
         """
         opcua_type: str = widget.property("opcua_type")
@@ -846,7 +846,7 @@ class MainView(QtWidgets.QMainWindow):
         """
         logger.debug("server connected event")
         self.label_conn_status.setText("Subscribing to OPC-UA updates...")
-        self.controller.subscribe_opcua_updates(self.opcua_widgets)
+        self.controller.subscribe_opcua_updates(list(self.opcua_widgets.keys()))
         self.label_conn_status.setText(f"Connected to: {self.model.get_server_uri()}")
         self._enable_server_widgets(False, connect_button=True)
         self._enable_opcua_widgets()

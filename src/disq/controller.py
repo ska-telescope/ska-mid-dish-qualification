@@ -173,7 +173,7 @@ class Controller(QObject):
         self.emit_ui_status_message("INFO", "Disconnected from server")
         self.server_disconnected.emit()
 
-    def subscribe_opcua_updates(self, registrations: dict[str, Callable]) -> None:
+    def subscribe_opcua_updates(self, registrations: list[str]) -> None:
         """
         Subscribe to the requested OPC UA variable data updates with the given callback.
 

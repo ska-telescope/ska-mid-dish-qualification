@@ -203,20 +203,22 @@ class Model(QObject):
             return self._scu.is_connected()
         return False
 
-    def register_event_updates(self, registrations: dict[str, Callable]) -> None:
+    def register_event_updates(self, registrations: list[str]) -> None:
         """
         Register event updates for specific event registrations.
 
-        :param registrations: A dictionary containing event registrations where keys are
-            the events to subscribe to.
-        :type registrations: dict
+        A new event poller thread will be started if one is not already running.
+
+        :param registrations: A list of attribute names to register for event updates.
+        :type registrations: list[str]
         """
-        self._event_q_poller = QueuePollThread(self.data_received)
-        self._event_q_poller.start()
+        if self._event_q_poller is None:
+            self._event_q_poller = QueuePollThread(self.data_received)
+            self._event_q_poller.start()
 
         if self._scu is not None:
             _ = self._scu.subscribe(
-                list(registrations.keys()),
+                registrations,
                 period=self.subscription_rate_ms,
                 data_queue=self._event_q_poller.queue,
             )
