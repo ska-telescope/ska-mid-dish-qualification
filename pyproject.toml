@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=64", "wheel"]
+requires = ["setuptools>=70", "setuptools_scm[toml]>=8.1", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -98,14 +98,8 @@ disq-gui = "disq.mvcmain:main"
 disq-validate-server = "disq.server_validator:main"
 
 [[tool.poetry.source]]
-name = "PyPI-public"
-url = "https://pypi.org/simple"
-priority = "primary"
-
-[[tool.poetry.source]]
 name = "ska"
 url = "https://artefact.skao.int/repository/pypi-all/simple"
-priority = "primary"
 
 [tool.poetry.dependencies]
 cryptography = "41.0.7"  # TODO, deprecation warning originating from asyncua

@@ -2,6 +2,12 @@
 
 ## unreleased
 
+- Breaking changes for version 2 of ICD:
+    - WOM-335: Change commands' arguments from enumerated types to integer values
+    - WOM-334: Update commands to handle session ID 
+- Non-breaking changes:
+    - WOM-383: Fix missing write-error exception in SCU lib
+
 ## 0.3.0
 
 - WOM-223: DiSQ: GUI Tooltips

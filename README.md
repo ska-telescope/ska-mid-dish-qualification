@@ -16,14 +16,22 @@ Python >= 3.10 is required for this software package. Python package dependencie
 
 The recommendation is to use a [virtualenv](https://docs.python.org/3/library/venv.html):
 ```
-python -m venv .venv/
+python3 -m venv .venv/
 source .venv/bin/activate
 ```
 
-### For users:
-Non-developing users can easily install the software directly from the repository: `pip install https://gitlab.com/ska-telescope/ska-mid-dish-qualification.git`
+### For users
+Non-developing users can easily install the latest build directly from the project's package registry: 
 
-Or to install a specific `<VERSION>` use: `pip install https://gitlab.com/ska-telescope/ska-mid-dish-qualification.git@<VERSION>`
+```
+pip install DiSQ --index-url https://gitlab.com/api/v4/projects/47618837/packages/pypi/simple
+```
+
+Or to install a specific release `<VERSION>`: 
+
+```
+pip install DiSQ==<VERSION> --index-url https://artefact.skao.int/repository/pypi-all/simple
+```
 
 Alternatively, if given a packaged wheel (`.whl`) from the developers: `pip install <package-name-version>.whl`
 
@@ -41,8 +49,8 @@ Developers can also build a distributable package wheel using the [`build`](http
 ```
 git clone git@gitlab.com:ska-telescope/ska-mid-dish-qualification.git
 cd ska-mid-dish-qualification
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 python3 -m pip install build
 python3 -m build --wheel
 ```
