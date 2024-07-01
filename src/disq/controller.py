@@ -2,7 +2,6 @@
 
 import logging
 from pathlib import Path
-from typing import Callable
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
