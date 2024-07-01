@@ -137,7 +137,7 @@ class Model(QObject):
         """
         logger.debug("Connecting to server: %s", connect_details)
         try:
-            self._scu = SCU(**connect_details, gui_app=True)
+            self._scu = SCU(**connect_details, gui_app=True, use_nodes_cache=True)
         except RuntimeError as e:
             logger.debug(
                 "Exception while creating sculib object server "
