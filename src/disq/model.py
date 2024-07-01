@@ -28,13 +28,13 @@ class QueuePollThread(QThread):
         """
         Initialize the SignalProcessor object.
 
-        :param signal: The signal to be processed.
-        :type signal: pyqtBoundSignal
+        :param signal: The signal to be emitted on event updates.
+        :type signal: pyqtSignal
         """
         super().__init__()
         self.queue: Queue = Queue()
-        self.signal = signal
-        self._running = False
+        self.signal: pyqtSignal = signal
+        self._running: bool = False
 
     def run(self) -> None:
         """
@@ -59,7 +59,19 @@ class QueuePollThread(QThread):
                 data["name"],
                 data["value"],
             )
-            self.signal.emit(data)
+            self._handle_event(data)
+
+    def _handle_event(self, data: dict) -> None:
+        """
+        Handle an event.
+
+        This method emits a signal with the data received. This may be overridden in
+        subclasses to handle the data differently.
+
+        :param data: The data to be handled.
+        :type data: dict
+        """
+        self.signal.emit(data)
 
     def stop(self) -> None:
         """
