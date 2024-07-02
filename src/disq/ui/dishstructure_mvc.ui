@@ -93,7 +93,7 @@
           <bool>false</bool>
          </property>
          <property name="placeholderText">
-          <string>http://skao.int/DS_ICD/</string>
+          <string/>
          </property>
         </widget>
        </item>
@@ -138,7 +138,7 @@
           <bool>false</bool>
          </property>
          <property name="placeholderText">
-          <string>/dish-structure/server/</string>
+          <string/>
          </property>
         </widget>
        </item>

@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import Callable
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QCoreApplication, QObject, pyqtSignal
 
 from disq import configuration, model
 
@@ -149,6 +149,7 @@ class Controller(QObject):
                 f"Invalid port number, should be integer: {connection_details['port']}",
             )
             return
+        QCoreApplication.processEvents()
         try:
             self._model.connect(connection_details)
         except (OSError, RuntimeError) as e:

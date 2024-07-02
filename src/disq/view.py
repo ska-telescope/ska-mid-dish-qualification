@@ -743,17 +743,17 @@ class MainView(QtWidgets.QMainWindow):
         if opcua_type in self._LED_COLOURS:
             try:
                 led_colour = self._LED_COLOURS[opcua_type][str_val.lower()]
+                widget.setStyleSheet(
+                    "QLineEdit {"
+                    f"background-color: {led_colour};"
+                    "border-color: black;} "
+                )
             except KeyError:
                 logger.warning(
                     "Enum value '%s' for opcua type '%s' not found in LED colours dict",
                     str_val.lower(),
                     opcua_type,
                 )
-            widget.setStyleSheet(
-                "QLineEdit {"
-                f"background-color: {led_colour};"
-                "border-color: black;} "
-            )
 
     def _update_opcua_boolean_radio_button_widget(
         self, button: QtWidgets.QRadioButton, event: dict
@@ -845,9 +845,12 @@ class MainView(QtWidgets.QMainWindow):
         This function is called when the server is successfully connected.
         """
         logger.debug("server connected event")
-        self.label_conn_status.setText("Subscribing to OPC-UA updates...")
+        self.label_conn_status.setText("Status: Subscribing to OPC-UA updates...")
         self.controller.subscribe_opcua_updates(self.opcua_widgets)
-        self.label_conn_status.setText(f"Connected to: {self.model.get_server_uri()}")
+        self.label_conn_status.setText(
+            f"Connected to: {self.model.get_server_uri()} - "
+            f"DscSoftwareVersion: {self.model.get_server_version()}"
+        )
         self._enable_server_widgets(False, connect_button=True)
         self._enable_opcua_widgets()
         self._enable_data_logger_widgets(True)
@@ -862,7 +865,7 @@ class MainView(QtWidgets.QMainWindow):
         logger.debug("server disconnected event")
         self._disable_opcua_widgets()
         self._enable_data_logger_widgets(False)
-        self.label_conn_status.setText("Status: disconnected")
+        self.label_conn_status.setText("Status: Disconnected")
         self._enable_server_widgets(True, connect_button=True)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
@@ -891,7 +894,7 @@ class MainView(QtWidgets.QMainWindow):
                     "password", None
                 )
             logger.debug("connecting to server: %s", connect_details)
-            self.label_conn_status.setText("connecting...")
+            self.label_conn_status.setText("Status: Connecting... please wait")
             self.controller.connect_server(connect_details)
         else:
             logger.debug("disconnecting from server")
@@ -1207,8 +1210,8 @@ class MainView(QtWidgets.QMainWindow):
         # Static pointing band
         self.combo_static_point_model_band.blockSignals(True)
         self.combo_static_point_model_band.setCurrentIndex(
-            self.model.convert_band_to_type(
-                self.static_point_model_band.text().replace(" ", "_")
+            self.model._scu.convert_enum_to_int(  # pylint: disable=protected-access
+                "BandType", self.static_point_model_band.text().replace(" ", "_")
             )
         )
         self.combo_static_point_model_band.blockSignals(block_signals)

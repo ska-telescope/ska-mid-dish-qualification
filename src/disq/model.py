@@ -2,31 +2,16 @@
 
 import logging
 import os
-from functools import cached_property
 from pathlib import Path
 from queue import Empty, Queue
 from typing import Callable
 
-from asyncua import ua
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
 from disq.logger import Logger
 from disq.sculib import SCU
 
 logger = logging.getLogger("gui.model")
-# class SubscriptionHandler:
-#     def __init__(self, callback_method: callable, ui_name: str) -> None:
-#         self.callback_method = callback_method
-#         self.ui_name = ui_name
-
-#     async def datachange_notification(self, node: Node, val, data):
-#         if type(val) == float:
-#             str_val = f"{val:.3f}"
-#         elif type(val) == Enum:
-#             str_val = val.name
-#         else:
-#             str_val = str(val)
-#         self.callback_method(str_val)
 
 
 class QueuePollThread(QThread):
@@ -163,8 +148,6 @@ class Model(QObject):
             self._scu = None
             raise e
         logger.debug("Connected to server on URI: %s", self.get_server_uri())
-        logger.debug("Getting node list")
-        self._scu.get_node_list()
 
     def get_server_uri(self) -> str:
         """
@@ -177,6 +160,18 @@ class Model(QObject):
             return ""
         return self._scu.connection.server_url.geturl()
 
+    def get_server_version(self) -> str:
+        """
+        Get the software/firmware version of the server that the client is connected to.
+
+        :return: The version of the server.
+        :rtype: str
+        """
+        if self._scu is None:
+            return ""
+        version = self._scu.attributes.get("Management.NamePlate.DscSoftwareVersion")
+        return version.value if version is not None else "Not found"
+
     def disconnect(self):
         """
         Disconnect from the SCU and clean up resources.
@@ -185,8 +180,6 @@ class Model(QObject):
         queue poller.
         """
         if self._scu is not None:
-            self._scu.unsubscribe_all()
-            self._scu.disconnect()
             del self._scu
             self._scu = None
             self._event_q_poller.stop()
@@ -223,30 +216,6 @@ class Model(QObject):
         else:
             logger.warning("Model: register_event_updates: scu is None!?!?!")
 
-    def convert_band_to_type(self, band: str) -> int:
-        """
-        Convert string to BandType enum (integer value).
-
-        :param band: the band to convert to enum
-        :type band: str
-        :return: BandType enum integer value
-        :rtype: int
-        """
-        try:
-            return ua.BandType[band]
-        except AttributeError:
-            logger.warning("OPC-UA server has no 'BandType' enum. Attempting a guess.")
-            return {
-                "Band_1": 0,
-                "Band_2": 1,
-                "Band_3": 2,
-                "Band_4": 3,
-                "Band_5a": 4,
-                "Band_5b": 5,
-                "Band_6": 6,
-                "Optical": 7,
-            }[band]
-
     def run_opcua_command(
         self, command: str, *args
     ) -> tuple[int, str, list[int | None] | None]:
@@ -263,11 +232,18 @@ class Model(QObject):
         """
 
         def _log_and_call(command, *args) -> tuple[int, str, list[int | None] | None]:
-            logger.debug("Model: run_opcua_command: %s, args: %s", command, args)
-            return self._scu.commands[command](*args)
+            logger.debug("Calling command: %s, args: %s", command, args)
+            try:
+                result = self._scu.commands[command](*args)
+            except KeyError:
+                msg = f"Exception: Key '{command}' not found!"
+                logger.error(msg)
+                result = -1, msg, None
+            return result
 
         if self._scu is None:
             raise RuntimeError("server not connected")
+        # Commands that take a single AxisSelectType parameter input
         if command in [
             "Management.Commands.Stop",
             "Management.Commands.Activate",
@@ -275,27 +251,19 @@ class Model(QObject):
             "Management.Commands.Reset",
             "Management.Commands.Slew2AbsSingleAx",
         ]:
-            # Commands that take a single AxisSelectType parameter input
-            try:
-                axis = ua.AxisSelectType[args[0]]
-            except AttributeError:
-                logger.warning(
-                    "OPC-UA server has no 'AxisSelectType' enum. Attempting a guess."
-                )
-                axis = {"Az": 0, "El": 1, "Fi": 2, "AzEl": 3}[args[0]]
+            axis = self._scu.convert_enum_to_int("AxisSelectType", args[0])
             result = _log_and_call(command, axis, *args[1:])
         elif command == "Management.Commands.Move2Band":
-            band = self.convert_band_to_type(args[0])
+            band = self._scu.convert_enum_to_int("BandType", args[0])
             result = _log_and_call(command, band)
         elif command == "Pointing.Commands.StaticPmSetup":
-            band = self.convert_band_to_type(args[0])
+            band = self._scu.convert_enum_to_int("BandType", args[0])
             result = _log_and_call(command, band, *args[1:])
         elif command == "Pointing.Commands.PmCorrOnOff":
-            band = self.convert_band_to_type(args[3])
+            band = self._scu.convert_enum_to_int("BandType", args[3])
             static = args[0]
-            try:
-                tilt = ua.TiltOnType[args[1]]
-            except AttributeError:
+            tilt = self._scu.convert_enum_to_int("TiltOnType", args[1])
+            if tilt is None:  # TODO: Remove once PLC is fixed
                 logger.warning(
                     "OPC-UA server has no 'TiltOnType' enum. Attempting a guess."
                 )
@@ -303,11 +271,11 @@ class Model(QObject):
             temperature = args[2]
             result = _log_and_call(command, static, tilt, temperature, band)
         elif command == "CommandArbiter.Commands.TakeAuth":
-            logger.debug("Model: run_opcua_command: %s, args: %s", command, args)
+            logger.debug("Calling command: %s, args: %s", command, args)
             code, msg = self._scu.take_authority(args[0])
             result = code, msg, None
         elif command == "CommandArbiter.Commands.ReleaseAuth":
-            logger.debug("Model: run_opcua_command: %s, args: %s", command, args)
+            logger.debug("Calling command: %s, args: %s", command, args)
             code, msg = self._scu.release_authority()
             result = code, msg, None
         else:
@@ -315,7 +283,7 @@ class Model(QObject):
             result = _log_and_call(command, *args)
         return result
 
-    @cached_property
+    @property
     def opcua_enum_types(self) -> dict:
         """
         Retrieve a dictionary of OPC-UA enum types.
@@ -326,34 +294,9 @@ class Model(QObject):
         :raises AttributeError: If any of the required enum types are not found in the
             UA namespace.
         """
-        result = {}
-        missing_types = []
-        for opcua_type in [
-            "AxisStateType",
-            "DscStateType",
-            "StowPinStatusType",
-            "AxisSelectType",
-            "DscCmdAuthorityType",
-            "BandType",
-            "DscTimeSyncSourceType",
-            "InterpolType",
-            "LoadEnumType",
-            "SafetyStateType",
-            "TiltOnType",
-        ]:
-            try:
-                result.update({opcua_type: getattr(ua, opcua_type)})
-            except AttributeError:
-                missing_types.append(opcua_type)
-        if missing_types:
-            logger.warning(
-                "OPC-UA server does not implement the following Enumerated types "
-                "as expected: %s",
-                str(missing_types),
-            )
-        return result
+        return self._scu.opcua_enum_types
 
-    @cached_property
+    @property
     def opcua_attributes(self) -> list[str]:
         """
         Return the OPC UA attributes associated with the object.
