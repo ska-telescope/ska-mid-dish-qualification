@@ -1,9 +1,9 @@
 {
     "python.testing.pytestEnabled": true,
-    // "python.testing.pytestArgs": [
-    //     "--with-cetc-sim"
-    //     // "--with-plc"
-    // ],
+    "python.testing.pytestArgs": [
+        // "--with-cetc-sim"
+        // "--with-plc"
+    ],
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
