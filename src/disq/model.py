@@ -137,7 +137,7 @@ class Model(QObject):
         """
         logger.debug("Connecting to server: %s", connect_details)
         try:
-            self._scu = SCU(**connect_details, gui_app=True, use_nodes_cache=True)
+            self._scu = SCU(**connect_details, gui_app=True)
         except RuntimeError as e:
             logger.debug(
                 "Exception while creating sculib object server "
@@ -160,17 +160,30 @@ class Model(QObject):
             return ""
         return self._scu.connection.server_url.geturl()
 
-    def get_server_version(self) -> str:
+    @property
+    def server_version(self) -> str:
         """
-        Get the software/firmware version of the server that the client is connected to.
+        The software/firmware version of the server that the client is connected to.
 
-        :return: The version of the server.
+        :return: the version of the server.
         :rtype: str
         """
         if self._scu is None:
-            return ""
-        version = self._scu.attributes.get("Management.NamePlate.DscSoftwareVersion")
-        return version.value if version is not None else "Not found"
+            return "not connected to server"
+        version = self._scu.server_version
+        return version if version is not None else "not found on server"
+
+    @property
+    def plc_prg_nodes_timestamp(self) -> str:
+        """
+        Generation timestamp of the PLC_PRG Node tree.
+
+        :return: timestamp in 'yyyy-mm-dd hh:mm:ss' string format.
+        :rtype: str
+        """
+        if self._scu is None:
+            return "not connected to server"
+        return self._scu.plc_prg_nodes_timestamp
 
     def disconnect(self):
         """
