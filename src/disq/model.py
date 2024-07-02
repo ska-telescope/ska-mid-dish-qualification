@@ -2,6 +2,7 @@
 
 import logging
 import os
+from importlib import metadata
 from pathlib import Path
 from queue import Empty, Queue
 from typing import Callable
@@ -137,7 +138,11 @@ class Model(QObject):
         """
         logger.debug("Connecting to server: %s", connect_details)
         try:
-            self._scu = SCU(**connect_details, gui_app=True)
+            self._scu = SCU(
+                **connect_details,
+                gui_app=True,
+                app_name=f"DiSQ v{metadata.version('DiSQ')}",
+            )
         except RuntimeError as e:
             logger.debug(
                 "Exception while creating sculib object server "
