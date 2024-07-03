@@ -50,7 +50,9 @@ class StubScu(SCU):
             host=host, port=port, endpoint=endpoint, namespace=namespace, timeout=25
         )
 
-    def subscribe(self, attributes=None, period=None, data_queue=None) -> int:
+    def subscribe(
+        self, attributes=None, period=None, data_queue=None
+    ) -> tuple[int, list, list]:
         """
         Subscribe to a data source.
 
@@ -60,12 +62,12 @@ class StubScu(SCU):
         :type period: int
         :param data_queue: Optional. Queue to store incoming data.
         :type data_queue: list
-        :return: Unique identifier for the subscription.
-        :rtype: int
+        :return: unique identifier for the subscription and lists of missing/bad nodes.
+        :rtype: tuple[int, list, list]
         """
         uid = time.monotonic_ns()
         self.subscriptions[uid] = {}
-        return uid
+        return uid, [], []
 
     def unsubscribe(self, uid: int) -> None:
         """

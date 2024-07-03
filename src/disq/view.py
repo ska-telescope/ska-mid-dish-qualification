@@ -496,7 +496,7 @@ class MainView(QtWidgets.QMainWindow):
         )
 
     @cached_property
-    def opcua_widgets(self) -> dict:
+    def opcua_widgets(self) -> dict[str, tuple[QtWidgets.QWidget, Callable]]:
         """
         A dict of of all 'opcua' widgets and their update method.
 
@@ -509,7 +509,7 @@ class MainView(QtWidgets.QMainWindow):
 
         :return: {name: (widget, func)}
         """
-        all_widgets: list[QtCore.QObject] = (
+        all_widgets = (
             self.findChildren(QtWidgets.QLineEdit)
             + self.findChildren(QtWidgets.QLabel)
             + self.findChildren(QtWidgets.QRadioButton)
@@ -846,14 +846,19 @@ class MainView(QtWidgets.QMainWindow):
         """
         logger.debug("server connected event")
         self.label_conn_status.setText("Status: Subscribing to OPC-UA updates...")
-        self.controller.subscribe_opcua_updates(self.opcua_widgets)
+        self.controller.subscribe_opcua_updates(list(self.opcua_widgets.keys()))
         self.label_conn_status.setText(
             f"Connected to {self.model.get_server_uri()} - "
             f"Version {self.model.server_version}"
         )
         self.label_cache_status.setText(
-            f"Nodes generated on {self.model.plc_prg_nodes_timestamp}"
+            f"{self.model.opcua_nodes_status.value} - "
+            f"Nodes generated {self.model.plc_prg_nodes_timestamp}"
         )
+        if self.model.opcua_nodes_status == model.NodesStatus.VALID:
+            self.label_cache_status.setStyleSheet("color: black;")
+        else:
+            self.label_cache_status.setStyleSheet("color: red;")
         self.cache_checkbox.setEnabled(False)
         self._enable_server_widgets(False, connect_button=True)
         self._enable_opcua_widgets()

@@ -2,7 +2,6 @@
 
 import logging
 from pathlib import Path
-from typing import Callable
 
 from PyQt6.QtCore import QCoreApplication, QObject, pyqtSignal
 
@@ -174,13 +173,13 @@ class Controller(QObject):
         self.emit_ui_status_message("INFO", "Disconnected from server")
         self.server_disconnected.emit()
 
-    def subscribe_opcua_updates(self, registrations: dict[str, Callable]) -> None:
+    def subscribe_opcua_updates(self, registrations: list[str]) -> None:
         """
         Subscribe to the requested OPC UA variable data updates with the given callback.
 
-        :param registrations: is a dictionary with key:UI name value:callback method.
+        :param registrations: A list containing events to subscribe to.
         """
-        self._model.register_event_updates(registrations=registrations)
+        self._model.register_event_updates(registrations)
 
     def command_slew2abs_azim_elev(
         self,
