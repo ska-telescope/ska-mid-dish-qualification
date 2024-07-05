@@ -9,7 +9,7 @@ from queue import Empty, Queue
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
 from disq.logger import Logger
-from disq.sculib import PACKAGE_VERSION, SCU
+from disq.sculib import PACKAGE_VERSION, SCU, Command
 
 logger = logging.getLogger("gui.model")
 
@@ -149,7 +149,7 @@ class Model(QObject):
         """
         if self._scu is None:
             return ""
-        return self._scu.connection.server_url.geturl()
+        return self._scu._server_url  # pylint: disable=protected-access
 
     @property
     def server_version(self) -> str:
@@ -240,7 +240,7 @@ class Model(QObject):
             logger.warning("Model: register_event_updates: SCU not initialised yet!")
 
     def run_opcua_command(
-        self, command: str, *args
+        self, command: Command, *args
     ) -> tuple[int, str, list[int | None] | None]:
         """
         Run an OPC-UA command on the server.
@@ -254,12 +254,14 @@ class Model(QObject):
         :raises RuntimeError: If the server is not connected.
         """
 
-        def _log_and_call(command, *args) -> tuple[int, str, list[int | None] | None]:
-            logger.debug("Calling command: %s, args: %s", command, args)
+        def _log_and_call(
+            command: Command, *args
+        ) -> tuple[int, str, list[int | None] | None]:
+            logger.debug("Calling command: %s, args: %s", command.value, args)
             try:
-                result = self._scu.commands[command](*args)
+                result = self._scu.commands[command.value](*args)
             except KeyError:
-                msg = f"Exception: Key '{command}' not found!"
+                msg = f"Exception: Key '{command.value}' not found!"
                 logger.error(msg)
                 result = -1, msg, None
             return result
@@ -267,43 +269,44 @@ class Model(QObject):
         if self._scu is None:
             raise RuntimeError("server not connected")
         # Commands that take a single AxisSelectType parameter input
-        if command in [
-            "Management.Commands.Stop",
-            "Management.Commands.Activate",
-            "Management.Commands.DeActivate",
-            "Management.Commands.Reset",
-            "Management.Commands.Slew2AbsSingleAx",
-        ]:
-            axis = self._scu.convert_enum_to_int("AxisSelectType", args[0])
-            result = _log_and_call(command, axis, *args[1:])
-        elif command == "Management.Commands.Move2Band":
-            band = self._scu.convert_enum_to_int("BandType", args[0])
-            result = _log_and_call(command, band)
-        elif command == "Pointing.Commands.StaticPmSetup":
-            band = self._scu.convert_enum_to_int("BandType", args[0])
-            result = _log_and_call(command, band, *args[1:])
-        elif command == "Pointing.Commands.PmCorrOnOff":
-            band = self._scu.convert_enum_to_int("BandType", args[3])
-            static = args[0]
-            tilt = self._scu.convert_enum_to_int("TiltOnType", args[1])
-            if tilt is None:  # TODO: Remove once PLC is fixed
-                logger.warning(
-                    "OPC-UA server has no 'TiltOnType' enum. Attempting a guess."
-                )
-                tilt = {"Off": 0, "TiltmeterOne": 1, "TiltmeterTwo": 2}[args[1]]
-            temperature = args[2]
-            result = _log_and_call(command, static, tilt, temperature, band)
-        elif command == "CommandArbiter.Commands.TakeAuth":
-            logger.debug("Calling command: %s, args: %s", command, args)
-            code, msg = self._scu.take_authority(args[0])
-            result = code, msg, None
-        elif command == "CommandArbiter.Commands.ReleaseAuth":
-            logger.debug("Calling command: %s, args: %s", command, args)
-            code, msg = self._scu.release_authority()
-            result = code, msg, None
-        else:
-            # Commands that take none or more parameters of base types: float,bool,etc.
-            result = _log_and_call(command, *args)
+        match command:
+            case (
+                Command.STOP
+                | Command.ACTIVATE
+                | Command.DEACTIVATE
+                | Command.RESET
+                | Command.SLEW2ABS_SINGLE_AX
+            ):
+                axis = self._scu.convert_enum_to_int("AxisSelectType", args[0])
+                result = _log_and_call(command, axis, *args[1:])
+            case Command.MOVE2BAND:
+                band = self._scu.convert_enum_to_int("BandType", args[0])
+                result = _log_and_call(command, band)
+            case Command.STATIC_PM_SETUP:
+                band = self._scu.convert_enum_to_int("BandType", args[0])
+                result = _log_and_call(command, band, *args[1:])
+            case Command.PM_CORR_ON_OFF:
+                band = self._scu.convert_enum_to_int("BandType", args[3])
+                static = args[0]
+                tilt = self._scu.convert_enum_to_int("TiltOnType", args[1])
+                if tilt is None:  # TODO: Remove once PLC is fixed
+                    logger.warning(
+                        "OPC-UA server has no 'TiltOnType' enum. Attempting a guess."
+                    )
+                    tilt = {"Off": 0, "TiltmeterOne": 1, "TiltmeterTwo": 2}[args[1]]
+                temperature = args[2]
+                result = _log_and_call(command, static, tilt, temperature, band)
+            case Command.TAKE_AUTH:
+                logger.debug("Calling command: %s, args: %s", command, args)
+                code, msg = self._scu.take_authority(args[0])
+                result = code, msg, None
+            case Command.RELEASE_AUTH:
+                logger.debug("Calling command: %s, args: %s", command, args)
+                code, msg = self._scu.release_authority()
+                result = code, msg, None
+            # Commands that take none or more parameters of base types: float, bool, etc
+            case _:
+                result = _log_and_call(command, *args)
         return result
 
     @property

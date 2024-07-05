@@ -13,6 +13,7 @@ disable=
     no-name-in-module,  # issue with PyQt6 import in CI environment
     duplicate-code,
     fixme,
+    logging-fstring-interpolation
 
 [SIMILARITIES]
 min-similarity-lines=7

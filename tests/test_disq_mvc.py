@@ -5,6 +5,7 @@ import time
 import pytest
 from PyQt6 import QtWidgets
 
+from disq.sculib import Command
 from disq.view import MainView
 
 
@@ -309,4 +310,6 @@ def test_opcua_command_slot_function(
             )
     else:
         # Verify the mock command method was called with the correct arguments
-        disq_app.model.run_opcua_command.assert_called_once_with(command, *cmd_args)
+        disq_app.model.run_opcua_command.assert_called_once_with(
+            Command(command), *cmd_args
+        )

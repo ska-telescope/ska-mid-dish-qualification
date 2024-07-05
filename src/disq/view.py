@@ -781,16 +781,16 @@ class MainView(QtWidgets.QMainWindow):
             button = getattr(self, button.objectName().replace("_on", "_off"))
         button.setChecked(True)
         # Block or unblock tilt meter selection signal whether function is active
-        if event["name"] == "Pointing.TiltCorrActive":
+        if event["name"] == "Pointing.Status.TiltCorrActive":
             self.button_group_tilt_correction_meter.blockSignals(not event["value"])
             self.tilt_correction_checked_prev = int(event["value"])
         # Populate input boxes with current read values after connecting to server
-        elif event["name"] == "Pointing.StaticCorrActive":
+        elif event["name"] == "Pointing.Status.StaticCorrActive":
             if self._update_static_pointing_inputs_text:
                 self._update_static_pointing_inputs_text = False
                 self._set_static_pointing_inputs_text(not event["value"])
                 self.static_point_model_checked_prev = int(event["value"])
-        elif event["name"] == "Pointing.TempCorrActive":
+        elif event["name"] == "Pointing.Status.TempCorrActive":
             if self._update_temp_correction_inputs_text:
                 self._update_temp_correction_inputs_text = False
                 self._set_temp_correction_inputs_text(not event["value"])
@@ -1221,11 +1221,13 @@ class MainView(QtWidgets.QMainWindow):
         """
         # Static pointing band
         self.combo_static_point_model_band.blockSignals(True)
-        self.combo_static_point_model_band.setCurrentIndex(
-            self.model._scu.convert_enum_to_int(  # pylint: disable=protected-access
-                "BandType", self.static_point_model_band.text().replace(" ", "_")
+        current_band = self.static_point_model_band.text()
+        if current_band != "not read":
+            self.combo_static_point_model_band.setCurrentIndex(
+                self.model._scu.convert_enum_to_int(  # pylint: disable=protected-access
+                    "BandType", current_band.replace(" ", "_")
+                )
             )
-        )
         self.combo_static_point_model_band.blockSignals(block_signals)
         # Static pointing offsets
         self.spinbox_offset_xelev.blockSignals(True)
