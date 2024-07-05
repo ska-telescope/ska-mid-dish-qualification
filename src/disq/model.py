@@ -3,14 +3,13 @@
 import logging
 import os
 from enum import Enum
-from importlib import metadata
 from pathlib import Path
 from queue import Empty, Queue
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
 from disq.logger import Logger
-from disq.sculib import SCU
+from disq.sculib import PACKAGE_VERSION, SCU
 
 logger = logging.getLogger("gui.model")
 
@@ -126,7 +125,7 @@ class Model(QObject):
             self._scu = SCU(
                 **connect_details,
                 gui_app=True,
-                app_name=f"DiSQ v{metadata.version('DiSQ')}",
+                app_name=f"DiSQ GUI v{PACKAGE_VERSION}",
             )
         except RuntimeError as e:
             logger.debug(
