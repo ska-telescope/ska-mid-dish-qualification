@@ -5,7 +5,6 @@ import os
 import queue
 import threading
 from datetime import datetime, timedelta, timezone
-from time import sleep
 from typing import Final
 
 import h5py
@@ -83,7 +82,6 @@ class Logger:
         self._stop_logging = threading.Event()
         self._start_invoked = False
         self._cache = {}
-        self.logging_complete = threading.Event()
 
         if high_level_library is None:
             if server is None:
@@ -117,7 +115,8 @@ class Logger:
         for node in list(nodes):
             if node not in self._available_attributes:
                 app_logger.info(
-                    '"%s" not available as an attribute on the server, skipping.', node
+                    '"%s" not available as an attribute on the server, skipping.',
+                    node,
                 )
                 continue
 
@@ -230,7 +229,6 @@ class Logger:
 
         self._start_invoked = True
         self._stop_logging.clear()
-        self.logging_complete.clear()
 
         if self.file is None:
             self.file = (
@@ -255,7 +253,7 @@ class Logger:
         """
         Stop logging.
 
-        Ends the addition of new server data to internal queue and signals the logging
+        Ends the addition of new server data to internal queue and waits for the logging
         thread to clear the remaining queued items.
         """
         for uid in self._subscription_ids:
@@ -263,6 +261,9 @@ class Logger:
 
         self.stop_time = datetime.now(timezone.utc)
         self._stop_logging.set()
+
+        if self._thread.is_alive():
+            self._thread.join()
 
     def _write_cache_to_group(self, node: str):
         """Write the cache to the matching group for the given node."""
@@ -326,7 +327,8 @@ class Logger:
                 ):
                     self._write_cache_to_group(node)
                     app_logger.debug(
-                        "Number of items in queue (cache write): %d", self.queue.qsize()
+                        "Number of items in queue (cache write): %d",
+                        self.queue.qsize(),
                     )
 
             # Write to file at least every self._FLUSH_PERIOD_MSECS
@@ -335,7 +337,8 @@ class Logger:
                     if cache[self._COUNT_IDX] > 0:
                         self._write_cache_to_group(cache_node)
                 app_logger.debug(
-                    "Number of items in queue (flush write): %d", self.queue.qsize()
+                    "Number of items in queue (flush write): %d",
+                    self.queue.qsize(),
                 )
 
                 next_flush_interval += timedelta(milliseconds=self._FLUSH_PERIOD_MSECS)
@@ -374,27 +377,3 @@ class Logger:
             self.start_time,
             self.stop_time,
         )
-
-        self.logging_complete.set()
-
-    def wait_for_completion(self):
-        """Wait for logging thread to write all data from the internal queue to file."""
-        if not self._start_invoked:
-            app_logger.warning(
-                "WARNING: cannot wait for logging to complete if start() has not been "
-                "invoked."
-            )
-            return
-
-        if not self._stop_logging.is_set():
-            app_logger.warning(
-                "WARNING: cannot wait for logging to complete if stop() has not been "
-                "invoked."
-            )
-            return
-
-        while not self.logging_complete.is_set():
-            sleep(self._COMPLETION_LOOP_TIMEOUT_SECS)
-
-        if self._stop_logging.is_set() and self._thread.is_alive():
-            self._thread.join()

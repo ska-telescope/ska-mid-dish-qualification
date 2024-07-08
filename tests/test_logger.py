@@ -47,7 +47,11 @@ class StubScu(SCU):
     ) -> None:
         """Init."""
         super().__init__(
-            host=host, port=port, endpoint=endpoint, namespace=namespace, timeout=25
+            host=host,
+            port=port,
+            endpoint=endpoint,
+            namespace=namespace,
+            timeout=25,
         )
 
     def subscribe(self, attributes=None, period=None, data_queue=None) -> int:
@@ -165,7 +169,12 @@ def test_add_nodes(caplog, high_level_library: StubScu):
     _start_invoked is set.
     """
     logger = Logger(file_name="n/a", high_level_library=high_level_library)
-    nodes = ["MockData.increment", "MockData.sine_value", "MockData.cosine_value", "a"]
+    nodes = [
+        "MockData.increment",
+        "MockData.sine_value",
+        "MockData.cosine_value",
+        "a",
+    ]
     nodes1 = [
         "MockData.increment",
         "MockData.bool",
@@ -231,7 +240,6 @@ def test_start(caplog, high_level_library: StubScu):
     # Check file was created.
     assert os.path.exists(output_file) is True
     logger.stop()
-    logger.wait_for_completion()
 
 
 def test_stop(high_level_library: StubScu):
@@ -247,7 +255,6 @@ def test_stop(high_level_library: StubScu):
     logger.start()
     logger.stop()
     assert logger._stop_logging.is_set() is True
-    logger.wait_for_completion()
 
 
 def test_write_cache_to_group(high_level_library: StubScu):
@@ -305,7 +312,6 @@ def test_log(high_level_library: StubScu):
     logger.start()
     put_hdf5_file_in_queue(nodes, input_f_o, logger)
     logger.stop()
-    logger.wait_for_completion()
     output_f_o = h5py.File(output_file, "r", libver="latest")
 
     for node in nodes:
@@ -322,35 +328,6 @@ def test_log(high_level_library: StubScu):
     output_f_o.close()
 
 
-def test_wait_for_completion(caplog, high_level_library: StubScu):
-    """
-    Test the wait_for_completion method.
-
-    Check the log messages.
-    """
-    logger = Logger(file_name="n/a", high_level_library=high_level_library)
-    logger._start_invoked = False
-    logger._stop_logging.clear()
-    logger.logging_complete.set()
-    logger.wait_for_completion()
-    logger._start_invoked = True
-    logger.wait_for_completion()
-    logger._stop_logging.set()
-    logger.wait_for_completion()
-    expected_log = [
-        "renamed Locked&Stowed to Locked_Stowed due to Python syntax",
-        "WARNING: cannot wait for logging to complete if start() has not been invoked.",
-        "WARNING: cannot wait for logging to complete if stop() has not been invoked.",
-    ]
-    # Sometimes the first line above does not appear
-    expected_log2 = [
-        "WARNING: cannot wait for logging to complete if start() has not been invoked.",
-        "WARNING: cannot wait for logging to complete if stop() has not been invoked.",
-    ]
-    # pylint: disable=consider-using-in
-    assert caplog.messages == expected_log or caplog.messages == expected_log2
-
-
 def test_enum_attribute(high_level_library: StubScu):
     """
     Enum attribute.
@@ -364,7 +341,6 @@ def test_enum_attribute(high_level_library: StubScu):
     logger.add_nodes(nodes, 100)
     logger.start()
     logger.stop()
-    logger.wait_for_completion()
     output_f_o = h5py.File(output_file, "r", libver="latest")
     expected_attribute = (
         "StartUp,Standby,Locked,EStop,Stowed,Locked&Stowed,Activating,Deactivation,"
@@ -394,7 +370,6 @@ def test_performance(high_level_library: StubScu):
     logger.start()
     put_hdf5_file_in_queue(nodes, input_f_o, logger)
     logger.stop()
-    logger.wait_for_completion()
     stop_time = datetime.now(timezone.utc)
     input_f_o.close()
 
