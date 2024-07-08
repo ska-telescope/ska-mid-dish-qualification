@@ -23,17 +23,18 @@
 import asyncio
 import datetime
 import enum
+import json
 import logging
 import logging.config
-import os
 import queue
+import socket
 import threading
 import time
 from enum import Enum
 from functools import cached_property
-from importlib import resources
+from importlib import metadata, resources
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Final, TypedDict
 
 import numpy
 import yaml
@@ -41,8 +42,16 @@ from asyncua import Client, Node, ua
 from asyncua.crypto.cert_gen import setup_self_signed_certificate
 from asyncua.crypto.security_policies import SecurityPolicyBasic256
 from cryptography.x509.oid import ExtendedKeyUsageOID
+from platformdirs import user_cache_dir
 
 logger = logging.getLogger("sculib")
+
+NodeDict = dict[str, tuple[Node, int]]
+AttrDict = dict[str, object]
+CmdDict = dict[str, Callable]
+
+PACKAGE_VERSION: Final = metadata.version("DiSQ")
+USER_CACHE_DIR: Final = Path(user_cache_dir(appauthor="SKAO", appname="DiSQ"))
 
 
 def configure_logging(default_log_level: int = logging.INFO) -> None:
@@ -54,14 +63,14 @@ def configure_logging(default_log_level: int = logging.INFO) -> None:
     :type default_log_level: int
     :raises ValueError: If an error occurs while configuring logging from the file.
     """
-    if os.path.exists("disq_logging_config.yaml"):
+    if Path("disq_logging_config.yaml").exists():
         disq_log_config_file: resources.Traversable | str = "disq_logging_config.yaml"
     else:
         disq_log_config_file = (
             resources.files(__package__) / "default_logging_config.yaml"
         )
     config = None
-    if os.path.exists(disq_log_config_file):
+    if Path(disq_log_config_file).exists():
         with open(disq_log_config_file, "rt", encoding="UTF-8") as f:
             try:
                 config = yaml.safe_load(f.read())
@@ -111,7 +120,7 @@ async def handle_exception(e: Exception, msg: str = "") -> None:
 
 def create_rw_attribute(
     node: Node, event_loop: asyncio.AbstractEventLoop, node_name: str
-):
+) -> object:
     """
     Create a read-write attribute for an OPC UA node.
 
@@ -164,7 +173,7 @@ def create_rw_attribute(
 
 def create_ro_attribute(
     node: Node, event_loop: asyncio.AbstractEventLoop, node_name: str
-):
+) -> object:
     """
     Create a read-only attribute for an OPC UA Node.
 
@@ -207,7 +216,7 @@ class SubscriptionHandler:
     :type nodes: dict
     """
 
-    def __init__(self, subscription_queue: queue.Queue, nodes: dict) -> None:
+    def __init__(self, subscription_queue: queue.Queue, nodes: dict[Node, str]) -> None:
         """
         Initialize the object with a subscription queue and nodes.
 
@@ -240,6 +249,13 @@ class SubscriptionHandler:
             "data": data,
         }
         self.subscription_queue.put(value_for_queue, block=True, timeout=0.1)
+
+
+class CachedNodesDict(TypedDict):
+    """Cached nodes dictionary type."""
+
+    node_ids: dict[str, tuple[str, int]]
+    timestamp: str
 
 
 # pylint: disable=too-many-public-methods,too-many-instance-attributes
@@ -308,7 +324,7 @@ class SCU:
     ```
     """  # noqa: RST201,RST203,RST214,RST301
 
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,too-many-locals
     def __init__(
         self,
         host: str = "localhost",
@@ -320,6 +336,8 @@ class SCU:
         timeout: float = 10.0,
         eventloop: asyncio.AbstractEventLoop | None = None,
         gui_app: bool = False,
+        use_nodes_cache: bool = False,
+        app_name: str = f"DiSQ.sculib v{PACKAGE_VERSION}",
     ) -> None:
         """
         Initializes the sculib with the provided parameters.
@@ -342,6 +360,10 @@ class SCU:
         :type eventloop: asyncio.AbstractEventLoop | None
         :param gui_app: Whether the instance is for a GUI application. Default is False.
         :type gui_app: bool
+        :param use_nodes_cache: Whether to use any existing caches of node IDs.
+        :type use_nodes_cache: bool
+        :param app_name: application name for OPC UA client description.
+        :type app_name: str
         :raises Exception: If connection to OPC UA server fails.
         """
         logger.info("Initialising sculib")
@@ -350,6 +372,7 @@ class SCU:
         self.endpoint = endpoint
         self.namespace = namespace
         self.timeout = timeout
+        self._app_name = app_name
         self.event_loop_thread: threading.Thread | None = None
         self.subscription_handler = None
         self.subscriptions = {}
@@ -381,7 +404,6 @@ class SCU:
                     pw=pw,
                 )
             except Exception as e:
-                # e.add_note('Cannot connect to the OPC UA server. Please '
                 msg = (
                     "Cannot connect to the OPC UA server. Please "
                     "check the connection parameters that were "
@@ -389,8 +411,13 @@ class SCU:
                 )
                 logger.error("%s - %s", msg, e)
                 raise e
-        logger.info("Populating nodes dicts from server. This can take a while...")
-        self.populate_node_dicts(gui_app)
+
+        if self.server_version is None:
+            self._server_str_id = f"{self._server_url} - version unknown"
+        else:
+            self._server_str_id = f"{self._server_url} - v{self.server_version}"
+
+        self.populate_node_dicts(gui_app, use_nodes_cache)
         self._user: int | None = None
         self._session_id: ua.UInt16 | None = None
         logger.info("Initialising sculib done.")
@@ -410,6 +437,48 @@ class SCU:
             self.event_loop.call_soon_threadsafe(self.event_loop.stop)
             # Join the event loop thread once it is done processing tasks.
             self.event_loop_thread.join()
+
+    @cached_property
+    def server_version(self) -> str | None:
+        """
+        The software/firmware version of the server that SCU is connected to.
+
+        :return: The version of the server, or None if the server version info could
+            not be read successfully.
+        :rtype: str
+        """
+        try:
+            version_node = asyncio.run_coroutine_threadsafe(
+                self.connection.nodes.objects.get_child(
+                    [
+                        f"{self.ns_idx}:Logic",
+                        f"{self.ns_idx}:Application",
+                        f"{self.ns_idx}:PLC_PRG",
+                        f"{self.ns_idx}:Management",
+                        f"{self.ns_idx}:NamePlate",
+                        f"{self.ns_idx}:DscSoftwareVersion",
+                    ]
+                ),
+                self.event_loop,
+            ).result()
+            server_version: str = asyncio.run_coroutine_threadsafe(
+                version_node.get_value(), self.event_loop
+            ).result()
+        except Exception as e:
+            msg = "Failed to read value of DscSoftwareVersion attribute."
+            asyncio.run_coroutine_threadsafe(handle_exception(e, msg), self.event_loop)
+            server_version = None
+        return server_version
+
+    @property
+    def plc_prg_nodes_timestamp(self) -> str:
+        """
+        Generation timestamp of the PLC_PRG Node tree.
+
+        :return: timestamp in 'yyyy-mm-dd hh:mm:ss' string format.
+        :rtype: str
+        """
+        return self._plc_prg_nodes_timestamp
 
     def run_event_loop(
         self,
@@ -532,15 +601,23 @@ class SCU:
         :type pw: str
         :raises: Exception if an error occurs during the connection process.
         """
-        opc_ua_server = f"opc.tcp://{host}:{port}{endpoint}"
-        logger.info("Connecting to: %s", opc_ua_server)
-        connection = Client(opc_ua_server, timeout)
+        server_url = f"opc.tcp://{host}:{port}{endpoint}"
+        logger.info("Connecting to: %s", server_url)
+        connection = Client(server_url, timeout)
+        hostname = socket.gethostname()
+        # Set the ClientDescription fields
+        connection.application_uri = (
+            f"urn:{hostname}:{self._app_name.replace(' ', '-')}"
+        )
+        connection.product_uri = "gitlab.com/ska-telescope/ska-mid-dish-qualification"
+        connection.name = f"{self._app_name} @{hostname}"
+        connection.description = f"{self._app_name} @{hostname}"
         if encryption:
             self.set_up_encryption(connection, user, pw)
         _ = asyncio.run_coroutine_threadsafe(
             connection.connect(), self.event_loop
         ).result()
-        self.opc_ua_server = opc_ua_server
+        self._server_url = server_url
         try:
             _ = asyncio.run_coroutine_threadsafe(
                 connection.load_data_type_definitions(), self.event_loop
@@ -839,80 +916,213 @@ class SCU:
 
         return fn
 
-    def populate_node_dicts(self, plc_only: bool = False) -> None:
-        # Create three dicts:
-        # nodes, attributes, commands
-        # nodes: Contains the entire uasync.Node-tree from and including
-        #   the 'PLC_PRG' node.
-        # attributes: Contains the attributes in the uasync.Node-tree from
-        #   the 'PLC_PRG' node on. The values are callables that return the
-        #   current value.
-        # {Key = Name as in the node hierarchy, value = the uasync.Node}
-        # commands: Contains all callable methods in the uasync.Node-tree
-        #   from the 'PLC_PRG' node on. The values are callables which
-        #   just require the expected parameters.
+    def _load_json_file(self, file_path: Path) -> dict[str, CachedNodesDict]:
+        """
+        Load JSON file.
+
+        :param file_path: of JSON file to load.
+        :type file_path: Path
+        :return: decoded JSON file contents as nested dictionary,
+            or empty dict if the file does not exists.
+        :rtype: dict
+        """
+        if file_path.exists():
+            with open(file_path, "r", encoding="UTF-8") as file:
+                try:
+                    return json.load(file)
+                except json.JSONDecodeError:
+                    logger.warning("The file %s is not valid JSON.", file_path)
+        else:
+            logger.debug("The file %s does not exist.", file_path)
+        return {}
+
+    def _cache_node_ids(self, file_path: Path, nodes: NodeDict) -> None:
+        """
+        Cache Node IDs.
+
+        Create a dictionary of Node names with their unique Node ID and node class
+        and write it to a new or existing JSON file with the OPC-UA server address
+        as key.
+
+        :param file_path: of JSON file to load.
+        :type file_path: Path
+        :param nodes: dictionary of Nodes to cache.
+        :type nodes: NodeDict
+        """
+        node_ids = {}
+        for key, tup in nodes.items():
+            try:
+                node, node_class = tup
+                if key != "":
+                    node_ids[key] = (node.nodeid.to_string(), node_class)
+            except TypeError as exc:
+                logger.debug("TypeError with dict value %s: %s", tup, exc)
+        cached_data = self._load_json_file(file_path)
+        cached_data[self._server_str_id] = {
+            "node_ids": node_ids,
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(file_path, "w+", encoding="UTF-8") as file:
+            json.dump(cached_data, file, indent=4, sort_keys=True)
+
+    def populate_node_dicts(
+        self, plc_only: bool = False, use_cache: bool = False
+    ) -> None:
         """
         Populate dictionaries with Node objects.
 
         This method populates dictionaries with Node objects for different categories
-        like Nodes, Attributes, and Commands.
+        like nodes, attributes, and commands.
 
-        This method does not accept any parameters and does not return anything.
+        nodes: Contains the entire uasync.Node-tree from and including
+        the 'PLC_PRG' node.
+
+        attributes: Contains the attributes in the uasync.Node-tree from
+        the 'PLC_PRG' node on. The values are callables that return the
+        current value.
+
+        commands: Contains all callable methods in the uasync.Node-tree
+        from the 'PLC_PRG' node on. The values are callables which
+        just require the expected parameters.
 
         This method may raise exceptions related to asyncio operations.
         """
-        plc_prg = asyncio.run_coroutine_threadsafe(
-            self.connection.nodes.objects.get_child(
-                [
-                    f"{self.ns_idx}:Logic",
-                    f"{self.ns_idx}:Application",
-                    f"{self.ns_idx}:PLC_PRG",
-                ]
-            ),
-            self.event_loop,
-        ).result()
-        (
-            self.nodes,
-            self.nodes_reversed,
-            self.attributes,
-            self.attributes_reversed,
-            self.commands,
-            self.commands_reversed,
-        ) = self.generate_node_dicts(plc_prg, "PLC_PRG")
-        self.plc_prg = plc_prg
-        # We also want the PLC's parameters for the drives and the PLC program.
-        # But only if we are not connected to the simulator.
-        if not plc_only and self.parameter_ns_idx is not None:
-            parameter = asyncio.run_coroutine_threadsafe(
+        top_node_name = "PLC_PRG"
+        cache_file_path = USER_CACHE_DIR / f"{top_node_name}.json"
+        cache = self._load_json_file(cache_file_path) if use_cache else None
+        cached_nodes = cache.get(self._server_str_id) if cache is not None else None
+
+        # Check for existing Nodes IDs cache
+        if cached_nodes:
+            (
+                self.nodes,
+                self.attributes,
+                self.commands,
+            ) = self.generate_node_dicts_from_cache(
+                cached_nodes["node_ids"], top_node_name
+            )
+            self._plc_prg_nodes_timestamp = cached_nodes["timestamp"]
+        else:
+            plc_prg = asyncio.run_coroutine_threadsafe(
                 self.connection.nodes.objects.get_child(
-                    [f"{self.parameter_ns_idx}:Parameter"]
+                    [
+                        f"{self.ns_idx}:Logic",
+                        f"{self.ns_idx}:Application",
+                        f"{self.ns_idx}:{top_node_name}",
+                    ]
                 ),
                 self.event_loop,
             ).result()
             (
-                self.parameter_nodes,
-                self.parameter_nodes_reversed,
-                self.parameter_attributes,
-                self.parameter_attributes_reversed,
-                self.parameter_commands,
-                self.parameter_commands_reversed,
-            ) = self.generate_node_dicts(parameter, "Parameter")
-            self.parameter = parameter
+                self.nodes,
+                self.attributes,
+                self.commands,
+            ) = self.generate_node_dicts_from_server(plc_prg, top_node_name)
+            self.plc_prg = plc_prg
+            self._cache_node_ids(cache_file_path, self.nodes)
+            self._plc_prg_nodes_timestamp = datetime.datetime.now().strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+        self.nodes_reversed = {val[0]: key for key, val in self.nodes.items()}
+
+        # We also want the PLC's parameters for the drives and the PLC program.
+        # But only if we are not connected to the simulator.
+        top_node_name = "Parameter"
+        cache_file_path = USER_CACHE_DIR / f"{top_node_name}.json"
+        if not plc_only and self.parameter_ns_idx is not None:
+            cache = self._load_json_file(cache_file_path) if use_cache else None
+            cached_nodes = cache.get(self._server_str_id) if cache is not None else None
+            if cached_nodes:
+                (
+                    self.parameter_nodes,
+                    self.parameter_attributes,
+                    self.parameter_commands,
+                ) = self.generate_node_dicts_from_cache(
+                    cached_nodes["node_ids"], top_node_name
+                )
+            else:
+                parameter = asyncio.run_coroutine_threadsafe(
+                    self.connection.nodes.objects.get_child(
+                        [f"{self.parameter_ns_idx}:{top_node_name}"]
+                    ),
+                    self.event_loop,
+                ).result()
+                (
+                    self.parameter_nodes,
+                    self.parameter_attributes,
+                    self.parameter_commands,
+                ) = self.generate_node_dicts_from_server(parameter, top_node_name)
+                self.parameter = parameter
+                self._cache_node_ids(cache_file_path, self.parameter_nodes)
+
         # And now create dicts for all nodes of the OPC UA server. This is
         # intended to serve as the API for the Dish LMC.
+        top_node_name = "Root"
+        cache_file_path = USER_CACHE_DIR / f"{top_node_name}.json"
         if not plc_only:
-            server = self.connection.get_root_node()
-            (
-                self.server_nodes,
-                self.server_nodes_reversed,
-                self.server_attributes,
-                self.server_attributes_reversed,
-                self.server_commands,
-                self.server_commands_reversed,
-            ) = self.generate_node_dicts(server, "Root")
-            self.server = server
+            cache = self._load_json_file(cache_file_path) if use_cache else None
+            cached_nodes = cache.get(self._server_str_id) if cache is not None else None
+            if cached_nodes:
+                (
+                    self.server_nodes,
+                    self.server_attributes,
+                    self.server_commands,
+                ) = self.generate_node_dicts_from_cache(
+                    cached_nodes["node_ids"], top_node_name
+                )
+            else:
+                server = self.connection.get_root_node()
+                (
+                    self.server_nodes,
+                    self.server_attributes,
+                    self.server_commands,
+                ) = self.generate_node_dicts_from_server(server, top_node_name)
+                self.server = server
+                self._cache_node_ids(cache_file_path, self.server_nodes)
 
-    def generate_node_dicts(self, top_level_node, top_level_node_name: str = None):
+    def generate_node_dicts_from_cache(
+        self, cache_dict: dict[str, tuple[str, int]], top_level_node_name: str
+    ) -> tuple[NodeDict, AttrDict, CmdDict]:
+        """
+        Generate dicts for nodes, attributes, and commands from a cache.
+
+        :param top_level_node_name: Name of the top-level node.
+        :type top_level_node_name: str
+        :return: A tuple containing dictionaries for nodes, attributes and commands.
+        :rtype: tuple
+        """
+        logger.info(
+            "Generating dicts of '%s' node's tree from existing cache in %s",
+            top_level_node_name,
+            USER_CACHE_DIR,
+        )
+        nodes = {}
+        attributes = {}
+        commands = {}
+        for node_name, tup in cache_dict.items():
+            node_id, node_class = tup
+            node = self.connection.get_node(node_id)
+            nodes[node_name] = (node, node_class)
+            if node_class == 2:
+                # An attribute. Add it to the attributes dict.
+                attributes[node_name] = create_rw_attribute(
+                    node, self.event_loop, node_name
+                )
+            elif node_class == 4:
+                # A command. Add it to the commands dict.
+                commands[node_name] = self._create_command_function(
+                    node, self.event_loop, node_name
+                )
+        return (
+            nodes,
+            attributes,
+            commands,
+        )
+
+    def generate_node_dicts_from_server(
+        self, top_level_node: Node, top_level_node_name: str
+    ) -> tuple[NodeDict, AttrDict, CmdDict]:
         """
         Generate dicts for nodes, attributes, and commands for a given top-level node.
 
@@ -921,41 +1131,25 @@ class SCU:
         commands based on the structure of the top-level node and returns a tuple
         containing these dictionaries.
 
-        The dictionaries contain mappings of keys to values and values to keys for
-        nodes, attributes, and commands.
-
-        Example:
-            nodes = {'node1': {'attribute1': 'value1'}, 'node2':
-            {'attribute2': 'value2'}}
-            nodes_reversed = {'{'attribute1': 'value1'}: 'node1',
-            {'attribute2': 'value2'}: 'node2'}
-            attributes = {'attribute1': 'value1', 'attribute2': 'value2'}
-            attributes_reversed = {'value1': 'attribute1', 'value2': 'attribute2'}
-            commands = {'command1': 'node1', 'command2': 'node2'}
-            commands_reversed = {'node1': 'command1', 'node2': 'command2'}
+        The dictionaries contain mappings of keys to nodes, attributes, and commands.
 
         :param top_level_node: The top-level node for which to generate dictionaries.
-        :type top_level_node: Any
-
-        :param top_level_node_name: Optional name for the top-level node. Default None.
+        :type top_level_node: Node
+        :param top_level_node_name: Name of the top-level node.
         :type top_level_node_name: str
-
-        :return: A tuple containing dictionaries for nodes, nodes_reversed, attributes,
-            attributes_reversed, commands, and commands_reversed.
+        :return: A tuple containing dictionaries for nodes, attributes, and commands.
         :rtype: tuple
         """
+        logger.info(
+            "Generating dicts of '%s' node's tree from server. It may take a while...",
+            top_level_node_name,
+        )
         nodes, attributes, commands = self.get_sub_nodes(top_level_node)
-        nodes.update({top_level_node_name: top_level_node})
-        nodes_reversed = {v: k for k, v in nodes.items()}
-        attributes_reversed = {v: k for k, v in attributes.items()}
-        commands_reversed = {v: k for k, v in commands.items()}
+        nodes.update({top_level_node_name: (top_level_node, 1)})
         return (
             nodes,
-            nodes_reversed,
             attributes,
-            attributes_reversed,
             commands,
-            commands_reversed,
         )
 
     def generate_full_node_name(
@@ -1002,7 +1196,7 @@ class SCU:
         node: Node,
         node_name_separator: str = ".",
         parent_names: list[str] | None = None,
-    ) -> tuple[dict, dict, dict]:
+    ) -> tuple[NodeDict, AttrDict, CmdDict]:
         """
         Retrieve sub-nodes, attributes, and commands of a given node.
 
@@ -1026,12 +1220,12 @@ class SCU:
         ):
             return nodes, attributes, commands
 
-        nodes[node_name] = node
         node_class = (
             asyncio.run_coroutine_threadsafe(node.read_node_class(), self.event_loop)
             .result()
             .value
         )
+        nodes[node_name] = (node, node_class)
         # node_class = 1: Normal node with children
         # node_class = 2: Attribute
         # node_class = 4: Method
@@ -1166,8 +1360,9 @@ class SCU:
 
         Returns string for the type or "Unknown" for a not yet known type.
         """
+        dt_id = ""
         if isinstance(attribute, str):
-            node = self.nodes[attribute]
+            node, _ = self.nodes[attribute]
             dt_id = asyncio.run_coroutine_threadsafe(
                 node.read_data_type(), self.event_loop
             ).result()
@@ -1244,8 +1439,9 @@ class SCU:
         enum_node MUST be the name of an Enumeration type node (see
         get_attribute_data_type()).
         """
+        dt_id = ""
         if isinstance(enum_node, str):
-            node = self.nodes[enum_node]
+            node, _ = self.nodes[enum_node]
             dt_id = asyncio.run_coroutine_threadsafe(
                 node.read_data_type(), self.event_loop
             ).result()
@@ -1272,7 +1468,7 @@ class SCU:
         attributes: str | list[str],
         period: int = 100,
         data_queue: queue.Queue = None,
-    ) -> int:
+    ) -> tuple[int, list, list]:
         """
         Subscribe to OPC-UA attributes for event updates.
 
@@ -1284,8 +1480,8 @@ class SCU:
         :param data_queue: A queue to store the subscribed attribute data. If None, uses
             the default subscription queue.
         :type data_queue: queue.Queue
-        :return: A unique identifier for the subscription.
-        :rtype: int
+        :return: unique identifier for the subscription and lists of missing/bad nodes.
+        :rtype: tuple[int, list, list]
         """
         if data_queue is None:
             data_queue = self.subscription_queue
@@ -1294,33 +1490,44 @@ class SCU:
             attributes = [
                 attributes,
             ]
-        nodes = []
-        invalid_attributes = []
+        nodes: set[Node] = set()
+        missing_nodes = []
         for attribute in attributes:
             if attribute in self.nodes:
-                nodes.append(self.nodes[attribute])
+                nodes.add(self.nodes[attribute][0])
             else:
-                invalid_attributes.append(attribute)
-        if len(invalid_attributes) > 0:
+                missing_nodes.append(attribute)
+        if len(missing_nodes) > 0:
             logger.warning(
                 "The following OPC-UA attributes not found in nodes dict and not "
                 "subscribed for event updates: %s",
-                invalid_attributes,
+                missing_nodes,
             )
         subscription = asyncio.run_coroutine_threadsafe(
             self.connection.create_subscription(period, subscription_handler),
             self.event_loop,
         ).result()
-        handle = asyncio.run_coroutine_threadsafe(
-            subscription.subscribe_data_change(nodes), self.event_loop
-        ).result()
+        handles = []
+        bad_nodes = set()
+        for node in nodes:
+            try:
+                handle = asyncio.run_coroutine_threadsafe(
+                    subscription.subscribe_data_change(node), self.event_loop
+                ).result()
+                handles.append(handle)
+            except Exception as e:
+                msg = f"Failed to subscribe to node '{node.nodeid.to_string()}'"
+                asyncio.run_coroutine_threadsafe(
+                    handle_exception(e, msg), self.event_loop
+                )
+                bad_nodes.add(node)
         uid = time.monotonic_ns()
         self.subscriptions[uid] = {
-            "handle": handle,
-            "nodes": nodes,
+            "handles": handles,
+            "nodes": nodes - bad_nodes,
             "subscription": subscription,
         }
-        return uid
+        return uid, missing_nodes, list(bad_nodes)
 
     def unsubscribe(self, uid: int) -> None:
         """

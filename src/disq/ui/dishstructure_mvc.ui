@@ -45,15 +45,29 @@
        <string>OPC-UA server</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_11">
-       <item row="0" column="4" colspan="2">
-        <widget class="QLabel" name="label_33">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_29">
          <property name="text">
-          <string>Server config</string>
+          <string>Host IP/address</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="4">
-        <widget class="QComboBox" name="dropdown_server_config_select">
+       <item row="0" column="6">
+        <widget class="QLabel" name="label_81">
+         <property name="text">
+          <string>Status:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_30">
+         <property name="text">
+          <string>Server port</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="input_server_port">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -62,9 +76,130 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>130</width>
+           <width>80</width>
            <height>0</height>
           </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="readOnly">
+          <bool>false</bool>
+         </property>
+         <property name="placeholderText">
+          <string>4840</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLineEdit" name="input_server_endpoint">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>220</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>220</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="readOnly">
+          <bool>false</bool>
+         </property>
+         <property name="placeholderText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="8">
+        <widget class="QLabel" name="label_cache_status">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4" colspan="2">
+        <widget class="QLabel" name="label_33">
+         <property name="text">
+          <string>Server config</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5" colspan="2">
+        <widget class="QPushButton" name="button_server_connect">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Connect</string>
+         </property>
+         <property name="autoDefault">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="input_server_address">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="readOnly">
+          <bool>false</bool>
+         </property>
+         <property name="placeholderText">
+          <string>127.0.0.1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="7">
+        <widget class="QCheckBox" name="cache_checkbox">
+         <property name="text">
+          <string>use nodes cache</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_31">
+         <property name="text">
+          <string>Endpoint</string>
          </property>
         </widget>
        </item>
@@ -85,8 +220,14 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>220</width>
+           <width>180</width>
            <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>180</width>
+           <height>16777215</height>
           </size>
          </property>
          <property name="readOnly">
@@ -97,7 +238,23 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="7">
+       <item row="1" column="4">
+        <widget class="QComboBox" name="dropdown_server_config_select">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>130</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="7" colspan="2">
         <widget class="QLabel" name="label_conn_status">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -106,113 +263,10 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Status:</string>
+          <string>Disconnected</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_29">
-         <property name="text">
-          <string>Host IP/address</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QLineEdit" name="input_server_endpoint">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>220</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="readOnly">
-          <bool>false</bool>
-         </property>
-         <property name="placeholderText">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_30">
-         <property name="text">
-          <string>Server port</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="5" colspan="2">
-        <widget class="QPushButton" name="button_server_connect">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Connect</string>
-         </property>
-         <property name="autoDefault">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="input_server_port">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>80</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="readOnly">
-          <bool>false</bool>
-         </property>
-         <property name="placeholderText">
-          <string>4840</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="label_31">
-         <property name="text">
-          <string>Endpoint</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLineEdit" name="input_server_address">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="readOnly">
-          <bool>false</bool>
-         </property>
-         <property name="placeholderText">
-          <string>127.0.0.1</string>
          </property>
         </widget>
        </item>

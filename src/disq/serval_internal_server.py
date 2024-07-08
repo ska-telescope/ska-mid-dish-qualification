@@ -80,7 +80,7 @@ async def main(xml: str):
     """
     async with SerValInternalServer(xml):
         while True:
-            await asyncio.sleep(1)
+            await asyncio.sleep(1)  # pylint: disable=possibly-used-before-assignment
 
 
 if __name__ == "__main__":

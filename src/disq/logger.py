@@ -214,7 +214,7 @@ class Logger:
             self._subscription_ids.append(
                 self.hll.subscribe(
                     attributes=attributes, period=period, data_queue=self.queue
-                )
+                )[0]
             )
 
     def start(self):

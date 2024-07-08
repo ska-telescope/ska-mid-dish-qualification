@@ -94,3 +94,6 @@ src/disq/certs/key.pem
 
 # Optional git hooks linked from .make submodule
 resources/git-hooks
+
+# Caches
+.nodes_cache

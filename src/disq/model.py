@@ -2,14 +2,14 @@
 
 import logging
 import os
+from enum import Enum
 from pathlib import Path
 from queue import Empty, Queue
-from typing import Callable
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
 from disq.logger import Logger
-from disq.sculib import SCU
+from disq.sculib import PACKAGE_VERSION, SCU
 
 logger = logging.getLogger("gui.model")
 
@@ -71,34 +71,26 @@ class QueuePollThread(QThread):
             self.terminate()
 
 
+class NodesStatus(Enum):
+    """Nodes status."""
+
+    NOT_CONNECTED = "Not connected to server"
+    VALID = "Nodes valid"
+    ATTR_NOT_FOUND = "Client is missing attribute(s). Check log!"
+    NODE_INVALID = "Client has invalid attribute(s). Check log!"
+    NOT_FOUND_INVALID = "Client is missing and has invalid attribute(s). Check log!"
+
+
 # pylint: disable=too-many-instance-attributes
 class Model(QObject):
-    # define signals here
     """
     A class representing a Model.
 
     :param parent: The parent object of the Model (default is None).
     :type parent: QObject
-    :param _scu: An instance of the SCU class or None.
-    :type _scu: SCU
-    :param _data_logger: An instance of the Logger class or None.
-    :type _data_logger: Logger
-    :param _recording_config: A list of strings containing recording configurations.
-    :type _recording_config: list[str]
-    :param _namespace: The namespace for the OPCUA server.
-    :type _namespace: str
-    :param _endpoint: The endpoint for the OPCUA server.
-    :type _endpoint: str
-    :param _namespace_index: The index of the namespace or None.
-    :type _namespace_index: int
-    :param _subscriptions: A list of subscriptions.
-    :type _subscriptions: list
-    :param subscription_rate_ms: The subscription rate in milliseconds.
-    :type subscription_rate_ms: int
-    :param _event_q_poller: An instance of QueuePollThread or None.
-    :type _event_q_poller: QueuePollThread
     """
 
+    # define signals here
     command_response = pyqtSignal(str)
     data_received = pyqtSignal(dict)
 
@@ -113,18 +105,11 @@ class Model(QObject):
         self._scu: SCU | None = None
         self._data_logger: Logger | None = None
         self._recording_config: list[str] = []
-        self._namespace = str(
-            os.getenv("DISQ_OPCUA_SERVER_NAMESPACE", "http://skao.int/DS_ICD/")
-        )
-        self._endpoint = str(
-            os.getenv("DISQ_OPCUA_SERVER_ENDPOINT", "/dish-structure/server")
-        )
-        self._namespace_index: int | None = None
-        self._subscriptions: list = []
         self.subscription_rate_ms = int(
             os.getenv("DISQ_OPCUA_SUBSCRIPTION_PERIOD_MS", "100")
         )
         self._event_q_poller: QueuePollThread | None = None
+        self._nodes_status = NodesStatus.NOT_CONNECTED
 
     def connect(self, connect_details: dict) -> None:
         """
@@ -139,7 +124,11 @@ class Model(QObject):
         """
         logger.debug("Connecting to server: %s", connect_details)
         try:
-            self._scu = SCU(**connect_details, gui_app=True)
+            self._scu = SCU(
+                **connect_details,
+                gui_app=True,
+                app_name=f"DiSQ GUI v{PACKAGE_VERSION}",
+            )
         except RuntimeError as e:
             logger.debug(
                 "Exception while creating sculib object server "
@@ -162,17 +151,42 @@ class Model(QObject):
             return ""
         return self._scu.connection.server_url.geturl()
 
-    def get_server_version(self) -> str:
+    @property
+    def server_version(self) -> str:
         """
-        Get the software/firmware version of the server that the client is connected to.
+        The software/firmware version of the server that the client is connected to.
 
-        :return: The version of the server.
+        :return: the version of the server.
         :rtype: str
         """
         if self._scu is None:
-            return ""
-        version = self._scu.attributes.get("Management.NamePlate.DscSoftwareVersion")
-        return version.value if version is not None else "Not found"
+            return "not connected to server"
+        version = self._scu.server_version
+        return version if version is not None else "not found on server"
+
+    @property
+    def plc_prg_nodes_timestamp(self) -> str:
+        """
+        Generation timestamp of the PLC_PRG Node tree.
+
+        :return: timestamp in 'yyyy-mm-dd hh:mm:ss' string format.
+        :rtype: str
+        """
+        if self._scu is None:
+            return "not connected to server"
+        return self._scu.plc_prg_nodes_timestamp
+
+    @property
+    def subscribed_nodes_status(self) -> str:
+        """
+        Status of the expected nodes versus what SCU client has loaded.
+
+        :return: status string.
+        :rtype: str
+        """
+        if self._scu is None:
+            return "not connected to server"
+        return self._scu.plc_prg_nodes_timestamp
 
     def disconnect(self):
         """
@@ -198,25 +212,32 @@ class Model(QObject):
             return self._scu.is_connected()
         return False
 
-    def register_event_updates(self, registrations: dict[str, Callable]) -> None:
+    def register_event_updates(self, registrations: list[str]) -> None:
         """
         Register event updates for specific event registrations.
 
-        :param registrations: A dictionary containing event registrations where keys are
-            the events to subscribe to.
-        :type registrations: dict
+        :param registrations: A list containing events to subscribe to.
+        :type registrations: list[str]
         """
         self._event_q_poller = QueuePollThread(self.data_received)
         self._event_q_poller.start()
 
         if self._scu is not None:
-            _ = self._scu.subscribe(
-                list(registrations.keys()),
+            _, missing_nodes, bad_nodes = self._scu.subscribe(
+                registrations,
                 period=self.subscription_rate_ms,
                 data_queue=self._event_q_poller.queue,
             )
+            if missing_nodes and not bad_nodes:
+                self._nodes_status = NodesStatus.ATTR_NOT_FOUND
+            elif not missing_nodes and bad_nodes:
+                self._nodes_status = NodesStatus.NODE_INVALID
+            elif missing_nodes and bad_nodes:
+                self._nodes_status = NodesStatus.NOT_FOUND_INVALID
+            else:
+                self._nodes_status = NodesStatus.VALID
         else:
-            logger.warning("Model: register_event_updates: scu is None!?!?!")
+            logger.warning("Model: register_event_updates: SCU not initialised yet!")
 
     def run_opcua_command(
         self, command: str, *args
@@ -311,8 +332,12 @@ class Model(QObject):
         """
         if self._scu is None:
             return []
-        result = self._scu.attributes.keys()
-        return result
+        return self._scu.attributes.keys()
+
+    @property
+    def opcua_nodes_status(self) -> NodesStatus:
+        """Return a status message (Enum) of the OPC UA client's nodes."""
+        return self._nodes_status
 
     def load_track_table(self, filename: Path) -> None:
         """

@@ -184,8 +184,10 @@ class MainView(QtWidgets.QMainWindow):
             self.input_server_namespace: QtWidgets.QLineEdit
             self.input_server_namespace.setText(server_namespace)
         self.button_server_connect: QtWidgets.QPushButton
-        self.button_server_connect.setFocus()
+        self.button_server_connect.clicked.connect(self.connect_button_clicked)
         self.label_conn_status: QtWidgets.QLabel
+        self.label_cache_status: QtWidgets.QLabel
+        self.cache_checkbox: QtWidgets.QCheckBox
 
         # Keep a reference to model and controller
         self.model = disq_model
@@ -196,6 +198,7 @@ class MainView(QtWidgets.QMainWindow):
         server_list = self.controller.get_config_servers()
         self.dropdown_server_config_select: QtWidgets.QComboBox
         self.dropdown_server_config_select.addItems([""] + server_list)
+        self.dropdown_server_config_select.setFocus()
         self.dropdown_server_config_select.currentTextChanged.connect(
             self.server_config_select_changed
         )
@@ -204,9 +207,6 @@ class MainView(QtWidgets.QMainWindow):
         self.controller.ui_status_message.connect(self.command_response_status_update)
         self.controller.server_connected.connect(self.server_connected_event)
         self.controller.server_disconnected.connect(self.server_disconnected_event)
-
-        pb: QtWidgets.QPushButton = self.button_server_connect
-        pb.clicked.connect(self.connect_button_clicked)
 
         # Listen for Model event signals
         self.model.data_received.connect(self.event_update)
@@ -496,7 +496,7 @@ class MainView(QtWidgets.QMainWindow):
         )
 
     @cached_property
-    def opcua_widgets(self) -> dict:
+    def opcua_widgets(self) -> dict[str, tuple[QtWidgets.QWidget, Callable]]:
         """
         A dict of of all 'opcua' widgets and their update method.
 
@@ -509,7 +509,7 @@ class MainView(QtWidgets.QMainWindow):
 
         :return: {name: (widget, func)}
         """
-        all_widgets: list[QtCore.QObject] = (
+        all_widgets = (
             self.findChildren(QtWidgets.QLineEdit)
             + self.findChildren(QtWidgets.QLabel)
             + self.findChildren(QtWidgets.QRadioButton)
@@ -846,11 +846,20 @@ class MainView(QtWidgets.QMainWindow):
         """
         logger.debug("server connected event")
         self.label_conn_status.setText("Status: Subscribing to OPC-UA updates...")
-        self.controller.subscribe_opcua_updates(self.opcua_widgets)
+        self.controller.subscribe_opcua_updates(list(self.opcua_widgets.keys()))
         self.label_conn_status.setText(
-            f"Connected to: {self.model.get_server_uri()} - "
-            f"DscSoftwareVersion: {self.model.get_server_version()}"
+            f"Connected to {self.model.get_server_uri()} - "
+            f"Version {self.model.server_version}"
         )
+        self.label_cache_status.setText(
+            f"{self.model.opcua_nodes_status.value} - "
+            f"Nodes generated {self.model.plc_prg_nodes_timestamp}"
+        )
+        if self.model.opcua_nodes_status == model.NodesStatus.VALID:
+            self.label_cache_status.setStyleSheet("color: black;")
+        else:
+            self.label_cache_status.setStyleSheet("color: red;")
+        self.cache_checkbox.setEnabled(False)
         self._enable_server_widgets(False, connect_button=True)
         self._enable_opcua_widgets()
         self._enable_data_logger_widgets(True)
@@ -865,7 +874,9 @@ class MainView(QtWidgets.QMainWindow):
         logger.debug("server disconnected event")
         self._disable_opcua_widgets()
         self._enable_data_logger_widgets(False)
-        self.label_conn_status.setText("Status: Disconnected")
+        self.label_conn_status.setText("Disconnected")
+        self.label_cache_status.setText("")
+        self.cache_checkbox.setEnabled(True)
         self._enable_server_widgets(True, connect_button=True)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
@@ -882,6 +893,7 @@ class MainView(QtWidgets.QMainWindow):
                 ),
                 "endpoint": self.input_server_endpoint.text(),
                 "namespace": self.input_server_namespace.text(),
+                "use_nodes_cache": self.cache_checkbox.isChecked(),
             }
             config_connection_details = self.controller.get_config_server_args(
                 self.dropdown_server_config_select.currentText()
@@ -893,8 +905,8 @@ class MainView(QtWidgets.QMainWindow):
                 connect_details["password"] = config_connection_details.get(
                     "password", None
                 )
-            logger.debug("connecting to server: %s", connect_details)
-            self.label_conn_status.setText("Status: Connecting... please wait")
+            logger.debug("Connecting to server: %s", connect_details)
+            self.label_conn_status.setText("Connecting... please wait")
             self.controller.connect_server(connect_details)
         else:
             logger.debug("disconnecting from server")
