@@ -6,6 +6,7 @@ from enum import Enum
 from pathlib import Path
 from queue import Empty, Queue
 
+from asyncua.ua import UInt16
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
 from disq.logger import Logger
@@ -289,11 +290,13 @@ class Model(QObject):
                 band = self._scu.convert_enum_to_int("BandType", args[3])
                 static = args[0]
                 tilt = self._scu.convert_enum_to_int("TiltOnType", args[1])
-                if tilt is None:  # TODO: Remove once PLC is fixed
+                if tilt is None:  # TODO: Remove 'if' block once PLC is fixed
                     logger.warning(
                         "OPC-UA server has no 'TiltOnType' enum. Attempting a guess."
                     )
-                    tilt = {"Off": 0, "TiltmeterOne": 1, "TiltmeterTwo": 2}[args[1]]
+                    tilt = UInt16(
+                        {"Off": 0, "TiltmeterOne": 1, "TiltmeterTwo": 2}[args[1]]
+                    )
                 temperature = args[2]
                 result = _log_and_call(command, static, tilt, temperature, band)
             case Command.TAKE_AUTH:

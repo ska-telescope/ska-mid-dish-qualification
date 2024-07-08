@@ -98,7 +98,7 @@ class MainView(QtWidgets.QMainWindow):
         "yellow": {True: "rgb(250, 255, 0)", False: "rgb(45, 44, 0)"},
         "orange": {True: "rgb(255, 170, 0)", False: "rgb(92, 61, 0)"},
         "StowPinStatusType": {
-            "unkown": "rgb(10, 10, 10)",  # TODO: typo in simulator
+            "unknown": "rgb(10, 10, 10)",
             "retracted": "rgb(10, 250, 25)",
             "retracting": "rgb(250, 255, 0)",
             "deployed": "rgb(255, 0, 0)",

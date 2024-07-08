@@ -170,6 +170,8 @@ class Controller(QObject):
         This method disconnects from the server, emits a status message signal, and
         emits a server disconnected signal.
         """
+        self.command_release_authority()
+        QCoreApplication.processEvents()
         self._model.disconnect()
         self.emit_ui_status_message("INFO", "Disconnected from server")
         self.server_disconnected.emit()
