@@ -1,6 +1,6 @@
 """Tests of the GUI."""
 
-import time
+from time import sleep
 
 import pytest
 from PyQt6 import QtWidgets
@@ -24,17 +24,21 @@ def disq_app_fixture(qtbot, request: pytest.FixtureRequest) -> MainView:  # type
     qtbot.addWidget(disq_fixture)
     # Setup simulator/PLC before running test
     if with_cetc_simulator or with_plc:
+        # ALWAYS NEEDED:
         disq_fixture.controller.command_take_authority("EGUI")
-        disq_fixture.controller.command_stow(False)
-        disq_fixture.controller.command_activate("AzEl")
-        disq_fixture.controller.command_activate("Fi")
+        # The following setup is only needed if running tests individually for debugging
+        # disq_fixture.controller.command_stow(False)
+        # disq_fixture.controller.command_activate("AzEl")
+        # disq_fixture.controller.command_activate("Fi")
     yield disq_fixture
     # Stop any running slews and release authority after test (also done if test failed)
     if with_cetc_simulator or with_plc:
-        disq_fixture.controller.command_stop("AzEl")
-        disq_fixture.controller.command_stop("Fi")
+        # The following setup is only needed if running tests individually for debugging
+        # disq_fixture.controller.command_stop("AzEl")
+        # disq_fixture.controller.command_stop("Fi")
+        # ALWAYS NEEDED:
         disq_fixture.controller.command_release_authority()
-        time.sleep(0.05)
+        sleep(0.5)
 
 
 def set_combobox_to_string(combo_box: QtWidgets.QComboBox, string: str) -> bool:
@@ -60,6 +64,10 @@ slew_azimuth_input_widgets = [
 slew_elevation_input_widgets = [
     "line_edit_slew_only_elevation_position",
     "line_edit_slew_only_elevation_velocity",
+]
+slew_indexer_input_widgets = [
+    "line_edit_slew_only_indexer_position",
+    "line_edit_slew_only_indexer_velocity",
 ]
 
 pointing_model_setup_input_widgets = [
@@ -116,45 +124,57 @@ ambtemp_correction_input_widgets = [
     ),
     [
         (
-            "activate_button_clicked",
-            "AzEl",
-            "Management.Commands.Activate",
-            None,
-            None,
-            ("CommandAborted", 2),
-        ),
-        (
-            "deactivate_button_clicked",
-            "AzEl",
-            "Management.Commands.DeActivate",
-            None,
-            None,
-            ("CommandDone", 10),
-        ),
-        (
             "unstow_button_clicked",
             None,
             "Management.Commands.Stow",
             (False,),
             None,
-            ("CommandAborted", 2),
+            ("CommandActivated", 9),
+            # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
         ),
-        # TODO: Weird behaviour with v3.1 CETC simulator
-        # (
-        #     "stow_button_clicked",
-        #     None,
-        #     "Management.Commands.Stow",
-        #     (True,),
-        #     None,
-        #     ("CommandActivated", 9),
-        # ),
+        (
+            "activate_button_clicked",
+            "Az",
+            "Management.Commands.Activate",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
+        ),
+        (
+            "activate_button_clicked",
+            "El",
+            "Management.Commands.Activate",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
+        ),
+        (
+            "activate_button_clicked",
+            "Fi",
+            "Management.Commands.Activate",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
+        ),
+        (
+            "activate_button_clicked",
+            "AzEl",
+            "Management.Commands.Activate",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
+        ),
         (
             "slew2abs_button_clicked",
             None,
             "Management.Commands.Slew2AbsAzEl",
             (10.0, 20.0, 0.5, 0.3),
             slew2abs_input_widgets,
-            ("CommandActivated", 9),  # TODO: Weird behaviour with v3.1 CETC simulator
+            ("CommandActivated", 9),  # TODO: Weird behaviour with v3.2 CETC simulator
         ),
         (
             "slew2abs_button_clicked",
@@ -162,7 +182,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Slew2AbsAzEl",
             (-10.0, 15.0, 0.5, 0.3),
             slew2abs_input_widgets,
-            ("CommandActivated", 9),  # TODO: Weird behaviour with v3.1 CETC simulator
+            ("CommandActivated", 9),  # TODO: Weird behaviour with v3.2 CETC simulator
         ),
         (
             "slew_button_clicked",
@@ -181,12 +201,48 @@ ambtemp_correction_input_widgets = [
             ("CommandActivated", 9),
         ),
         (
+            "slew_button_clicked",
+            "Fi",
+            "Management.Commands.Slew2AbsSingleAx",
+            (10.0, 1.0),
+            slew_indexer_input_widgets,
+            ("CommandActivated", 9),  # TODO: Weird behaviour with v3.2 CETC simulator
+        ),
+        (
+            "stop_button_clicked",
+            "Az",
+            "Management.Commands.Stop",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
+        ),
+        (
+            "stop_button_clicked",
+            "El",
+            "Management.Commands.Stop",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
+        ),
+        (
+            "stop_button_clicked",
+            "Fi",
+            "Management.Commands.Stop",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
+        ),
+        (
             "stop_button_clicked",
             "AzEl",
             "Management.Commands.Stop",
             None,
             None,
-            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
         ),
         (
             "take_authority_button_clicked",
@@ -228,15 +284,16 @@ ambtemp_correction_input_widgets = [
             "Pointing.Commands.PmCorrOnOff",
             (False, "Off", False, "Band_1"),
             pointing_model_setup_input_widgets,
-            ("CommandDone", 10),  # TODO: Weird behaviour with v3.1 CETC simulator
+            ("CommandDone", 10),  # TODO: Weird behaviour with v3.2 CETC simulator
         ),
         (
             "static_pointing_parameter_changed",
             None,
             "Pointing.Commands.StaticPmSetup",
-            ("Band_1",) + (0.0,) * 18,
+            ("Optical",) + (0.0,) * 18,
             static_pointing_params_input_widgets,
-            ("CommandActivated", 9),
+            ("CommandDone", 10),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandActivated", 9),  # CETC simulator v3.2.1 response
         ),
         (
             "static_pointing_offset_changed",
@@ -252,6 +309,51 @@ ambtemp_correction_input_widgets = [
             "Pointing.Commands.AmbTempCorrSetup",
             (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0),
             ambtemp_correction_input_widgets,
+            ("CommandDone", 10),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandActivated", 9),  # CETC simulator v3.2.1 response
+        ),
+        (
+            "deactivate_button_clicked",
+            "Az",
+            "Management.Commands.DeActivate",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandDone", 10),  # CETC simulator v3.2.1 response
+        ),
+        (
+            "deactivate_button_clicked",
+            "El",
+            "Management.Commands.DeActivate",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandDone", 10),  # CETC simulator v3.2.1 response
+        ),
+        (
+            "deactivate_button_clicked",
+            "Fi",
+            "Management.Commands.DeActivate",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandDone", 10),  # CETC simulator v3.2.1 response
+        ),
+        (
+            "deactivate_button_clicked",
+            "AzEl",
+            "Management.Commands.DeActivate",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            # ("CommandDone", 10),  # CETC simulator v3.2.1 response
+        ),
+        (
+            "stow_button_clicked",
+            None,
+            "Management.Commands.Stow",
+            (True,),
+            None,
             ("CommandActivated", 9),
         ),
     ],
@@ -308,6 +410,12 @@ def test_opcua_command_slot_function(
                 f"Response: {expected_response[0]} [{expected_response[1]}]"
                 in disq_app.cmd_status_label.text()
             )
+        if command == "Management.Commands.Stow" and input_values == (False,):
+            # pylint: disable=protected-access
+            while (
+                disq_app.model._scu.attributes["Safety.Status.StowPinStatus"].value != 0
+            ):
+                sleep(1)
     else:
         # Verify the mock command method was called with the correct arguments
         disq_app.model.run_opcua_command.assert_called_once_with(
