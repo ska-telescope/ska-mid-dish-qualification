@@ -5,7 +5,6 @@ import os
 import queue
 import threading
 from datetime import datetime, timedelta, timezone
-from time import sleep
 from typing import Final
 
 import h5py
@@ -83,7 +82,6 @@ class Logger:
         self._stop_logging = threading.Event()
         self._start_invoked = False
         self._cache = {}
-        self.logging_complete = threading.Event()
 
         if high_level_library is None:
             if server is None:
@@ -231,7 +229,6 @@ class Logger:
 
         self._start_invoked = True
         self._stop_logging.clear()
-        self.logging_complete.clear()
 
         if self.file is None:
             self.file = (
@@ -264,9 +261,6 @@ class Logger:
 
         self.stop_time = datetime.now(timezone.utc)
         self._stop_logging.set()
-
-        while not self.logging_complete.is_set():
-            sleep(self._COMPLETION_LOOP_TIMEOUT_SECS)
 
         if self._thread.is_alive():
             self._thread.join()
@@ -383,5 +377,3 @@ class Logger:
             self.start_time,
             self.stop_time,
         )
-
-        self.logging_complete.set()
