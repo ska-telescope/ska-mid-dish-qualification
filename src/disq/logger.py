@@ -76,12 +76,12 @@ class Logger:
         self._thread = threading.Thread(
             group=None, target=self._log, name="Logger internal thread"
         )
-        self.queue = queue.Queue(maxsize=0)
+        self.queue: queue.Queue = queue.Queue(maxsize=0)
         self._data_count = 0
         self._nodes: dict | None = None
         self._stop_logging = threading.Event()
         self._start_invoked = False
-        self._cache = {}
+        self._cache: dict = {}
 
         if high_level_library is None:
             if server is None:
@@ -92,7 +92,7 @@ class Logger:
             self.hll = high_level_library
 
         self._available_attributes = self.hll.get_attribute_list()
-        self._subscription_ids = []
+        self._subscription_ids: list = []
         self.file_object: h5py.File
         self.start_time: datetime
         self.stop_time: datetime

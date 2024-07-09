@@ -412,12 +412,11 @@ def test_opcua_command_slot_function(
             )
         if command == "Management.Commands.Stow" and input_values == (False,):
             # pylint: disable=protected-access
-            while (
-                disq_app.model._scu.attributes["Safety.Status.StowPinStatus"].value != 0
-            ):
+            attr_name = "Safety.Status.StowPinStatus"
+            while disq_app.model._scu.attributes[attr_name].value != 0:  # type: ignore
                 sleep(1)
     else:
         # Verify the mock command method was called with the correct arguments
-        disq_app.model.run_opcua_command.assert_called_once_with(
+        disq_app.model.run_opcua_command.assert_called_once_with(  # type: ignore
             Command(command), *cmd_args
         )

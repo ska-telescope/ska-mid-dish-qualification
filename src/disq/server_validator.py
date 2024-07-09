@@ -421,7 +421,7 @@ class OPCUAServerValidator:
                             )
 
                     # check num and name of children
-                    to_fuzzy = []
+                    to_fuzzy: list = []
                     current_diff["children_match"] = self._node_children_match(
                         actual[node]["children"], node_info["children"], to_fuzzy
                     )

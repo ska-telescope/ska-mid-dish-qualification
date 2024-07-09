@@ -2,7 +2,7 @@
 
 import os
 from datetime import datetime, timedelta, timezone
-from typing import Final
+from typing import Any, Final
 
 import h5py
 
@@ -49,16 +49,16 @@ class Converter:
     _DELIMITER: Final = ","
 
     def _get_adjacent_data(
-        self, time: datetime, node: str, look_from: tuple
-    ) -> tuple[datetime, datetime]:
+        self, time: datetime, node: str, look_from: tuple[Any, ...]
+    ) -> tuple[tuple[Any, ...], tuple[Any, ...]]:
         """
         Get adjacent data.
 
         look_from timestamp must be less than time i.e. while must loop at least once.
         No do-while in Python at the time of writing.
         """
-        before = None
-        after = look_from
+        before: tuple[Any, ...] = None
+        after: tuple[Any, ...] = look_from
 
         while after[0] < time:
             idx = after[3] + 1
@@ -219,8 +219,8 @@ class Converter:
         line = [f"{line_time.isoformat()}Z"]
         # Add a column in the line for each node
         for node in self._node_d:  # TODO: pylint: disable=consider-using-dict-items
-            current = self._node_d[node]["current"]
-            next_val = self._node_d[node]["next"]
+            current: tuple[Any, ...] = self._node_d[node]["current"]
+            next_val: tuple[Any, ...] = self._node_d[node]["next"]
             # We already have the most recent value, no need to look again
             # Or reached end of node data in file
             if (current[0] < line_time < next_val[0]) or current[2]:

@@ -5,6 +5,7 @@ import os
 from enum import Enum
 from pathlib import Path
 from queue import Empty, Queue
+from typing import Type
 
 from asyncua.ua import UInt16
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
@@ -313,7 +314,7 @@ class Model(QObject):
         return result
 
     @property
-    def opcua_enum_types(self) -> dict:
+    def opcua_enum_types(self) -> dict[str, Type[Enum]]:
         """
         Retrieve a dictionary of OPC-UA enum types.
 
@@ -338,7 +339,7 @@ class Model(QObject):
         """
         if self._scu is None:
             return []
-        return self._scu.attributes.keys()
+        return list(self._scu.attributes.keys())
 
     @property
     def opcua_nodes_status(self) -> NodesStatus:
