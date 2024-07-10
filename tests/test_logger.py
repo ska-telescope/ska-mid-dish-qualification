@@ -12,6 +12,7 @@ import random
 import subprocess
 import time
 from datetime import datetime, timedelta, timezone
+from queue import Queue
 
 import h5py
 import pytest
@@ -55,7 +56,10 @@ class StubScu(SCU):
         )
 
     def subscribe(
-        self, attributes=None, period=None, data_queue=None
+        self,
+        attributes: str | list[str] | None = None,
+        period: int | None = None,
+        data_queue: Queue | None = None,
     ) -> tuple[int, list, list]:
         """
         Subscribe to a data source.
@@ -84,7 +88,9 @@ class StubScu(SCU):
         _ = self.subscriptions.pop(uid)
 
 
-def put_hdf5_file_in_queue(nodes: list[str], input_f_o: h5py.File, logger: Logger):
+def put_hdf5_file_in_queue(
+    nodes: list[str], input_f_o: h5py.File, logger: Logger
+) -> None:
     """
     Add data from the nodes in the input_f_o to the logger queue.
 
@@ -142,7 +148,7 @@ def high_level_library_fixture() -> StubScu:
     return high_level_library
 
 
-def test_build_hdf5_structure(high_level_library: StubScu):
+def test_build_hdf5_structure(high_level_library: StubScu) -> None:
     """
     Test the _build_hdf5_structure() method.
 
@@ -163,7 +169,9 @@ def test_build_hdf5_structure(high_level_library: StubScu):
 
 # TODO: Fix test
 @pytest.mark.skip(reason="Test currently fails!")
-def test_add_nodes(caplog, high_level_library: StubScu):
+def test_add_nodes(
+    caplog: pytest.LogCaptureFixture, high_level_library: StubScu
+) -> None:
     """
     Test the add_nodes method.
 
@@ -213,7 +221,7 @@ def test_add_nodes(caplog, high_level_library: StubScu):
 
 # TODO: Fix test
 @pytest.mark.skip(reason="Test currently fails!")
-def test_start(caplog, high_level_library: StubScu):
+def test_start(caplog: pytest.LogCaptureFixture, high_level_library: StubScu) -> None:
     """
     Test the start() method.
 
@@ -244,7 +252,7 @@ def test_start(caplog, high_level_library: StubScu):
     logger.stop()
 
 
-def test_stop(high_level_library: StubScu):
+def test_stop(high_level_library: StubScu) -> None:
     """
     Test the stop() method.
 
@@ -259,7 +267,7 @@ def test_stop(high_level_library: StubScu):
     assert logger._stop_logging.is_set() is True
 
 
-def test_write_cache_to_group(high_level_library: StubScu):
+def test_write_cache_to_group(high_level_library: StubScu) -> None:
     """
     Test the _write_cache_to_group() method.
 
@@ -297,7 +305,7 @@ def test_write_cache_to_group(high_level_library: StubScu):
     f_o.close()
 
 
-def test_log(high_level_library: StubScu):
+def test_log(high_level_library: StubScu) -> None:
     """
     Test the log() method.
 
@@ -330,7 +338,7 @@ def test_log(high_level_library: StubScu):
     output_f_o.close()
 
 
-def test_enum_attribute(high_level_library: StubScu):
+def test_enum_attribute(high_level_library: StubScu) -> None:
     """
     Enum attribute.
 
@@ -354,7 +362,7 @@ def test_enum_attribute(high_level_library: StubScu):
     output_f_o.close()
 
 
-def test_performance(high_level_library: StubScu):
+def test_performance(high_level_library: StubScu) -> None:
     """
     Test the performance of the logger class.
 

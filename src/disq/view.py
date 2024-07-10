@@ -8,7 +8,7 @@ from enum import Enum
 from functools import cached_property
 from importlib import resources
 from pathlib import Path
-from typing import Callable, Final
+from typing import Any, Callable, Final
 
 from PyQt6 import QtCore, QtWidgets, uic
 
@@ -116,9 +116,9 @@ class MainView(QtWidgets.QMainWindow):
         self,
         disq_model: model.Model,
         disq_controller: controller.Controller,
-        *args,
-        **kwargs,
-    ):
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         """
         Initialize the DiSQ GUI with the provided model and controller.
 
@@ -600,7 +600,7 @@ class MainView(QtWidgets.QMainWindow):
         for widget in self.all_opcua_widgets:
             widget.setEnabled(False)
 
-    def _enable_data_logger_widgets(self, enable: bool = True):
+    def _enable_data_logger_widgets(self, enable: bool = True) -> None:
         """
         Enable or disable data logger widgets.
 
@@ -613,7 +613,9 @@ class MainView(QtWidgets.QMainWindow):
         self.line_edit_recording_status.setEnabled(enable)
         self.button_recording_config.setEnabled(enable)
 
-    def _enable_server_widgets(self, enable: bool = True, connect_button: bool = False):
+    def _enable_server_widgets(
+        self, enable: bool = True, connect_button: bool = False
+    ) -> None:
         """
         Enable or disable server widgets and optionally update the connect button text.
 
@@ -629,7 +631,7 @@ class MainView(QtWidgets.QMainWindow):
         if connect_button:
             self.button_server_connect.setText("Connect" if enable else "Disconnect")
 
-    def recording_status_update(self, status: bool):
+    def recording_status_update(self, status: bool) -> None:
         """Update the recording status."""
         if status:
             self.line_edit_recording_status.setText("Recording")
@@ -711,7 +713,9 @@ class MainView(QtWidgets.QMainWindow):
             str_val = str(val)
         widget.setText(str_val)
 
-    def _update_opcua_enum_widget(self, widget: QtWidgets.QLineEdit, event: dict):
+    def _update_opcua_enum_widget(
+        self, widget: QtWidgets.QLineEdit, event: dict
+    ) -> None:
         """
         Update the text of the widget with the event data.
 
@@ -917,7 +921,7 @@ class MainView(QtWidgets.QMainWindow):
             logger.debug("disconnecting from server")
             self.controller.disconnect_server()
 
-    def server_config_select_changed(self, server_name: str):
+    def server_config_select_changed(self, server_name: str) -> None:
         """
         User changed server selection in drop-down box.
 
@@ -1006,7 +1010,7 @@ class MainView(QtWidgets.QMainWindow):
         logger.debug("args: %s", args)
         self.controller.command_slew2abs_azim_elev(*args)
 
-    def slew_button_clicked(self, axis: str):
+    def slew_button_clicked(self, axis: str) -> None:
         """
         Slot function to handle the click event of a slew button.
 
@@ -1062,7 +1066,7 @@ class MainView(QtWidgets.QMainWindow):
             self.controller.command_slew_single_axis(axis, *args)
         return
 
-    def stop_button_clicked(self, axis: str):
+    def stop_button_clicked(self, axis: str) -> None:
         """
         Handle the signal emitted when the stop button is clicked.
 
@@ -1087,7 +1091,7 @@ class MainView(QtWidgets.QMainWindow):
         """
         self.controller.command_stow(False)
 
-    def activate_button_clicked(self, axis: str):
+    def activate_button_clicked(self, axis: str) -> None:
         """
         Activate the button clicked for a specific axis.
 
@@ -1096,7 +1100,7 @@ class MainView(QtWidgets.QMainWindow):
         """
         self.controller.command_activate(axis)
 
-    def deactivate_button_clicked(self, axis: str):
+    def deactivate_button_clicked(self, axis: str) -> None:
         """
         Deactivate button clicked slot function.
 
@@ -1114,7 +1118,7 @@ class MainView(QtWidgets.QMainWindow):
         """Handle the click event of the release authority button."""
         self.controller.command_release_authority()
 
-    def command_response_status_update(self, status: str):
+    def command_response_status_update(self, status: str) -> None:
         """Update the main window status bar with a status update."""
         self.cmd_status_label.setText(status[:200])
         history_line: str = (
@@ -1123,7 +1127,7 @@ class MainView(QtWidgets.QMainWindow):
         self.list_cmd_history.addItem(history_line)
         self.list_cmd_history.scrollToBottom()
 
-    def move2band_button_clicked(self, band: str):
+    def move2band_button_clicked(self, band: str) -> None:
         """Move to the given band."""
         self.controller.command_move2band(band)
 
@@ -1217,7 +1221,7 @@ class MainView(QtWidgets.QMainWindow):
                 self.temp_correction_checked_prev
             ).setChecked(True)
 
-    def _set_static_pointing_inputs_text(self, block_signals: bool):
+    def _set_static_pointing_inputs_text(self, block_signals: bool) -> None:
         """
         Set static pointing inputs' text to current read values.
 
@@ -1256,7 +1260,7 @@ class MainView(QtWidgets.QMainWindow):
                 spinbox.setValue(0)
             spinbox.blockSignals(block_signals)
 
-    def _set_temp_correction_inputs_text(self, block_signals: bool):
+    def _set_temp_correction_inputs_text(self, block_signals: bool) -> None:
         """
         Set ambient temperature correction inputs' text to current read values.
 

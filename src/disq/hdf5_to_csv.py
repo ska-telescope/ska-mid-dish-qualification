@@ -205,7 +205,7 @@ class Converter:
         self.stop = stop
         return True
 
-    def _create_next_line(self, line_time, prev_time) -> str:
+    def _create_next_line(self, line_time: datetime, prev_time: datetime) -> str:
         """
         Create the next line in a data file based on the current time and previous time.
 
@@ -258,7 +258,7 @@ class Converter:
         start: datetime = None,
         stop: datetime = None,
         step_ms: int = 100,
-    ):
+    ) -> None:
         """
         Generate a CSV file from an HDF5 input file.
 

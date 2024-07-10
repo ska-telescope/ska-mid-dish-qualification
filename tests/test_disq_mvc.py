@@ -366,7 +366,7 @@ def test_opcua_command_slot_function(
     input_values: tuple | None,
     input_widgets: list[str] | None,
     expected_response: tuple[str, int] | None,
-):
+) -> None:
     """Test the successful sending and response of OPC UA commands."""
     # Check whether test fixture is connected to an OPC UA server
     opcua_server: bool = disq_app.controller.is_server_connected()

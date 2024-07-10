@@ -98,7 +98,7 @@ class OPCUAServerValidator:
         self.server: sculib.SCU
         self.event_loop: asyncio.AbstractEventLoop
 
-    async def _run_internal_server(self, xml_file: str):
+    async def _run_internal_server(self, xml_file: str) -> None:
         """
         Run an internal server using the specified XML file.
 
@@ -110,7 +110,7 @@ class OPCUAServerValidator:
             while not self.internal_server_stop.is_set():
                 await asyncio.sleep(1)
 
-    def _run_internal_server_wrap(self, xml_file):
+    def _run_internal_server_wrap(self, xml_file: str) -> None:
         """
         Run the internal server using asyncio to process an XML file.
 
@@ -439,7 +439,7 @@ class OPCUAServerValidator:
 
         return diff_tree
 
-    def _print(self, string: str, output_file: str | None = None):
+    def _print(self, string: str, output_file: str | None = None) -> None:
         """
         Print a string either to the console or to a file.
 
@@ -464,7 +464,7 @@ class OPCUAServerValidator:
         expected_info: dict,
         actual_info: dict,
         output_file: str | None = None,
-    ):
+    ) -> None:
         """
         Print a formatted string comparing expected and actual method arguments.
 
@@ -504,7 +504,7 @@ class OPCUAServerValidator:
         level: int,
         verbose: bool = False,
         output_file: str | None = None,
-    ):
+    ) -> None:
         """
         Print the differences between actual and expected dictionaries.
 

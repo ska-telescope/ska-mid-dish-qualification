@@ -5,10 +5,10 @@ import os
 from enum import Enum
 from pathlib import Path
 from queue import Empty, Queue
-from typing import Type
+from typing import Any, Type
 
 from asyncua.ua import UInt16
-from PyQt6.QtCore import QObject, QThread, pyqtSignal
+from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
 from disq.logger import Logger
 from disq.sculib import PACKAGE_VERSION, SCU, Command
@@ -24,12 +24,12 @@ class QueuePollThread(QThread):
     :type signal: pyqtSignal
     """
 
-    def __init__(self, signal) -> None:
+    def __init__(self, signal: pyqtBoundSignal) -> None:
         """
         Initialize the SignalProcessor object.
 
         :param signal: The signal to be processed.
-        :type signal: Any
+        :type signal: pyqtBoundSignal
         """
         super().__init__()
         self.queue: Queue = Queue()
@@ -242,7 +242,7 @@ class Model(QObject):
             logger.warning("Model: register_event_updates: SCU not initialised yet!")
 
     def run_opcua_command(
-        self, command: Command, *args
+        self, command: Command, *args: Any
     ) -> tuple[int, str, list[int | None] | None]:
         """
         Run an OPC-UA command on the server.
@@ -250,14 +250,14 @@ class Model(QObject):
         :param command: The command to be executed on the OPC-UA server.
         :type command: str
         :param args: Additional arguments to be passed to the command.
-        :type args: tuple
+        :type args: Any
         :return: The result of the command execution.
         :rtype: tuple
         :raises RuntimeError: If the server is not connected.
         """
 
         def _log_and_call(
-            command: Command, *args
+            command: Command, *args: Any
         ) -> tuple[int, str, list[int | None] | None]:
             logger.debug("Calling command: %s, args: %s", command.value, args)
             try:

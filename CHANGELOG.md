@@ -2,11 +2,14 @@
 
 ## unreleased
 
-- Breaking changes for version 2 of ICD:
-    - WOM-335: Change commands' arguments from enumerated types to integer values
-    - WOM-334: Update commands to handle session ID 
-- Non-breaking changes:
-    - WOM-383: Fix missing write-error exception in SCU lib
+- Breaking changes for version 2 of ICD (WOM-334, WOM-335, WOM-392):
+    - Updated commands to handle session ID.
+    - Changed commands' arguments from enumerated types to integer types that work for both CETC sim v3.2.1 and PLC at Mid-ITF.
+- Non-breaking changes (WOM-383, WOM-392):
+    - Fixed missing write-error exception in SCU lib.
+    - GUI automatically releases command authority when disconnecting from server.
+    - Replaced all command strings with a Command Enum class added to SCU.
+    - Refactored and cleaned-up SCU functions.
 
 ## 0.3.0
 

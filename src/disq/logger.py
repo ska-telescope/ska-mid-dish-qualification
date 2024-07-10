@@ -97,7 +97,7 @@ class Logger:
         self.start_time: datetime
         self.stop_time: datetime
 
-    def add_nodes(self, nodes: list[str], period: int):
+    def add_nodes(self, nodes: list[str], period: int) -> None:
         """
         Add a node or list of nodes with desired period in milliseconds to subscribe to.
 
@@ -140,7 +140,7 @@ class Logger:
 
             self._nodes[node] = period
 
-    def _build_hdf5_structure(self):
+    def _build_hdf5_structure(self) -> None:
         """
         Build the HDF5 structure for storing data.
 
@@ -265,7 +265,7 @@ class Logger:
         if self._thread.is_alive():
             self._thread.join()
 
-    def _write_cache_to_group(self, node: str):
+    def _write_cache_to_group(self, node: str) -> None:
         """Write the cache to the matching group for the given node."""
         group = self.file_object[node]
         cache = self._cache[node]

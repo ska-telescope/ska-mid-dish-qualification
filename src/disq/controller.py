@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+from typing import Any
 
 from PyQt6.QtCore import QCoreApplication, QObject, pyqtSignal
 
@@ -64,7 +65,7 @@ class Controller(QObject):
         self.emit_ui_status_message("INFO", r)
         return r
 
-    def emit_ui_status_message(self, severity: str, message: str):
+    def emit_ui_status_message(self, severity: str, message: str) -> None:
         """
         Emit a status message to the UI.
 
@@ -129,7 +130,7 @@ class Controller(QObject):
         """
         return self._model.is_connected()
 
-    def connect_server(self, connection_details: dict):
+    def connect_server(self, connection_details: dict) -> None:
         """
         Connect to a server using the provided connection details.
 
@@ -191,7 +192,7 @@ class Controller(QObject):
         elevation_position: float,
         azimuth_velocity: float,
         elevation_velocity: float,
-    ):
+    ) -> None:
         """
         Issue command to slew to absolute azimuth and elevation positions.
 
@@ -214,7 +215,9 @@ class Controller(QObject):
             elevation_velocity,
         )
 
-    def command_slew_single_axis(self, axis: str, position: float, velocity: float):
+    def command_slew_single_axis(
+        self, axis: str, position: float, velocity: float
+    ) -> None:
         """
         Issue command to slew a single axis to a specific position with given velocity.
 
@@ -227,7 +230,7 @@ class Controller(QObject):
         """
         self._issue_command(Command.SLEW2ABS_SINGLE_AX, axis, position, velocity)
 
-    def command_activate(self, axis: str = "AzEl"):
+    def command_activate(self, axis: str = "AzEl") -> None:
         """
         Issue command to activate a specific axis.
 
@@ -236,7 +239,7 @@ class Controller(QObject):
         """
         self._issue_command(Command.ACTIVATE, axis)
 
-    def command_deactivate(self, axis: str = "AzEl"):
+    def command_deactivate(self, axis: str = "AzEl") -> None:
         """
         Issue command to deactivate a specific axis.
 
@@ -245,7 +248,7 @@ class Controller(QObject):
         """
         self._issue_command(Command.DEACTIVATE, axis)
 
-    def command_stop(self, axis: str = "AzEl"):
+    def command_stop(self, axis: str = "AzEl") -> None:
         """
         Issue command to stop a specific axis movement.
 
@@ -255,7 +258,7 @@ class Controller(QObject):
         """
         self._issue_command(Command.STOP, axis)
 
-    def command_stow(self, stow: bool = True):
+    def command_stow(self, stow: bool = True) -> None:
         """
         Issue command to stow or unstow the device.
 
@@ -265,7 +268,7 @@ class Controller(QObject):
         """
         self._issue_command(Command.STOW, stow)  # argument to stow or not...
 
-    def command_interlock_ack(self):
+    def command_interlock_ack(self) -> None:
         """
         Send a command to acknowledge the safety interlock.
 
@@ -273,7 +276,7 @@ class Controller(QObject):
         """
         self._issue_command(Command.INTERLOCK_ACK)
 
-    def command_move2band(self, band: str):
+    def command_move2band(self, band: str) -> None:
         """
         Issue command to move the device to a specified band.
 
@@ -282,7 +285,7 @@ class Controller(QObject):
         """
         self._issue_command(Command.MOVE2BAND, band)
 
-    def command_take_authority(self, username: str):
+    def command_take_authority(self, username: str) -> None:
         """
         Issue a command to take or release authority.
 
@@ -291,7 +294,7 @@ class Controller(QObject):
         """
         self._issue_command(Command.TAKE_AUTH, username)
 
-    def command_release_authority(self):
+    def command_release_authority(self) -> None:
         """Issue a command to take or release authority."""
         self._issue_command(Command.RELEASE_AUTH)
 
@@ -377,7 +380,7 @@ class Controller(QObject):
             return self._issue_command(Command.AMBTEMP_CORR_SETUP, *params)
         return None
 
-    def _issue_command(self, command: Command, *args) -> tuple[int, str]:
+    def _issue_command(self, command: Command, *args: Any) -> tuple[int, str]:
         """
         Issue a command to the OPCUA server.
 
@@ -394,7 +397,7 @@ class Controller(QObject):
         self._command_response_str(f"{command.value}{args}", result_code, result_msg)
         return (result_code, result_msg)
 
-    def load_track_table(self, filename: str):
+    def load_track_table(self, filename: str) -> None:
         """
         Load a track table from a file.
 
@@ -422,7 +425,7 @@ class Controller(QObject):
             "INFO", f"Track table loaded from file: {fname.absolute()}"
         )
 
-    def recording_start(self, filename: str):
+    def recording_start(self, filename: str) -> None:
         """
         Start recording OPC-UA parameter updates to `filename`.
 
@@ -452,7 +455,7 @@ class Controller(QObject):
         )
         self.recording_status.emit(True)
 
-    def recording_stop(self):
+    def recording_stop(self) -> None:
         """
         Stop recording.
 

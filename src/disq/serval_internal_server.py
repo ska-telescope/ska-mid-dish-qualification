@@ -71,7 +71,7 @@ class SerValInternalServer:
         await self.server.stop()
 
 
-async def main(xml: str):
+async def main(xml: str) -> None:
     """
     Asynchronous function to run a SerValInternalServer.
 
