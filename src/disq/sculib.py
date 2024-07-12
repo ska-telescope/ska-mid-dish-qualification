@@ -384,7 +384,11 @@ class SCU:
         logger.info("Event loop: %s", self.event_loop)
         try:
             self.connection = self.connect(
-                self.host, self.port, self.endpoint, self.timeout, encryption=False
+                self.host,
+                self.port,
+                self.endpoint,
+                self.timeout,
+                encryption=False,
             )
         except Exception:
             try:
@@ -645,7 +649,8 @@ class SCU:
         try:
             if self.namespace != "" and endpoint != "":
                 self.ns_idx = asyncio.run_coroutine_threadsafe(
-                    connection.get_namespace_index(self.namespace), self.event_loop
+                    connection.get_namespace_index(self.namespace),
+                    self.event_loop,
                 ).result()
             else:
                 # Force namespace index for first physical controller
@@ -853,11 +858,27 @@ class SCU:
         :return: A function that can be used to execute a method on the Node.
         :rtype: function
         """
-        call = (
-            asyncio.run_coroutine_threadsafe(node.get_parent(), event_loop)
-            .result()
-            .call_method
-        )
+        try:
+            call = (
+                asyncio.run_coroutine_threadsafe(node.get_parent(), event_loop)
+                .result()
+                .call_method
+            )
+        except AttributeError as e:
+            logger.warning(
+                "Caught an exception while trying to get the method for a command.\n"
+                "Exception: %s\nNode name: %s\nParent object: %s",
+                e,
+                node_name,
+                node.get_parent(),
+            )
+
+            def empty_func(*args) -> None:
+                logger.warning("Command node %s has no method to call.", uid)
+                return -1, "No method", None
+
+            return empty_func
+
         read_name = asyncio.run_coroutine_threadsafe(
             node.read_display_name(), event_loop
         )
@@ -887,7 +908,9 @@ class SCU:
                     else [*args]
                 )
                 logger.debug(
-                    "Calling command node '%s' with args list: %s", uid, cmd_args
+                    "Calling command node '%s' with args list: %s",
+                    uid,
+                    cmd_args,
                 )
                 result: int | list[Any] = asyncio.run_coroutine_threadsafe(
                     call(uid, *cmd_args), event_loop
@@ -1591,7 +1614,9 @@ class SCU:
             return numpy.array(cleaned_lines, dtype=float)
         except Exception as e:
             logger.error(
-                "Could not load or convert the track table file '%s': %s", file_name, e
+                "Could not load or convert the track table file '%s': %s",
+                file_name,
+                e,
             )
             raise e
 
@@ -1841,7 +1866,11 @@ class SCU:
             return self.commands["Management.Move2Band"](bands[position])
 
     def abs_azel(
-        self, az_angle, el_angle, az_velocity: float = None, el_velocity: float = None
+        self,
+        az_angle,
+        el_angle,
+        az_velocity: float = None,
+        el_velocity: float = None,
     ):
         """
         Calculate and move the telescope to an absolute azimuth and elevation position.
@@ -2479,7 +2508,9 @@ class SCU:
         from pathlib import Path
 
         logger.info(
-            "Attempt export and save of session: %s at rate %d ms", session, interval_ms
+            "Attempt export and save of session: %s at rate %d ms",
+            session,
+            interval_ms,
         )
         if session == "last":
             # get all logger sessions, may be many
@@ -2512,7 +2543,9 @@ class SCU:
         from pathlib import Path
 
         logger.info(
-            "Attempt export and save of session: %s at rate %d ms", session, interval_ms
+            "Attempt export and save of session: %s at rate %d ms",
+            session,
+            interval_ms,
         )
         if session == "last":
             # get all logger sessions, may be many
@@ -2544,7 +2577,9 @@ class SCU:
         from pathlib import Path
 
         logger.info(
-            "Attempt export and save of session: %s at rate %d ms", session, interval_ms
+            "Attempt export and save of session: %s at rate %d ms",
+            session,
+            interval_ms,
         )
         if session == "last":
             # get all logger sessions, may be many
