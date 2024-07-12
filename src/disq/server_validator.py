@@ -256,9 +256,7 @@ class OPCUAServerValidator:
             elif name == self.out_args:
                 node_dict[name]["method_return"] = self._get_method_info(node)
             else:
-                sculib_ancestors = ancestors[
-                    1:
-                ]  # No "PLC_PRG" in sculib paths
+                sculib_ancestors = ancestors[1:]  # No "PLC_PRG" in sculib paths
                 sculib_path = ".".join(sculib_ancestors)
                 data_type = self._read_data_type_tuple(sculib_path)
                 node_dict[name]["data_type"] = data_type
@@ -430,14 +428,11 @@ class OPCUAServerValidator:
                     if node_info["node_class"] == "Variable":
                         try:
                             _ = actual[node]["data_type"]
-                        except (
-                            Exception
-                        ):  # pylint: disable=broad-exception-caught
+                        except Exception:  # pylint: disable=broad-exception-caught
                             current_diff["type_match"] = False
                         else:
                             current_diff["type_match"] = (
-                                actual[node]["data_type"]
-                                == node_info["data_type"]
+                                actual[node]["data_type"] == node_info["data_type"]
                             )
 
                     # check num and name of children
@@ -507,12 +502,10 @@ class OPCUAServerValidator:
         """
         alignment = " " * (len(args_string) + 4)
         expected_params = [
-            (name, data_type)
-            for name, data_type in expected_info[args_string].items()
+            (name, data_type) for name, data_type in expected_info[args_string].items()
         ]
         actual_params = [
-            (name, data_type)
-            for name, data_type in actual_info[args_string].items()
+            (name, data_type) for name, data_type in actual_info[args_string].items()
         ]
         self._print(
             f"  {indent}{args_string}: Expected: {expected_params},"
@@ -555,9 +548,7 @@ class OPCUAServerValidator:
                 if node == self.in_args:
                     if diff[node]["diff"]["params_match"]:
                         if verbose:
-                            self._print(
-                                f"  {indent}method_params: Match", output_file
-                            )
+                            self._print(f"  {indent}method_params: Match", output_file)
                     else:
                         self._print_method_args_mismatch_string(
                             indent,
@@ -570,9 +561,7 @@ class OPCUAServerValidator:
                 elif node == self.out_args:
                     if diff[node]["diff"]["return_match"]:
                         if verbose:
-                            self._print(
-                                f"  {indent}method_return: Match", output_file
-                            )
+                            self._print(f"  {indent}method_return: Match", output_file)
                     else:
                         self._print_method_args_mismatch_string(
                             indent,
@@ -585,9 +574,7 @@ class OPCUAServerValidator:
                 else:
                     if diff[node]["diff"]["class_match"]:
                         if verbose:
-                            self._print(
-                                f"  {indent}node_class: Match", output_file
-                            )
+                            self._print(f"  {indent}node_class: Match", output_file)
                     else:
                         self._print(
                             f"  {indent}node_class: Expected: {node_info['node_class']}"
@@ -598,15 +585,11 @@ class OPCUAServerValidator:
                     if node_info["node_class"] == "Variable":
                         if diff[node]["diff"]["type_match"]:
                             if verbose:
-                                self._print(
-                                    f"  {indent}data_type: Match", output_file
-                                )
+                                self._print(f"  {indent}data_type: Match", output_file)
                         else:
                             try:
                                 actual_type = actual[node]["data_type"]
-                            except (
-                                Exception
-                            ):  # pylint: disable=broad-exception-caught
+                            except Exception:  # pylint: disable=broad-exception-caught
                                 actual_type = "None"
 
                             self._print(
@@ -618,26 +601,20 @@ class OPCUAServerValidator:
                     if len(node_info["children"]) > 0:
                         if diff[node]["diff"]["children_match"]:
                             if verbose:
-                                self._print(
-                                    f"  {indent}children: Match", output_file
-                                )
+                                self._print(f"  {indent}children: Match", output_file)
                             else:
-                                self._print(
-                                    f"  {indent}children:", output_file
-                                )
+                                self._print(f"  {indent}children:", output_file)
                         else:
                             children_indent = " " * len("  children: ")
                             expected_children = [
                                 name for name in node_info["children"].keys()
                             ]
                             actual_children = [
-                                name
-                                for name in actual[node]["children"].keys()
+                                name for name in actual[node]["children"].keys()
                             ]
                             if "fuzzy" in diff[node]["diff"]:
                                 fuzzy_children = [
-                                    fuzzy
-                                    for fuzzy in diff[node]["diff"]["fuzzy"]
+                                    fuzzy for fuzzy in diff[node]["diff"]["fuzzy"]
                                 ]
                                 children_match = f"""Expected: {expected_children},
 {children_indent}{indent}  actual: {actual_children}.
@@ -692,9 +669,7 @@ class OPCUAServerValidator:
             )
 
         # First build tree of dubious server
-        server_args = configuration.get_config_sculib_args(
-            server_file, server_config
-        )
+        server_args = configuration.get_config_sculib_args(server_file, server_config)
         if "endpoint" in server_args and "namespace" in server_args:
             if "username" in server_args and "password" in server_args:
                 actual_tree = self._scan_opcua_server(
@@ -873,9 +848,7 @@ def main():
         sys.exit(f"ERROR: Could not find file {xml}")
 
     validator = OPCUAServerValidator()
-    valid, actual, expected, diff = validator.validate(
-        xml, config_file, config
-    )
+    valid, actual, expected, diff = validator.validate(xml, config_file, config)
     if valid:
         print("The servers match! No significant differences found.")
     else:
@@ -883,9 +856,7 @@ def main():
             print("The servers do not match! Printing diff...")
             validator.print_diff(actual, expected, diff, 0, verbose=verbose)
         else:
-            print(
-                f"The servers do not match! Writing diff to {output_file}..."
-            )
+            print(f"The servers do not match! Writing diff to {output_file}...")
             # Clear output file. pylint: disable=consider-using-with
             open(output_file, "w", encoding="UTF-8").close()
             validator.print_diff(
