@@ -2,10 +2,12 @@
 
 import logging
 from pathlib import Path
+from typing import Any
 
 from PyQt6.QtCore import QCoreApplication, QObject, pyqtSignal
 
 from disq import configuration, model
+from disq.sculib import Command
 
 logger = logging.getLogger("gui.controller")
 
@@ -63,7 +65,7 @@ class Controller(QObject):
         self.emit_ui_status_message("INFO", r)
         return r
 
-    def emit_ui_status_message(self, severity: str, message: str):
+    def emit_ui_status_message(self, severity: str, message: str) -> None:
         """
         Emit a status message to the UI.
 
@@ -128,7 +130,7 @@ class Controller(QObject):
         """
         return self._model.is_connected()
 
-    def connect_server(self, connection_details: dict):
+    def connect_server(self, connection_details: dict) -> None:
         """
         Connect to a server using the provided connection details.
 
@@ -187,7 +189,7 @@ class Controller(QObject):
         elevation_position: float,
         azimuth_velocity: float,
         elevation_velocity: float,
-    ):
+    ) -> None:
         """
         Issue command to slew to absolute azimuth and elevation positions.
 
@@ -202,16 +204,17 @@ class Controller(QObject):
             second).
         :type elevation_velocity: float
         """
-        cmd = "Management.Commands.Slew2AbsAzEl"
         self._issue_command(
-            cmd,
+            Command.SLEW2ABS_AZ_EL,
             azimuth_position,
             elevation_position,
             azimuth_velocity,
             elevation_velocity,
         )
 
-    def command_slew_single_axis(self, axis: str, position: float, velocity: float):
+    def command_slew_single_axis(
+        self, axis: str, position: float, velocity: float
+    ) -> None:
         """
         Issue command to slew a single axis to a specific position with given velocity.
 
@@ -222,30 +225,27 @@ class Controller(QObject):
         :param velocity: The velocity at which to slew.
         :type velocity: float
         """
-        cmd = "Management.Commands.Slew2AbsSingleAx"
-        self._issue_command(cmd, axis, position, velocity)
+        self._issue_command(Command.SLEW2ABS_SINGLE_AX, axis, position, velocity)
 
-    def command_activate(self, axis: str = "AzEl"):
+    def command_activate(self, axis: str = "AzEl") -> None:
         """
         Issue command to activate a specific axis.
 
         :param axis: The axis to activate (default is 'AzEl').
         :type axis: str
         """
-        cmd = "Management.Commands.Activate"
-        self._issue_command(cmd, axis)
+        self._issue_command(Command.ACTIVATE, axis)
 
-    def command_deactivate(self, axis: str = "AzEl"):
+    def command_deactivate(self, axis: str = "AzEl") -> None:
         """
         Issue command to deactivate a specific axis.
 
         :param axis: The axis to deactivate (default is 'AzEl').
         :type axis: str
         """
-        cmd = "Management.Commands.DeActivate"
-        self._issue_command(cmd, axis)
+        self._issue_command(Command.DEACTIVATE, axis)
 
-    def command_stop(self, axis: str = "AzEl"):
+    def command_stop(self, axis: str = "AzEl") -> None:
         """
         Issue command to stop a specific axis movement.
 
@@ -253,10 +253,9 @@ class Controller(QObject):
             'AzEl'.
         :type axis: str
         """
-        cmd = "Management.Commands.Stop"
-        self._issue_command(cmd, axis)
+        self._issue_command(Command.STOP, axis)
 
-    def command_stow(self, stow: bool = True):
+    def command_stow(self, stow: bool = True) -> None:
         """
         Issue command to stow or unstow the device.
 
@@ -264,42 +263,37 @@ class Controller(QObject):
             True (stow).
         :type stow: bool
         """
-        cmd = "Management.Commands.Stow"
-        self._issue_command(cmd, stow)  # argument to stow or not...
+        self._issue_command(Command.STOW, stow)  # argument to stow or not...
 
-    def command_interlock_ack(self):
+    def command_interlock_ack(self) -> None:
         """
         Send a command to acknowledge the safety interlock.
 
         This function sends a command to acknowledge the safety interlock in the system.
         """
-        cmd = "Safety.Commands.InterlockAck"
-        self._issue_command(cmd)
+        self._issue_command(Command.INTERLOCK_ACK)
 
-    def command_move2band(self, band: str):
+    def command_move2band(self, band: str) -> None:
         """
         Issue command to move the device to a specified band.
 
         :param band: The band to move the device to.
         :type band: str
         """
-        cmd = "Management.Commands.Move2Band"
-        self._issue_command(cmd, band)
+        self._issue_command(Command.MOVE2BAND, band)
 
-    def command_take_authority(self, username: str):
+    def command_take_authority(self, username: str) -> None:
         """
         Issue a command to take or release authority.
 
         :param username: The username of the user performing the command.
         :type username: str
         """
-        cmd = "CommandArbiter.Commands.TakeAuth"
-        self._issue_command(cmd, username)
+        self._issue_command(Command.TAKE_AUTH, username)
 
-    def command_release_authority(self):
+    def command_release_authority(self) -> None:
         """Issue a command to take or release authority."""
-        cmd = "CommandArbiter.Commands.ReleaseAuth"
-        self._issue_command(cmd)
+        self._issue_command(Command.RELEASE_AUTH)
 
     def command_config_pointing_model_corrections(
         self, static: bool, tilt: str, temperature: bool, band: str
@@ -324,8 +318,9 @@ class Controller(QObject):
         :return: A tuple containing the result code and result message.
         :rtype: tuple
         """
-        cmd = "Pointing.Commands.PmCorrOnOff"
-        return self._issue_command(cmd, static, tilt, temperature, band)
+        return self._issue_command(
+            Command.PM_CORR_ON_OFF, static, tilt, temperature, band
+        )
 
     def command_set_static_pointing_parameters(
         self, band: str, params: list[float]
@@ -341,10 +336,9 @@ class Controller(QObject):
             or None if the command was not issued.
         :rtype: tuple[int, str] | None
         """
-        cmd = "Pointing.Commands.StaticPmSetup"
         if self._static_pointing_parameters != [band, *params]:
             self._static_pointing_parameters = [band, *params]
-            return self._issue_command(cmd, band, *params)
+            return self._issue_command(Command.STATIC_PM_SETUP, band, *params)
         return None
 
     def command_set_static_pointing_offsets(
@@ -361,10 +355,9 @@ class Controller(QObject):
             or None if the command was not issued.
         :rtype: tuple[int, str] | None
         """
-        cmd = "Tracking.Commands.TrackLoadStaticOff"
         if self._static_pointing_offsets != [azim, elev]:
             self._static_pointing_offsets = [azim, elev]
-            return self._issue_command(cmd, azim, elev)
+            return self._issue_command(Command.TRACK_LOAD_STATIC_OFF, azim, elev)
         return None
 
     def command_set_ambtemp_correction_parameters(
@@ -379,30 +372,29 @@ class Controller(QObject):
             or None if the command was not issued.
         :rtype: tuple[int, str] | None
         """
-        cmd = "Pointing.Commands.AmbTempCorrSetup"
         if self._ambtemp_correction_parameters != params:
             self._ambtemp_correction_parameters = params
-            return self._issue_command(cmd, *params)
+            return self._issue_command(Command.AMBTEMP_CORR_SETUP, *params)
         return None
 
-    def _issue_command(self, cmd: str, *args) -> tuple[int, str]:
+    def _issue_command(self, command: Command, *args: Any) -> tuple[int, str]:
         """
         Issue a command to the OPCUA server.
 
-        :param cmd: The command to be issued.
-        :type cmd: str
+        :param command: The command to be issued.
+        :type command: str
         :param args: Optional arguments to be passed along with the command.
         :type args: tuple
         :return: A tuple containing the result code and result message.
         :rtype: tuple
         """
-        logger.debug("Command: %s, args: %s", cmd, args)
+        logger.debug("Command: %s, args: %s", command.value, args)
         # TODO: Nothing is currently done with other possible return values
-        result_code, result_msg, _ = self._model.run_opcua_command(cmd, *args)
-        self._command_response_str(f"{cmd}{args}", result_code, result_msg)
+        result_code, result_msg, _ = self._model.run_opcua_command(command, *args)
+        self._command_response_str(f"{command.value}{args}", result_code, result_msg)
         return (result_code, result_msg)
 
-    def load_track_table(self, filename: str):
+    def load_track_table(self, filename: str) -> None:
         """
         Load a track table from a file.
 
@@ -430,7 +422,7 @@ class Controller(QObject):
             "INFO", f"Track table loaded from file: {fname.absolute()}"
         )
 
-    def recording_start(self, filename: str):
+    def recording_start(self, filename: str) -> None:
         """
         Start recording OPC-UA parameter updates to `filename`.
 
@@ -460,7 +452,7 @@ class Controller(QObject):
         )
         self.recording_status.emit(True)
 
-    def recording_stop(self):
+    def recording_stop(self) -> None:
         """
         Stop recording.
 

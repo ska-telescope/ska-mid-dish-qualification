@@ -30,7 +30,7 @@ class Reader:
         self._x: list
         self._y: list
 
-    def fill(self, node: str, start: datetime, stop: datetime):
+    def fill(self, node: str, start: datetime, stop: datetime) -> None:
         """Retreive datapoints from file for given node between start and stop times."""
         fo = h5py.File(self.file, "r", libver="latest")
         group = fo[node]

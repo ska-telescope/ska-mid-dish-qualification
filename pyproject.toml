@@ -143,10 +143,10 @@ ska-ser-sphinx-theme = "^0.1.2"
 sphinx-argparse = "^0.4.0"
 
 [tool.mypy]
-ignore_missing_imports = true # Ignore missing stubs in imported modules
-strict_optional = false       # TODO: Remove, see https://mypy.readthedocs.io/en/stable/config_file.html#none-and-optional-handling
-# disallow_incomplete_defs = true
-disable_error_code = "import-untyped, var-annotated, has-type, call-overload, return-value, attr-defined"
+ignore_missing_imports = true        # Ignore missing stubs in imported modules
+strict_optional = false              # TODO: Remove, see https://mypy.readthedocs.io/en/stable/config_file.html#none-and-optional-handling
+disallow_incomplete_defs = true
+disable_error_code = "call-overload"
 
 [tool.isort]
 profile = "black"

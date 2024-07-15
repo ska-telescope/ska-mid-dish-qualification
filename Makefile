@@ -23,7 +23,7 @@ PYTHON_SWITCHES_FOR_FLAKE8 = --config .flake8
 PYTHON_SWITCHES_FOR_PYLINT = --rcfile .pylintrc
 
 python-post-lint: # TODO: fix issues with excluded files
-	$(PYTHON_RUNNER) mypy --exclude "sculib.py|ds_opcua_server_mock.py" src/ tests/
+	$(PYTHON_RUNNER) mypy --exclude "ds_opcua_server_mock.py" src/ tests/
 
 #######################################
 # DOCS

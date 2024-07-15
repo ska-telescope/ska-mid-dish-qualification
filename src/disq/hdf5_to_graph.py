@@ -1,16 +1,19 @@
 """Graphing data from HDF5 files."""
 
 from datetime import datetime, timezone
+from typing import Callable
 
 import h5py
 from matplotlib import axes, dates, pyplot
 
 
 # pylint: disable=consider-using-f-string
-def make_format(current: axes.Axes, other: axes.Axes, current_lab: str, other_lab: str):
+def make_format(
+    current: axes.Axes, other: axes.Axes, current_lab: str, other_lab: str
+) -> Callable[[float, float], str]:
     """Used for replacing the format_coord method of an matplotlib.axes object."""
 
-    def format_coord(x, y):
+    def format_coord(x: float, y: float) -> str:
         """
         Format the coordinates of two axes.
 
@@ -43,10 +46,10 @@ def make_format(current: axes.Axes, other: axes.Axes, current_lab: str, other_la
     return format_coord
 
 
-def categorical_ydata(labels: list[str]):
+def categorical_ydata(labels: list[str]) -> Callable[[float], str]:
     """Convert y-value into string."""
 
-    def format_ydata(y):
+    def format_ydata(y: float) -> str:
         """
         Format the y data value to match a corresponding label.
 
@@ -106,7 +109,7 @@ class Grapher:
     _grid_lines = True
     _dash_sequence = (3, 5)
 
-    def hdf5_info(self, file: str):
+    def hdf5_info(self, file: str) -> None:
         """Print start and stop times and available nodes for the input hdf5 file."""
         with h5py.File(file, "r") as f:
             print(f"File: {file}")
@@ -116,7 +119,9 @@ class Grapher:
             for node in f.keys():
                 print(node)
 
-    def _get_hdf5_data(self, fo: h5py.File, node: str, start: datetime, stop: datetime):
+    def _get_hdf5_data(
+        self, fo: h5py.File, node: str, start: datetime, stop: datetime
+    ) -> tuple:
         """
         Get data from an HDF5 file for a specific node within a given time range.
 
@@ -165,7 +170,7 @@ class Grapher:
         y: list,
         num: int,
         categories: list[str],
-    ):
+    ) -> None:
         """
         Build an axis plot with specified data.
 
@@ -212,7 +217,7 @@ class Grapher:
         node2: str = None,
         start: str = None,
         stop: str = None,
-    ):
+    ) -> None:
         """
         Generate a graph with one or two y-axis (nodes) with the same x-axis (time).
 

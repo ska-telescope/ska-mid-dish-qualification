@@ -8,13 +8,18 @@ from enum import Enum
 from functools import cached_property
 from importlib import resources
 from pathlib import Path
-from typing import Callable, Final
+from typing import Any, Callable, Final
 
 from PyQt6 import QtCore, QtWidgets, uic
 
 from disq import controller, model
 
 logger = logging.getLogger("gui.view")
+
+# Constant definitions of attribute names on the OPC-UA server
+TILT_CORR_ACTIVE: Final = "Pointing.Status.TiltCorrActive"
+STATIC_CORR_ACTIVE: Final = "Pointing.Status.StaticCorrActive"
+TEMP_CORR_ACTIVE: Final = "Pointing.Status.TempCorrActive"
 
 
 # pylint: disable=too-few-public-methods
@@ -98,7 +103,7 @@ class MainView(QtWidgets.QMainWindow):
         "yellow": {True: "rgb(250, 255, 0)", False: "rgb(45, 44, 0)"},
         "orange": {True: "rgb(255, 170, 0)", False: "rgb(92, 61, 0)"},
         "StowPinStatusType": {
-            "unkown": "rgb(10, 10, 10)",  # TODO: typo in simulator
+            "unknown": "rgb(10, 10, 10)",
             "retracted": "rgb(10, 250, 25)",
             "retracting": "rgb(250, 255, 0)",
             "deployed": "rgb(255, 0, 0)",
@@ -111,9 +116,9 @@ class MainView(QtWidgets.QMainWindow):
         self,
         disq_model: model.Model,
         disq_controller: controller.Controller,
-        *args,
-        **kwargs,
-    ):
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         """
         Initialize the DiSQ GUI with the provided model and controller.
 
@@ -314,44 +319,44 @@ class MainView(QtWidgets.QMainWindow):
         # NB: The order of the following two lists MUST match the order of the
         # Pointing.StaticPmSetup command's arguments
         self.static_pointing_values: list[QtWidgets.QLabel] = [
-            self.opcua_ia,
-            self.opcua_ca,
-            self.opcua_npae,
-            self.opcua_an,
-            self.opcua_an0,
-            self.opcua_aw,
-            self.opcua_aw0,
-            self.opcua_acec,
-            self.opcua_aces,
-            self.opcua_aba,
-            self.opcua_abphi,
-            self.opcua_ie,
-            self.opcua_ecec,
-            self.opcua_eces,
-            self.opcua_hece4,
-            self.opcua_hese4,
-            self.opcua_hece8,
-            self.opcua_hese8,
+            self.opcua_ia,  # type: ignore
+            self.opcua_ca,  # type: ignore
+            self.opcua_npae,  # type: ignore
+            self.opcua_an,  # type: ignore
+            self.opcua_an0,  # type: ignore
+            self.opcua_aw,  # type: ignore
+            self.opcua_aw0,  # type: ignore
+            self.opcua_acec,  # type: ignore
+            self.opcua_aces,  # type: ignore
+            self.opcua_aba,  # type: ignore
+            self.opcua_abphi,  # type: ignore
+            self.opcua_ie,  # type: ignore
+            self.opcua_ecec,  # type: ignore
+            self.opcua_eces,  # type: ignore
+            self.opcua_hece4,  # type: ignore
+            self.opcua_hese4,  # type: ignore
+            self.opcua_hece8,  # type: ignore
+            self.opcua_hese8,  # type: ignore
         ]
         self.static_pointing_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
-            self.spinbox_ia,
-            self.spinbox_ca,
-            self.spinbox_npae,
-            self.spinbox_an,
-            self.spinbox_an0,
-            self.spinbox_aw,
-            self.spinbox_aw0,
-            self.spinbox_acec,
-            self.spinbox_aces,
-            self.spinbox_aba,
-            self.spinbox_abphi,
-            self.spinbox_ie,
-            self.spinbox_ecec,
-            self.spinbox_eces,
-            self.spinbox_hece4,
-            self.spinbox_hese4,
-            self.spinbox_hece8,
-            self.spinbox_hese8,
+            self.spinbox_ia,  # type: ignore
+            self.spinbox_ca,  # type: ignore
+            self.spinbox_npae,  # type: ignore
+            self.spinbox_an,  # type: ignore
+            self.spinbox_an0,  # type: ignore
+            self.spinbox_aw,  # type: ignore
+            self.spinbox_aw0,  # type: ignore
+            self.spinbox_acec,  # type: ignore
+            self.spinbox_aces,  # type: ignore
+            self.spinbox_aba,  # type: ignore
+            self.spinbox_abphi,  # type: ignore
+            self.spinbox_ie,  # type: ignore
+            self.spinbox_ecec,  # type: ignore
+            self.spinbox_eces,  # type: ignore
+            self.spinbox_hece4,  # type: ignore
+            self.spinbox_hese4,  # type: ignore
+            self.spinbox_hece8,  # type: ignore
+            self.spinbox_hese8,  # type: ignore
         ]
         for spinbox in self.static_pointing_spinboxes:
             spinbox.editingFinished.connect(self.static_pointing_parameter_changed)
@@ -407,22 +412,22 @@ class MainView(QtWidgets.QMainWindow):
         self.button_group_temp_correction.addButton(self.button_temp_correction_off, 0)
         self.button_group_temp_correction.addButton(self.button_temp_correction_on, 1)
         self.ambtemp_correction_values: list[QtWidgets.QLabel] = [
-            self.opcua_ambtempfiltdt,
-            self.opcua_ambtempparam1,
-            self.opcua_ambtempparam2,
-            self.opcua_ambtempparam3,
-            self.opcua_ambtempparam4,
-            self.opcua_ambtempparam5,
-            self.opcua_ambtempparam6,
+            self.opcua_ambtempfiltdt,  # type: ignore
+            self.opcua_ambtempparam1,  # type: ignore
+            self.opcua_ambtempparam2,  # type: ignore
+            self.opcua_ambtempparam3,  # type: ignore
+            self.opcua_ambtempparam4,  # type: ignore
+            self.opcua_ambtempparam5,  # type: ignore
+            self.opcua_ambtempparam6,  # type: ignore
         ]
         self.ambtemp_correction_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
-            self.spinbox_ambtempfiltdt,
-            self.spinbox_ambtempparam1,
-            self.spinbox_ambtempparam2,
-            self.spinbox_ambtempparam3,
-            self.spinbox_ambtempparam4,
-            self.spinbox_ambtempparam5,
-            self.spinbox_ambtempparam6,
+            self.spinbox_ambtempfiltdt,  # type: ignore
+            self.spinbox_ambtempparam1,  # type: ignore
+            self.spinbox_ambtempparam2,  # type: ignore
+            self.spinbox_ambtempparam3,  # type: ignore
+            self.spinbox_ambtempparam4,  # type: ignore
+            self.spinbox_ambtempparam5,  # type: ignore
+            self.spinbox_ambtempparam6,  # type: ignore
         ]
         for spinbox in self.ambtemp_correction_spinboxes:
             spinbox.editingFinished.connect(self.ambtemp_correction_parameter_changed)
@@ -595,7 +600,7 @@ class MainView(QtWidgets.QMainWindow):
         for widget in self.all_opcua_widgets:
             widget.setEnabled(False)
 
-    def _enable_data_logger_widgets(self, enable: bool = True):
+    def _enable_data_logger_widgets(self, enable: bool = True) -> None:
         """
         Enable or disable data logger widgets.
 
@@ -608,7 +613,9 @@ class MainView(QtWidgets.QMainWindow):
         self.line_edit_recording_status.setEnabled(enable)
         self.button_recording_config.setEnabled(enable)
 
-    def _enable_server_widgets(self, enable: bool = True, connect_button: bool = False):
+    def _enable_server_widgets(
+        self, enable: bool = True, connect_button: bool = False
+    ) -> None:
         """
         Enable or disable server widgets and optionally update the connect button text.
 
@@ -624,7 +631,7 @@ class MainView(QtWidgets.QMainWindow):
         if connect_button:
             self.button_server_connect.setText("Connect" if enable else "Disconnect")
 
-    def recording_status_update(self, status: bool):
+    def recording_status_update(self, status: bool) -> None:
         """Update the recording status."""
         if status:
             self.line_edit_recording_status.setText("Recording")
@@ -681,7 +688,7 @@ class MainView(QtWidgets.QMainWindow):
                 continue
             opcua_type = str(widget.property("opcua_type"))
             if opcua_type in self.model.opcua_enum_types:
-                opcua_enum: Enum = self.model.opcua_enum_types[opcua_type]
+                opcua_enum = self.model.opcua_enum_types[opcua_type]
                 enum_strings = [str(e.name) for e in opcua_enum]
                 # Explicitly cast to QComboBox
                 wgt: QtWidgets.QComboBox = widget  # type: ignore
@@ -706,7 +713,9 @@ class MainView(QtWidgets.QMainWindow):
             str_val = str(val)
         widget.setText(str_val)
 
-    def _update_opcua_enum_widget(self, widget: QtWidgets.QLineEdit, event: dict):
+    def _update_opcua_enum_widget(
+        self, widget: QtWidgets.QLineEdit, event: dict
+    ) -> None:
         """
         Update the text of the widget with the event data.
 
@@ -781,16 +790,16 @@ class MainView(QtWidgets.QMainWindow):
             button = getattr(self, button.objectName().replace("_on", "_off"))
         button.setChecked(True)
         # Block or unblock tilt meter selection signal whether function is active
-        if event["name"] == "Pointing.TiltCorrActive":
+        if event["name"] == TILT_CORR_ACTIVE:
             self.button_group_tilt_correction_meter.blockSignals(not event["value"])
             self.tilt_correction_checked_prev = int(event["value"])
         # Populate input boxes with current read values after connecting to server
-        elif event["name"] == "Pointing.StaticCorrActive":
+        elif event["name"] == STATIC_CORR_ACTIVE:
             if self._update_static_pointing_inputs_text:
                 self._update_static_pointing_inputs_text = False
                 self._set_static_pointing_inputs_text(not event["value"])
                 self.static_point_model_checked_prev = int(event["value"])
-        elif event["name"] == "Pointing.TempCorrActive":
+        elif event["name"] == TEMP_CORR_ACTIVE:
             if self._update_temp_correction_inputs_text:
                 self._update_temp_correction_inputs_text = False
                 self._set_temp_correction_inputs_text(not event["value"])
@@ -912,7 +921,7 @@ class MainView(QtWidgets.QMainWindow):
             logger.debug("disconnecting from server")
             self.controller.disconnect_server()
 
-    def server_config_select_changed(self, server_name: str):
+    def server_config_select_changed(self, server_name: str) -> None:
         """
         User changed server selection in drop-down box.
 
@@ -1001,7 +1010,7 @@ class MainView(QtWidgets.QMainWindow):
         logger.debug("args: %s", args)
         self.controller.command_slew2abs_azim_elev(*args)
 
-    def slew_button_clicked(self, axis: str):
+    def slew_button_clicked(self, axis: str) -> None:
         """
         Slot function to handle the click event of a slew button.
 
@@ -1057,7 +1066,7 @@ class MainView(QtWidgets.QMainWindow):
             self.controller.command_slew_single_axis(axis, *args)
         return
 
-    def stop_button_clicked(self, axis: str):
+    def stop_button_clicked(self, axis: str) -> None:
         """
         Handle the signal emitted when the stop button is clicked.
 
@@ -1082,7 +1091,7 @@ class MainView(QtWidgets.QMainWindow):
         """
         self.controller.command_stow(False)
 
-    def activate_button_clicked(self, axis: str):
+    def activate_button_clicked(self, axis: str) -> None:
         """
         Activate the button clicked for a specific axis.
 
@@ -1091,7 +1100,7 @@ class MainView(QtWidgets.QMainWindow):
         """
         self.controller.command_activate(axis)
 
-    def deactivate_button_clicked(self, axis: str):
+    def deactivate_button_clicked(self, axis: str) -> None:
         """
         Deactivate button clicked slot function.
 
@@ -1109,7 +1118,7 @@ class MainView(QtWidgets.QMainWindow):
         """Handle the click event of the release authority button."""
         self.controller.command_release_authority()
 
-    def command_response_status_update(self, status: str):
+    def command_response_status_update(self, status: str) -> None:
         """Update the main window status bar with a status update."""
         self.cmd_status_label.setText(status[:200])
         history_line: str = (
@@ -1118,7 +1127,7 @@ class MainView(QtWidgets.QMainWindow):
         self.list_cmd_history.addItem(history_line)
         self.list_cmd_history.scrollToBottom()
 
-    def move2band_button_clicked(self, band: str):
+    def move2band_button_clicked(self, band: str) -> None:
         """Move to the given band."""
         self.controller.command_move2band(band)
 
@@ -1212,7 +1221,7 @@ class MainView(QtWidgets.QMainWindow):
                 self.temp_correction_checked_prev
             ).setChecked(True)
 
-    def _set_static_pointing_inputs_text(self, block_signals: bool):
+    def _set_static_pointing_inputs_text(self, block_signals: bool) -> None:
         """
         Set static pointing inputs' text to current read values.
 
@@ -1221,11 +1230,13 @@ class MainView(QtWidgets.QMainWindow):
         """
         # Static pointing band
         self.combo_static_point_model_band.blockSignals(True)
-        self.combo_static_point_model_band.setCurrentIndex(
-            self.model._scu.convert_enum_to_int(  # pylint: disable=protected-access
-                "BandType", self.static_point_model_band.text().replace(" ", "_")
+        current_band = self.static_point_model_band.text()
+        if current_band != "not read":
+            self.combo_static_point_model_band.setCurrentIndex(
+                self.model._scu.convert_enum_to_int(  # pylint: disable=protected-access
+                    "BandType", current_band.replace(" ", "_")
+                )
             )
-        )
         self.combo_static_point_model_band.blockSignals(block_signals)
         # Static pointing offsets
         self.spinbox_offset_xelev.blockSignals(True)
@@ -1249,7 +1260,7 @@ class MainView(QtWidgets.QMainWindow):
                 spinbox.setValue(0)
             spinbox.blockSignals(block_signals)
 
-    def _set_temp_correction_inputs_text(self, block_signals: bool):
+    def _set_temp_correction_inputs_text(self, block_signals: bool) -> None:
         """
         Set ambient temperature correction inputs' text to current read values.
 

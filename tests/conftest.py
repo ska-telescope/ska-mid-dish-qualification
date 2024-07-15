@@ -9,7 +9,7 @@ from disq.model import Model
 from disq.view import MainView
 
 
-def pytest_addoption(parser: pytest.Parser):
+def pytest_addoption(parser: pytest.Parser) -> None:
     """Add custom pytest options for test setup."""
     parser.addoption(
         "--with-cetc-sim",

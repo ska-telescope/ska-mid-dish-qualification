@@ -76,12 +76,12 @@ class Logger:
         self._thread = threading.Thread(
             group=None, target=self._log, name="Logger internal thread"
         )
-        self.queue = queue.Queue(maxsize=0)
+        self.queue: queue.Queue = queue.Queue(maxsize=0)
         self._data_count = 0
         self._nodes: dict | None = None
         self._stop_logging = threading.Event()
         self._start_invoked = False
-        self._cache = {}
+        self._cache: dict = {}
 
         if high_level_library is None:
             if server is None:
@@ -92,12 +92,12 @@ class Logger:
             self.hll = high_level_library
 
         self._available_attributes = self.hll.get_attribute_list()
-        self._subscription_ids = []
+        self._subscription_ids: list = []
         self.file_object: h5py.File
         self.start_time: datetime
         self.stop_time: datetime
 
-    def add_nodes(self, nodes: list[str], period: int):
+    def add_nodes(self, nodes: list[str], period: int) -> None:
         """
         Add a node or list of nodes with desired period in milliseconds to subscribe to.
 
@@ -140,7 +140,7 @@ class Logger:
 
             self._nodes[node] = period
 
-    def _build_hdf5_structure(self):
+    def _build_hdf5_structure(self) -> None:
         """
         Build the HDF5 structure for storing data.
 
@@ -265,7 +265,7 @@ class Logger:
         if self._thread.is_alive():
             self._thread.join()
 
-    def _write_cache_to_group(self, node: str):
+    def _write_cache_to_group(self, node: str) -> None:
         """Write the cache to the matching group for the given node."""
         group = self.file_object[node]
         cache = self._cache[node]
