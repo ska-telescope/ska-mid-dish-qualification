@@ -130,11 +130,12 @@ class Model(QObject):
                 gui_app=True,
                 app_name=f"DiSQ GUI v{PACKAGE_VERSION}",
             )
+            self._scu.connect_and_setup()
         except RuntimeError as e:
             logger.exception(
                 "Exception while creating sculib object server (cleaning up SCU object)"
             )
-            del self._scu
+            self._scu.disconnect_and_cleanup()
             self._scu = None
             raise e
         logger.debug("Connected to server on URI: %s", self.get_server_uri())
@@ -195,10 +196,10 @@ class Model(QObject):
         queue poller.
         """
         if self._scu is not None:
-            del self._scu
-            self._scu = None
             self._event_q_poller.stop()
             self._event_q_poller = None
+            self._scu.disconnect_and_cleanup()
+            self._scu = None
 
     def is_connected(self) -> bool:
         """
