@@ -363,7 +363,7 @@ class Model(QObject):
         if self._data_logger is not None:
             raise RuntimeError("Data logger already exist")
         logger.debug("Creating Logger and file: %s", filename.absolute())
-        self._data_logger = Logger(str(filename.absolute()), self._scu)
+        self._data_logger = Logger(self._scu, str(filename.absolute()))
         self._data_logger.add_nodes(
             self.recording_config,
             period=50,
