@@ -132,10 +132,8 @@ class Model(QObject):
                 app_name=f"DiSQ GUI v{PACKAGE_VERSION}",
             )
         except RuntimeError as e:
-            logger.debug(
-                "Exception while creating sculib object server "
-                "(cleaning up scu object): %s",
-                e,
+            logger.exception(
+                "Exception while creating sculib object server (cleaning up SCU object)"
             )
             del self._scu
             self._scu = None
