@@ -166,7 +166,10 @@ class OPCUAServerValidator:
         """
         param_type = self.server.get_attribute_data_type(node_id)
         if param_type == "Enumeration":
-            return (param_type, ",".join(self.server.get_enum_strings(node_id)))
+            return (
+                param_type,
+                ",".join(self.server.get_enum_strings(node_id)),
+            )
 
         return (param_type,)
 
@@ -181,7 +184,8 @@ class OPCUAServerValidator:
         """
         params = (
             asyncio.run_coroutine_threadsafe(
-                node.read_attribute(self.opcua_attribute_ids["Value"]), self.event_loop
+                node.read_attribute(self.opcua_attribute_ids["Value"]),
+                self.event_loop,
             )
             .result()
             .Value.Value
@@ -216,7 +220,10 @@ class OPCUAServerValidator:
         except Exception:  # pylint: disable=broad-exception-caught
             return ("Node name error",)
         if data_type == "Enumeration":
-            return (data_type, ",".join(self.server.get_enum_strings(sculib_path)))
+            return (
+                data_type,
+                ",".join(self.server.get_enum_strings(sculib_path)),
+            )
 
         return (data_type,)
 
@@ -293,7 +300,13 @@ class OPCUAServerValidator:
         :rtype: dict
         """
         self.server = sculib.SCU(
-            host, int(port), endpoint, namespace, username, password
+            host,
+            int(port),
+            endpoint,
+            namespace,
+            username,
+            password,
+            gui_app=True,  # Only use the PLC_PRG node tree.
         )
         self.event_loop = self.server.event_loop
         # Fill tree dict for server
@@ -398,11 +411,13 @@ class OPCUAServerValidator:
                 node_children = {}
                 if node == self.in_args:
                     current_diff["params_match"] = self._args_match(
-                        actual[node]["method_params"], node_info["method_params"]
+                        actual[node]["method_params"],
+                        node_info["method_params"],
                     )
                 elif node == self.out_args:
                     current_diff["return_match"] = self._args_match(
-                        actual[node]["method_return"], node_info["method_return"]
+                        actual[node]["method_return"],
+                        node_info["method_return"],
                     )
                 else:
                     # check node class matches
@@ -423,7 +438,9 @@ class OPCUAServerValidator:
                     # check num and name of children
                     to_fuzzy: list = []
                     current_diff["children_match"] = self._node_children_match(
-                        actual[node]["children"], node_info["children"], to_fuzzy
+                        actual[node]["children"],
+                        node_info["children"],
+                        to_fuzzy,
                     )
                     if len(to_fuzzy) > 0:
                         current_diff["fuzzy"] = self._fuzzy_match(
@@ -435,7 +452,10 @@ class OPCUAServerValidator:
                         actual[node]["children"], node_info["children"]
                     )
 
-                diff_tree[node] = {"diff": current_diff, "children": node_children}
+                diff_tree[node] = {
+                    "diff": current_diff,
+                    "children": node_children,
+                }
 
         return diff_tree
 
@@ -604,7 +624,8 @@ class OPCUAServerValidator:
 {children_indent}{indent}  actual: {actual_children}"""
 
                             self._print(
-                                f"  {indent}children: {children_match}", output_file
+                                f"  {indent}children: {children_match}",
+                                output_file,
                             )
 
                     self.print_diff(
@@ -685,7 +706,10 @@ class OPCUAServerValidator:
         internal_server_process.start()
         self.internal_server_started_barrier.wait()
         expected_tree = self._scan_opcua_server(
-            "127.0.0.1", "57344", "/dish-structure/server/", "http://skao.int/DS_ICD/"
+            "127.0.0.1",
+            "57344",
+            "/dish-structure/server/",
+            "http://skao.int/DS_ICD/",
         )
         self.internal_server_stop.set()
 
@@ -836,7 +860,12 @@ def main():
             # Clear output file. pylint: disable=consider-using-with
             open(output_file, "w", encoding="UTF-8").close()
             validator.print_diff(
-                actual, expected, diff, 0, verbose=verbose, output_file=output_file
+                actual,
+                expected,
+                diff,
+                0,
+                verbose=verbose,
+                output_file=output_file,
             )
 
 
