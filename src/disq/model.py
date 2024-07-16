@@ -2,6 +2,7 @@
 
 import logging
 import os
+from asyncio import exceptions as asyncexc
 from enum import Enum
 from pathlib import Path
 from queue import Empty, Queue
@@ -138,6 +139,11 @@ class Model(QObject):
             self._scu.disconnect_and_cleanup()
             self._scu = None
             raise e
+        except asyncexc.TimeoutError as e:
+            msg = "asyncio raised TimeoutError trying to connect to server"
+            logger.error("%s (cleaning up SCU object)", msg)
+            self._scu = None
+            raise TimeoutError(msg) from e
         logger.debug("Connected to server on URI: %s", self.get_server_uri())
 
     def get_server_uri(self) -> str:
