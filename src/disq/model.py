@@ -195,9 +195,10 @@ class Model(QObject):
         Disconnects from the SCU, unsubscribes from all events, and stops the event
         queue poller.
         """
-        if self._scu is not None:
+        if self._event_q_poller is not None:
             self._event_q_poller.stop()
             self._event_q_poller = None
+        if self._scu is not None:
             self._scu.disconnect_and_cleanup()
             self._scu = None
 

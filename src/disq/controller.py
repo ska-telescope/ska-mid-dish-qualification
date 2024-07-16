@@ -44,8 +44,6 @@ class Controller(QObject):
         self._static_pointing_parameters: list[str | float] = []
         self._static_pointing_offsets: list[float] = []
         self._ambtemp_correction_parameters: list[float] = []
-        # Connect the aboutToQuit signal to the model's disconnect method
-        QCoreApplication.instance().aboutToQuit.connect(self._model.disconnect)
 
     def _command_response_str(
         self, command: str, result_code: int, result_msg: str
