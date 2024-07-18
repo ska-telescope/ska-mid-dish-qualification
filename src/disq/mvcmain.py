@@ -1,6 +1,7 @@
 """DiSQ GUI main."""
 
 import logging
+import platform
 import signal
 import sys
 
@@ -54,8 +55,9 @@ def main():
 
     signal.signal(signal.SIGINT, _signal_handler)
     signal.signal(signal.SIGTERM, _signal_handler)
-    signal.signal(signal.SIGTSTP, _signal_handler)
-    signal.signal(signal.SIGQUIT, _signal_handler)
+    if platform.system() != "Windows":
+        signal.signal(signal.SIGTSTP, _signal_handler)  # Not supported by Windows
+        signal.signal(signal.SIGQUIT, _signal_handler)  # Not supported by Windows
 
     # Let the python interpreter run periodically to catch Unix signals
     timer = QTimer()
