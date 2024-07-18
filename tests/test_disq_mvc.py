@@ -138,7 +138,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Activate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
         ),
         (
@@ -147,7 +147,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Activate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
         ),
         (
@@ -156,7 +156,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Activate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
         ),
         (
@@ -165,7 +165,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Activate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
         ),
         (
@@ -214,7 +214,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
         ),
         (
@@ -223,7 +223,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
         ),
         (
@@ -232,7 +232,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
         ),
         (
@@ -241,7 +241,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandAborted", 2),  # CETC simulator v3.2.1 (renamed in ICD v2)
         ),
         (
@@ -250,7 +250,7 @@ ambtemp_correction_input_widgets = [
             "CommandArbiter.Commands.TakeAuth",
             ("LMC",),
             ["combobox_authority"],
-            ("DiSQ already has command authority with user EGUI", -1),
+            ("DiSQ-SCU already has command authority with user EGUI", -1),
         ),
         (
             "release_authority_button_clicked",
@@ -292,7 +292,7 @@ ambtemp_correction_input_widgets = [
             "Pointing.Commands.StaticPmSetup",
             ("Optical",) + (0.0,) * 18,
             static_pointing_params_input_widgets,
-            ("CommandDone", 10),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandDone", 10),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandActivated", 9),  # CETC simulator v3.2.1 response
         ),
         (
@@ -309,7 +309,7 @@ ambtemp_correction_input_widgets = [
             "Pointing.Commands.AmbTempCorrSetup",
             (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0),
             ambtemp_correction_input_widgets,
-            ("CommandDone", 10),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandDone", 10),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandActivated", 9),  # CETC simulator v3.2.1 response
         ),
         (
@@ -318,7 +318,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.DeActivate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandDone", 10),  # CETC simulator v3.2.1 response
         ),
         (
@@ -327,7 +327,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.DeActivate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandDone", 10),  # CETC simulator v3.2.1 response
         ),
         (
@@ -336,7 +336,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.DeActivate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandDone", 10),  # CETC simulator v3.2.1 response
         ),
         (
@@ -345,7 +345,7 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.DeActivate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 8 July 2024
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
             # ("CommandDone", 10),  # CETC simulator v3.2.1 response
         ),
         (
@@ -410,10 +410,20 @@ def test_opcua_command_slot_function(
                 f"Response: {expected_response[0]} [{expected_response[1]}]"
                 in disq_app.cmd_status_label.text()
             )
-        if command == "Management.Commands.Stow" and input_values == (False,):
-            # pylint: disable=protected-access
+        if command == "Management.Commands.Stow":
             attr_name = "Safety.Status.StowPinStatus"
-            while disq_app.model._scu.attributes[attr_name].value != 0:  # type: ignore
+            # For Unstow, wait for Retracted(1); for Stow, wait for Deployed(3)
+            expected = 1 if input_values == (False,) else 3
+            count = 0
+            # pylint: disable=protected-access
+            while disq_app.model._scu.attributes[attr_name].value != (  # type: ignore
+                expected
+            ):
+                assert count != 60, (
+                    "Stow/Unstow timeout - command potentially failed? StowPinStatus = "
+                    f"{disq_app.model._scu.attributes[attr_name].value}"  # type: ignore
+                )
+                count += 1
                 sleep(1)
     else:
         # Verify the mock command method was called with the correct arguments

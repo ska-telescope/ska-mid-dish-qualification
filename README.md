@@ -123,9 +123,11 @@ The GUI tests mock the `model.run_opcua_command` method, so no simulator is invo
 
 Additionally, if you have the CETC simulator running on your local machine, the GUI tests can be run against it using:
 
-    make python-test PYTHON_VARS_AFTER_PYTEST=--with-cetc-sim
+    make python-test PYTHON_TEST_FILE=tests/test_disq_mvc.py PYTHON_VARS_AFTER_PYTEST=--with-cetc-sim
 
-`--with-cetc-sim` is a custom pytest argument. When using it, nothing is mocked, and the GUI and SCU library is more thoroughly tested against whatever version of the ICD the simulator is using.
+Or even against the PLC at the Mid-ITF instead using `--with-plc`.
+
+`--with-cetc-sim` and `--with-plc` are custom pytest arguments. When using it, nothing is mocked, and the GUI and SCU library is more thoroughly tested against the simulator or device it's connecting to.
 
 ## Authors and acknowledgment
 SKAO Team Wombat is developing this project:

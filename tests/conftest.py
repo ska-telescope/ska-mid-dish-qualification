@@ -46,6 +46,7 @@ def disq_cetc_simulator_fixture(main_view: MainView) -> MainView:  # type: ignor
         }
     )
     yield main_view
+    main_view.model.data_received.disconnect()
     main_view.controller.disconnect_server()
     main_view.close()
 
@@ -62,6 +63,7 @@ def disq_mid_itf_plc_fixture(main_view: MainView) -> MainView:  # type: ignore
         }
     )
     yield main_view
+    main_view.model.data_received.disconnect()
     main_view.controller.disconnect_server()
     main_view.close()
 
