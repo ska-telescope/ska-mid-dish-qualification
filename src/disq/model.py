@@ -2,6 +2,7 @@
 
 import logging
 import os
+from asyncio import exceptions as asyncexc
 from enum import Enum
 from pathlib import Path
 from queue import Empty, Queue
@@ -130,13 +131,19 @@ class Model(QObject):
                 gui_app=True,
                 app_name=f"DiSQ GUI v{PACKAGE_VERSION}",
             )
+            self._scu.connect_and_setup()
         except RuntimeError as e:
             logger.exception(
                 "Exception while creating sculib object server (cleaning up SCU object)"
             )
-            del self._scu
+            self._scu.disconnect_and_cleanup()
             self._scu = None
             raise e
+        except asyncexc.TimeoutError as e:
+            msg = "asyncio raised TimeoutError trying to connect to server"
+            logger.error("%s (cleaning up SCU object)", msg)
+            self._scu = None
+            raise TimeoutError(msg) from e
         logger.debug("Connected to server on URI: %s", self.get_server_uri())
 
     def get_server_uri(self) -> str:
@@ -194,11 +201,12 @@ class Model(QObject):
         Disconnects from the SCU, unsubscribes from all events, and stops the event
         queue poller.
         """
-        if self._scu is not None:
-            del self._scu
-            self._scu = None
+        if self._event_q_poller is not None:
             self._event_q_poller.stop()
             self._event_q_poller = None
+        if self._scu is not None:
+            self._scu.disconnect_and_cleanup()
+            self._scu = None
 
     def is_connected(self) -> bool:
         """
@@ -363,7 +371,7 @@ class Model(QObject):
         if self._data_logger is not None:
             raise RuntimeError("Data logger already exist")
         logger.debug("Creating Logger and file: %s", filename.absolute())
-        self._data_logger = Logger(str(filename.absolute()), self._scu)
+        self._data_logger = Logger(self._scu, str(filename.absolute()))
         self._data_logger.add_nodes(
             self.recording_config,
             period=50,

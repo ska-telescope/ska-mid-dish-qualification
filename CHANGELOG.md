@@ -2,14 +2,20 @@
 
 ## unreleased
 
-- Breaking changes for version 2 of ICD (WOM-334, WOM-335, WOM-392):
+- Breaking changes for version 2 of ICD (WOM-334, WOM-335, WOM-392, WOM-399):
     - Updated commands to handle session ID.
-    - Changed commands' arguments from enumerated types to integer types that work for both CETC sim v3.2.1 and PLC at Mid-ITF.
-- Non-breaking changes (WOM-383, WOM-392):
-    - Fixed missing write-error exception in SCU lib.
-    - GUI automatically releases command authority when disconnecting from server.
+    - Changed commands' arguments from enumerated types to integer types.
+    - SCU disconnects from incompatible CETC simulator versions and informs user with log and GUI status message - only v3.2.3. and up is compatible.
+- Non-breaking changes (WOM-383, WOM-371, WOM-390, WOM-392, WOM-396, WOM-397):
+    - SCU caches node IDs to JSON file after scanning server, which significantly speeds-up subsequent reconnects to the same server.
+    - SCU automatically releases command authority when disconnecting from server.
+    - GUI gracefully quits with unhandled exceptions or Unix signals.
+    - Handle write-error exception in SCU lib.
+    - Handle missing call_method exception in SCU lib.
+    - Handle connection timeout exception in SCU lib.
     - Replaced all command strings with a Command Enum class added to SCU.
     - Refactored and cleaned-up SCU functions.
+    - Data logger's wait_for_completion() has been squashed into stop().
 
 ## 0.3.0
 

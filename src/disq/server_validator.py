@@ -299,7 +299,7 @@ class OPCUAServerValidator:
         :return: A dictionary representing the server tree.
         :rtype: dict
         """
-        self.server = sculib.SCU(
+        with sculib.SCU(
             host,
             int(port),
             endpoint,
@@ -307,12 +307,11 @@ class OPCUAServerValidator:
             username,
             password,
             gui_app=True,  # Only use the PLC_PRG node tree.
-        )
-        self.event_loop = self.server.event_loop
-        # Fill tree dict for server
-        server_tree = self._fill_tree_recursive(self.server.plc_prg, [])
-
-        self.server.disconnect()
+        ) as server:
+            self.server = server
+            self.event_loop = self.server.event_loop
+            # Fill tree dict for server
+            server_tree = self._fill_tree_recursive(self.server.plc_prg, [])
         return server_tree
 
     def _args_match(self, actual_args: dict, expected_args: dict) -> bool:

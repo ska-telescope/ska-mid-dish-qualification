@@ -54,10 +54,8 @@ class Logger:
 
     def __init__(
         self,
+        high_level_library: sculib.SCU,
         file_name: str = None,
-        high_level_library: sculib.SCU = None,
-        server: str = None,
-        port: str = None,
     ):
         """
         Initialize the Logger object.
@@ -67,11 +65,8 @@ class Logger:
         :param high_level_library: An optional high level library object to use for data
             manipulation.
         :type high_level_library: sculib.SCU
-        :param server: The server IP address to connect to.
-        :type server: str
-        :param port: The port number to connect to on the server.
-        :type port: str
         """
+        self.hll = high_level_library
         self.file = file_name
         self._thread = threading.Thread(
             group=None, target=self._log, name="Logger internal thread"
@@ -82,15 +77,6 @@ class Logger:
         self._stop_logging = threading.Event()
         self._start_invoked = False
         self._cache: dict = {}
-
-        if high_level_library is None:
-            if server is None:
-                self.hll = sculib.SCU()
-            else:
-                self.hll = sculib.SCU(host=server, port=int(port))
-        else:
-            self.hll = high_level_library
-
         self._available_attributes = self.hll.get_attribute_list()
         self._subscription_ids: list = []
         self.file_object: h5py.File

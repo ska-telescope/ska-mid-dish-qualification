@@ -54,6 +54,7 @@ class StubScu(SCU):
             namespace=namespace,
             timeout=25,
         )
+        super().connect_and_setup()
 
     def subscribe(
         self,
