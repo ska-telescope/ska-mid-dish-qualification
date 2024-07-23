@@ -7,7 +7,7 @@ from typing import Any
 from PyQt6.QtCore import QCoreApplication, QObject, pyqtSignal
 
 from disq import configuration, model
-from disq.sculib import Command
+from disq.sculib import Command, ResultCode
 
 logger = logging.getLogger("gui.controller")
 
@@ -392,6 +392,9 @@ class Controller(QObject):
         # TODO: Nothing is currently done with other possible return values
         result_code, result_msg, _ = self._model.run_opcua_command(command, *args)
         self._command_response_str(f"{command.value}{args}", result_code, result_msg)
+        if result_code == ResultCode.CONNECTION_CLOSED:
+            self._model.handle_closed_connection()
+            self.server_disconnected.emit()
         return (result_code, result_msg)
 
     def load_track_table(self, filename: str) -> None:
