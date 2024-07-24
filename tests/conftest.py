@@ -60,6 +60,7 @@ def disq_mid_itf_plc_fixture(main_view: MainView) -> MainView:  # type: ignore
             "port": "4840",
             "endpoint": "",
             "namespace": "",
+            "use_nodes_cache": True,
         }
     )
     yield main_view

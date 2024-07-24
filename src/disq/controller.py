@@ -181,7 +181,9 @@ class Controller(QObject):
 
         :param registrations: A list containing events to subscribe to.
         """
-        self._model.register_event_updates(registrations)
+        self._model.register_event_updates(
+            registrations, self._handle_closed_connection
+        )
 
     def command_slew2abs_azim_elev(
         self,
@@ -393,9 +395,15 @@ class Controller(QObject):
         result_code, result_msg, _ = self._model.run_opcua_command(command, *args)
         self._command_response_str(f"{command.value}{args}", result_code, result_msg)
         if result_code == ResultCode.CONNECTION_CLOSED:
-            self._model.handle_closed_connection()
-            self.server_disconnected.emit()
+            self._handle_closed_connection()
         return (result_code, result_msg)
+
+    def _handle_closed_connection(self, status_message: str | None = None) -> None:
+        """Handle unexpected closed connection."""
+        self._model.handle_closed_connection()
+        if status_message:
+            self.emit_ui_status_message("ERROR", status_message)
+        self.server_disconnected.emit()
 
     def load_track_table(self, filename: str) -> None:
         """

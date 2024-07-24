@@ -13,6 +13,7 @@ import subprocess
 import time
 from datetime import datetime, timedelta, timezone
 from queue import Queue
+from typing import Callable
 
 import h5py
 import pytest
@@ -61,6 +62,7 @@ class StubScu(SCU):
         attributes: str | list[str] | None = None,
         period: int | None = None,
         data_queue: Queue | None = None,
+        subscription_error_callback: Callable[[str], None] | None = None,
     ) -> tuple[int, list, list]:
         """
         Subscribe to a data source.

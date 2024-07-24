@@ -8,7 +8,7 @@ from enum import Enum
 from functools import cached_property
 from pathlib import Path
 from queue import Empty, Queue
-from typing import Any, Final, Type
+from typing import Any, Callable, Final, Type
 
 from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
@@ -367,12 +367,9 @@ class Model(QObject):
         if self._event_q_poller is not None:
             self._event_q_poller.stop()
             self._event_q_poller = None
-        if self._scu.event_loop_thread is not None:
-            # Signal the event loop thread to stop.
-            self._scu.event_loop.call_soon_threadsafe(self._scu.event_loop.stop)
-            # Join the event loop thread once it is done processing tasks.
-            self._scu.event_loop_thread.join()
-        self._scu = None
+        if self._scu is not None:
+            self._scu.cleanup_resources()
+            self._scu = None
 
     def is_connected(self) -> bool:
         """
@@ -385,12 +382,17 @@ class Model(QObject):
             return self._scu.is_connected()
         return False
 
-    def register_event_updates(self, registrations: list[str]) -> None:
+    def register_event_updates(
+        self,
+        registrations: list[str],
+        subscription_error_callback: Callable[[str], None] | None = None,
+    ) -> None:
         """
         Register event updates for specific event registrations.
 
         :param registrations: A list containing events to subscribe to.
         :type registrations: list[str]
+        :param subscription_error_callback: to call if error is logged, default None.
         """
         self._event_q_poller = QueuePollThread(self.data_received)
         self._event_q_poller.start()
@@ -400,6 +402,7 @@ class Model(QObject):
                 registrations,
                 period=self.subscription_rate_ms,
                 data_queue=self._event_q_poller.queue,
+                subscription_error_callback=subscription_error_callback,
             )
             if missing_nodes and not bad_nodes:
                 self._nodes_status = NodesStatus.ATTR_NOT_FOUND
