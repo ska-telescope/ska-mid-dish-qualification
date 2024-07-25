@@ -6,16 +6,17 @@
     - Updated commands to handle session ID.
     - Changed commands' arguments from enumerated types to integer types.
     - SCU disconnects from incompatible CETC simulator versions and informs user with log and GUI status message - only v3.2.3. and up is compatible.
-- Non-breaking changes (WOM-383, WOM-371, WOM-390, WOM-392, WOM-396, WOM-397):
+- Non-breaking changes (WOM-383, WOM-371, WOM-390, WOM-392, WOM-396, WOM-397, WOM-405, WOM-406):
     - SCU caches node IDs to JSON file after scanning server, which significantly speeds-up subsequent reconnects to the same server.
     - SCU automatically releases command authority when disconnecting from server.
     - GUI gracefully quits with unhandled exceptions or Unix signals.
     - Handle write-error exception in SCU lib.
     - Handle missing call_method exception in SCU lib.
     - Handle connection timeout exception in SCU lib.
-    - Replaced all command strings with a Command Enum class added to SCU.
+    - Handle unexpected closed connection in SCU lib.
+    - Replaced all command strings with Command Enum and result codes with ResultCode Enum classes.
     - Refactored and cleaned-up SCU functions.
-    - Data logger's wait_for_completion() has been squashed into stop().
+    - Data logger's wait_for_completion() has been squashed into stop() and local datetime is converted to timezone aware timestamp before writing to file.
 
 ## 0.3.0
 
