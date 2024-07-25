@@ -392,7 +392,8 @@ class Model(QObject):
 
         :param registrations: A list containing events to subscribe to.
         :type registrations: list[str]
-        :param subscription_error_callback: to call if error is logged, default None.
+        :param subscription_error_callback: will be called if an error is logged,
+            defaults to None.
         """
         self._event_q_poller = QueuePollThread(self.data_received)
         self._event_q_poller.start()
