@@ -5,7 +5,7 @@ from time import sleep
 import pytest
 from PyQt6 import QtWidgets
 
-from disq.sculib import Command
+from disq.constants import Command
 from disq.view import MainView
 
 

@@ -12,8 +12,9 @@ from typing import Any, Callable, Final, Type
 
 from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
+from disq.constants import PACKAGE_VERSION, CmdReturn, Command, NodesStatus, ResultCode
 from disq.logger import Logger
-from disq.sculib import PACKAGE_VERSION, SCU, CmdReturn, Command, ResultCode
+from disq.sculib import SCU
 
 logger = logging.getLogger("gui.model")
 
@@ -95,16 +96,6 @@ class QueuePollThread(QThread):
         self._running = False
         if not self.wait(1):
             self.terminate()
-
-
-class NodesStatus(Enum):
-    """Nodes status."""
-
-    NOT_CONNECTED = "Not connected to server"
-    VALID = "Nodes valid"
-    ATTR_NOT_FOUND = "Client is missing attribute(s). Check log!"
-    NODE_INVALID = "Client has invalid attribute(s). Check log!"
-    NOT_FOUND_INVALID = "Client is missing and has invalid attribute(s). Check log!"
 
 
 class StatusTreeHierarchy(QueuePollThread):
