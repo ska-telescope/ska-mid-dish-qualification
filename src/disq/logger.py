@@ -299,7 +299,9 @@ class Logger:
                 self._data_count += 1
                 node = datapoint["name"]
                 self._cache[node][self._TIMESTAMP_IDX].append(
-                    datapoint["source_timestamp"].timestamp()
+                    datapoint["source_timestamp"]
+                    .replace(tzinfo=timezone.utc)
+                    .timestamp()
                 )
                 self._cache[node][self._VALUE_IDX].append(datapoint["value"])
                 self._cache[node][self._COUNT_IDX] += 1
