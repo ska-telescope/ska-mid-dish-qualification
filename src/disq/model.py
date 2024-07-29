@@ -132,7 +132,7 @@ class StatusTreeHierarchy(QueuePollThread):
             group, attr_name = self._attr_group_name(attr_full_name)
             if group not in self._status:
                 self._status[group] = {}
-            self._status[group].update({attr_name: None})
+            self._status[group].update({attr_name: ""})
         for group, _ in self._status.items():
             self._group_summary_status[group] = None
 
@@ -159,6 +159,21 @@ class StatusTreeHierarchy(QueuePollThread):
             if attr_full_name.startswith(group) and attr_full_name.endswith(attr_name):
                 return attr_full_name
         raise KeyError(f"Attribute {attr_name} not found in group {group}")
+
+    def get_all_attributes(self) -> dict[str, list[tuple[str, str, str]]]:
+        """Return a dictionary of all attributes and their values.
+
+        Each tuple in the list contains:
+            (attribute full name, attribute short name, value)
+        """
+        retval = {
+            group: [
+                (attr, value, self.get_attr_full_name(group, attr))
+                for attr, value in attrs.items()
+            ]
+            for group, attrs in self._status.items()
+        }
+        return retval
 
     def _handle_event(self, data: dict) -> None:
         """Override the QueuePollThread base class event handler."""
@@ -242,8 +257,8 @@ class Model(QObject):
         )
         self._event_q_poller: QueuePollThread | None = None
         self._nodes_status = NodesStatus.NOT_CONNECTED
-        self._status_warning_tree: StatusTreeHierarchy | None = None
-        self._status_error_tree: StatusTreeHierarchy | None = None
+        self.status_warning_tree: StatusTreeHierarchy | None = None
+        self.status_error_tree: StatusTreeHierarchy | None = None
 
     def connect(self, connect_details: dict) -> None:
         """
@@ -337,12 +352,12 @@ class Model(QObject):
         if self._event_q_poller is not None:
             self._event_q_poller.stop()
             self._event_q_poller = None
-        if self._status_warning_tree is not None:
-            self._status_warning_tree.stop()
-            self._status_warning_tree = None
-        if self._status_error_tree is not None:
-            self._status_error_tree.stop()
-            self._status_error_tree = None
+        if self.status_warning_tree is not None:
+            self.status_warning_tree.stop()
+            self.status_warning_tree = None
+        if self.status_error_tree is not None:
+            self.status_error_tree.stop()
+            self.status_error_tree = None
         if self._scu is not None:
             self._scu.disconnect_and_cleanup()
             self._scu = None
@@ -388,31 +403,31 @@ class Model(QObject):
     def _register_status_event_updates(self) -> None:
         """Register status event updates."""
         # Create each of the status hiearchy objects
-        self._status_warning_tree = StatusTreeHierarchy(
+        self.status_warning_tree = StatusTreeHierarchy(
             self.status_attribute_update,
             self.status_group_update,
             self.status_warning_attributes,
         )
-        self._status_error_tree = StatusTreeHierarchy(
+        self.status_error_tree = StatusTreeHierarchy(
             self.status_attribute_update,
             self.status_group_update,
             self.status_error_attributes,
         )
 
         # Create and start each queue poller thread for error/warning status trees
-        self._status_warning_tree.start()
-        self._status_error_tree.start()
+        self.status_warning_tree.start()
+        self.status_error_tree.start()
         # subscribe to events with the scu
         if self._scu is not None:
             _ = self._scu.subscribe(
                 self.status_warning_attributes,
                 period=self.subscription_rate_ms,
-                data_queue=self._status_error_tree.queue,
+                data_queue=self.status_warning_tree.queue,
             )
             _ = self._scu.subscribe(
                 self.status_error_attributes,
                 period=self.subscription_rate_ms,
-                data_queue=self._status_error_tree.queue,
+                data_queue=self.status_error_tree.queue,
             )
         else:
             logger.warning("Model: _register_status_event_updates: scu is None!?!?!")
