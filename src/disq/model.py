@@ -337,6 +337,12 @@ class Model(QObject):
         if self._event_q_poller is not None:
             self._event_q_poller.stop()
             self._event_q_poller = None
+        if self._status_warning_tree is not None:
+            self._status_warning_tree.stop()
+            self._status_warning_tree = None
+        if self._status_error_tree is not None:
+            self._status_error_tree.stop()
+            self._status_error_tree = None
         if self._scu is not None:
             self._scu.disconnect_and_cleanup()
             self._scu = None
