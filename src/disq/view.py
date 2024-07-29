@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Callable, Final
 
 from PyQt6 import QtCore, QtWidgets, uic
+from PyQt6.QtGui import QColor
 
 from disq import controller, model
 
@@ -500,6 +501,13 @@ class MainView(QtWidgets.QMainWindow):
             self.track_table_file_button_clicked
         )
 
+        self.warning_tree_view: QtWidgets.QTreeWidget
+        self.warning_status_show_only_warnings: QtWidgets.QCheckBox
+        self.error_tree_view: QtWidgets.QTreeWidget
+        self.error_status_show_only_errors: QtWidgets.QCheckBox
+        self._status_widget_update_lut: dict[str, QtWidgets.QTreeWidgetItem] = {}
+        self.model.status_attribute_update.connect(self._status_attribute_event_handler)
+
     @cached_property
     def opcua_widgets(self) -> dict[str, tuple[QtWidgets.QWidget, Callable]]:
         """
@@ -877,6 +885,7 @@ class MainView(QtWidgets.QMainWindow):
             self.button_load_track_table.setEnabled(True)
         self._update_static_pointing_inputs_text = True
         self._update_temp_correction_inputs_text = True
+        self._initialise_error_warning_widgets()
 
     def server_disconnected_event(self):
         """Handle the server disconnected event."""
@@ -1276,3 +1285,53 @@ class MainView(QtWidgets.QMainWindow):
             except ValueError:
                 spinbox.setValue(0)
             spinbox.blockSignals(block_signals)
+
+    def _configure_status_tree_widget(
+        self,
+        tree_widget: QtWidgets.QTreeWidget,
+        status_attributes: dict[str, list[tuple[str, str, str]]],
+    ) -> None:
+        """Configure the status tree widget."""
+        tree_widget.setColumnCount(3)
+        tree_widget.setHeaderLabels(["Group", "Status", "Time"])
+        tree_widget.setColumnWidth(0, 180)  # Group
+        tree_widget.setColumnWidth(1, 50)  # Status
+        tree_widget.setColumnWidth(2, 180)  # Time
+        # tree_widget.setColumnWidth(3, 400)  # Description - TODO: add description
+
+        for group, status_list in status_attributes.items():
+            parent = QtWidgets.QTreeWidgetItem([group])
+            tree_widget.addTopLevelItem(parent)
+            for attr_short_name, attr_value, attr_full_name in status_list:
+                status_widget = QtWidgets.QTreeWidgetItem(
+                    parent, [attr_short_name, attr_value, "", ""]
+                )
+                self._status_widget_update_lut[attr_full_name] = status_widget
+
+    def _initialise_error_warning_widgets(self) -> None:
+        """Initialise the error and warning widgets."""
+        self._configure_status_tree_widget(
+            self.warning_tree_view, self.controller.get_warning_attributes()
+        )
+        self._configure_status_tree_widget(
+            self.error_tree_view, self.controller.get_error_attributes()
+        )
+
+    def _status_attribute_event_handler(
+        self,
+        attribute_full_name: str,
+        attribute_value: str,
+        attribute_update_time: datetime,
+    ) -> None:
+        tree_widget_item = self._status_widget_update_lut[attribute_full_name]
+        tree_widget_item.setText(1, attribute_value)
+        tree_widget_item.setText(2, str(attribute_update_time))
+        if "true" in attribute_value.lower():
+            tree_widget_item.setBackground(1, QColor("red"))
+        if "false" in attribute_value.lower():
+            tree_widget_item.setBackground(1, QColor("green"))
+        history_line: str = (
+            f"{str(attribute_update_time)} - {attribute_full_name}: {attribute_value}"
+        )
+        self.list_cmd_history.addItem(history_line)
+        self.list_cmd_history.scrollToBottom()
