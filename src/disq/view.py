@@ -507,6 +507,13 @@ class MainView(QtWidgets.QMainWindow):
         self.error_status_show_only_errors: QtWidgets.QCheckBox
         self._status_widget_update_lut: dict[str, QtWidgets.QTreeWidgetItem] = {}
         self.model.status_attribute_update.connect(self._status_attribute_event_handler)
+        self.warning_error_filter: bool = False
+        self.warning_status_show_only_warnings.stateChanged.connect(
+            self.warning_status_show_only_warnings_clicked
+        )
+        self.error_status_show_only_errors.stateChanged.connect(
+            self.warning_status_show_only_warnings_clicked
+        )
 
     @cached_property
     def opcua_widgets(self) -> dict[str, tuple[QtWidgets.QWidget, Callable]]:
@@ -886,6 +893,8 @@ class MainView(QtWidgets.QMainWindow):
         self._update_static_pointing_inputs_text = True
         self._update_temp_correction_inputs_text = True
         self._initialise_error_warning_widgets()
+        self.warning_status_show_only_warnings.setEnabled(True)
+        self.error_status_show_only_errors.setEnabled(True)
 
     def server_disconnected_event(self):
         """Handle the server disconnected event."""
@@ -1334,10 +1343,27 @@ class MainView(QtWidgets.QMainWindow):
         tree_widget_item.setText(2, str(attribute_update_time))
         if "true" in attribute_value.lower():
             tree_widget_item.setBackground(1, QColor("red"))
+            tree_widget_item.setHidden(False)
         if "false" in attribute_value.lower():
             tree_widget_item.setBackground(1, QColor("green"))
+            tree_widget_item.setHidden(self.warning_error_filter)
         history_line: str = (
             f"{str(attribute_update_time)} - {attribute_full_name}: {attribute_value}"
         )
         self.list_cmd_history.addItem(history_line)
         self.list_cmd_history.scrollToBottom()
+
+    def warning_status_show_only_warnings_clicked(self, checked: int) -> None:
+        """Show only warnings checkbox clicked slot function."""
+        self.warning_error_filter = False
+        if checked == 2:
+            self.warning_error_filter = True
+
+        self.warning_status_show_only_warnings.setChecked(self.warning_error_filter)
+        self.error_status_show_only_errors.setChecked(self.warning_error_filter)
+
+        for _, widget in self._status_widget_update_lut.items():
+            if self.warning_error_filter and "false" in widget.text(1).lower():
+                widget.setHidden(True)
+            else:
+                widget.setHidden(False)
