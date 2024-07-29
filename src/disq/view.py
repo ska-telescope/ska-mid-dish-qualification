@@ -898,6 +898,10 @@ class MainView(QtWidgets.QMainWindow):
         self._enable_server_widgets(True, connect_button=True)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
+        self.warning_status_show_only_warnings.setEnabled(False)
+        self.warning_tree_view.setEnabled(False)
+        self.error_status_show_only_errors.setEnabled(False)
+        self.error_tree_view.setEnabled(False)
 
     def connect_button_clicked(self):
         """Setup a connection to the server."""
@@ -1292,6 +1296,8 @@ class MainView(QtWidgets.QMainWindow):
         status_attributes: dict[str, list[tuple[str, str, str]]],
     ) -> None:
         """Configure the status tree widget."""
+        tree_widget.clear()
+        tree_widget.setEnabled(True)
         tree_widget.setColumnCount(3)
         tree_widget.setHeaderLabels(["Group", "Status", "Time"])
         tree_widget.setColumnWidth(0, 180)  # Group
