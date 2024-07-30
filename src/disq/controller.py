@@ -481,3 +481,11 @@ class Controller(QObject):
         :type config: list[str]
         """
         self._model.recording_config = config
+
+    def get_warning_attributes(self) -> dict[str, list[tuple[str, str, str]]]:
+        """Get the warning attributes from the model."""
+        return self._model.status_warning_tree.get_all_attributes()
+
+    def get_error_attributes(self) -> dict[str, list[tuple[str, str, str]]]:
+        """Get the error attributes from the model."""
+        return self._model.status_error_tree.get_all_attributes()

@@ -130,6 +130,11 @@ def create_rw_attribute(
     class opc_ua_rw_attribute:  # noqa: N801
         # pylint: disable=too-few-public-methods,missing-class-docstring,invalid-name
         # pylint: disable=missing-function-docstring
+
+        @property
+        def ua_node(self) -> Node:
+            return node
+
         @property
         def value(self) -> Any:
             try:
@@ -174,6 +179,10 @@ def create_ro_attribute(
     class opc_ua_ro_attribute:  # noqa: N801
         # pylint: disable=too-few-public-methods,missing-class-docstring,invalid-name
         # pylint: disable=missing-function-docstring
+        @property
+        def ua_node(self) -> Node:
+            return node
+
         @property
         def value(self) -> Any:
             try:
@@ -298,15 +307,18 @@ class SCU:
         scu.take_authority("LMC")
     ```
     - All nodes from and including the PLC_PRG node are stored in the nodes dictionary:
+      `scu.nodes`. The keys are the full node names, the values are the Node objects.
+      The full names of all nodes can be retrieved with:
 
     ```
     scu.get_node_list()
     ```
-    - Every value in the dictionary exposes the full OPC UA functionality for a node.
+    - Every value in `scu.nodes` exposes the full OPC UA functionality for a node.
       Note: When accessing nodes directly, it is mandatory to await any calls:
 
     ```
-    node_name = (await (node.read_display_name()).Text
+    node = scu.nodes['PLC_PRG']
+    node_name = (await node.read_display_name()).Text
     ```
     - The methods that are below the PLC_PRG node's hierarchy can be accessed through
       the commands dictionary:
@@ -1565,6 +1577,30 @@ class SCU:
             )
             for index, field in enumerate(dt_node_def.Fields)
         ]
+
+    def get_node_descriptions(self, node_list: list[str]) -> list[tuple[str, str]]:
+        """
+        Get the descriptions of a list of nodes.
+
+        :param node_list: A list of node names.
+        :type node_list: list[str]
+        :return: A list of tuples containing the node names and their descriptions.
+        :rtype: tuple(str, str|None)
+        """
+
+        async def get_descriptions() -> list[str]:
+            coroutines = [
+                self.nodes[nm].read_description() for nm in node_list  # type: ignore
+            ]
+            return await asyncio.gather(*coroutines)
+
+        descriptions = asyncio.run_coroutine_threadsafe(
+            get_descriptions(), self.event_loop
+        ).result()
+        # Convert the descriptions to text (or None)
+        descriptions = [desc.Text for desc in descriptions]  # type: ignore
+        result = list(zip(node_list, descriptions))
+        return result
 
     # pylint: disable=dangerous-default-value
     def subscribe(

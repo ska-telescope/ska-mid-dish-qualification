@@ -3,10 +3,12 @@
 import logging
 import os
 from asyncio import exceptions as asyncexc
+from datetime import datetime
 from enum import Enum
+from functools import cached_property
 from pathlib import Path
 from queue import Empty, Queue
-from typing import Any, Type
+from typing import Any, Final, Type
 
 from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
@@ -14,6 +16,16 @@ from disq.logger import Logger
 from disq.sculib import PACKAGE_VERSION, SCU, Command
 
 logger = logging.getLogger("gui.model")
+
+# Constant definitions of attribute names on the OPC-UA server
+AZIMUTH_WARNING_STATUS_PREFIX: Final[str] = "Azimuth.WarningStatus.wa"
+ELEVATION_WARNING_STATUS_PREFIX: Final[str] = "Elevation.WarningStatus.wa"
+FEEDINDEXER_WARNING_STATUS_PREFIX: Final[str] = "FeedIndexer.WarningStatus.wa"
+MANAGEMENT_WARNING_STATUS_PREFIX: Final[str] = "Management.WarningStatus.wa"
+AZIMUTH_ERROR_STATUS_PREFIX: Final[str] = "Azimuth.ErrorStatus.err"
+ELEVATION_ERROR_STATUS_PREFIX: Final[str] = "Elevation.ErrorStatus.err"
+FEEDINDEXER_ERROR_STATUS_PREFIX: Final[str] = "FeedIndexer.ErrorStatus.err"
+MANAGEMENT_ERROR_STATUS_PREFIX: Final[str] = "Management.ErrorStatus.err"
 
 
 class QueuePollThread(QThread):
@@ -28,13 +40,13 @@ class QueuePollThread(QThread):
         """
         Initialize the SignalProcessor object.
 
-        :param signal: The signal to be processed.
-        :type signal: pyqtBoundSignal
+        :param signal: The signal to be emitted on event updates.
+        :type signal: pyqtSignal
         """
         super().__init__()
         self.queue: Queue = Queue()
         self.signal = signal
-        self._running = False
+        self._running: bool = False
 
     def run(self) -> None:
         """
@@ -59,7 +71,19 @@ class QueuePollThread(QThread):
                 data["name"],
                 data["value"],
             )
-            self.signal.emit(data)
+            self._handle_event(data)
+
+    def _handle_event(self, data: dict) -> None:
+        """
+        Handle an event.
+
+        This method emits a signal with the data received. This may be overridden in
+        subclasses to handle the data differently.
+
+        :param data: The data to be handled.
+        :type data: dict
+        """
+        self.signal.emit(data)
 
     def stop(self) -> None:
         """
@@ -83,6 +107,125 @@ class NodesStatus(Enum):
     NOT_FOUND_INVALID = "Client is missing and has invalid attribute(s). Check log!"
 
 
+class StatusTreeHierarchy(QueuePollThread):
+    """A class to represent a hierarchy of status attributes."""
+
+    def __init__(
+        self,
+        status_signal: pyqtBoundSignal,
+        group_signal: pyqtBoundSignal,
+        status_attributes: list[str],
+    ) -> None:
+        """A class to represent a hierarchy of status attributes.
+
+        :param status_attributes: A list of status attributes with the full dot-notated
+                                  attribute name
+        :type status_attributes: list[str]
+        """
+        super().__init__(status_signal)
+        self._group_signal: pyqtBoundSignal = group_signal
+        self._status_attribute_full_names: list[str] = status_attributes
+        self._status: dict[str, dict[str, str]] = {}
+        self._group_summary_status: dict[str, bool] = {}
+
+        for attr_full_name in status_attributes:
+            group, attr_name = self._attr_group_name(attr_full_name)
+            if group not in self._status:
+                self._status[group] = {}
+            self._status[group].update({attr_name: ""})
+        for group, _ in self._status.items():
+            self._group_summary_status[group] = None
+
+    @property
+    def attribute_names(self) -> list[str]:
+        """A list of all status attribute names.
+
+        Names are returned in the list as full dot-notated attribute names
+        """
+        return self._status_attribute_full_names
+
+    @property
+    def groups(self) -> list[str]:
+        """A list of all group names."""
+        return list(self._status.keys())
+
+    def get_group(self, group: str) -> dict[str, str]:
+        """Return a dictionary of attribute names and their values for a group."""
+        return self._status.get(group, {})
+
+    def get_attr_full_name(self, group: str, attr_name: str) -> str | None:
+        """Return the full dot-notated attribute name."""
+        for attr_full_name in self._status_attribute_full_names:
+            if attr_full_name.startswith(group) and attr_full_name.endswith(attr_name):
+                return attr_full_name
+        raise KeyError(f"Attribute {attr_name} not found in group {group}")
+
+    def get_all_attributes(self) -> dict[str, list[tuple[str, str, str]]]:
+        """Return a dictionary of all attributes and their values.
+
+        Each tuple in the list contains:
+            (attribute full name, attribute short name, value)
+        """
+        retval = {
+            group: [
+                (attr, value, self.get_attr_full_name(group, attr))
+                for attr, value in attrs.items()
+            ]
+            for group, attrs in self._status.items()
+        }
+        return retval
+
+    def _handle_event(self, data: dict) -> None:
+        """Override the QueuePollThread base class event handler."""
+        attribute_name = str(data["name"])
+        # convert the value boolean or None to a string
+        attribute_value = str(data["value"]) if data["value"] is not None else ""
+        event_server_time = data["source_timestamp"]
+        logger.debug(
+            "DATA: name=%s val=%s, time=%s",
+            attribute_name,
+            attribute_value,
+            str(event_server_time),
+        )
+        self._update_attribute_status(
+            attribute_name, attribute_value, event_server_time
+        )
+
+    def _update_attribute_status(
+        self, attr_full_name: str, value: str, event_server_time: datetime
+    ) -> None:
+        group, attr_name = self._attr_group_name(attr_full_name)
+        self._status[group][attr_name] = value
+        # signal an update on the attribute
+        logger.warning("Signal update on %s", attr_full_name)
+        self.signal.emit(attr_full_name, value, event_server_time)
+        self._set_group_error_status(group)
+
+    def _group_has_error(self, group: str) -> bool:
+        return "true" in self._status[group].values()
+
+    def _set_group_error_status(self, group):
+        group_error_status = self._group_has_error(group)
+        # Detect when the group error status changes
+        if group_error_status != self._group_summary_status[group]:
+            self._group_summary_status[group] = group_error_status
+            # signal a group error status change
+            self._group_signal.emit(group, group_error_status)
+            logger.debug("signal a group error status change on %s", group)
+
+    def _attr_group_name(self, attr_full_name: str) -> tuple[str, str]:
+        """Split a full dot-notated attribute name into group and attribute name.
+
+        :param attr_full_name: a dot-notated attribute name
+        :type attr_full_name: str
+        :return: a tuple of group and attribute name
+        :rtype: tuple[str, str]
+        """
+        group = attr_full_name.split(".")[0]
+        attr_name = attr_full_name.split(".")[-1]
+        return group, attr_name
+
+
 # pylint: disable=too-many-instance-attributes
 class Model(QObject):
     """
@@ -95,6 +238,8 @@ class Model(QObject):
     # define signals here
     command_response = pyqtSignal(str)
     data_received = pyqtSignal(dict)
+    status_attribute_update = pyqtSignal(str, str, datetime)
+    status_group_update = pyqtSignal(str, bool)
 
     def __init__(self, parent: QObject | None = None) -> None:
         """
@@ -112,6 +257,8 @@ class Model(QObject):
         )
         self._event_q_poller: QueuePollThread | None = None
         self._nodes_status = NodesStatus.NOT_CONNECTED
+        self.status_warning_tree: StatusTreeHierarchy | None = None
+        self.status_error_tree: StatusTreeHierarchy | None = None
 
     def connect(self, connect_details: dict) -> None:
         """
@@ -145,6 +292,7 @@ class Model(QObject):
             self._scu = None
             raise TimeoutError(msg) from e
         logger.debug("Connected to server on URI: %s", self.get_server_uri())
+        self._register_status_event_updates()
 
     def get_server_uri(self) -> str:
         """
@@ -204,6 +352,12 @@ class Model(QObject):
         if self._event_q_poller is not None:
             self._event_q_poller.stop()
             self._event_q_poller = None
+        if self.status_warning_tree is not None:
+            self.status_warning_tree.stop()
+            self.status_warning_tree = None
+        if self.status_error_tree is not None:
+            self.status_error_tree.stop()
+            self.status_error_tree = None
         if self._scu is not None:
             self._scu.disconnect_and_cleanup()
             self._scu = None
@@ -245,6 +399,38 @@ class Model(QObject):
                 self._nodes_status = NodesStatus.VALID
         else:
             logger.warning("Model: register_event_updates: SCU not initialised yet!")
+
+    def _register_status_event_updates(self) -> None:
+        """Register status event updates."""
+        # Create each of the status hiearchy objects
+        self.status_warning_tree = StatusTreeHierarchy(
+            self.status_attribute_update,
+            self.status_group_update,
+            self.status_warning_attributes,
+        )
+        self.status_error_tree = StatusTreeHierarchy(
+            self.status_attribute_update,
+            self.status_group_update,
+            self.status_error_attributes,
+        )
+
+        # Create and start each queue poller thread for error/warning status trees
+        self.status_warning_tree.start()
+        self.status_error_tree.start()
+        # subscribe to events with the scu
+        if self._scu is not None:
+            _ = self._scu.subscribe(
+                self.status_warning_attributes,
+                period=self.subscription_rate_ms,
+                data_queue=self.status_warning_tree.queue,
+            )
+            _ = self._scu.subscribe(
+                self.status_error_attributes,
+                period=self.subscription_rate_ms,
+                data_queue=self.status_error_tree.queue,
+            )
+        else:
+            logger.warning("Model: _register_status_event_updates: scu is None!?!?!")
 
     def run_opcua_command(
         self, command: Command, *args: Any
@@ -409,3 +595,46 @@ class Model(QObject):
         :type config: list[str]
         """
         self._recording_config = config
+
+    def _get_attributes_startswith(self, prefix: str) -> list[str]:
+        """
+        Get a list of OPC-UA nodes that start with the given prefix.
+
+        :param prefix: The prefix to search for.
+        :type prefix: str
+        :return: A list of OPC-UA node names.
+        :rtype: list[str]
+        """
+        return [attr for attr in self._scu.attributes if attr.startswith(prefix)]
+
+    @cached_property
+    def status_warning_attributes(self) -> list[str]:
+        """
+        A list of status warning attributes.
+
+        :return: A list of status warning attributes.
+        :rtype: list[str]
+        """
+        warning_attributes = (
+            self._get_attributes_startswith(AZIMUTH_WARNING_STATUS_PREFIX)
+            + self._get_attributes_startswith(ELEVATION_WARNING_STATUS_PREFIX)
+            + self._get_attributes_startswith(FEEDINDEXER_WARNING_STATUS_PREFIX)
+            + self._get_attributes_startswith(MANAGEMENT_WARNING_STATUS_PREFIX)
+        )
+        return warning_attributes
+
+    @cached_property
+    def status_error_attributes(self) -> list[str]:
+        """
+        A list of status error attributes.
+
+        :return: A list of status warning attributes.
+        :rtype: list[str]
+        """
+        warning_attributes = (
+            self._get_attributes_startswith(AZIMUTH_ERROR_STATUS_PREFIX)
+            + self._get_attributes_startswith(ELEVATION_ERROR_STATUS_PREFIX)
+            + self._get_attributes_startswith(FEEDINDEXER_ERROR_STATUS_PREFIX)
+            + self._get_attributes_startswith(MANAGEMENT_ERROR_STATUS_PREFIX)
+        )
+        return warning_attributes
