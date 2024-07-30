@@ -333,13 +333,8 @@ class Model(QObject):
             return "not connected to server"
         return self._scu.plc_prg_nodes_timestamp
 
-    def disconnect(self):
-        """
-        Disconnect from the SCU and clean up resources.
-
-        Disconnects from the SCU, unsubscribes from all events, and stops the event
-        queue poller.
-        """
+    def _stop_polling_threads(self) -> None:
+        """Stop any running queue polling threads."""
         if self._event_q_poller is not None:
             self._event_q_poller.stop()
             self._event_q_poller = None
@@ -349,15 +344,22 @@ class Model(QObject):
         if self.status_error_tree is not None:
             self.status_error_tree.stop()
             self.status_error_tree = None
+
+    def disconnect(self) -> None:
+        """
+        Disconnect from the SCU and clean up resources.
+
+        Disconnects from the SCU, unsubscribes from all events, and stops the event
+        queue poller.
+        """
+        self._stop_polling_threads()
         if self._scu is not None:
             self._scu.disconnect_and_cleanup()
             self._scu = None
 
-    def handle_closed_connection(self):
+    def handle_closed_connection(self) -> None:
         """Handle unexpected closed connection."""
-        if self._event_q_poller is not None:
-            self._event_q_poller.stop()
-            self._event_q_poller = None
+        self._stop_polling_threads()
         if self._scu is not None:
             self._scu.cleanup_resources()
             self._scu = None
