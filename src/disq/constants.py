@@ -52,6 +52,7 @@ class ResultCode(IntEnum):
     This enum extens the CmdResponseType and needs to be kept up to date with the ICD.
     """
 
+    UNKNOWN = -10
     # Codes for caught asyncua exceptions
     CONNECTION_CLOSED = -3
     UA_BASE_EXCEPTION = -2
