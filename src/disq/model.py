@@ -8,12 +8,13 @@ from enum import Enum
 from functools import cached_property
 from pathlib import Path
 from queue import Empty, Queue
-from typing import Any, Final, Type
+from typing import Any, Callable, Final, Type
 
 from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
+from disq.constants import PACKAGE_VERSION, CmdReturn, Command, NodesStatus, ResultCode
 from disq.logger import Logger
-from disq.sculib import PACKAGE_VERSION, SCU, Command
+from disq.sculib import SCU
 
 logger = logging.getLogger("gui.model")
 
@@ -95,16 +96,6 @@ class QueuePollThread(QThread):
         self._running = False
         if not self.wait(1):
             self.terminate()
-
-
-class NodesStatus(Enum):
-    """Nodes status."""
-
-    NOT_CONNECTED = "Not connected to server"
-    VALID = "Nodes valid"
-    ATTR_NOT_FOUND = "Client is missing attribute(s). Check log!"
-    NODE_INVALID = "Client has invalid attribute(s). Check log!"
-    NOT_FOUND_INVALID = "Client is missing and has invalid attribute(s). Check log!"
 
 
 class StatusTreeHierarchy(QueuePollThread):
@@ -342,13 +333,8 @@ class Model(QObject):
             return "not connected to server"
         return self._scu.plc_prg_nodes_timestamp
 
-    def disconnect(self):
-        """
-        Disconnect from the SCU and clean up resources.
-
-        Disconnects from the SCU, unsubscribes from all events, and stops the event
-        queue poller.
-        """
+    def _stop_polling_threads(self) -> None:
+        """Stop any running queue polling threads."""
         if self._event_q_poller is not None:
             self._event_q_poller.stop()
             self._event_q_poller = None
@@ -358,8 +344,24 @@ class Model(QObject):
         if self.status_error_tree is not None:
             self.status_error_tree.stop()
             self.status_error_tree = None
+
+    def disconnect(self) -> None:
+        """
+        Disconnect from the SCU and clean up resources.
+
+        Disconnects from the SCU, unsubscribes from all events, and stops the event
+        queue poller.
+        """
+        self._stop_polling_threads()
         if self._scu is not None:
             self._scu.disconnect_and_cleanup()
+            self._scu = None
+
+    def handle_closed_connection(self) -> None:
+        """Handle unexpected closed connection."""
+        self._stop_polling_threads()
+        if self._scu is not None:
+            self._scu.cleanup_resources()
             self._scu = None
 
     def is_connected(self) -> bool:
@@ -373,12 +375,18 @@ class Model(QObject):
             return self._scu.is_connected()
         return False
 
-    def register_event_updates(self, registrations: list[str]) -> None:
+    def register_event_updates(
+        self,
+        registrations: list[str],
+        bad_shutdown_callback: Callable[[str], None] | None = None,
+    ) -> None:
         """
         Register event updates for specific event registrations.
 
         :param registrations: A list containing events to subscribe to.
         :type registrations: list[str]
+        :param bad_shutdown_callback: will be called if a BadShutdown subscription
+            status notification is received, defaults to None.
         """
         self._event_q_poller = QueuePollThread(self.data_received)
         self._event_q_poller.start()
@@ -388,6 +396,7 @@ class Model(QObject):
                 registrations,
                 period=self.subscription_rate_ms,
                 data_queue=self._event_q_poller.queue,
+                bad_shutdown_callback=bad_shutdown_callback,
             )
             if missing_nodes and not bad_nodes:
                 self._nodes_status = NodesStatus.ATTR_NOT_FOUND
@@ -432,9 +441,7 @@ class Model(QObject):
         else:
             logger.warning("Model: _register_status_event_updates: scu is None!?!?!")
 
-    def run_opcua_command(
-        self, command: Command, *args: Any
-    ) -> tuple[int, str, list[int | None] | None]:
+    def run_opcua_command(self, command: Command, *args: Any) -> CmdReturn:
         """
         Run an OPC-UA command on the server.
 
@@ -447,22 +454,20 @@ class Model(QObject):
         :raises RuntimeError: If the server is not connected.
         """
 
-        def _log_and_call(
-            command: Command, *args: Any
-        ) -> tuple[int, str, list[int | None] | None]:
+        def _log_and_call(command: Command, *args: Any) -> CmdReturn:
             logger.debug("Calling command: %s, args: %s", command.value, args)
             try:
                 result = self._scu.commands[command.value](*args)
             except KeyError:
                 msg = f"Exception: Key '{command.value}' not found!"
                 logger.error(msg)
-                result = -1, msg, None
+                result = ResultCode.NOT_EXECUTED, msg, None
             return result
 
         if self._scu is None:
             raise RuntimeError("server not connected")
-        # Commands that take a single AxisSelectType parameter input
         match command:
+            # Commands that take a single AxisSelectType parameter input
             case (
                 Command.STOP
                 | Command.ACTIVATE
@@ -472,17 +477,14 @@ class Model(QObject):
             ):
                 axis = self._scu.convert_enum_to_int("AxisSelectType", args[0])
                 result = _log_and_call(command, axis, *args[1:])
-            case Command.MOVE2BAND:
-                band = self._scu.convert_enum_to_int("BandType", args[0])
-                result = _log_and_call(command, band)
-            case Command.STATIC_PM_SETUP:
+            case Command.MOVE2BAND | Command.STATIC_PM_SETUP:
                 band = self._scu.convert_enum_to_int("BandType", args[0])
                 result = _log_and_call(command, band, *args[1:])
             case Command.PM_CORR_ON_OFF:
-                band = self._scu.convert_enum_to_int("BandType", args[3])
                 static = args[0]
                 tilt = self._scu.convert_enum_to_int("TiltOnType", args[1])
                 temperature = args[2]
+                band = self._scu.convert_enum_to_int("BandType", args[3])
                 result = _log_and_call(command, static, tilt, temperature, band)
             case Command.TAKE_AUTH:
                 logger.debug("Calling command: %s, args: %s", command, args)

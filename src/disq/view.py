@@ -14,6 +14,7 @@ from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import QColor
 
 from disq import controller, model
+from disq.constants import NodesStatus
 
 logger = logging.getLogger("gui.view")
 
@@ -879,7 +880,7 @@ class MainView(QtWidgets.QMainWindow):
             f"{self.model.opcua_nodes_status.value} - "
             f"Nodes generated {self.model.plc_prg_nodes_timestamp}"
         )
-        if self.model.opcua_nodes_status == model.NodesStatus.VALID:
+        if self.model.opcua_nodes_status == NodesStatus.VALID:
             self.label_cache_status.setStyleSheet("color: black;")
         else:
             self.label_cache_status.setStyleSheet("color: red;")
