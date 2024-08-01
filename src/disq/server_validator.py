@@ -95,7 +95,7 @@ class OPCUAServerValidator:
         else:
             self.in_args = "InputArguments"
             self.out_args = "OutputArguments"
-        self.server: sculib._SCU
+        self.server: sculib.SecondaryControlUnit
         self.event_loop: asyncio.AbstractEventLoop
 
     async def _run_internal_server(self, xml_file: str) -> None:
@@ -299,7 +299,7 @@ class OPCUAServerValidator:
         :return: A dictionary representing the server tree.
         :rtype: dict
         """
-        with sculib._SCU(
+        with sculib.SecondaryControlUnit(
             host,
             int(port),
             endpoint,

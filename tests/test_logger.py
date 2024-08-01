@@ -19,7 +19,7 @@ import h5py
 import pytest
 
 from disq.logger import Logger
-from disq.sculib import _SCU
+from disq.sculib import SecondaryControlUnit
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -35,7 +35,7 @@ def ds_simulator_opcua_server_mock_fixture():
     simulator_process.wait()  # Wait for the process to terminate completely
 
 
-class StubScu(_SCU):
+class StubScu(SecondaryControlUnit):
     """High level library stub class (no real subscriptions)."""
 
     subscriptions: dict = {}
