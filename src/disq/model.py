@@ -14,7 +14,7 @@ from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
 from disq.constants import PACKAGE_VERSION, CmdReturn, Command, NodesStatus, ResultCode
 from disq.logger import Logger
-from disq.sculib import SCU
+from disq.sculib import SecondaryControlUnit
 
 logger = logging.getLogger("gui.model")
 
@@ -240,7 +240,7 @@ class Model(QObject):
         :type parent: QObject or None
         """
         super().__init__(parent)
-        self._scu: SCU | None = None
+        self._scu: SecondaryControlUnit | None = None
         self._data_logger: Logger | None = None
         self._recording_config: list[str] = []
         self.subscription_rate_ms = int(
@@ -264,7 +264,7 @@ class Model(QObject):
         """
         logger.debug("Connecting to server: %s", connect_details)
         try:
-            self._scu = SCU(
+            self._scu = SecondaryControlUnit(
                 **connect_details,
                 gui_app=True,
                 app_name=f"DiSQ GUI v{PACKAGE_VERSION}",

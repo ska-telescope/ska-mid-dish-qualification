@@ -54,7 +54,7 @@ class Logger:
 
     def __init__(
         self,
-        high_level_library: sculib.SCU,
+        high_level_library: sculib.SecondaryControlUnit,
         file_name: str = None,
     ):
         """
