@@ -1095,36 +1095,16 @@
          <string>Authority Status</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_6">
-         <item row="0" column="0">
-          <widget class="QPushButton" name="button_take_auth">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string>Take Authority</string>
-           </property>
-           <property name="opcua_cmd" stdset="0">
-            <string>CommandArbiter.Commands.TakeReleaseAuth</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" colspan="2">
-          <spacer name="horizontalSpacer_26">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>59</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="0" column="3">
+         <item row="0" column="2">
           <widget class="QPushButton" name="button_interlock_ack">
            <property name="enabled">
             <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>0</height>
+            </size>
            </property>
            <property name="text">
             <string>Interlock Ack</string>
@@ -1134,27 +1114,11 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QComboBox" name="combobox_authority">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="opcua_type" stdset="0">
-            <string>DscCmdAuthorityType</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QLineEdit" name="opcua_cmd_authority">
            <property name="minimumSize">
             <size>
-             <width>0</width>
+             <width>80</width>
              <height>22</height>
             </size>
            </property>
@@ -1178,23 +1142,88 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="2" colspan="2">
-          <spacer name="horizontalSpacer_27">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+         <item row="1" column="0">
+          <widget class="QComboBox" name="combobox_authority">
+           <property name="enabled">
+            <bool>false</bool>
            </property>
-           <property name="sizeHint" stdset="0">
+           <property name="minimumSize">
             <size>
-             <width>168</width>
-             <height>20</height>
+             <width>116</width>
+             <height>22</height>
             </size>
            </property>
-          </spacer>
+           <property name="opcua_type" stdset="0">
+            <string>DscCmdAuthorityType</string>
+           </property>
+          </widget>
          </item>
-         <item row="2" column="0">
+         <item row="1" column="2">
+          <widget class="QLineEdit" name="lineEdit_7">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>22</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Safety.Status.InterlockClearable</string>
+           </property>
+           <property name="opcua_tupe" stdset="0">
+            <string>Boolean</string>
+           </property>
+           <property name="led_colour" stdset="0">
+            <string>green</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QPushButton" name="button_take_auth">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>116</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Take Authority</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>CommandArbiter.Commands.TakeReleaseAuth</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
           <widget class="QPushButton" name="button_release_auth">
            <property name="enabled">
             <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>116</width>
+             <height>0</height>
+            </size>
            </property>
            <property name="text">
             <string>Release Authority</string>
@@ -1204,23 +1233,16 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="1" colspan="2">
-          <spacer name="horizontalSpacer_28">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>59</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="2" column="3">
+         <item row="2" column="2">
           <widget class="QPushButton" name="button_reset">
            <property name="enabled">
             <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>0</height>
+            </size>
            </property>
            <property name="text">
             <string>Reset</string>
