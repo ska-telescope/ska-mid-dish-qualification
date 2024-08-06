@@ -67,12 +67,18 @@ def configure_logging(default_log_level: int = logging.INFO) -> None:
             )
             config["handlers"]["file_handler"]["atTime"] = at_time
         except KeyError as e:
-            print(f"WARNING: {e} not found in logging configuration for file_handler")
+            print(
+                f"WARNING: {e} not found in logging configuration for file_handler"
+            )
     else:
-        print(f"WARNING: Logging configuration file {disq_log_config_file} not found")
+        print(
+            f"WARNING: Logging configuration file {disq_log_config_file} not found"
+        )
 
     if config is None:
-        print(f"Reverting to basic logging config at level:{default_log_level}")
+        print(
+            f"Reverting to basic logging config at level:{default_log_level}"
+        )
         logging.basicConfig(level=default_log_level)
     else:
         Path("logs").mkdir(parents=True, exist_ok=True)
@@ -140,7 +146,9 @@ def create_rw_attribute(
                 ).result()
             except Exception as e:
                 msg = f"Failed to read value of node: {node_name}"
-                asyncio.run_coroutine_threadsafe(handle_exception(e, msg), event_loop)
+                asyncio.run_coroutine_threadsafe(
+                    handle_exception(e, msg), event_loop
+                )
                 return None
 
         @value.setter
@@ -151,7 +159,9 @@ def create_rw_attribute(
                 ).result()
             except Exception as e:
                 msg = f"Failed to write value of node: {node_name}={_value}"
-                asyncio.run_coroutine_threadsafe(handle_exception(e, msg), event_loop)
+                asyncio.run_coroutine_threadsafe(
+                    handle_exception(e, msg), event_loop
+                )
 
     return opc_ua_rw_attribute()
 
@@ -188,7 +198,9 @@ def create_ro_attribute(
                 ).result()
             except Exception as e:
                 msg = f"Failed to read value of node: {node_name}"
-                asyncio.run_coroutine_threadsafe(handle_exception(e, msg), event_loop)
+                asyncio.run_coroutine_threadsafe(
+                    handle_exception(e, msg), event_loop
+                )
                 return None
 
     return opc_ua_ro_attribute()
@@ -236,7 +248,9 @@ class SubscriptionHandler:
         """
         name = self.nodes[node]
         source_timestamp = data.monitored_item.Value.SourceTimestamp
-        server_timestamp = data.monitored_item.Value.ServerTimestamp.timestamp()
+        server_timestamp = (
+            data.monitored_item.Value.ServerTimestamp.timestamp()
+        )
         value_for_queue = {
             "name": name,
             "node": node,
@@ -247,7 +261,9 @@ class SubscriptionHandler:
         }
         self.subscription_queue.put(value_for_queue, block=True, timeout=0.1)
 
-    def status_change_notification(self, status: ua.StatusChangeNotification) -> None:
+    def status_change_notification(
+        self, status: ua.StatusChangeNotification
+    ) -> None:
         """Callback for every status change notification from server."""
         try:
             status.Status.check()  # Raises an exception if the status code is bad.
@@ -469,9 +485,13 @@ class SecondaryControlUnit:
         self.server_nodes: NodeDict
         self.server_attributes: AttrDict
         self.server_commands: CmdDict
-        self.track_table: TrackTable
-        self.stop_track_table_schedule_task_event: threading.Event
-        self.track_table_scheduled_task: concurrent.futures.Future | None = None
+        self.track_table: TrackTable = TrackTable()
+        self.stop_track_table_schedule_task_event: threading.Event | None = (
+            None
+        )
+        self.track_table_scheduled_task: concurrent.futures.Future | None = (
+            None
+        )
 
     def connect_and_setup(self) -> None:
         """
@@ -492,7 +512,9 @@ class SecondaryControlUnit:
         if self.server_version is None:
             self._server_str_id = f"{self._server_url} - version unknown"
         else:
-            self._server_str_id = f"{self._server_url} - v{self.server_version}"
+            self._server_str_id = (
+                f"{self._server_url} - v{self.server_version}"
+            )
             try:
                 if (
                     self.namespace == "CETC54"
@@ -508,7 +530,9 @@ class SecondaryControlUnit:
                     self.server_version,
                 )
         self.populate_node_dicts(self._gui_app, self._use_nodes_cache)
-        logger.info("Successfully connected to server and initialised SCU client")
+        logger.info(
+            "Successfully connected to server and initialised SCU client"
+        )
 
     def __enter__(self) -> "SecondaryControlUnit":
         """Connect to the server and setup the SCU client."""
@@ -572,7 +596,9 @@ class SecondaryControlUnit:
             ).result()
         except Exception as e:
             msg = "Failed to read value of DscSoftwareVersion attribute."
-            asyncio.run_coroutine_threadsafe(handle_exception(e, msg), self.event_loop)
+            asyncio.run_coroutine_threadsafe(
+                handle_exception(e, msg), self.event_loop
+            )
             server_version = None
         return server_version
 
@@ -624,7 +650,9 @@ class SecondaryControlUnit:
             daemon=True,
         )
         self.event_loop_thread.start()
-        thread_started_event.wait(5.0)  # Wait for the event loop thread to start
+        thread_started_event.wait(
+            5.0
+        )  # Wait for the event loop thread to start
 
     def set_up_encryption(self, client: Client, user: str, pw: str) -> None:
         """
@@ -638,9 +666,13 @@ class SecondaryControlUnit:
         :type pw: str
         """
         # this is generated if it does not exist
-        opcua_client_key = Path(str(resources.files(__package__) / "certs/key.pem"))
+        opcua_client_key = Path(
+            str(resources.files(__package__) / "certs/key.pem")
+        )
         # this is generated if it does not exist
-        opcua_client_cert = Path(str(resources.files(__package__) / "certs/cert.der"))
+        opcua_client_cert = Path(
+            str(resources.files(__package__) / "certs/cert.der")
+        )
         # get from simulator/PKI/private/SimpleServer_2048.der in tarball
         opcua_server_cert = Path(
             str(resources.files(__package__) / "certs/SimpleServer_2048.der")
@@ -687,20 +719,28 @@ class SecondaryControlUnit:
         client = Client(server_url, self.timeout)
         hostname = socket.gethostname()
         # Set the ClientDescription fields
-        client.application_uri = f"urn:{hostname}:{self._app_name.replace(' ', '-')}"
-        client.product_uri = "gitlab.com/ska-telescope/ska-mid-dish-qualification"
+        client.application_uri = (
+            f"urn:{hostname}:{self._app_name.replace(' ', '-')}"
+        )
+        client.product_uri = (
+            "gitlab.com/ska-telescope/ska-mid-dish-qualification"
+        )
         client.name = f"{self._app_name} @{hostname}"
         client.description = f"{self._app_name} @{hostname}"
         if self.username is not None and self.password is not None:
             self.set_up_encryption(client, self.username, self.password)
-        _ = asyncio.run_coroutine_threadsafe(client.connect(), self.event_loop).result()
+        _ = asyncio.run_coroutine_threadsafe(
+            client.connect(), self.event_loop
+        ).result()
         self._server_url = server_url
         try:
             _ = asyncio.run_coroutine_threadsafe(
                 client.load_data_type_definitions(), self.event_loop
             ).result()
         except Exception as exc:
-            logger.warning("Exception trying load_data_type_definitions(): %s", exc)
+            logger.warning(
+                "Exception trying load_data_type_definitions(): %s", exc
+            )
         # Get the namespace index for the PLC's Parameter node
         try:
             self.parameter_ns_idx = asyncio.run_coroutine_threadsafe(
@@ -797,7 +837,9 @@ class SecondaryControlUnit:
             code = ResultCode.NOT_EXECUTED
             msg = "DiSQ-SCU cannot take authority as HHP user"
             logger.info("TakeAuth command not executed, as %s", msg)
-        elif self._user is None or (self._user is not None and self._user < user_int):
+        elif self._user is None or (
+            self._user is not None and self._user < user_int
+        ):
             code, msg, vals = self.commands[Command.TAKE_AUTH.value](
                 ua.UInt16(user_int)
             )
@@ -807,9 +849,13 @@ class SecondaryControlUnit:
             else:
                 logger.error("TakeAuth command failed with message '%s'", msg)
         else:
-            user_str = self.convert_int_to_enum("DscCmdAuthorityType", self._user)
+            user_str = self.convert_int_to_enum(
+                "DscCmdAuthorityType", self._user
+            )
             code = ResultCode.NOT_EXECUTED
-            msg = f"DiSQ-SCU already has command authority with user {user_str}"
+            msg = (
+                f"DiSQ-SCU already has command authority with user {user_str}"
+            )
             logger.info("TakeAuth command not executed, as %s", msg)
         return code, msg
 
@@ -827,7 +873,9 @@ class SecondaryControlUnit:
             if code == ResultCode.COMMAND_DONE:
                 self._user, self._session_id = None, None
             elif code in [ResultCode.NO_CMD_AUTH, ResultCode.COMMAND_FAILED]:
-                user = self.convert_int_to_enum("DscCmdAuthorityType", self._user)
+                user = self.convert_int_to_enum(
+                    "DscCmdAuthorityType", self._user
+                )
                 logger.info(
                     "DiSQ-SCU has already lost command authority as user '%s' to "
                     "another client.",
@@ -840,7 +888,9 @@ class SecondaryControlUnit:
             logger.info(msg)
         return code, msg
 
-    def convert_enum_to_int(self, enum_type: str, name: str) -> ua.UInt16 | None:
+    def convert_enum_to_int(
+        self, enum_type: str, name: str
+    ) -> ua.UInt16 | None:
         """
         Convert the name (string) of the given enumeration type to an integer value.
 
@@ -880,7 +930,9 @@ class SecondaryControlUnit:
                 else value
             )
         except ValueError:
-            logger.error("%s is not a valid '%s' enum value!", value, enum_type)
+            logger.error(
+                "%s is not a valid '%s' enum value!", value, enum_type
+            )
             return value
 
     @cached_property
@@ -916,7 +968,9 @@ class SecondaryControlUnit:
                     enum_node = self.client.get_node(
                         f"ns={self.ns_idx};s=@{type_name}.EnumValues"
                     )
-                    enum_dict = self._create_enum_from_node(type_name, enum_node)
+                    enum_dict = self._create_enum_from_node(
+                        type_name, enum_node
+                    )
                     result.update({type_name: enum_dict})
                     setattr(ua, type_name, enum_dict)
                 except (RuntimeError, ValueError):
@@ -934,7 +988,9 @@ class SecondaryControlUnit:
             node.get_value(), self.event_loop
         ).result()
         if not isinstance(enum_values, list):
-            raise ValueError(f"Expected a list of EnumValueType for node '{name}'.")
+            raise ValueError(
+                f"Expected a list of EnumValueType for node '{name}'."
+            )
         enum_dict = {}
         for value in enum_values:
             display_name = value.DisplayName.Text
@@ -1018,9 +1074,11 @@ class SecondaryControlUnit:
                     node_id,
                     cmd_args,
                 )
-                result: None | int | list[Any] = asyncio.run_coroutine_threadsafe(
-                    node_call_method(node_id, *cmd_args), event_loop
-                ).result()
+                result: None | int | list[Any] = (
+                    asyncio.run_coroutine_threadsafe(
+                        node_call_method(node_id, *cmd_args), event_loop
+                    ).result()
+                )
                 # Unpack result if it is a list
                 if isinstance(result, list):
                     result_code_int = result.pop(0)
@@ -1050,7 +1108,9 @@ class SecondaryControlUnit:
                         result_code_int,
                     )
                 elif result_code == ResultCode.NO_CMD_AUTH:
-                    user = self.convert_int_to_enum("DscCmdAuthorityType", self._user)
+                    user = self.convert_int_to_enum(
+                        "DscCmdAuthorityType", self._user
+                    )
                     logger.info(
                         "DiSQ-SCU has lost command authority as user '%s' to "
                         "another client.",
@@ -1154,7 +1214,9 @@ class SecondaryControlUnit:
         top_node_name = "PLC_PRG"
         cache_file_path = USER_CACHE_DIR / f"{top_node_name}.json"
         cache = self._load_json_file(cache_file_path) if use_cache else None
-        cached_nodes = cache.get(self._server_str_id) if cache is not None else None
+        cached_nodes = (
+            cache.get(self._server_str_id) if cache is not None else None
+        )
 
         # Check for existing Nodes IDs cache
         if cached_nodes:
@@ -1194,8 +1256,12 @@ class SecondaryControlUnit:
         top_node_name = "Parameter"
         cache_file_path = USER_CACHE_DIR / f"{top_node_name}.json"
         if not plc_only and self.parameter_ns_idx is not None:
-            cache = self._load_json_file(cache_file_path) if use_cache else None
-            cached_nodes = cache.get(self._server_str_id) if cache is not None else None
+            cache = (
+                self._load_json_file(cache_file_path) if use_cache else None
+            )
+            cached_nodes = (
+                cache.get(self._server_str_id) if cache is not None else None
+            )
             if cached_nodes:
                 (
                     self.parameter_nodes,
@@ -1215,7 +1281,9 @@ class SecondaryControlUnit:
                     self.parameter_nodes,
                     self.parameter_attributes,
                     self.parameter_commands,
-                ) = self.generate_node_dicts_from_server(parameter, top_node_name)
+                ) = self.generate_node_dicts_from_server(
+                    parameter, top_node_name
+                )
                 self.parameter = parameter
                 self._cache_node_ids(cache_file_path, self.parameter_nodes)
 
@@ -1224,8 +1292,12 @@ class SecondaryControlUnit:
         top_node_name = "Root"
         cache_file_path = USER_CACHE_DIR / f"{top_node_name}.json"
         if not plc_only:
-            cache = self._load_json_file(cache_file_path) if use_cache else None
-            cached_nodes = cache.get(self._server_str_id) if cache is not None else None
+            cache = (
+                self._load_json_file(cache_file_path) if use_cache else None
+            )
+            cached_nodes = (
+                cache.get(self._server_str_id) if cache is not None else None
+            )
             if cached_nodes:
                 (
                     self.server_nodes,
@@ -1389,12 +1461,15 @@ class SecondaryControlUnit:
         # Do not add the InputArgument and OutputArgument nodes.
         if (
             node_name.endswith(".InputArguments", node_name.rfind(".")) is True
-            or node_name.endswith(".OutputArguments", node_name.rfind(".")) is True
+            or node_name.endswith(".OutputArguments", node_name.rfind("."))
+            is True
         ):
             return nodes, attributes, commands
 
         node_class = (
-            asyncio.run_coroutine_threadsafe(node.read_node_class(), self.event_loop)
+            asyncio.run_coroutine_threadsafe(
+                node.read_node_class(), self.event_loop
+            )
             .result()
             .value
         )
@@ -1408,8 +1483,8 @@ class SecondaryControlUnit:
             ).result()
             child_nodes: NodeDict = {}
             for child in children:
-                child_nodes, child_attributes, child_commands = self.get_sub_nodes(
-                    child, parent_names=ancestors
+                child_nodes, child_attributes, child_commands = (
+                    self.get_sub_nodes(child, parent_names=ancestors)
                 )
                 nodes.update(child_nodes)
                 attributes.update(child_attributes)
@@ -1527,7 +1602,9 @@ class SecondaryControlUnit:
         logger.debug("\n".join(nodes.keys()))
         return list(nodes.keys())
 
-    def get_attribute_data_type(self, attribute: str | ua.uatypes.NodeId) -> str:
+    def get_attribute_data_type(
+        self, attribute: str | ua.uatypes.NodeId
+    ) -> str:
         """
         Get the data type for the given node.
 
@@ -1605,7 +1682,9 @@ class SecondaryControlUnit:
             f"actual: {field.Value}"
         )
 
-    def get_enum_strings(self, enum_node: str | ua.uatypes.NodeId) -> list[str]:
+    def get_enum_strings(
+        self, enum_node: str | ua.uatypes.NodeId
+    ) -> list[str]:
         """
         Get list of enum strings where the index of the list matches the enum value.
 
@@ -1635,7 +1714,9 @@ class SecondaryControlUnit:
             for index, field in enumerate(dt_node_def.Fields)
         ]
 
-    def get_node_descriptions(self, node_list: list[str]) -> list[tuple[str, str]]:
+    def get_node_descriptions(
+        self, node_list: list[str]
+    ) -> list[tuple[str, str]]:
         """
         Get the descriptions of a list of nodes.
 
@@ -1718,7 +1799,9 @@ class SecondaryControlUnit:
                 ).result()
                 handles.append(handle)
             except Exception as e:
-                msg = f"Failed to subscribe to node '{node.nodeid.to_string()}'"
+                msg = (
+                    f"Failed to subscribe to node '{node.nodeid.to_string()}'"
+                )
                 asyncio.run_coroutine_threadsafe(
                     handle_exception(e, msg), self.event_loop
                 )
@@ -1761,51 +1844,20 @@ class SecondaryControlUnit:
         """
         values = []
         while not self.subscription_queue.empty():
-            values.append(self.subscription_queue.get(block=False, timeout=0.1))
+            values.append(
+                self.subscription_queue.get(block=False, timeout=0.1)
+            )
         return values
 
-    def track_table_from_csv(
+    def load_track_table(
         self,
-        file_name: str,
         mode: int = 0,
-        real_times: bool = False,
+        tai: list[float] = [],
+        azi: list[float] = [],
+        ele: list[float] = [],
+        file_name: str | None = None,
+        real_times: bool = True,
         additional_offset: float = 10.1,  # TODO Return to 5 when PLCs updated
-    ) -> None:
-        """
-        Upload a track table file to the PLC from a CSV file.
-        Expects a CSV file with a header and three columns:
-        - Column 0 is the time
-        - Column 1 is the azimuth
-        - Column 2 is the elevation
-
-        :param str file_name: File name of the track table file including its path.
-        :param int mode: Choose from 0 for Append, and 1 for New. Default is Append.
-          # TODO add reset.
-        :param bool real_times: Whether the time column is a real time or a relative
-            time. Default False.
-        :param float additional_offset: Add additional time to every point. Only has an
-            effect when real_times is False. Default 10.1
-        """
-        self.track_table.store_from_csv(file_name, real_times, additional_offset)
-
-        if mode == 1:  # New track table
-            self.stop_track_table_schedule_task_event.set()
-            self.track_table = None
-            self.track_table_scheduled_task = None
-
-        if self.track_table is None:
-            self.track_table = TrackTable()
-
-        # Rely on scheduled track table task to send appended values if it is still
-        # running.
-        if (
-            self.track_table_scheduled_task is None
-            or self.track_table_scheduled_task.done()
-        ):
-            self._load_track_table_to_plc(mode)
-
-    def track_table_from_lists(
-        self, mode: int, tai: list[float], azi: list[float], ele: list[float]
     ) -> None:
         """
         Upload a track table to the PLC from lists. List lengths must match.
@@ -1815,16 +1867,31 @@ class SecondaryControlUnit:
         :param list[float] tai: A list of times to make up the track table points.
         :param list[float] azi: A list of azimuths to make up the track table points.
         :param list[float] ele: A list of elevations to make up the track table points.
+        :param str file_name: File name of the track table file including its path.
+        :param bool real_times: Whether the time column is a real time or a relative
+            time. Default True.
+        :param float additional_offset: Add additional time to every point. Only has an
+            effect when real_times is False. Default 10.1
         """
-        self.track_table.store_from_list(tai, azi, ele)
-
+        logger.warning("load_track_table top")  # TODO remove
         if mode == 1:  # New track table
-            self.track_table = None
-            self.stop_track_table_schedule_task_event.set()
+            if self.stop_track_table_schedule_task_event is not None:
+                self.stop_track_table_schedule_task_event.set()
+
+            self.track_table = TrackTable()
             self.track_table_scheduled_task = None
 
-        if self.track_table is None:
-            self.track_table = TrackTable()
+        if len(tai) > 0:
+            self.track_table.store_from_list(tai, azi, ele)
+        elif file_name is not None:
+            self.track_table.store_from_csv(
+                file_name, real_times, additional_offset
+            )
+        else:
+            logger.error(
+                "Missing track table points, cannot load track table."
+            )
+            return
 
         # Rely on scheduled track table task to send appended values if it is still
         # running.
@@ -1833,53 +1900,60 @@ class SecondaryControlUnit:
             or self.track_table_scheduled_task.done()
         ):
             self._load_track_table_to_plc(mode)
+        logger.warning("load_track_table bottom")  # TODO remove
 
     def _load_track_table_to_plc(self, mode: int) -> None:
+        logger.warning("load_track_table_to_plc top")  # TODO remove
         tai_offset = 0
         if not self.track_table.real_times:
             tai_offset = self.attributes["Time_cds.Status.TAIoffset"].value
 
-        # One call in case mode is "New"
-        result = self._load_next_points(mode, tai_offset)
-
         # Then keep calling until local track table is empty or PLC is full
         stop_scheduling = threading.Event()
         self.track_table_scheduled_task = asyncio.run_coroutine_threadsafe(
-            self.__schedule_load_next_points(result, stop_scheduling),
+            self.__schedule_load_next_points(
+                mode, tai_offset, stop_scheduling
+            ),
             self.event_loop,
         )
         self.stop_track_table_schedule_task_event = stop_scheduling
+        logger.warning("load_track_table_to_plc bottom")  # TODO remove
 
     async def __schedule_load_next_points(
-        self, result: Any, stop_scheduling: threading.Event
+        self, mode: int, tai_offset: float, stop_scheduling: threading.Event
     ) -> None:
+        logger.warning("__schedule_load_next_points top")  # TODO remove
+        # One call in case mode is "New"
+        result = self._load_next_points(mode, tai_offset)
+
         while not stop_scheduling.is_set() and result > -1:
-            if result != 10:
+            if result not in (10, 4):
                 # TODO error for other responses
                 break
-            result = self._load_next_points()
+
             if result == 4:
                 # 4: CommandFailed is returned when there is not enough space left
                 # in the PLC track table.
                 # Allow time for the loaded points to be consumed. Minimum time between
                 # points is 50ms, at that rate 1000 points would take 50 seconds. Check
                 # more often than this to ensure PLC does not run out of points.
+                logger.warning(
+                    "__schedule_load_next_points before sleep"
+                )  # TODO remove
                 await asyncio.sleep(45)
-                continue
 
-    def _load_next_points(self, mode: int = 0, tai_offset: float = 0) -> CmdReturn:
+            logger.warning("__schedule_load_next_points more")  # TODO remove
+            result = self._load_next_points()
+        logger.warning("__schedule_load_next_points bottom")  # TODO remove
+
+    def _load_next_points(self, mode: int = 0, tai_offset: float = 0) -> int:
+        logger.warning("_load_next_points top")  # TODO remove
         num, tai, azi, ele = self.track_table.get_next_points(1000, tai_offset)
-        logger.info(
-            "num = %s, len(tai) = %s, len(azi) = %s, len(ele) = %s",
-            num,
-            len(tai),
-            len(azi),
-            len(ele),
-        )  # TODO For debugging purposes, remove.
+        logger.warning(f"_load_next_points got {num} points")  # TODO remove
 
         if num == 0:
             self.track_table = None
-            logger.debug("Sculib has loaded all track table points to the PLC.")
+            logger.info("Sculib has loaded all track table points to the PLC.")
             return -1
 
         # The load track table accepts arrays of length 1000 only.
@@ -1889,15 +1963,40 @@ class SecondaryControlUnit:
             azi.extend(padding)
             ele.extend(padding)
 
+        with open("points_lists.txt", "w", encoding="UTF-8") as f:
+            print(f"tai: {tai}", file=f)
+            print(f"azi: {azi}", file=f)
+            print(f"ele: {ele}", file=f)
+        logger.warning(
+            f"_load_next_points attempting to send {num} points in mode {mode}"
+        )  # TODO remove
         result = self.commands["Tracking.Commands.TrackLoadTable"](
             ua.UInt16(mode), ua.UInt16(num), tai, azi, ele
         )
-        if result == 4:
-            # No space left in PLC track table, could not send point so restore index.
-            self.track_table.sent_index -= num
         logger.warning(
-            ">   >   >    >    >Load_track_table_to_plc result: %s", result
-        )  # TODO For debugging purposes, remove.
+            f"_load_next_points track load result: {result}"
+        )  # TODO remove
+        if result != 10:
+            # Failed to send points so restore index.
+            self.track_table.sent_index -= num
+
+        logger.warning("_load_next_points bottom")  # TODO remove
+        return result
+
+    def start_tracking(
+        self, interpol: int = 0, start_time: float | None = None
+    ) -> CmdReturn:
+        """
+        Start a loaded track table.
+
+        :param int interpol: The desired interpolation method.
+        :param float start_time: The track start time in seconds after SKAO Epoch (TAI
+            Offset).
+        :return CmdReturn: The response to TrackStart from the PLC.
+        """
+        result = self.commands["Tracking.Commands.TrackStart"](
+            ua.uint16(interpol), start_time
+        )
         return result
 
     # commands to DMC state - dish management controller
@@ -2115,7 +2214,9 @@ class SecondaryControlUnit:
             ua.UInt16(2), fi_angle, fi_vel
         )
 
-    def load_static_offset(self, az_offset: float, el_offset: float) -> CmdReturn:
+    def load_static_offset(
+        self, az_offset: float, el_offset: float
+    ) -> CmdReturn:
         """
         Load static azimuth and elevation offsets for tracking.
 
@@ -2126,130 +2227,9 @@ class SecondaryControlUnit:
         :return: The result of loading the static offsets.
         """
         logger.info(f"offset az: {az_offset:.4f} el: {el_offset:.4f}")
-        return self.commands[Command.TRACK_LOAD_STATIC_OFF.value](az_offset, el_offset)
-
-    def load_program_track(
-        self,
-        load_type: str,
-        entries: int,
-        t: numpy.ndarray,
-        az: numpy.ndarray,
-        el: numpy.ndarray,
-    ) -> CmdReturn:
-        """
-        Load a program track with provided entries, time offsets, azimuth and elevation.
-
-        :param load_type: Type of track data being loaded.
-        :type load_type: str
-        :param entries: Number of entries in the track table.
-        :type entries: int
-        :param t: List of time offset values.
-        :type t: numpy.ndarray
-        :param az: List of azimuth values.
-        :type az: numpy.ndarray
-        :param el: List of elevation values.
-        :type el: numpy.ndarray
-        :raises IndexError: If the provided track table contents are not aligned.
-        """
-        logger.info("%s", load_type)
-
-        # unused
-        # LOAD_TYPES = {
-        #     'LOAD_NEW' : 0,
-        #     'LOAD_ADD' : 1,
-        #     'LOAD_RESET' : 2}
-
-        # unused
-        # table selector - to tidy for future use
-        # ptrackA = 11
-        # TABLE_SELECTOR =  {
-        #     'pTrackA' : 11,
-        #     'pTrackB' : 12,
-        #     'oTrackA' : 21,
-        #     'oTrackB' : 22}
-
-        # unused
-        # funny thing is SCU wants 50 entries, even for LOAD RESET! or if you send less
-        # then you have to pad the table
-        # if entries != 50:
-        #     padding = 50 - entries
-        #     t  += [0] * padding
-        #     az += [0] * padding
-        #     el += [0] * padding
-
-        # pylint: disable=too-many-boolean-expressions
-        if (entries > 0) and (
-            (entries != len(t))
-            or (entries != len(az))
-            or (entries != len(el))
-            or (len(t) != len(az))
-            or (len(az) != len(el))
-            or (len(az) != len(el))
-        ):
-            e = IndexError()
-            msg = (
-                "The provided track table contents are not usable because the contents "
-                "are not aligned. The given number of track table entries and the size "
-                "of each of the three arrays (t, az and el) need to match: Specified "
-                "number of entries = %d, number of elements in time offset array = %d, "
-                "number of elements in azimuth array = %d, number of elements in "
-                "elevation array = %d."
-            )
-            logger.error(msg, entries, len(t), len(az), len(el))
-            raise e
-
-        # Format the track table in the new way that preceeds every row with
-        # its row number.
-        table = ""
-        for index in range(len(t)):  # pylint: disable=consider-using-enumerate
-            row = f"{index:03d}:{t[index]},{az[index]},{el[index]};"
-            table += row
-        logger.debug(f"Track table that will be sent to DS: {table}")
-        byte_string = table.encode()
-        try:
-            return self.commands[Command.TRACK_LOAD_TABLE.value](
-                load_type,
-                ua.UInt16(entries),
-                ua.ByteString(byte_string),
-            )
-        except Exception:
-            logger.warning(
-                "Tried to upload a track table in the new format but this failed. "
-                "Will now try to uplad the track table in the old format...",
-                exc_info=True,
-            )
-
-        # If I get here, then the OPC UA server likely did not support the new
-        # format. Try again with the old format.
-        table = ""
-        table = f"{entries:03d}:"
-        for index in range(0, entries):
-            row = f"{t[index]},{az[index]},{el[index]};"
-            table += row
-        logger.debug(f"Track table that will be sent to DS: {table}")
-        byte_string = table.encode()
-        try:
-            return self.commands[Command.TRACK_LOAD_TABLE.value](
-                load_type,
-                ua.UInt16(entries),
-                ua.ByteString(byte_string),
-            )
-        except Exception as e:
-            logger.exception(
-                "Uploading of a track table in the old format failed too. "
-                "Please check that your track table is correctly formatted, "
-                "not empty and contains valid entries."
-            )
-            raise e
-
-    def start_program_track(self, interpol_mode: int) -> CmdReturn:
-        """
-        Start tracking a program.
-
-        :return: The result of starting the program track.
-        """
-        # TODO
-        return self.commands[Command.TRACK_START.value](ua.UInt16(interpol_mode))
+        return self.commands[Command.TRACK_LOAD_STATIC_OFF.value](
+            az_offset, el_offset
+        )
 
     def acu_ska_track(self) -> CmdReturn:
         """ACU SKA track."""
@@ -2277,7 +2257,9 @@ class SecondaryControlUnit:
         )
         return f_str
 
-    def _format_body(self, t: list[float], az: list[float], el: list[float]) -> str:
+    def _format_body(
+        self, t: list[float], az: list[float], el: list[float]
+    ) -> str:
         """
         Format the body of a message with timestamp, azimuth, and elevation values.
 
@@ -2383,15 +2365,15 @@ class TrackTable:
     """
 
     def __init__(self) -> None:
-        self.file_name: str | None = None
-        self.additional_offset: float
-        self.tai: list[Float] = []
-        self.azi: list[Float] = []
-        self.ele: list[Float] = []
-        self.real_times: bool
-        self.in_use = False
+        self.tai: list[float] = []
+        self.azi: list[float] = []
+        self.ele: list[float] = []
+        self.real_times: bool = True
         self.tai_offset: float = 0
+        self.additional_offset: float
+        self.in_use = False
         self.sent_index: int = 0
+        self.__points_lock = threading.Lock()
 
     def store_from_csv(
         self,
@@ -2408,6 +2390,7 @@ class TrackTable:
         :param float additional_offset: Add additional time to every point. Only has an
             effect when real_times is False. Default 5.
         """
+        logger.warning("store_from_csv top")  # TODO remove
         tai = []
         azi = []
         ele = []
@@ -2423,16 +2406,13 @@ class TrackTable:
                     azi.append(float(cleaned_line[1]))
                     ele.append(float(cleaned_line[2]))
 
-            # Mark whether the point time needs to be converted to an offset
-            # before it can be sent to the PLC
-            self.real_times = real_times
         except Exception as e:
             logger.error(
                 "Could not load or convert the track table file '%s': %s",
                 file_name,
                 e,
             )
-            raise e
+            return
 
         if not len(self.tai) == len(self.azi) == len(self.ele):
             logger.error(
@@ -2440,14 +2420,19 @@ class TrackTable:
                 "load track table file %s",
                 file_name,
             )
-            # TODO: Raise exception?
             return
 
+        self.__points_lock.acquire()
         self.tai.extend(tai)
         self.azi.extend(azi)
         self.ele.extend(ele)
-        self.file_name = file_name
+        logger.warning(
+            "store_from_csv stored", len(tai), "points"
+        )  # TODO remove
+        self.__points_lock.release()
+        self.real_times = real_times
         self.additional_offset = additional_offset
+        logger.warning("store_from_csv bottom")  # TODO remove
 
     def store_from_list(
         self, tai: list[float], azi: list[float], ele: list[float]
@@ -2465,9 +2450,11 @@ class TrackTable:
                 "load track table lists."
             )
             return
+        self.__points_lock.acquire()
         self.tai.extend(tai)
         self.azi.extend(azi)
         self.ele.extend(ele)
+        self.__points_lock.release()
 
     def get_next_points(
         self, num_points: int, tai_offset: float | None = None
@@ -2478,13 +2465,17 @@ class TrackTable:
 
         tai_offset is set on the first call, and ignored for subsequent calls.
         """
+        logger.warning("get_next_points top")  # TODO remove
         if not self.in_use:
             self.in_use = True
             if tai_offset is not None:
                 self.tai_offset = tai_offset
 
-        # Stored times are relative to tai_offset
-        if not self.real_times:
+        self.__points_lock.acquire()
+        if self.real_times:
+            tai = self.tai[self.sent_index : self.sent_index + num_points]
+        else:
+            # Stored times are relative to tai_offset
             tai = [
                 tai_string + self.tai_offset + self.additional_offset
                 for tai_string in self.tai[
@@ -2494,6 +2485,8 @@ class TrackTable:
 
         azi = self.azi[self.sent_index : self.sent_index + num_points]
         ele = self.ele[self.sent_index : self.sent_index + num_points]
+        self.__points_lock.release()
         length = len(tai)
         self.sent_index += length
+        logger.warning("get_next_points bottom")  # TODO remove
         return length, tai, azi, ele
