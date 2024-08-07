@@ -494,6 +494,9 @@ class Model(QObject):
                 logger.debug("Calling command: %s, args: %s", command, args)
                 code, msg = self._scu.release_authority()
                 result = code, msg, None
+            case Command.TRACK_START:
+                code = self._scu.start_tracking(*args)
+                result = code, None, None
             # Commands that take none or more parameters of base types: float, bool, etc
             case _:
                 result = _log_and_call(command, *args)
@@ -532,7 +535,13 @@ class Model(QObject):
         """Return a status message (Enum) of the OPC UA client's nodes."""
         return self._nodes_status
 
-    def load_track_table(self, filename: Path) -> None:
+    def load_track_table(
+        self,
+        filename: Path,
+        mode: str,
+        absolute_times: bool,
+        additional_offset: float,
+    ) -> None:
         """
         Load the track table data from a file.
 
@@ -543,7 +552,29 @@ class Model(QObject):
         if self._scu is None:
             raise RuntimeError("Server not connected")
         logger.debug("Loading track table from file: %s", filename.absolute())
-        self._scu.track_table_reset_and_upload_from_file(str(filename.absolute()))
+        self._scu.load_track_table(
+            mode,
+            file_name=str(filename.absolute()),
+            real_times=absolute_times,
+            additional_offset=additional_offset,
+        )
+
+    def start_track_table(self, interpol: str, now: bool, at: float = 0) -> None:
+        """
+        Start the track table loaded on the PLC.
+
+        :param str interpol: Interpolation type.
+        :param bool now: True to start the track table immediately, false to start it at
+            at seconds past SKAO epoch.
+        :param float at: Number of seconds past the SKAO epoch to start the track table
+            at. Only has an effect if now is False.
+        """
+        if now:
+            logger.debug("Starting track table now.")
+        else:
+            logger.debug("Starting track table at: %s", at)
+
+        self._scu.start_tracking(interpol, now, at)
 
     def start_recording(self, filename: Path) -> None:
         """

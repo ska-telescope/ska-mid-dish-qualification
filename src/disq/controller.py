@@ -405,7 +405,13 @@ class Controller(QObject):
             self.emit_ui_status_message("ERROR", status_message)
         self.server_disconnected.emit()
 
-    def load_track_table(self, filename: str) -> None:
+    def load_track_table(
+        self,
+        filename: str,
+        absolute_times: bool,
+        additional_offset: float,
+        load_mode: str,
+    ) -> None:
         """
         Load a track table from a file.
 
@@ -422,7 +428,9 @@ class Controller(QObject):
             self.emit_ui_status_message("WARNING", msg)
             return
         try:
-            self._model.load_track_table(fname)
+            self._model.load_track_table(
+                fname, load_mode, absolute_times, additional_offset
+            )
         except Exception as exc:  # pylint: disable=broad-except
             exc_msg = f"Unable to load track table from file: {fname.absolute()}"
             logger.exception("%s - %s", exc_msg, exc)
@@ -432,6 +440,30 @@ class Controller(QObject):
         self.emit_ui_status_message(
             "INFO", f"Track table loaded from file: {fname.absolute()}"
         )
+
+    def start_track_table(self, interpol: str, now: bool, at: str) -> None:
+        """
+        Start the track table on the PLC.
+
+        :param str interpol: The interpolation type.
+        :param bool now: Whether to start the track table immediately or not.
+        :param str at: The time since SKAO epoch to start the track table at if now is
+            False.
+        """
+        params = [interpol, now]
+        if not now:
+            try:
+                at_num = float(at)
+            except ValueError:
+                self.emit_ui_status_message(
+                    "ERROR",
+                    f"Invalid start time, should be a number: {at}",
+                )
+                return
+
+            params.append(at_num)
+
+        self._issue_command(Command.TRACK_START, *params)
 
     def recording_start(self, filename: str) -> None:
         """
