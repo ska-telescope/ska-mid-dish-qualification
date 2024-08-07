@@ -1069,7 +1069,7 @@ class SecondaryControlUnit:
                     if self._session_id is not None
                     else [*args]
                 )
-                logger.debug(
+                logger.warning(
                     "Calling command node '%s' with args list: %s",
                     node_id,
                     cmd_args,
@@ -1927,7 +1927,7 @@ class SecondaryControlUnit:
         result = self._load_next_points(mode, tai_offset)
 
         while not stop_scheduling.is_set() and result > -1:
-            if result not in (10, 4):
+            if result not in (10, 9, 4):
                 # TODO error for other responses
                 break
 
@@ -2427,7 +2427,7 @@ class TrackTable:
         self.azi.extend(azi)
         self.ele.extend(ele)
         logger.warning(
-            "store_from_csv stored", len(tai), "points"
+            "store_from_csv stored %s points", len(tai)
         )  # TODO remove
         self.__points_lock.release()
         self.real_times = real_times
