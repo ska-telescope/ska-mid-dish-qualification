@@ -495,7 +495,7 @@ class Model(QObject):
                 code, msg = self._scu.release_authority()
                 result = code, msg, None
             case Command.TRACK_START:
-                code = self._scu.start_tracking(*args)
+                code, msg = self._scu.start_tracking(*args)
                 result = code, None, None
             # Commands that take none or more parameters of base types: float, bool, etc
             case _:
@@ -555,7 +555,7 @@ class Model(QObject):
         self._scu.load_track_table(
             mode,
             file_name=str(filename.absolute()),
-            real_times=absolute_times,
+            absolute_times=absolute_times,
             additional_offset=additional_offset,
         )
 
