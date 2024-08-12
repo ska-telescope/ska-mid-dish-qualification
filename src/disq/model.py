@@ -487,16 +487,17 @@ class Model(QObject):
                 band = self._scu.convert_enum_to_int("BandType", args[3])
                 result = _log_and_call(command, static, tilt, temperature, band)
             case Command.TAKE_AUTH:
-                logger.debug("Calling command: %s, args: %s", command, args)
+                logger.debug("Calling command: %s, args: %s", command.value, args)
                 code, msg = self._scu.take_authority(args[0])
                 result = code, msg, None
             case Command.RELEASE_AUTH:
-                logger.debug("Calling command: %s, args: %s", command, args)
+                logger.debug("Calling command: %s, args: %s", command.value, args)
                 code, msg = self._scu.release_authority()
                 result = code, msg, None
             case Command.TRACK_START:
+                logger.debug("Calling command: %s, args: %s", command.value, args)
                 code, msg = self._scu.start_tracking(*args)
-                result = code, None, None
+                result = code, msg, None
             # Commands that take none or more parameters of base types: float, bool, etc
             case _:
                 result = _log_and_call(command, *args)
@@ -558,23 +559,6 @@ class Model(QObject):
             absolute_times=absolute_times,
             additional_offset=additional_offset,
         )
-
-    def start_track_table(self, interpol: str, now: bool, at: float = 0) -> None:
-        """
-        Start the track table loaded on the PLC.
-
-        :param str interpol: Interpolation type.
-        :param bool now: True to start the track table immediately, false to start it at
-            at seconds past SKAO epoch.
-        :param float at: Number of seconds past the SKAO epoch to start the track table
-            at. Only has an effect if now is False.
-        """
-        if now:
-            logger.debug("Starting track table now.")
-        else:
-            logger.debug("Starting track table at: %s", at)
-
-        self._scu.start_tracking(interpol, now, at)
 
     def start_recording(self, filename: Path) -> None:
         """

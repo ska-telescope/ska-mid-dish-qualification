@@ -616,7 +616,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>TurnHead</string>
+            <string>Turnhead</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -866,7 +866,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>TurnHead</string>
+            <string>Turnhead</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>

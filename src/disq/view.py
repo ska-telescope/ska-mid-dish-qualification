@@ -504,6 +504,7 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.button_file_track_relative_times.setChecked(True)
         self.spinbox_file_track_additional_offset: QtWidgets.QDoubleSpinBox
+        self.spinbox_file_track_additional_offset.setEnabled(False)
         self.combobox_file_track_mode: QtWidgets.QComboBox
         self.button_load_track_table: QtWidgets.QPushButton
         self.button_load_track_table.clicked.connect(self.load_track_table_clicked)
@@ -914,6 +915,9 @@ class MainView(QtWidgets.QMainWindow):
         self._initialise_error_warning_widgets()
         self.warning_status_show_only_warnings.setEnabled(True)
         self.error_status_show_only_errors.setEnabled(True)
+        self.spinbox_file_track_additional_offset.setEnabled(
+            not self.button_file_track_absolute_times.isChecked()
+        )
 
     def server_disconnected_event(self):
         """Handle the server disconnected event."""

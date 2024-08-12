@@ -457,7 +457,8 @@ class Controller(QObject):
             except ValueError:
                 self.emit_ui_status_message(
                     "ERROR",
-                    f"Invalid start time, should be a number: {at}",
+                    "Invalid start time for TrackStart command, should be a number: "
+                    f"{at}",
                 )
                 return
 
