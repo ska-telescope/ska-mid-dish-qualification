@@ -1,6 +1,6 @@
-# Version History
+# Changelog
 
-## unreleased
+## Unreleased
 
 - Breaking changes for version 2 of ICD (WOM-334, WOM-335, WOM-392, WOM-399):
     - Updated commands to handle session ID.

@@ -54,6 +54,7 @@ dev = [
     "ska-ser-sphinx-theme @ git+https://gitlab.com/ska-telescope/ska-ser-sphinx-theme.git@0.1.2",
     "sphinx-autodoc-typehints",
     "sphinxcontrib-mermaid",
+    "recommonmark",
     "nbqa",
 ]
 
@@ -143,6 +144,7 @@ sphinx-autodoc-typehints = "^2.0.0"
 ska-ser-sphinx-theme = "^0.1.2"
 sphinx-argparse = "^0.4.0"
 sphinxcontrib-mermaid = "^0.9.2"
+recommonmark = "^0.7.1"
 
 [tool.mypy]
 ignore_missing_imports = true        # Ignore missing stubs in imported modules

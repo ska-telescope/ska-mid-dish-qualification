@@ -36,6 +36,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_autodoc_typehints",
     "sphinxcontrib.mermaid",
+    "recommonmark",
 ]
 
 # This will use the type annotations from your function signature to populate the
@@ -51,8 +52,7 @@ autodoc_typehints_format = "short"
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst', '.md']
-source_suffix = [".rst"]
+source_suffix = [".rst", ".md"]
 
 # The master toctree document.
 master_doc = "index"

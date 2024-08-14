@@ -25,3 +25,8 @@ DiSQ enables engineers and scientists to control and qualify observatory dish st
    DiSQ Configuration<api/configuration>
    DiSQ Data Logger<api/logger>
    
+.. toctree::
+   :titlesonly:
+   :caption: Releases
+
+   releases/changelog
