@@ -30,9 +30,7 @@ class RecordingConfigDialog(QtWidgets.QDialog):
     A dialog-window class for selecting OPC-UA parameters to be recorded.
 
     :param parent: The parent widget of the dialog.
-    :type parent: QtWidgets.QWidget
     :param attributes: A list of OPC-UA attributes to be displayed and selected.
-    :type attributes: list[str]
     """
 
     def __init__(self, parent: QtWidgets.QWidget, attributes: list[str]):
@@ -40,10 +38,8 @@ class RecordingConfigDialog(QtWidgets.QDialog):
         Initialize the Recording Configuration dialog.
 
         :param parent: The parent widget for the dialog.
-        :type parent: QtWidgets.QWidget
         :param attributes: A list of strings representing OPC-UA attributes to choose
             from.
-        :type attributes: list[str]
         """
         super().__init__(parent)
 
@@ -93,9 +89,7 @@ class MainView(QtWidgets.QMainWindow):
     A class representing the main Window of the DiSQ GUI application.
 
     :param disq_model: The model instance for the MainView.
-    :type disq_model: model.Model
     :param disq_controller: The controller instance for the MainView.
-    :type disq_controller: controller.Controller
     """
 
     _DECIMAL_PLACES: Final = 3
@@ -142,9 +136,7 @@ class MainView(QtWidgets.QMainWindow):
         provided model and controller objects.
 
         :param disq_model: The model object for DiSQ.
-        :type disq_model: model.Model
         :param disq_controller: The controller object for DiSQ.
-        :type disq_controller: controller.Controller
         :param args: Additional positional arguments.
         :param kwargs: Additional keyword arguments.
         """
@@ -600,7 +592,6 @@ class MainView(QtWidgets.QMainWindow):
         subsequent calls will return the cached result.
 
         :return: List of OPC UA widgets.
-        :rtype: list[QtCore.QObject]
         """
         all_widgets: list[QtCore.QObject] = self.findChildren(
             (
@@ -640,7 +631,6 @@ class MainView(QtWidgets.QMainWindow):
         Enable or disable data logger widgets.
 
         :param enable: Whether to enable or disable the widgets. Default is True.
-        :type enable: bool
         """
         self.button_recording_start.setEnabled(enable)
         self.button_recording_stop.setEnabled(enable)
@@ -655,9 +645,7 @@ class MainView(QtWidgets.QMainWindow):
         Enable or disable server widgets and optionally update the connect button text.
 
         :param enable: Enable or disable server widgets (default True).
-        :type enable: bool
         :param connect_button: Update the connect button text (default False).
-        :type connect_button: bool
         """
         self.input_server_address.setEnabled(enable)
         self.input_server_port.setEnabled(enable)
@@ -690,7 +678,6 @@ class MainView(QtWidgets.QMainWindow):
         Update the view with event data.
 
         :param event: A dictionary containing event data.
-        :type event: dict
         """
         logger.debug("View: data update: %s value=%s", event["name"], event["value"])
         # Get the widget update method from the dict of opcua widgets
@@ -806,9 +793,7 @@ class MainView(QtWidgets.QMainWindow):
         Set radio button in exclusive group based on its boolean OPC-UA parameter.
 
         :param button: Button that signal came from.
-        :type button: QtWidgets.QRadioButton
         :param event: A dictionary containing event data.
-        :type event: dict
         """
         logger.debug(
             "Widget: %s. Boolean OPCUA update: %s value=%s",
@@ -1085,7 +1070,6 @@ class MainView(QtWidgets.QMainWindow):
         Slot function to handle the click event of a slew button.
 
         :param axis: The axis for which the slew operation is being performed.
-        :type axis: str
         """
 
         def validate_args(text_widget_args: list[str]) -> list[float] | None:
@@ -1094,9 +1078,7 @@ class MainView(QtWidgets.QMainWindow):
 
             :param text_widget_args: A list of string arguments to be converted to float
                   values.
-            :type text_widget_args: list[str]
             :return: A list of float values converted from the input string arguments.
-            :rtype: list[float] or None if conversion fails.
             :raises ValueError: If any of the string arguments cannot be converted to a
                   float.
             """
@@ -1141,7 +1123,6 @@ class MainView(QtWidgets.QMainWindow):
         Handle the signal emitted when the stop button is clicked.
 
         :param axis: The axis on which to stop the movement.
-        :type axis: str
         """
         self.controller.command_stop(axis)
 
@@ -1157,7 +1138,6 @@ class MainView(QtWidgets.QMainWindow):
         argument.
 
         :param self: The object itself.
-        :type self: object
         """
         self.controller.command_stow(False)
 
@@ -1166,7 +1146,6 @@ class MainView(QtWidgets.QMainWindow):
         Activate the button clicked for a specific axis.
 
         :param axis: The axis for which the button was clicked.
-        :type axis: str
         """
         self.controller.command_activate(axis)
 
@@ -1175,7 +1154,6 @@ class MainView(QtWidgets.QMainWindow):
         Deactivate button clicked slot function.
 
         :param axis: Axis identifier for deactivation.
-        :type axis: str
         """
         self.controller.command_deactivate(axis)
 
@@ -1296,7 +1274,6 @@ class MainView(QtWidgets.QMainWindow):
         Set static pointing inputs' text to current read values.
 
         :param block_signals: Block or unblock the widgets' signals.
-        :type block_signals: bool
         """
         # Static pointing band
         self.combo_static_point_model_band.blockSignals(True)
@@ -1335,7 +1312,6 @@ class MainView(QtWidgets.QMainWindow):
         Set ambient temperature correction inputs' text to current read values.
 
         :param block_signals: Block or unblock the widgets' signals.
-        :type block_signals: bool
         """
         for spinbox, value in zip(
             self.ambtemp_correction_spinboxes, self.ambtemp_correction_values

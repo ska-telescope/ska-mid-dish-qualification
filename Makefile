@@ -29,5 +29,3 @@ python-post-lint: # TODO: fix issues with excluded files
 # DOCS
 #######################################
 include .make/docs.mk
-
-DOCS_SPHINXOPTS = -Q

@@ -35,7 +35,15 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "sphinx_autodoc_typehints",
+    "sphinxcontrib.mermaid",
 ]
+
+# This will use the type annotations from your function signature to populate the
+# type-related fields in your documentation.
+autodoc_typehints = "description"
+
+# Optional: if you want type hints in your signatures
+autodoc_typehints_format = "short"
 
 # Add any paths that contain templates here, relative to this directory.
 # templates_path = []
@@ -188,9 +196,14 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"python": ("https://docs.python.org/3.10/", None)}
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3.10/", None),
+    "asyncua": ("https://opcua-asyncio.readthedocs.io/en/latest/", None),
+}
 
 nitpicky = True
+
+nitpick_ignore = [("py:class", "asyncio.events.AbstractEventLoop")]
 
 # Configuration for myst parser
 myst_heading_anchors = 3
