@@ -17,6 +17,12 @@ DiSQ enables engineers and scientists to control and qualify observatory dish st
 .. image:: img/DiSQ_component_view.svg
 
 .. toctree::
+  :maxdepth: 1
+  :caption: How-To Guides
+
+  Getting started<how-to/readme>
+
+.. toctree::
    :maxdepth: 1
    :caption: Reference
 
