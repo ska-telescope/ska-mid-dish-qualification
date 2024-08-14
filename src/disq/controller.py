@@ -326,7 +326,7 @@ class Controller(QObject):
 
     def command_set_static_pointing_parameters(
         self, band: str, params: list[float]
-    ) -> tuple[int, str] | None:
+    ) -> tuple[ResultCode, str] | None:
         """
         Issue command to set the static pointing model parameters.
 
@@ -336,7 +336,7 @@ class Controller(QObject):
         :type params: list[float]
         :return: A tuple containing the result code and result message,
             or None if the command was not issued.
-        :rtype: tuple[int, str] | None
+        :rtype: tuple[ResultCode, str] | None
         """
         if self._static_pointing_parameters != [band, *params]:
             self._static_pointing_parameters = [band, *params]
@@ -345,7 +345,7 @@ class Controller(QObject):
 
     def command_set_static_pointing_offsets(
         self, azim: float, elev: float
-    ) -> tuple[int, str] | None:
+    ) -> tuple[ResultCode, str] | None:
         """
         Issue command to set the static pointing tracking offsets.
 
@@ -355,7 +355,7 @@ class Controller(QObject):
         :type params: float
         :return: A tuple containing the result code and result message,
             or None if the command was not issued.
-        :rtype: tuple[int, str] | None
+        :rtype: tuple[ResultCode, str] | None
         """
         if self._static_pointing_offsets != [azim, elev]:
             self._static_pointing_offsets = [azim, elev]
@@ -364,7 +364,7 @@ class Controller(QObject):
 
     def command_set_ambtemp_correction_parameters(
         self, params: list[float]
-    ) -> tuple[int, str] | None:
+    ) -> tuple[ResultCode, str] | None:
         """
         Issue command to set the ambient temperature correction parameters.
 
@@ -372,14 +372,14 @@ class Controller(QObject):
         :type params: list[float]
         :return: A tuple containing the result code and result message,
             or None if the command was not issued.
-        :rtype: tuple[int, str] | None
+        :rtype: tuple[ResultCode, str] | None
         """
         if self._ambtemp_correction_parameters != params:
             self._ambtemp_correction_parameters = params
             return self._issue_command(Command.AMBTEMP_CORR_SETUP, *params)
         return None
 
-    def _issue_command(self, command: Command, *args: Any) -> tuple[int, str]:
+    def _issue_command(self, command: Command, *args: Any) -> tuple[ResultCode, str]:
         """
         Issue a command to the OPCUA server.
 
@@ -388,7 +388,7 @@ class Controller(QObject):
         :param args: Optional arguments to be passed along with the command.
         :type args: tuple
         :return: A tuple containing the result code and result message.
-        :rtype: tuple
+        :rtype: tuple[ResultCode, str]
         """
         logger.debug("Command: %s, args: %s", command.value, args)
         # TODO: Nothing is currently done with other possible return values
@@ -419,8 +419,21 @@ class Controller(QObject):
         Emits UI status messages.
 
         :param filename: The name of the file containing the track table.
-        :type filename: str
+        :param absolute_times: Whether the time column is a real time or a relative
+            time. Default True.
+        :param additional_offset: Add additional time to every point. Only has an
+            effect when absolute_times is False. Default 10.1
+        :param load_mode: 'Append', 'New' or 'Reset'.
         """
+
+        def emit_result_to_ui(result_code: ResultCode, result_msg: str) -> None:
+            if result_code == ResultCode.NOT_EXECUTED:
+                self.emit_ui_status_message(
+                    "WARNING", f"Track table cannot be loaded: {result_msg}"
+                )
+            else:
+                self.emit_ui_status_message("INFO", f"{result_msg}")
+
         fname = Path(filename)
         logger.debug("Loading track table from file: %s", fname.absolute())
         if not fname.exists():
@@ -428,18 +441,19 @@ class Controller(QObject):
             self.emit_ui_status_message("WARNING", msg)
             return
         try:
-            self._model.load_track_table(
-                fname, load_mode, absolute_times, additional_offset
+            result_code, result_msg = self._model.load_track_table(
+                fname,
+                load_mode,
+                absolute_times,
+                additional_offset,
+                emit_result_to_ui,  # callback to emit async end result
             )
+            emit_result_to_ui(result_code, result_msg)  # emit immediate result
         except Exception as exc:  # pylint: disable=broad-except
             exc_msg = f"Unable to load track table from file: {fname.absolute()}"
             logger.exception("%s - %s", exc_msg, exc)
             msg = f"Unable to load track table: {exc}"
             self.emit_ui_status_message("ERROR", msg)
-            return
-        self.emit_ui_status_message(
-            "INFO", f"Track table loaded from file: {fname.absolute()}"
-        )
 
     def start_track_table(self, interpol: str, now: bool, at: str) -> None:
         """

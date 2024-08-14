@@ -536,28 +536,38 @@ class Model(QObject):
         """Return a status message (Enum) of the OPC UA client's nodes."""
         return self._nodes_status
 
+    # pylint: disable=too-many-arguments
     def load_track_table(
         self,
         filename: Path,
         mode: str,
         absolute_times: bool,
         additional_offset: float,
-    ) -> None:
+        result_callback: Callable[[ResultCode, str], None],
+    ) -> tuple[ResultCode, str]:
         """
         Load the track table data from a file.
 
         :param filename: The path to the file containing the track table data.
-        :type filename: Path
+        :param mode: 'Append', 'New' or 'Reset'.
+        :param absolute_times: Whether the time column is a real time or a relative
+            time. Default True.
+        :param additional_offset: Add additional time to every point. Only has an
+            effect when absolute_times is False. Default 10.1
+        :param result_callback: Callback with result code and message when task finishes
         :raises RuntimeError: If the server is not connected.
+        :return: The result of attempted track table loading.
+        :rtype: tuple[ResultCode, str]
         """
         if self._scu is None:
             raise RuntimeError("Server not connected")
         logger.debug("Loading track table from file: %s", filename.absolute())
-        self._scu.load_track_table(
+        return self._scu.load_track_table(
             mode,
             file_name=str(filename.absolute()),
             absolute_times=absolute_times,
             additional_offset=additional_offset,
+            result_callback=result_callback,
         )
 
     def start_recording(self, filename: Path) -> None:
