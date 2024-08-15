@@ -1019,9 +1019,9 @@ class MainView(QtWidgets.QMainWindow):
         """Call the TrackLoadTable command."""
         self.controller.load_track_table(
             self.line_edit_track_table_file.text(),
+            self.combobox_file_track_mode.currentText(),
             self.button_file_track_absolute_times.isChecked(),
             self.spinbox_file_track_additional_offset.value(),
-            self.combobox_file_track_mode.currentText(),
         )
 
     def button_start_track_at_toggled(self, checked: bool) -> None:

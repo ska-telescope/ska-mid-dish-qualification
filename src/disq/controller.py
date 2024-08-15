@@ -408,9 +408,9 @@ class Controller(QObject):
     def load_track_table(
         self,
         filename: str,
+        load_mode: str,
         absolute_times: bool,
         additional_offset: float,
-        load_mode: str,
     ) -> None:
         """
         Load a track table from a file.
@@ -419,11 +419,10 @@ class Controller(QObject):
         Emits UI status messages.
 
         :param filename: The name of the file containing the track table.
-        :param absolute_times: Whether the time column is a real time or a relative
-            time. Default True.
-        :param additional_offset: Add additional time to every point. Only has an
-            effect when absolute_times is False. Default 10.1
         :param load_mode: 'Append', 'New' or 'Reset'.
+        :param absolute_times: Whether the time column is a real time or a relative time
+        :param additional_offset: Add additional time to every point. Only has an
+            effect when absolute_times is False.
         """
 
         def emit_result_to_ui(result_code: ResultCode, result_msg: str) -> None:
