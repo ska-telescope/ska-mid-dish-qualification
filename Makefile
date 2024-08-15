@@ -29,3 +29,11 @@ python-post-lint: # TODO: fix issues with excluded files
 # DOCS
 #######################################
 include .make/docs.mk
+
+ifdef CI_JOB_TOKEN
+docs-pre-build:
+	poetry config virtualenvs.create false
+	poetry install --with docs
+endif
+
+.PHONY: python-post-lint docs-pre-build
