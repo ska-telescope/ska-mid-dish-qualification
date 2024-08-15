@@ -21,9 +21,9 @@ class NodesStatus(Enum):
 
 class Command(Enum):
     """
-    Commands of Dish Controller used in SCU methods.
+    Commands of Dish Structure Controller (DSC) used in SCU methods.
 
-    This needs to be kept up to date with the ICD.
+    It needs to be kept up to date with the ICD.
     """
 
     TAKE_AUTH = "CommandArbiter.Commands.TakeAuth"
@@ -49,7 +49,10 @@ class ResultCode(IntEnum):
     """
     Result codes of commands.
 
-    This enum extens the CmdResponseType and needs to be kept up to date with the ICD.
+    This enum extends the DSC's 'CmdResponseType', which starts from 0 and goes upwards,
+    with extra codes below 0 for internal use by SCU and the DiSQ GUI.
+
+    It needs to be kept up to date with the ICD.
     """
 
     UNKNOWN = -10
