@@ -1756,6 +1756,109 @@ class SecondaryControlUnit:
             values.append(self.subscription_queue.get(block=False, timeout=0.1))
         return values
 
+    def getDsTime(self) -> str:
+        """
+        Get the DscTime from the TS.
+
+        Returns:
+            str: DscTime in 24 hour format as "hh:mm:ss".
+        """
+        currentTime = self.server_attributes["Root.Objects.Server.LocalTime"].value
+        timeString = time.strftime("%Y-%m-%d %H:%M:%SZ", currentTime.timetuple())
+        return timeString
+
+    def getTimeReference(self) -> enum:
+        """
+        Get the current time reference from the DS.
+         The value returned buy the DS is one of: DscTimeSyncSource.DSC, DscTimeSyncSource.NTP, DscTimeSyncSource.PTP.
+
+        Returns:
+            enum: One of
+            DscTimeSyncSource.PTP = 0
+            DscTimeSyncSource.NTP = 1
+            DscTimeSyncSource.DSC = 2
+        """
+        currentTimeSource = self.convert_int_to_enum(
+            "DscTimeSyncSourceType",
+            self.attributes["Time_cds.Status.DscTimeSyncSource"].value,
+        )
+        match currentTimeSource:
+            case "PTP":
+                pass
+            case "NTP":
+                pass
+            case "DSC":
+                pass
+            case _:
+                logger.error(
+                    f'The OPC UA server did not return a valid time synchronisation source. It was expected that one of "PTP", "NTP" or "DSC" would be returned but received was "{currentTimeSource}". There is nothing that can be done about this in sculib. Will continue with normal operation.'
+                )
+                raise ValueError
+        return currentTimeSource
+
+    def getCurrentTime(self) -> str:
+        """
+        Get the current NTP or PTP time from the DS.
+
+        Returns:
+            str: The current time in 24 hour format as string "hh:mm:ss" with UTC as
+            timezone.
+        """
+        currentTime = self.server_attributes[
+            "Root.Objects.Server.ServerStatus"
+        ].value.CurrentTime
+        timeString = time.strftime("%Y-%m-%d %H:%M:%SZ", currentTime.timetuple())
+        return timeString
+
+    def getCurrentTimeDifference(self) -> float:
+        """
+        Get the offset between the time reference and the DscTime from the DS.
+        The offset is in seconds. The offset is positive when Time reference is
+        ahead of DscTime.
+
+        Returns:
+            float: Current offset between the time reference and the DscTime in
+            seconds. The offset is positive when the time reference is ahead of
+            DscTime.
+        """
+        offset = 0.0
+        currentTimeSource = self.getTimeReference()
+        # The DS always returns SKApoch timestamps.
+        match currentTimeSource:
+            case DscTimeSyncSourceType.PTP:
+                # PTP is always on TAI. Therefore we need the offset between
+                # SKApoch and TAI
+                offset = self.attributes["Time_cds.Status.TAIoffset"].value
+            case DscTimeSyncSourceType.NTP:
+                # NTP is always UTC. Therefore we need the offset between
+                # SKApoch and UTC.
+                offset = self.attributes["Time_cds.Status.UTCtoSkaEpochSec"].value
+            case DscTimeSyncSourceType.DscTime:
+                # The local time should always be UTC. Therefore we need the
+                # offset between SKApoch and UTC.
+                offset = self.attributes["Time_cds.Status.UTCtoSkaEpochSec"].value
+            case _:
+                # This can actually not happen because getTimeReference will
+                # raise an exception if the time source is not one of the above.
+                pass
+        return offset
+
+    def getTaiUtcoffset(self) -> float:
+        """
+        Get the offset between TAI and UTC in seconds when the time
+        reference is PTP. When the time reference is not PTP an exception
+        is raised.
+
+        Returns:
+            float: Time offset between TAI and UTC in seconds. The offset is
+            positive because TAI - UTC >= 0.
+        """
+        # The Ds does not know anything about TAI but it knows SKAepoch.
+        # SKAeopch was at its start
+        offset = self.attributes["Time_cds.Status.UTCtoSkaEpochSec"].value
+        offset += self.attributes["Time_cds.Status.TAIoffset"].value
+        return offset
+
     def load_track_table_file(self, file_name: str) -> numpy.ndarray:
         """
         Load a track table file to upload with the load_program_track command.
