@@ -93,7 +93,7 @@ class OPCUAServerValidator:
         else:
             self.in_args = "InputArguments"
             self.out_args = "OutputArguments"
-        self.server: sculib.SecondaryControlUnit
+        self.server: sculib.SteeringControlUnit
         self.event_loop: asyncio.AbstractEventLoop
 
     async def _run_internal_server(self, xml_file: str) -> None:
@@ -276,7 +276,7 @@ class OPCUAServerValidator:
         :param password: The password of the OPC UA server.
         :return: A dictionary representing the server tree.
         """
-        with sculib.SecondaryControlUnit(
+        with sculib.SteeringControlUnit(
             host,
             int(port),
             endpoint,

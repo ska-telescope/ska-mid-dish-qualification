@@ -8,7 +8,7 @@ Dish Structure Steering Control Unit
 
 .. Include the publicly exposed functions and classes as in src/disq/__init_.py
 
-.. autoclass:: disq.SecondaryControlUnit
+.. autoclass:: disq.SteeringControlUnit
    :members:
 
 Configuration methods
