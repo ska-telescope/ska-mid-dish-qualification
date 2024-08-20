@@ -255,34 +255,21 @@ class OPCUAServerValidator:
         return node_dict
 
     # pylint: disable=too-many-arguments
-    def _scan_opcua_server(
-        self,
-        host: str,
-        port: str,
-        endpoint: str,
-        namespace: str,
-        username: str | None = None,
-        password: str | None = None,
-    ) -> dict:
+    def _scan_opcua_server(self, server_args: dict[str, Any]) -> dict:
         # Use sculib for encryption and getting PLC_PRG node.
         """
         Scan an OPC UA server and retrieve the server tree.
 
-        :param host: The IP address or hostname of the OPC UA server.
-        :param port: The port number of the OPC UA server.
-        :param endpoint: The endpoint of the OPC UA server.
-        :param namespace: The namespace of the OPC UA server.
-        :param username: The username of the OPC UA server.
-        :param password: The password of the OPC UA server.
+        :param server_args: The hostname/IP, port, endpoint, etc. of the OPC UA server.
         :return: A dictionary representing the server tree.
         """
+        # TODO: figure out a neat way to handle conversion of config variables
+        if "timeout" in server_args:
+            server_args["timeout"] = float(server_args["timeout"].strip())
+        if "port" in server_args:
+            server_args["port"] = int(server_args["port"].strip())
         with sculib.SteeringControlUnit(
-            host,
-            int(port),
-            endpoint,
-            namespace,
-            username,
-            password,
+            **server_args,
             gui_app=True,  # Only use the PLC_PRG node tree.
         ) as server:
             self.server = server
@@ -588,7 +575,7 @@ class OPCUAServerValidator:
                     )
 
     def validate(
-        self, xml_file: str, server_file: str, server_config: str
+        self, xml_file: str, server_file: str | None, server_config: str
     ) -> tuple[bool, dict, dict, dict]:
         """
         Validate the configuration of an OPC UA server.
@@ -616,31 +603,7 @@ class OPCUAServerValidator:
 
         # First build tree of dubious server
         server_args = configuration.get_config_sculib_args(server_file, server_config)
-        if "endpoint" in server_args and "namespace" in server_args:
-            if "username" in server_args and "password" in server_args:
-                actual_tree = self._scan_opcua_server(
-                    server_args["host"],
-                    server_args["port"],
-                    server_args["endpoint"],
-                    server_args["namespace"],
-                    server_args["username"],
-                    server_args["password"],
-                )
-            else:
-                actual_tree = self._scan_opcua_server(
-                    server_args["host"],
-                    server_args["port"],
-                    server_args["endpoint"],
-                    server_args["namespace"],
-                )
-        else:
-            # First physical controller does not have an endpoint or namespace
-            actual_tree = self._scan_opcua_server(
-                server_args["host"],
-                server_args["port"],
-                "",
-                "",
-            )
+        actual_tree = self._scan_opcua_server(server_args)
 
         # Second build tree of correct server
         self.internal_server_stop.clear()
@@ -652,10 +615,12 @@ class OPCUAServerValidator:
         internal_server_process.start()
         self.internal_server_started_barrier.wait()
         expected_tree = self._scan_opcua_server(
-            "127.0.0.1",
-            "57344",
-            "/dish-structure/server/",
-            "http://skao.int/DS_ICD/",
+            {
+                "host": "127.0.0.1",
+                "port": "57344",
+                "endpoint": "/dish-structure/server/",
+                "namespace": "http://skao.int/DS_ICD/",
+            }
         )
         self.internal_server_stop.set()
 
