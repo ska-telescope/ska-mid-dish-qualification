@@ -430,6 +430,14 @@ class Controller(QObject):
                 self.emit_ui_status_message(
                     "WARNING", f"Track table cannot be loaded: {result_msg}"
                 )
+            elif result_code not in (
+                ResultCode.COMMAND_DONE,
+                ResultCode.COMMAND_ACTIVATED,
+                ResultCode.COMMAND_FAILED,
+                ResultCode.ENTIRE_TRACK_TABLE_LOADED,
+                ResultCode.EXECUTING,
+            ):
+                self.emit_ui_status_message("ERROR", f"{result_msg}")
             else:
                 self.emit_ui_status_message("INFO", f"{result_msg}")
 
