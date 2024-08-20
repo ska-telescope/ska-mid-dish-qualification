@@ -566,19 +566,31 @@ class SteeringControlUnit(AsyncOPCUAClient):
     An OPC UA client class that simplifies connecting to a server and calling
     methods on it, reading or writing attributes.
 
-    :param host: The hostname or IP address of the server. Default is 'localhost'.
-    :param port: The port number of the server. Default is 4840.
-    :param endpoint: The endpoint on the server. Default is ''.
-    :param namespace: The namespace for the server. Default is ''.
-    :param username: The username for authentication. Default is None.
-    :param password: The password for authentication. Default is None.
-    :param timeout: The timeout value for connection. Default is 10.0.
-    :param eventloop: The asyncio event loop to use. Default is None.
-    :param gui_app: Whether the instance is for a GUI application. Default is False.
+    :param gui_app: Whether the instance is for the GUI application. Default is False.
     :param use_nodes_cache: Whether to use any existing caches of node IDs.
         Default is False.
-    :param app_name: application name for OPC UA client description.
-        Default 'DiSQ.sculib v{PACKAGE_VERSION}'
+    :param kwargs: Any keyword arguments passed to the parent AsyncOPCUAClient class.
+        All the parameters are optional. They are:
+
+        - host (str):
+            The hostname or IP address of the server. Default is 'localhost'.
+        - port (int):
+            The port number of the server. Default is 4840.
+        - endpoint (str):
+            The endpoint on the server. Default is ''.
+        - namespace (str):
+            The namespace for the server. Default is ''.
+        - username (str | None):
+            The username for authentication. Default is None.
+        - password (str | None):
+            The password for authentication. Default is None.
+        - timeout (float):
+            The timeout value for connection. Default is 10.0.
+        - eventloop (asyncio.AbstractEventLoop):
+            The asyncio event loop to use. Default is None.
+        - app_name (str):
+            Application name for OPC UA client description.
+            Default 'DiSQ.sculib v{PACKAGE_VERSION}'
     """
 
     # ------------------
@@ -587,31 +599,13 @@ class SteeringControlUnit(AsyncOPCUAClient):
     # pylint: disable=too-many-arguments,too-many-locals
     def __init__(
         self,
-        host: str = "localhost",
-        port: int = 4840,
-        endpoint: str = "",
-        namespace: str = "",
-        username: str | None = None,
-        password: str | None = None,
-        timeout: float = 10.0,
-        eventloop: asyncio.AbstractEventLoop | None = None,
         gui_app: bool = False,
         use_nodes_cache: bool = False,
-        app_name: str = f"DiSQ.sculib v{PACKAGE_VERSION}",
+        **kwargs: Any,
     ) -> None:
         """Initialise SCU with the provided parameters."""
         logger.info("Initialising SCU")
-        super().__init__(
-            host=host,
-            port=port,
-            endpoint=endpoint,
-            namespace=namespace,
-            username=username,
-            password=password,
-            timeout=timeout,
-            eventloop=eventloop,
-            app_name=app_name,
-        )
+        super().__init__(**kwargs)
         logger.info("Event loop: %s", self.event_loop)
         # Intialised variables
         self._gui_app = gui_app
