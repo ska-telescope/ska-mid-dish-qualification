@@ -22,6 +22,8 @@ class TrackTable:
         tai_offset: float = 0,
     ) -> None:
         """Initialise TrackTable."""
+        self.from_list: bool = True
+        self.file_name: str = ""
         self.tai: list[float] = []
         self.azi: list[float] = []
         self.ele: list[float] = []
@@ -29,6 +31,7 @@ class TrackTable:
         self.additional_offset = additional_offset
         self.tai_offset = tai_offset
         self.sent_index: int = 0
+        self.num_loaded_batches: int = 0
         self.__points_lock = threading.Lock()
         logger.debug("New TrackTable initialised.")
 
@@ -93,6 +96,8 @@ class TrackTable:
             raise
 
         self.store_from_list(tai, azi, ele)
+        self.from_list = False
+        self.file_name = file_name
 
     def store_from_list(
         self,
@@ -163,3 +168,27 @@ class TrackTable:
             points = len(self.tai) - self.sent_index
 
         return points
+
+    def get_details_string(self) -> str:
+        """
+        Get a string containing track table object details.
+
+        If the track table object was created from a list, the string contains
+        the start and end points of the list this track table object was created from.
+        If the track table object was created from a file, the string contains the file
+        name.
+
+        :return str: The track table object details.
+        """
+        if self.from_list:
+            with self.__points_lock:
+                return (
+                    "list starting at time:azimuth:elevation "
+                    f"{self.tai[0]}:{self.azi[0]}:{self.ele[0]} "
+                    "and ending at time:azimuth:elevation "
+                    f"{self.tai[len(self.tai)]}:"
+                    f"{self.azi[len(self.tai)]}:"
+                    f"{self.ele[len(self.tai)]}"
+                )
+
+        return f"file: {self.file_name}"
