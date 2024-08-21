@@ -1,4 +1,4 @@
-"""DiSQ logger."""
+"""DiSQ Data Logger."""
 
 import logging
 import os
@@ -16,7 +16,7 @@ app_logger = logging.getLogger("datalog")
 
 
 # pylint: disable=too-many-instance-attributes
-class Logger:
+class DataLogger:
     """Data logger class for DiSQ software."""
 
     # Constants

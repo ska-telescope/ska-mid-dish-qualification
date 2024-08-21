@@ -19,7 +19,7 @@ from disq.constants import (
     NodesStatus,
     ResultCode,
 )
-from disq.logger import Logger
+from disq.data_logger import DataLogger
 from disq.sculib import SteeringControlUnit
 
 logger = logging.getLogger("gui.model")
@@ -242,7 +242,7 @@ class Model(QObject):
         """
         super().__init__(parent)
         self._scu: SteeringControlUnit | None = None
-        self._data_logger: Logger | None = None
+        self._data_logger: DataLogger | None = None
         self._recording_config: list[str] = []
         self.subscription_rate_ms = SUBSCRIPTION_RATE_MS
         self._event_q_poller: QueuePollThread | None = None
@@ -570,7 +570,7 @@ class Model(QObject):
         if self._data_logger is not None:
             raise RuntimeError("Data logger already exist")
         logger.debug("Creating Logger and file: %s", filename.absolute())
-        self._data_logger = Logger(self._scu, str(filename.absolute()))
+        self._data_logger = DataLogger(self._scu, str(filename.absolute()))
         self._data_logger.add_nodes(
             self.recording_config,
             period=50,

@@ -2,5 +2,5 @@
 DiSQ Data Logger
 ================
 
-.. autoclass:: disq.Logger
+.. autoclass:: disq.DataLogger
    :members:

@@ -4,7 +4,7 @@ from importlib.metadata import version  # noqa
 
 from disq import configuration
 from disq.constants import Command, ResultCode
-from disq.logger import Logger
+from disq.data_logger import DataLogger
 from disq.sculib import SCU, SCU_from_config, SteeringControlUnit
 from disq.server_validator import OPCUAServerValidator
 
@@ -16,7 +16,7 @@ __all__ = [
     "configuration",
     "Command",
     "ResultCode",
-    "Logger",
+    "DataLogger",
     "SCU",
     "SCU_from_config",
     "SteeringControlUnit",
