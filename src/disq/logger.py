@@ -20,15 +20,16 @@ class Logger:
     """Data logger class for DiSQ software."""
 
     # Constants
-    _MAX_ENUM_STR_LEN_BYTES: Final = 64
     _CHUNK_SIZE_BYTES: Final = 4096
     _CHUNK_DOUBLE: Final = 4096 / 8  # 512
     _CHUNK_BOOL: Final = 4096 / 1
     _CHUNK_ENUM: Final = 4096 / 4  # 1024
+    _CHUNK_CURRENT_POINTING: Final = int(4096 / (7 * 8))  # 73
     _CHUNKS_PER_FLUSH: Final = 2
     _FLUSH_DOUBLE: Final = _CHUNK_DOUBLE * _CHUNKS_PER_FLUSH
     _FLUSH_BOOL: Final = _CHUNK_BOOL * _CHUNKS_PER_FLUSH
     _FLUSH_ENUM: Final = _CHUNK_ENUM * _CHUNKS_PER_FLUSH
+    _FLUSH_CURRENT_POINTING: Final = _CHUNK_CURRENT_POINTING * _CHUNKS_PER_FLUSH
     _FLUSH_PERIOD_MSECS: Final = 5000
     _QUEUE_GET_TIMEOUT_SECS: Final = 0.01
     _COMPLETION_LOOP_TIMEOUT_SECS: Final = 0.01
@@ -36,16 +37,19 @@ class Logger:
         "Double": "f8",  # 64 bit double numpy type
         "Boolean": "?",
         "Enumeration": "u4",  # 32 bit unsigned integer numpy type
+        "Pointing.Status.CurrentPointing": "(7,)f8",
     }
     _CHUNKS_FROM_VALUE_TYPE: Final = {
         "Double": _CHUNK_DOUBLE,
         "Boolean": _CHUNK_BOOL,
         "Enumeration": _CHUNK_ENUM,
+        "Pointing.Status.CurrentPointing": _CHUNK_CURRENT_POINTING,
     }
     _FLUSH_FROM_VALUE_TYPE: Final = {
         "Double": _FLUSH_DOUBLE,
         "Boolean": _FLUSH_BOOL,
         "Enumeration": _FLUSH_ENUM,
+        "Pointing.Status.CurrentPointing": _FLUSH_CURRENT_POINTING,
     }
     _TOTAL_COUND_IDX: Final = 0
     _TYPE_IDX: Final = 1
@@ -319,6 +323,12 @@ class Logger:
             else:
                 self._data_count += 1
                 node = datapoint["name"]
+                if datapoint["value"] is None:
+                    app_logger.error(
+                        "Error: Got None value from node subscription %s", node
+                    )
+                    continue
+
                 self._cache[node][self._TIMESTAMP_IDX].append(
                     datapoint["source_timestamp"]
                     .replace(tzinfo=timezone.utc)
@@ -360,6 +370,12 @@ class Logger:
             datapoint = self.queue.get(block=True, timeout=self._QUEUE_GET_TIMEOUT_SECS)
             self._data_count += 1
             node = datapoint["name"]
+            if datapoint["value"] is None:
+                app_logger.error(
+                    "Error: Got None value from node subscription %s", node
+                )
+                continue
+
             self._cache[node][self._TIMESTAMP_IDX].append(
                 datapoint["source_timestamp"].timestamp()
             )

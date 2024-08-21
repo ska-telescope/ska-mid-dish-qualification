@@ -142,8 +142,7 @@ class Grapher:
         dts = []
         data = []
         for i in range(fo[node]["SourceTimestamp"].len()):
-            naive_dt = datetime.fromtimestamp(fo[node]["SourceTimestamp"][i])
-            dt = naive_dt.replace(tzinfo=timezone.utc)
+            dt = datetime.fromtimestamp(fo[node]["SourceTimestamp"][i], tz=timezone.utc)
             if dt > start:
                 if dt < stop:
                     dts.append(dt)
