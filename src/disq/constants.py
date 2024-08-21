@@ -45,6 +45,24 @@ class Command(Enum):
     TRACK_START = "Tracking.Commands.TrackStart"
 
 
+class NamePlate(Enum):
+    """
+    Nodes used for PLC lifetime and identification.
+
+    This needs to be kept up to date with the ICD.
+    """
+
+    DISH_ID = "Management.NamePlate.DishId"
+    DISH_STRUCTURE_SERIAL_NO = "Management.NamePlate.DishStructureSerialNo"
+    DSC_SOFTWARE_VERSION = "Management.NamePlate.DscSoftwareVersion"
+    ICD_VERSION = "Management.NamePlate.IcdVersion"
+    RUN_HOURS = "Management.NamePlate.RunHours"
+    TOTAL_DIST_AZ = "Management.NamePlate.TotalDist_Az"
+    TOTAL_DIST_EL_DEG = "Management.NamePlate.TotalDist_El_deg"
+    TOTAL_DIST_EL_M = "Management.NamePlate.TotalDist_El_m"
+    TOTAL_DIST_FI = "Management.NamePlate.TotalDist_Fi"
+
+
 class ResultCode(IntEnum):
     """
     Result codes of commands.

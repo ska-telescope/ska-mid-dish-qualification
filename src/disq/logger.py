@@ -10,6 +10,7 @@ from typing import Final
 import h5py
 
 from disq import sculib
+from disq.constants import NamePlate
 
 app_logger = logging.getLogger("datalog")
 
@@ -133,6 +134,21 @@ class Logger:
         This method creates the necessary groups and datasets within an HDF5 file for
         storing data.
         """
+        nameplate_nodes = [
+            NamePlate.DISH_ID,
+            NamePlate.DISH_STRUCTURE_SERIAL_NO,
+            NamePlate.DSC_SOFTWARE_VERSION,
+            NamePlate.ICD_VERSION,
+            NamePlate.RUN_HOURS,
+            NamePlate.TOTAL_DIST_AZ,
+            NamePlate.TOTAL_DIST_EL_DEG,
+            NamePlate.TOTAL_DIST_EL_M,
+            NamePlate.TOTAL_DIST_FI,
+        ]
+        for node in nameplate_nodes:
+            value = self.hll.attributes[node.value].value  # type: ignore
+            self.file_object.attrs.create(node.value.rsplit(".", 1)[1], value)
+
         for node in self._nodes:
             # One group per node containing a single dataset for each of
             # SourceTimestamp, Value
