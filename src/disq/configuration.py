@@ -1,77 +1,41 @@
 """
-This module contains functions for finding and reading the DiSQ configuration file.
+DiSQ configuration utilities.
 
-The configuration file is a standard .ini file that can be parsed with the configparser
-module.
+This module contains functions for finding and reading the DiSQ configuration file, and
+other global tasks such as configuring the python loggers.
+
+The DiSQ server configuration file is a standard .ini file that can be parsed with the
+configparser module.
 
 Example configuration file `disq.ini`:
 
-    [DEFAULT]
-    port = 4840
-    subscription_period_ms = 100
-
-    [opcua_server.cetc54_simulator]
-    host = 127.0.0.1
-    endpoint = /OPCUA/SimpleServer
-    namespace = CETC54
-    auth_user = LMC
-
-    [opcua_server.karoo_simulator]
-    host = 127.0.0.1
-    endpoint = /dish-structure/server/
-    namespace = http://skao.int/DS_ICD/
-
-Functions:
-    find_config_file(config_filename: str | None = None) -> Path:
-        Finds the configuration file named "disq.ini" and returns its path as a Path
-        object. The configuration file can be specified in three ways:
-        1. By providing the file path as a command line option.
-        2. By setting the DISQ_CONFIG environment variable to the file path.
-        3. If neither of the above are provided, the function will look for the
-        file in the user's data directory.
-        If the configuration file is not found, a FileNotFoundError is raised.
-
-    get_configuration(config_filename: str | None = None) -> configparser.ConfigParser:
-        Reads the configuration file and returns a ConfigParser object containing the
-        configuration data.
-
-    get_config_sculib_args(config_filename, server_name) -> dict[str, str]:
-        Convenience function: Reads the configuration file and returns a dictionary of
-        SCU library arguments.
+.. literalinclude:: ../../../disq.ini
 """
 
-import configparser
+import datetime
 import logging
 import os
+from configparser import ConfigParser
+from importlib import resources
 from pathlib import Path
 
 import platformdirs
+import yaml  # type: ignore
 
 # The default configuration file name to search for
 _DEFAULT_CONFIG_FILENAME = "disq.ini"
 
 
 def find_config_file(config_filename: str | None = None) -> Path:
-    r"""
-    Finds the configuration file named "disq.ini".
+    """
+    Finds the configuration file named "disq.ini" and returns a ``Path`` pointing to it.
 
-    The logic for finding the configuration file is as follows in mermaid diagram
-    syntax:
+    The configuration file can be specified in three ways:
 
-    .. mermaid:
-        graph TD
-            A[Start] --> B{CLI option provided?}
-            B -->|No| E
-            B -->|yes| C[Read CLI option]
-            C --> D{File found?}
-            D -->|Yes| RET[Return file path]
-            D -->|No| E[Read environment variable]
-            E --> F{env variable set\nAND File found?}
-            F -->|Yes| RET
-            F -->|No| G[Locate user data dir]
-            G --> H{File found?}
-            H -->|Yes| RET
-            H -->|No| ERR[Raise exception]
+    1. By providing the file path as a command line option.
+    2. By setting the ``DISQ_CONFIG`` environment variable to the file path.
+    3. If neither of the above are provided, the function will look for the file in the
+       user's data directory.
 
     :param config_filename: The name and path to a configuration file.
         If provided, it will be checked first. Defaults to None.
@@ -112,9 +76,9 @@ def find_config_file(config_filename: str | None = None) -> Path:
     )
 
 
-def get_configurations(config_filename: str | None = None) -> configparser.ConfigParser:
+def get_configurations(config_filename: str | None = None) -> ConfigParser:
     """
-    Reads the configuration file and returns a ConfigParser object.
+    Reads the configuration file and returns a ``ConfigParser`` object with the data.
 
     :param config_filename: The name of the configuration file. If None, the default
         configuration file is used.
@@ -124,7 +88,7 @@ def get_configurations(config_filename: str | None = None) -> configparser.Confi
     config_file_path = find_config_file(config_filename)
 
     # Read the configuration file
-    config = configparser.ConfigParser()
+    config = ConfigParser()
     config.read(config_file_path)
 
     return config
@@ -147,7 +111,7 @@ def get_config_sculib_args(
     :raises KeyError: If specified server name is not found in the configuration file.
     :raises ValueError: If server port is not an integer.
     """
-    config: configparser.ConfigParser = get_configurations(config_filename)
+    config = get_configurations(config_filename)
     if server_name == "DEFAULT":
         server_name = config.sections()[0]
     else:
@@ -185,6 +149,57 @@ def get_config_server_list(config_filename: str | None = None) -> list[str]:
         configuration file is used.
     :return: A list containing the server names.
     """
-    config: configparser.ConfigParser = get_configurations(config_filename)
+    config = get_configurations(config_filename)
     server_list = [server.split(".")[1] for server in config.sections()]
     return server_list
+
+
+def configure_logging(default_log_level: int = logging.INFO) -> None:
+    """
+    Configure logging settings based on a YAML configuration file.
+
+    :param default_log_level: The default logging level to use if no configuration file
+        is found. Defaults to logging.INFO.
+    :raises ValueError: If an error occurs while configuring logging from the file.
+    """
+    disq_log_config_file = Path("disq_logging_config.yaml")
+    if disq_log_config_file.exists() is False:
+        disq_log_config_file = Path(
+            resources.files(__package__) / "default_logging_config.yaml"  # type: ignore
+        )
+    config = None
+    if disq_log_config_file.exists():
+        with open(disq_log_config_file, "rt", encoding="UTF-8") as f:
+            try:
+                config = yaml.safe_load(f.read())
+            except yaml.YAMLError as e:
+                print(f"{type(e).__name__}: '{e}'")
+                print(
+                    "WARNING: Unable to read logging configuration file "
+                    f"{disq_log_config_file}"
+                )
+        try:
+            at_time = datetime.time.fromisoformat(
+                config["handlers"]["file_handler"]["atTime"]
+            )
+            config["handlers"]["file_handler"]["atTime"] = at_time
+        except KeyError as e:
+            print(f"WARNING: {e} not found in logging configuration for file_handler")
+    else:
+        print(f"WARNING: Logging configuration file {disq_log_config_file} not found")
+
+    if config is None:
+        print(f"Reverting to basic logging config at level:{default_log_level}")
+        logging.basicConfig(level=default_log_level)
+    else:
+        Path("logs").mkdir(parents=True, exist_ok=True)
+        try:
+            logging.config.dictConfig(config)
+        except ValueError as e:
+            print(f"{type(e).__name__}: '{e}'")
+            print(
+                "WARNING: Caught exception. Unable to configure logging from file "
+                f"{disq_log_config_file}. Reverting to logging to the console "
+                "(basicConfig)."
+            )
+            logging.basicConfig(level=default_log_level)
