@@ -210,7 +210,9 @@ class Logger:
         Creates and uses a thread internally.
         """
         if self._start_invoked:
-            app_logger.warning("WARNING: start() can only be invoked once per object.")
+            app_logger.warning(
+                "WARNING: start() can only be invoked once per object."
+            )
             return
 
         self._start_invoked = True
@@ -258,11 +260,16 @@ class Logger:
         # Dataset lengths will always match as they are only written here
         curr_len = group["SourceTimestamp"].len()
 
-        group["SourceTimestamp"].resize(curr_len + cache[self._COUNT_IDX], axis=0)
-        group["SourceTimestamp"][-cache[self._COUNT_IDX] :] = cache[self._TIMESTAMP_IDX]
+        group["SourceTimestamp"].resize(
+            curr_len + cache[self._COUNT_IDX], axis=0
+        )
+        group["SourceTimestamp"][-cache[self._COUNT_IDX] :] = cache[
+            self._TIMESTAMP_IDX
+        ]
         group["SourceTimestamp"].flush()
 
         group["Value"].resize(curr_len + cache[self._COUNT_IDX], axis=0)
+        app_logger.warning("Attempting to write cache to node %s", node)
         group["Value"][-cache[self._COUNT_IDX] :] = cache[self._VALUE_IDX]
         group["Value"].flush()
 
@@ -310,7 +317,9 @@ class Logger:
                 # Write to file when cache reaches multiple of chunk size for value type
                 if (
                     self._cache[node][self._TOTAL_COUND_IDX]
-                    % self._FLUSH_FROM_VALUE_TYPE[self._cache[node][self._TYPE_IDX]]
+                    % self._FLUSH_FROM_VALUE_TYPE[
+                        self._cache[node][self._TYPE_IDX]
+                    ]
                     == 0
                 ):
                     self._write_cache_to_group(node)
@@ -329,14 +338,18 @@ class Logger:
                     self.queue.qsize(),
                 )
 
-                next_flush_interval += timedelta(milliseconds=self._FLUSH_PERIOD_MSECS)
+                next_flush_interval += timedelta(
+                    milliseconds=self._FLUSH_PERIOD_MSECS
+                )
 
         app_logger.debug(
             "Number of items in queue (final write): %d", self.queue.qsize()
         )
         # Subscriptions have been stopped: clear remaining queue, flush and close file.
         while not self.queue.empty():
-            datapoint = self.queue.get(block=True, timeout=self._QUEUE_GET_TIMEOUT_SECS)
+            datapoint = self.queue.get(
+                block=True, timeout=self._QUEUE_GET_TIMEOUT_SECS
+            )
             self._data_count += 1
             node = datapoint["name"]
             self._cache[node][self._TIMESTAMP_IDX].append(
