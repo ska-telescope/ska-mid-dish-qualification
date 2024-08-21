@@ -487,12 +487,16 @@ class Model(QObject):
                 band = self._scu.convert_enum_to_int("BandType", args[3])
                 result = _log_and_call(command, static, tilt, temperature, band)
             case Command.TAKE_AUTH:
-                logger.debug("Calling command: %s, args: %s", command, args)
+                logger.debug("Calling command: %s, args: %s", command.value, args)
                 code, msg = self._scu.take_authority(args[0])
                 result = code, msg, None
             case Command.RELEASE_AUTH:
-                logger.debug("Calling command: %s, args: %s", command, args)
+                logger.debug("Calling command: %s, args: %s", command.value, args)
                 code, msg = self._scu.release_authority()
+                result = code, msg, None
+            case Command.TRACK_START:
+                logger.debug("Calling command: %s, args: %s", command.value, args)
+                code, msg = self._scu.start_tracking(*args)
                 result = code, msg, None
             # Commands that take none or more parameters of base types: float, bool, etc
             case _:
@@ -532,18 +536,39 @@ class Model(QObject):
         """Return a status message (Enum) of the OPC UA client's nodes."""
         return self._nodes_status
 
-    def load_track_table(self, filename: Path) -> None:
+    # pylint: disable=too-many-arguments
+    def load_track_table(
+        self,
+        filename: Path,
+        mode: str,
+        absolute_times: bool,
+        additional_offset: float,
+        result_callback: Callable[[ResultCode, str], None],
+    ) -> tuple[ResultCode, str]:
         """
         Load the track table data from a file.
 
         :param filename: The path to the file containing the track table data.
-        :type filename: Path
+        :param mode: 'Append', 'New' or 'Reset'.
+        :param absolute_times: Whether the time column is a real time or a relative
+            time. Default True.
+        :param additional_offset: Add additional time to every point. Only has an
+            effect when absolute_times is False. Default 10.1
+        :param result_callback: Callback with result code and message when task finishes
         :raises RuntimeError: If the server is not connected.
+        :return: The result of attempted track table loading.
+        :rtype: tuple[ResultCode, str]
         """
         if self._scu is None:
             raise RuntimeError("Server not connected")
         logger.debug("Loading track table from file: %s", filename.absolute())
-        self._scu.track_table_reset_and_upload_from_file(str(filename.absolute()))
+        return self._scu.load_track_table(
+            mode,
+            file_name=str(filename.absolute()),
+            absolute_times=absolute_times,
+            additional_offset=additional_offset,
+            result_callback=result_callback,
+        )
 
     def start_recording(self, filename: Path) -> None:
         """

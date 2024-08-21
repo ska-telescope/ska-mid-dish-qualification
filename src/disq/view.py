@@ -487,20 +487,39 @@ class MainView(QtWidgets.QMainWindow):
             self.recording_config_button_clicked
         )
 
-        self.button_load_track_table: QtWidgets.QPushButton
-        self.button_load_track_table.clicked.connect(
-            lambda: self.controller.load_track_table(
-                self.line_edit_track_table_file.text()
-            )
+        # Track tab load widgets
+        self.button_select_track_table_file: QtWidgets.QPushButton
+        self.button_select_track_table_file.clicked.connect(
+            self.track_table_file_button_clicked
         )
         self.line_edit_track_table_file: QtWidgets.QLineEdit
         self.line_edit_track_table_file.textChanged.connect(
             self.track_table_file_changed
         )
-        self.button_select_track_table_file: QtWidgets.QPushButton
-        self.button_select_track_table_file.clicked.connect(
-            self.track_table_file_button_clicked
+        self.button_file_track_absolute_times: QtWidgets.QRadioButton
+        self.button_file_track_absolute_times.setChecked(False)
+        self.button_file_track_relative_times: QtWidgets.QRadioButton
+        self.button_file_track_relative_times.toggled.connect(
+            self.button_file_track_relative_times_toggled
         )
+        self.button_file_track_relative_times.setChecked(True)
+        self.spinbox_file_track_additional_offset: QtWidgets.QDoubleSpinBox
+        self.spinbox_file_track_additional_offset.setEnabled(False)
+        self.combobox_file_track_mode: QtWidgets.QComboBox
+        self.button_load_track_table: QtWidgets.QPushButton
+        self.button_load_track_table.clicked.connect(self.load_track_table_clicked)
+
+        # Track tab start widgets
+        self.combobox_track_start_interpol_type: QtWidgets.QComboBox
+        self.button_start_track_now: QtWidgets.QRadioButton
+        self.button_start_track_now.setChecked(True)
+        self.button_start_track_at: QtWidgets.QRadioButton
+        self.button_start_track_at.toggled.connect(self.button_start_track_at_toggled)
+        self.button_start_track_at.setChecked(False)
+        self.line_edit_start_track_at: QtWidgets.QLineEdit
+        self.line_edit_start_track_at.setEnabled(False)
+        self.button_start_track_table: QtWidgets.QPushButton
+        self.button_start_track_table.clicked.connect(self.start_tracking_clicked)
 
         self.warning_tree_view: QtWidgets.QTreeWidget
         self.warning_status_show_only_warnings: QtWidgets.QCheckBox
@@ -896,6 +915,9 @@ class MainView(QtWidgets.QMainWindow):
         self._initialise_error_warning_widgets()
         self.warning_status_show_only_warnings.setEnabled(True)
         self.error_status_show_only_errors.setEnabled(True)
+        self.spinbox_file_track_additional_offset.setEnabled(
+            not self.button_file_track_absolute_times.isChecked()
+        )
 
     def server_disconnected_event(self):
         """Handle the server disconnected event."""
@@ -988,6 +1010,31 @@ class MainView(QtWidgets.QMainWindow):
         )
         if filename:
             self.line_edit_track_table_file.setText(filename)
+
+    def button_file_track_relative_times_toggled(self, checked: bool) -> None:
+        """Only enable the additional offset box when file times are relative."""
+        self.spinbox_file_track_additional_offset.setEnabled(checked)
+
+    def load_track_table_clicked(self):
+        """Call the TrackLoadTable command."""
+        self.controller.load_track_table(
+            self.line_edit_track_table_file.text(),
+            self.combobox_file_track_mode.currentText(),
+            self.button_file_track_absolute_times.isChecked(),
+            self.spinbox_file_track_additional_offset.value(),
+        )
+
+    def button_start_track_at_toggled(self, checked: bool) -> None:
+        """Only enable the line edit when the At radio is checked."""
+        self.line_edit_start_track_at.setEnabled(checked)
+
+    def start_tracking_clicked(self):
+        """Start the track table on the PLC."""
+        self.controller.start_track_table(
+            self.combobox_track_start_interpol_type.currentText(),
+            self.button_start_track_now.isChecked(),
+            self.line_edit_start_track_at.text(),
+        )
 
     def recording_config_button_clicked(self):
         """Open the recording configuration dialog."""

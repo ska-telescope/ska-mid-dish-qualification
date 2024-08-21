@@ -53,6 +53,8 @@ class ResultCode(IntEnum):
     """
 
     UNKNOWN = -10
+    EXECUTING = -5
+    ENTIRE_TRACK_TABLE_LOADED = -4
     # Codes for caught asyncua exceptions
     CONNECTION_CLOSED = -3
     UA_BASE_EXCEPTION = -2
