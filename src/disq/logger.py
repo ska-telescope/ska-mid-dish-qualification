@@ -134,20 +134,20 @@ class Logger:
         This method creates the necessary groups and datasets within an HDF5 file for
         storing data.
         """
-        nameplate_nodes = [
-            NamePlate.DISH_ID,
-            NamePlate.DISH_STRUCTURE_SERIAL_NO,
-            NamePlate.DSC_SOFTWARE_VERSION,
-            NamePlate.ICD_VERSION,
-            NamePlate.RUN_HOURS,
-            NamePlate.TOTAL_DIST_AZ,
-            NamePlate.TOTAL_DIST_EL_DEG,
-            NamePlate.TOTAL_DIST_EL_M,
-            NamePlate.TOTAL_DIST_FI,
-        ]
-        for node in nameplate_nodes:
-            value = self.hll.attributes[node.value].value  # type: ignore
-            self.file_object.attrs.create(node.value.rsplit(".", 1)[1], value)
+        for node in NamePlate:
+            node_string = node.value
+            node_short = node_string.rsplit(".", 1)[1]
+            try:
+                value = self.hll.attributes[node_string].value  # type: ignore
+            except KeyError:
+                app_logger.warning(
+                    "WARNING: node %s is not available on the server. "
+                    "HDF5 file will not contain %s.",
+                    node_string,
+                    node_short,
+                )
+            else:
+                self.file_object.attrs.create(node_short, value)
 
         for node in self._nodes:
             # One group per node containing a single dataset for each of
