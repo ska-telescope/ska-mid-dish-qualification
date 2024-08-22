@@ -333,13 +333,10 @@ AttrDict = dict[str, object]
 CmdDict = dict[str, Callable[..., CmdReturn]]
 
 
-# pylint: disable=too-many-public-methods,too-many-instance-attributes
-class SteeringControlUnit:
+# pylint: disable=too-many-instance-attributes
+class AsyncOPCUAClient:
     """
-    Steering Control Unit for a SKA-Mid Dish Structure Controller OPC UA server.
-
-    An OPC UA client class that simplifies connecting to a server and calling
-    methods on it, reading or writing attributes.
+    Basic OPCUA client using an asyncio event loop with support for user authentication.
 
     :param host: The hostname or IP address of the server. Default is 'localhost'.
     :param port: The port number of the server. Default is 4840.
@@ -349,17 +346,11 @@ class SteeringControlUnit:
     :param password: The password for authentication. Default is None.
     :param timeout: The timeout value for connection. Default is 10.0.
     :param eventloop: The asyncio event loop to use. Default is None.
-    :param gui_app: Whether the instance is for a GUI application. Default is False.
-    :param use_nodes_cache: Whether to use any existing caches of node IDs.
-        Default is False.
     :param app_name: application name for OPC UA client description.
         Default 'DiSQ.sculib v{PACKAGE_VERSION}'
     """
 
-    # ------------------
-    # Setup and teardown
-    # ------------------
-    # pylint: disable=too-many-arguments,too-many-locals
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         host: str = "localhost",
@@ -370,13 +361,9 @@ class SteeringControlUnit:
         password: str | None = None,
         timeout: float = 10.0,
         eventloop: asyncio.AbstractEventLoop | None = None,
-        gui_app: bool = False,
-        use_nodes_cache: bool = False,
         app_name: str = f"DiSQ.sculib v{PACKAGE_VERSION}",
     ) -> None:
-        """Initialise SCU with the provided parameters."""
-        logger.info("Initialising SCU")
-        # Intialised variables
+        """Initialise AsyncOPCUAClient with the provided parameters."""
         self.host = host
         self.port = port
         self.endpoint = endpoint
@@ -388,112 +375,10 @@ class SteeringControlUnit:
             self._create_and_start_asyncio_event_loop()
         else:
             self.event_loop = eventloop
-        logger.info("Event loop: %s", self.event_loop)
-        self._gui_app = gui_app
-        self._use_nodes_cache = use_nodes_cache
         self._app_name = app_name
-        # Other local variables
         self._client: Client | None = None
-        self._event_loop_thread: threading.Thread | None = None
-        self._subscription_handler = None
-        self._subscriptions: dict = {}
-        self._subscription_queue: queue.Queue = queue.Queue()
-        self._user: int | None = None
-        self._session_id: ua.UInt16 | None = None
-        self._server_url: str
-        self._server_str_id: str
-        self._plc_prg: Node
         self._ns_idx: int
-        self._nodes: NodeDict
-        self._nodes_reversed: dict[tuple[Node, int], str]
-        self._attributes: AttrDict
-        self._commands: CmdDict
-        self._plc_prg_nodes_timestamp: str
-        self._parameter: Node
-        self._parameter_ns_idx: int
-        self._parameter_nodes: NodeDict
-        self._parameter_attributes: AttrDict
-        self._track_table_queue: queue.Queue | None = None
-        self._stop_track_table_schedule_task_event: threading.Event | None = None
-        self._track_table_scheduled_task: Future | None = None
-        self._track_table: TrackTable | None = None
-        self._opcua_enum_types: dict[str, Type[Enum]] = {}
-
-    def connect_and_setup(self) -> None:
-        """
-        Connect to the server and setup the SCU client.
-
-        :raises Exception: If connection to OPC UA server fails.
-        """
-        try:
-            self._client = self.connect()
-        except Exception as e:
-            msg = (
-                "Cannot connect to the OPC UA server. Please "
-                "check the connection parameters that were "
-                "passed to instantiate the sculib!"
-            )
-            try:
-                # pylint: disable:no-member
-                e.add_note(msg)  # type: ignore
-            except AttributeError:
-                logger.exception(msg)
-            raise e
-        if self.server_version is None:
-            self._server_str_id = f"{self._server_url} - version unknown"
-        else:
-            self._server_str_id = f"{self._server_url} - v{self.server_version}"
-            try:
-                if (
-                    self.namespace == "CETC54"
-                    and Version(self.server_version) < COMPATIBLE_CETC_SIM_VER
-                ):
-                    raise RuntimeError(
-                        f"DiSQ-SCU not compatible with v{self.server_version} of CETC "
-                        f"simulator, only v{COMPATIBLE_CETC_SIM_VER} and up"
-                    )
-            except InvalidVersion:
-                logger.warning(
-                    "Server version (%s) does not conform to semantic versioning",
-                    self.server_version,
-                )
-        self._populate_node_dicts()
-        self._validate_enum_types()  # Ensures enum types are defined
-        logger.info("Successfully connected to server and initialised SCU client")
-
-    def __enter__(self) -> "SteeringControlUnit":
-        """Connect to the server and setup the SCU client."""
-        self.connect_and_setup()
-        return self
-
-    def disconnect_and_cleanup(self) -> None:
-        """
-        Disconnect from server and clean up SCU client resources.
-
-        Release any command authority, unsubscribe from all subscriptions, disconnect
-        from the server, and stop the event loop if it was started in a separate thread.
-        """
-        result_code, _ = self.release_authority()
-        if result_code != ResultCode.CONNECTION_CLOSED:
-            self.unsubscribe_all()
-            self.disconnect()
-        self.cleanup_resources()
-
-    def cleanup_resources(self) -> None:
-        """
-        Clean up SCU client resources.
-
-        Stop the event loop if it was started in a separate thread.
-        """
-        if self._event_loop_thread is not None:
-            # Signal the event loop thread to stop.
-            self.event_loop.call_soon_threadsafe(self.event_loop.stop)
-            # Join the event loop thread once it is done processing tasks.
-            self._event_loop_thread.join()
-
-    def __exit__(self, *args: Any) -> None:
-        """Disconnect from server and clean up client resources."""
-        self.disconnect_and_cleanup()
+        self._server_url = f"opc.tcp://{self.host}:{self.port}{self.endpoint}"
 
     def _run_event_loop(
         self,
@@ -588,43 +473,29 @@ class SteeringControlUnit:
 
         :raises: Exception if an error occurs during the connection process.
         """
-        server_url = f"opc.tcp://{self.host}:{self.port}{self.endpoint}"
-        logger.info("Connecting to: %s", server_url)
-        client = Client(server_url, self.timeout)
+        logger.info("Connecting to: %s", self._server_url)
+        client = Client(self._server_url, self.timeout)
         hostname = socket.gethostname()
         # Set the ClientDescription fields
         client.application_uri = f"urn:{hostname}:{self._app_name.replace(' ', '-')}"
         client.product_uri = "gitlab.com/ska-telescope/ska-mid-dish-qualification"
         client.name = f"{self._app_name} @{hostname}"
         client.description = f"{self._app_name} @{hostname}"
+        # Set up encryption with the given user credentials
         if self.username is not None and self.password is not None:
             self._set_up_encryption(client, self.username, self.password)
+        # Connect the client to the server
         _ = asyncio.run_coroutine_threadsafe(client.connect(), self.event_loop).result()
-        self._server_url = server_url
+
+        # Attepmt to load type definitions from the server
         try:
             _ = asyncio.run_coroutine_threadsafe(
                 client.load_data_type_definitions(), self.event_loop
             ).result()
         except Exception as exc:
             logger.warning("Exception trying load_data_type_definitions(): %s", exc)
-        # Get the namespace index for the PLC's Parameter node
-        try:
-            self._parameter_ns_idx = asyncio.run_coroutine_threadsafe(
-                client.get_namespace_index(
-                    "http://boschrexroth.com/OpcUa/Parameter/Objects/"
-                ),
-                self.event_loop,
-            ).result()
-        except Exception:
-            self._parameter_ns_idx = None
-            message = (
-                "*** Exception caught while trying to access the namespace "
-                "'http://boschrexroth.com/OpcUa/Parameter/Objects/' for the parameter "
-                "nodes on the OPC UA server. "
-                "From now on it will be assumed that the CETC54 simulator is running."
-            )
-            logger.warning(message)
 
+        # Get the given namespace's index from the server
         try:
             if self.namespace != "" and self.endpoint != "":
                 self._ns_idx = asyncio.run_coroutine_threadsafe(
@@ -685,6 +556,178 @@ class SteeringControlUnit:
         :return: True if the SCU has a connection, False otherwise.
         """
         return self._client is not None
+
+
+# pylint: disable=too-many-public-methods,too-many-instance-attributes
+class SteeringControlUnit(AsyncOPCUAClient):
+    """
+    Steering Control Unit for a SKA-Mid Dish Structure Controller OPC UA server.
+
+    An OPC UA client class that simplifies connecting to a server and calling
+    methods on it, reading or writing attributes.
+
+    :param host: The hostname or IP address of the server. Default is 'localhost'.
+    :param port: The port number of the server. Default is 4840.
+    :param endpoint: The endpoint on the server. Default is ''.
+    :param namespace: The namespace for the server. Default is ''.
+    :param username: The username for authentication. Default is None.
+    :param password: The password for authentication. Default is None.
+    :param timeout: The timeout value for connection. Default is 10.0.
+    :param eventloop: The asyncio event loop to use. Default is None.
+    :param gui_app: Whether the instance is for a GUI application. Default is False.
+    :param use_nodes_cache: Whether to use any existing caches of node IDs.
+        Default is False.
+    :param app_name: application name for OPC UA client description.
+        Default 'DiSQ.sculib v{PACKAGE_VERSION}'
+    """
+
+    # ------------------
+    # Setup and teardown
+    # ------------------
+    # pylint: disable=too-many-arguments,too-many-locals
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 4840,
+        endpoint: str = "",
+        namespace: str = "",
+        username: str | None = None,
+        password: str | None = None,
+        timeout: float = 10.0,
+        eventloop: asyncio.AbstractEventLoop | None = None,
+        gui_app: bool = False,
+        use_nodes_cache: bool = False,
+        app_name: str = f"DiSQ.sculib v{PACKAGE_VERSION}",
+    ) -> None:
+        """Initialise SCU with the provided parameters."""
+        logger.info("Initialising SCU")
+        super().__init__(
+            host=host,
+            port=port,
+            endpoint=endpoint,
+            namespace=namespace,
+            username=username,
+            password=password,
+            timeout=timeout,
+            eventloop=eventloop,
+            app_name=app_name,
+        )
+        logger.info("Event loop: %s", self.event_loop)
+        # Intialised variables
+        self._gui_app = gui_app
+        self._use_nodes_cache = use_nodes_cache
+        # Other local variables
+        self._event_loop_thread: threading.Thread | None = None
+        self._subscription_handler = None
+        self._subscriptions: dict = {}
+        self._subscription_queue: queue.Queue = queue.Queue()
+        self._user: int | None = None
+        self._session_id: ua.UInt16 | None = None
+        self._server_str_id: str
+        self._plc_prg: Node
+        self._nodes: NodeDict
+        self._nodes_reversed: dict[tuple[Node, int], str]
+        self._attributes: AttrDict
+        self._commands: CmdDict
+        self._plc_prg_nodes_timestamp: str
+        self._parameter_ns_idx: int
+        self._parameter: Node
+        self._parameter_nodes: NodeDict
+        self._parameter_attributes: AttrDict
+        self._track_table_queue: queue.Queue | None = None
+        self._stop_track_table_schedule_task_event: threading.Event | None = None
+        self._track_table_scheduled_task: Future | None = None
+        self._track_table: TrackTable | None = None
+        self._opcua_enum_types: dict[str, Type[Enum]] = {}
+
+    def connect_and_setup(self) -> None:
+        """
+        Connect to the server and setup the SCU client.
+
+        :raises Exception: If connection to OPC UA server fails.
+        """
+        try:
+            self._client = self.connect()
+        except Exception as e:
+            msg = (
+                "Cannot connect to the OPC UA server. Please "
+                "check the connection parameters that were "
+                "passed to instantiate the sculib!"
+            )
+            logger.error("%s - %s", msg, e)
+            raise e
+        if self.server_version is None:
+            self._server_str_id = f"{self._server_url} - version unknown"
+        else:
+            self._server_str_id = f"{self._server_url} - v{self.server_version}"
+            try:
+                if (
+                    self.namespace == "CETC54"
+                    and Version(self.server_version) < COMPATIBLE_CETC_SIM_VER
+                ):
+                    raise RuntimeError(
+                        f"DiSQ-SCU not compatible with v{self.server_version} of CETC "
+                        f"simulator, only v{COMPATIBLE_CETC_SIM_VER} and up"
+                    )
+            except InvalidVersion:
+                logger.warning(
+                    "Server version (%s) does not conform to semantic versioning",
+                    self.server_version,
+                )
+        # Get the namespace index for the PLC's Parameter node
+        try:
+            self._parameter_ns_idx = asyncio.run_coroutine_threadsafe(
+                self._client.get_namespace_index(
+                    "http://boschrexroth.com/OpcUa/Parameter/Objects/"
+                ),
+                self.event_loop,
+            ).result()
+        except Exception:
+            self._parameter_ns_idx = None
+            message = (
+                "*** Exception caught while trying to access the namespace "
+                "'http://boschrexroth.com/OpcUa/Parameter/Objects/' for the parameter "
+                "nodes on the OPC UA server. "
+                "From now on it will be assumed that the CETC54 simulator is running."
+            )
+            logger.warning(message)
+        self._populate_node_dicts()
+        self._validate_enum_types()  # Ensures enum types are defined
+        logger.info("Successfully connected to server and initialised SCU client")
+
+    def __enter__(self) -> "SteeringControlUnit":
+        """Connect to the server and setup the SCU client."""
+        self.connect_and_setup()
+        return self
+
+    def disconnect_and_cleanup(self) -> None:
+        """
+        Disconnect from server and clean up SCU client resources.
+
+        Release any command authority, unsubscribe from all subscriptions, disconnect
+        from the server, and stop the event loop if it was started in a separate thread.
+        """
+        result_code, _ = self.release_authority()
+        if result_code != ResultCode.CONNECTION_CLOSED:
+            self.unsubscribe_all()
+            self.disconnect()
+        self.cleanup_resources()
+
+    def cleanup_resources(self) -> None:
+        """
+        Clean up SCU client resources.
+
+        Stop the event loop if it was started in a separate thread.
+        """
+        if self._event_loop_thread is not None:
+            # Signal the event loop thread to stop.
+            self.event_loop.call_soon_threadsafe(self.event_loop.stop)
+            # Join the event loop thread once it is done processing tasks.
+            self._event_loop_thread.join()
+
+    def __exit__(self, *args: Any) -> None:
+        """Disconnect from server and clean up client resources."""
+        self.disconnect_and_cleanup()
 
     # ----------------
     # Class properties

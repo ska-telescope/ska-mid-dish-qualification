@@ -10,6 +10,7 @@ Dish Structure Steering Control Unit
 
 .. autoclass:: disq.SteeringControlUnit
    :members:
+.. :show-inheritance:
 
 SCU generator methods
 =====================
