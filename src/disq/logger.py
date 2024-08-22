@@ -147,7 +147,14 @@ class Logger:
                     node_short,
                 )
             else:
-                self.file_object.attrs.create(node_short, value)
+                try:
+                    self.file_object.attrs.create(node_short, value)
+                except TypeError as e:
+                    app_logger.error(
+                        "ERROR: Could not create attr for %s; %s",
+                        node_string,
+                        e,
+                    )
 
         for node in self._nodes:
             # One group per node containing a single dataset for each of
