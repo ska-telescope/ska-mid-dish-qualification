@@ -48,6 +48,10 @@ autodoc_typehints = "description"
 # Optional: if you want type hints in your signatures
 autodoc_typehints_format = "short"
 
+autodoc_default_options = {
+    "member-order": "bysource",
+}
+
 # Add any paths that contain templates here, relative to this directory.
 # templates_path = []
 
