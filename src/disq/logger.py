@@ -54,17 +54,15 @@ class Logger:
 
     def __init__(
         self,
-        high_level_library: sculib.SecondaryControlUnit,
+        high_level_library: sculib.SteeringControlUnit,
         file_name: str = None,
     ):
         """
         Initialize the Logger object.
 
         :param file_name: The name of the file to log data to.
-        :type file_name: str
         :param high_level_library: An optional high level library object to use for data
             manipulation.
-        :type high_level_library: sculib.SCU
         """
         self.hll = high_level_library
         self.file = file_name

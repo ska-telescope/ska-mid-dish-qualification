@@ -1,4 +1,4 @@
-"""Track table for Secondary Control Unit (SCU) module."""
+"""Track table for Steering Control Unit (SCU) module."""
 
 import logging
 import threading

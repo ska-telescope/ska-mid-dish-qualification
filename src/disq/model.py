@@ -14,7 +14,7 @@ from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
 from disq.constants import PACKAGE_VERSION, CmdReturn, Command, NodesStatus, ResultCode
 from disq.logger import Logger
-from disq.sculib import SecondaryControlUnit
+from disq.sculib import SteeringControlUnit
 
 logger = logging.getLogger("gui.model")
 
@@ -34,7 +34,6 @@ class QueuePollThread(QThread):
     A class representing a queue poll thread using QThread.
 
     :param signal: The signal used to communicate data from the thread.
-    :type signal: pyqtSignal
     """
 
     def __init__(self, signal: pyqtBoundSignal) -> None:
@@ -42,7 +41,6 @@ class QueuePollThread(QThread):
         Initialize the SignalProcessor object.
 
         :param signal: The signal to be emitted on event updates.
-        :type signal: pyqtSignal
         """
         super().__init__()
         self.queue: Queue = Queue()
@@ -82,7 +80,6 @@ class QueuePollThread(QThread):
         subclasses to handle the data differently.
 
         :param data: The data to be handled.
-        :type data: dict
         """
         self.signal.emit(data)
 
@@ -223,7 +220,6 @@ class Model(QObject):
     A class representing a Model.
 
     :param parent: The parent object of the Model (default is None).
-    :type parent: QObject
     """
 
     # define signals here
@@ -237,10 +233,9 @@ class Model(QObject):
         Initialize a new instance of the `Model` class.
 
         :param parent: The parent object, if any.
-        :type parent: QObject or None
         """
         super().__init__(parent)
-        self._scu: SecondaryControlUnit | None = None
+        self._scu: SteeringControlUnit | None = None
         self._data_logger: Logger | None = None
         self._recording_config: list[str] = []
         self.subscription_rate_ms = int(
@@ -264,7 +259,7 @@ class Model(QObject):
         """
         logger.debug("Connecting to server: %s", connect_details)
         try:
-            self._scu = SecondaryControlUnit(
+            self._scu = SteeringControlUnit(
                 **connect_details,
                 gui_app=True,
                 app_name=f"DiSQ GUI v{PACKAGE_VERSION}",
@@ -290,7 +285,6 @@ class Model(QObject):
         Get the URI of the server that the client is connected to.
 
         :return: The URI of the server.
-        :rtype: str
         """
         if self._scu is None:
             return ""
@@ -302,7 +296,6 @@ class Model(QObject):
         The software/firmware version of the server that the client is connected to.
 
         :return: the version of the server.
-        :rtype: str
         """
         if self._scu is None:
             return "not connected to server"
@@ -315,7 +308,6 @@ class Model(QObject):
         Generation timestamp of the PLC_PRG Node tree.
 
         :return: timestamp in 'yyyy-mm-dd hh:mm:ss' string format.
-        :rtype: str
         """
         if self._scu is None:
             return "not connected to server"
@@ -327,7 +319,6 @@ class Model(QObject):
         Status of the expected nodes versus what SCU client has loaded.
 
         :return: status string.
-        :rtype: str
         """
         if self._scu is None:
             return "not connected to server"
@@ -369,7 +360,6 @@ class Model(QObject):
         Check if the `Model` instance object has a connection to the OPC-UA server.
 
         :return: True if the object is connected, False otherwise.
-        :rtype: bool
         """
         if self._scu is not None:
             return self._scu.is_connected()
@@ -384,7 +374,6 @@ class Model(QObject):
         Register event updates for specific event registrations.
 
         :param registrations: A list containing events to subscribe to.
-        :type registrations: list[str]
         :param bad_shutdown_callback: will be called if a BadShutdown subscription
             status notification is received, defaults to None.
         """
@@ -446,11 +435,8 @@ class Model(QObject):
         Run an OPC-UA command on the server.
 
         :param command: The command to be executed on the OPC-UA server.
-        :type command: str
         :param args: Additional arguments to be passed to the command.
-        :type args: Any
         :return: The result of the command execution.
-        :rtype: tuple
         :raises RuntimeError: If the server is not connected.
         """
 
@@ -510,7 +496,6 @@ class Model(QObject):
 
         :return: A dictionary mapping OPC-UA enum type names to their corresponding
             value. The value being an enumerated type.
-        :rtype: dict
         :raises AttributeError: If any of the required enum types are not found in the
             UA namespace.
         """
@@ -525,7 +510,6 @@ class Model(QObject):
         has been established.
 
         :return: A list of OPC UA attribute names.
-        :rtype: list[str]
         """
         if self._scu is None:
             return []
@@ -557,7 +541,6 @@ class Model(QObject):
         :param result_callback: Callback with result code and message when task finishes
         :raises RuntimeError: If the server is not connected.
         :return: The result of attempted track table loading.
-        :rtype: tuple[ResultCode, str]
         """
         if self._scu is None:
             raise RuntimeError("Server not connected")
@@ -575,7 +558,6 @@ class Model(QObject):
         Start recording data to a specified file.
 
         :param filename: The path to the file where the data will be recorded.
-        :type filename: Path
         :raises RuntimeError: If the server is not connected or if the data logger
             already exists.
         """
@@ -609,7 +591,6 @@ class Model(QObject):
         Get the recording configuration.
 
         :return: The recording configuration as a list of OPC-UA parameter names.
-        :rtype: list[str]
         """
         return self._recording_config
 
@@ -619,7 +600,6 @@ class Model(QObject):
         Set the recording configuration.
 
         :param config: A list of strings specifying which OPC-UA parameters to record.
-        :type config: list[str]
         """
         self._recording_config = config
 
@@ -628,9 +608,7 @@ class Model(QObject):
         Get a list of OPC-UA nodes that start with the given prefix.
 
         :param prefix: The prefix to search for.
-        :type prefix: str
         :return: A list of OPC-UA node names.
-        :rtype: list[str]
         """
         return [attr for attr in self._scu.attributes if attr.startswith(prefix)]
 
@@ -640,7 +618,6 @@ class Model(QObject):
         A list of status warning attributes.
 
         :return: A list of status warning attributes.
-        :rtype: list[str]
         """
         warning_attributes = (
             self._get_attributes_startswith(AZIMUTH_WARNING_STATUS_PREFIX)
@@ -656,7 +633,6 @@ class Model(QObject):
         A list of status error attributes.
 
         :return: A list of status warning attributes.
-        :rtype: list[str]
         """
         warning_attributes = (
             self._get_attributes_startswith(AZIMUTH_ERROR_STATUS_PREFIX)

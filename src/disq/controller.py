@@ -20,9 +20,7 @@ class Controller(QObject):
     Controller for managing server connections and issuing commands.
 
     :param mvc_model: The model object that the controller interacts with.
-    :type mvc_model: model.Model
     :param parent: The parent object, if any.
-    :type parent: QObject | None
     """
 
     ui_status_message = pyqtSignal(str)
@@ -35,9 +33,7 @@ class Controller(QObject):
         Initialize a new instance of the `Controller` class.
 
         :param mvc_model: A `model.Model` object.
-        :type mvc_model: model.Model
         :param parent: An optional `QObject` object or None.
-        :type parent: QObject | None
         """
         super().__init__(parent)
         self._model = mvc_model
@@ -52,14 +48,10 @@ class Controller(QObject):
         Generate a response message based on the result of issuing a command.
 
         :param command: The command that was executed.
-        :type command: str
         :param result_code: The result code of the command execution.
-        :type result_code: int
         :param result_msg: The message associated with the result code.
-        :type result_msg: str
         :return: The response message containing the command, result code, and result
             message.
-        :rtype: str
         """
         r = f"Command: {command}; Response: {result_msg} [{result_code}]"
         self.emit_ui_status_message("INFO", r)
@@ -90,7 +82,6 @@ class Controller(QObject):
         Get the list of servers found in the configuration file.
 
         :return: A list of server names.
-        :rtype: list[str]
         :raises FileNotFoundError: If the configuration file is not found.
         """
         server_list: list[str] = []
@@ -107,9 +98,7 @@ class Controller(QObject):
         Get the server arguments from the configuration file.
 
         :param server_name: The name of the server to retrieve arguments for.
-        :type server_name: str
         :return: A dictionary containing the server arguments.
-        :rtype: dict[str, str | int] | None
         """
         try:
             return configuration.get_config_sculib_args(
@@ -126,7 +115,6 @@ class Controller(QObject):
         Check if the server is connected.
 
         :return: True if the server is connected, False otherwise.
-        :rtype: bool
         """
         return self._model.is_connected()
 
@@ -136,7 +124,6 @@ class Controller(QObject):
 
         :param connection_details: A dictionary containing server connection details,
             including as a minimum 'host' and 'port' keys.
-        :type connection_details: dict
         :raises ValueError: If the port number provided is not a valid integer.
         :raises OSError: If an OS level error occurs during the connection.
         :raises RuntimeError: If a runtime error occurs during the connection.
@@ -196,15 +183,11 @@ class Controller(QObject):
         Issue command to slew to absolute azimuth and elevation positions.
 
         :param azimuth_position: The azimuth position to slew to (in degrees).
-        :type azimuth_position: float
         :param elevation_position: The elevation position to slew to (in degrees).
-        :type elevation_position: float
         :param azimuth_velocity: The azimuth velocity for slewing (in degrees per
             second).
-        :type azimuth_velocity: float
         :param elevation_velocity: The elevation velocity for slewing (in degrees per
             second).
-        :type elevation_velocity: float
         """
         self._issue_command(
             Command.SLEW2ABS_AZ_EL,
@@ -221,11 +204,8 @@ class Controller(QObject):
         Issue command to slew a single axis to a specific position with given velocity.
 
         :param axis: The axis identifier.
-        :type axis: str
         :param position: The target position to slew to.
-        :type position: float
         :param velocity: The velocity at which to slew.
-        :type velocity: float
         """
         self._issue_command(Command.SLEW2ABS_SINGLE_AX, axis, position, velocity)
 
@@ -234,7 +214,6 @@ class Controller(QObject):
         Issue command to activate a specific axis.
 
         :param axis: The axis to activate (default is 'AzEl').
-        :type axis: str
         """
         self._issue_command(Command.ACTIVATE, axis)
 
@@ -243,7 +222,6 @@ class Controller(QObject):
         Issue command to deactivate a specific axis.
 
         :param axis: The axis to deactivate (default is 'AzEl').
-        :type axis: str
         """
         self._issue_command(Command.DEACTIVATE, axis)
 
@@ -253,7 +231,6 @@ class Controller(QObject):
 
         :param axis: The axis for which the movement should be stopped. Default is
             'AzEl'.
-        :type axis: str
         """
         self._issue_command(Command.STOP, axis)
 
@@ -263,7 +240,6 @@ class Controller(QObject):
 
         :param stow: A flag indicating whether to stow or unstow the device. Default is
             True (stow).
-        :type stow: bool
         """
         self._issue_command(Command.STOW, stow)  # argument to stow or not...
 
@@ -280,7 +256,6 @@ class Controller(QObject):
         Issue command to move the device to a specified band.
 
         :param band: The band to move the device to.
-        :type band: str
         """
         self._issue_command(Command.MOVE2BAND, band)
 
@@ -289,7 +264,6 @@ class Controller(QObject):
         Issue a command to take or release authority.
 
         :param username: The username of the user performing the command.
-        :type username: str
         """
         self._issue_command(Command.TAKE_AUTH, username)
 
@@ -310,15 +284,10 @@ class Controller(QObject):
         - Band
 
         :param static: Enable static pointing.
-        :type static: bool
         :param tilt: Enable tilt correction meter one or two.
-        :type tilt: str
         :param temperature: Enable ambient temperature correction.
-        :type temperature: bool
         :param band: The band to apply the model to.
-        :type band: str
         :return: A tuple containing the result code and result message.
-        :rtype: tuple
         """
         return self._issue_command(
             Command.PM_CORR_ON_OFF, static, tilt, temperature, band
@@ -331,12 +300,9 @@ class Controller(QObject):
         Issue command to set the static pointing model parameters.
 
         :param band: The band to apply the model to.
-        :type band: str
         :param params: list of parameter values to apply (20 values)
-        :type params: list[float]
         :return: A tuple containing the result code and result message,
             or None if the command was not issued.
-        :rtype: tuple[ResultCode, str] | None
         """
         if self._static_pointing_parameters != [band, *params]:
             self._static_pointing_parameters = [band, *params]
@@ -355,7 +321,6 @@ class Controller(QObject):
         :type params: float
         :return: A tuple containing the result code and result message,
             or None if the command was not issued.
-        :rtype: tuple[ResultCode, str] | None
         """
         if self._static_pointing_offsets != [azim, elev]:
             self._static_pointing_offsets = [azim, elev]
@@ -372,7 +337,6 @@ class Controller(QObject):
         :type params: list[float]
         :return: A tuple containing the result code and result message,
             or None if the command was not issued.
-        :rtype: tuple[ResultCode, str] | None
         """
         if self._ambtemp_correction_parameters != params:
             self._ambtemp_correction_parameters = params
@@ -384,11 +348,8 @@ class Controller(QObject):
         Issue a command to the OPCUA server.
 
         :param command: The command to be issued.
-        :type command: str
         :param args: Optional arguments to be passed along with the command.
-        :type args: tuple
         :return: A tuple containing the result code and result message.
-        :rtype: tuple[ResultCode, str]
         """
         logger.debug("Command: %s, args: %s", command.value, args)
         # TODO: Nothing is currently done with other possible return values
@@ -498,7 +459,6 @@ class Controller(QObject):
         exist.
 
         :param filename: Name of HDF5 file to write to.
-        :type filename: str
         """
         fname = Path(filename)
         logger.debug("Recording to file: %s", fname.absolute())
@@ -533,7 +493,6 @@ class Controller(QObject):
         Get the recording configuration of the model.
 
         :return: A list of strings representing the recording configuration.
-        :rtype: list[str]
         """
         return self._model.recording_config
 
@@ -543,7 +502,6 @@ class Controller(QObject):
         Set the recording configuration for the model.
 
         :param config: A list of strings representing the recording configuration.
-        :type config: list[str]
         """
         self._model.recording_config = config
 

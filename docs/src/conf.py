@@ -17,9 +17,11 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath("../../src"))
+sys.path.insert(0, os.path.abspath("../../src/disq"))
 
 # -- General configuration ------------------------------------------------
 
@@ -35,7 +37,20 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "sphinx_autodoc_typehints",
+    "sphinxcontrib.mermaid",
+    "recommonmark",
 ]
+
+# This will use the type annotations from your function signature to populate the
+# type-related fields in your documentation.
+autodoc_typehints = "description"
+
+# Optional: if you want type hints in your signatures
+autodoc_typehints_format = "short"
+
+autodoc_default_options = {
+    "member-order": "bysource",
+}
 
 # Add any paths that contain templates here, relative to this directory.
 # templates_path = []
@@ -43,8 +58,7 @@ extensions = [
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst', '.md']
-source_suffix = [".rst"]
+source_suffix = [".rst", ".md"]
 
 # The master toctree document.
 master_doc = "index"
@@ -188,9 +202,14 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"python": ("https://docs.python.org/3.10/", None)}
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3.10/", None),
+    "asyncua": ("https://opcua-asyncio.readthedocs.io/en/latest/", None),
+}
 
 nitpicky = True
+
+nitpick_ignore = [("py:class", "asyncio.events.AbstractEventLoop")]
 
 # Configuration for myst parser
 myst_heading_anchors = 3

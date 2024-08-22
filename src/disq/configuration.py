@@ -75,9 +75,7 @@ def find_config_file(config_filename: str | None = None) -> Path:
 
     :param config_filename: The name and path to a configuration file.
         If provided, it will be checked first. Defaults to None.
-    :type config_filename: str, optional
     :return: The path to the configuration file.
-    :rtype: Path
     :raises FileNotFoundError: If the configuration file is not found.
     """
     # Check if the CLI option was provided
@@ -120,9 +118,7 @@ def get_configurations(config_filename: str | None = None) -> configparser.Confi
 
     :param config_filename: The name of the configuration file. If None, the default
         configuration file is used.
-    :type config_filename: str, optional
     :return: A ConfigParser object.
-    :rtype: configparser.ConfigParser
     """
     # Find the configuration file
     config_file_path = find_config_file(config_filename)
@@ -147,7 +143,6 @@ def get_config_sculib_args(
         listed in the .ini file.
     :return: A dictionary containing the SCU library arguments, including the host,
         port, endpoint, and namespace.
-    :rtype: dict[str, str]
     :raises FileNotFoundError: If the specified configuration file is not found.
     :raises KeyError: If specified server name is not found in the configuration file.
     :raises ValueError: If server port is not an integer.
@@ -188,9 +183,7 @@ def get_config_server_list(config_filename: str | None = None) -> list[str]:
 
     :param config_filename: The name of the configuration file. If None, the default
         configuration file is used.
-    :type config_filename: str, optional
     :return: A list containing the server names.
-    :rtype: list[str]
     """
     config: configparser.ConfigParser = get_configurations(config_filename)
     server_list = [server.split(".")[1] for server in config.sections()]

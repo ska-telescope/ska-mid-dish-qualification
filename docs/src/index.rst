@@ -17,6 +17,22 @@ DiSQ enables engineers and scientists to control and qualify observatory dish st
 .. image:: img/DiSQ_component_view.svg
 
 .. toctree::
-   :maxdepth: 2
+  :maxdepth: 1
+  :caption: How-To Guides
 
-   api/index
+  Getting started<how-to/readme>
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Reference
+
+   Dish Steering Control Unit (SCU)<api/sculib>
+   Dish OPC UA Server Validator<api/server_validator>
+   DiSQ Configuration<api/configuration>
+   DiSQ Data Logger<api/logger>
+   
+.. toctree::
+   :titlesonly:
+   :caption: Releases
+
+   releases/changelog

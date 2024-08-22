@@ -12,7 +12,6 @@ class Reader:
     A class representing a data reader.
 
     :param file: The file path to read data from.
-    :type file: str
     """
 
     _type = None
@@ -22,7 +21,6 @@ class Reader:
         Initialize the `Reader` object with a file path.
 
         :param file: Path to the file.
-        :type file: str
         """
         self.file = file
         self._srctimestamps: h5py.Group

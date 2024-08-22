@@ -9,7 +9,6 @@ class SerValInternalServer:
     A class representing an internal server for the OPC UA server validator system.
 
     :param xml: The XML configuration file for the internal server.
-    :type xml: str
     """
 
     def __init__(self, xml: str):
@@ -17,7 +16,6 @@ class SerValInternalServer:
         Initialize the class with XML data and set the OPC-UA server details.
 
         :param xml: The XML data to be used.
-        :type xml: str
         """
         self.xml = xml
         self.server = Server()
@@ -76,7 +74,6 @@ async def main(xml: str) -> None:
     Asynchronous function to run a SerValInternalServer.
 
     :param xml: XML configuration for the server.
-    :type xml: str
     """
     async with SerValInternalServer(xml):
         while True:
