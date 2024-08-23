@@ -10,6 +10,7 @@ from typing import Final
 import h5py
 
 from disq import sculib
+from disq.constants import NamePlate
 
 app_logger = logging.getLogger("datalog")
 
@@ -131,6 +132,28 @@ class Logger:
         This method creates the necessary groups and datasets within an HDF5 file for
         storing data.
         """
+        for node in NamePlate:
+            node_string = node.value
+            node_short = node_string.rsplit(".", 1)[1]
+            try:
+                value = self.hll.attributes[node_string].value  # type: ignore
+            except KeyError:
+                app_logger.warning(
+                    "WARNING: node %s is not available on the server. "
+                    "HDF5 file will not contain %s.",
+                    node_string,
+                    node_short,
+                )
+            else:
+                try:
+                    self.file_object.attrs.create(node_short, value)
+                except TypeError as e:
+                    app_logger.error(
+                        "ERROR: Could not create attr for %s; %s",
+                        node_string,
+                        e,
+                    )
+
         for node in self._nodes:
             # One group per node containing a single dataset for each of
             # SourceTimestamp, Value

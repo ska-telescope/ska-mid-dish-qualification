@@ -6,7 +6,8 @@
     - Updated commands to handle session ID.
     - Changed commands' arguments from enumerated types to integer types.
     - SCU disconnects from incompatible CETC simulator versions and informs user with log and GUI status message - only v3.2.3. and up is compatible.
-- Non-breaking changes (WOM-383, WOM-371, WOM-390, WOM-392, WOM-396, WOM-397, WOM-405, WOM-406):
+- Non-breaking changes (WOM-352, WOM-383, WOM-371, WOM-390, WOM-392, WOM-396, WOM-397, WOM-405, WOM-406):
+    - Data logger reads all Management.NamePlate children and adds the values as attributes to the root of the created HDF5 file.
     - SCU caches node IDs to JSON file after scanning server, which significantly speeds-up subsequent reconnects to the same server.
     - SCU automatically releases command authority when disconnecting from server.
     - GUI gracefully quits with unhandled exceptions or Unix signals.
