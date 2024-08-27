@@ -1,10 +1,14 @@
 # Changelog
 
 ## Unreleased
+- 
 
-- Breaking changes for version 2 of ICD (WOM-334, WOM-335, WOM-392, WOM-399):
+## 0.4.0
+
+- Breaking changes for version 2 of ICD (WOM-334, WOM-335, WOM-392, WOM-399, WOM-235):
     - Updated commands to handle session ID.
     - Changed commands' arguments from enumerated types to integer types.
+    - Updated Track Table loading to work as per ICD v2 (works with PLC as CETC sim Track Table does not work)
     - SCU disconnects from incompatible CETC simulator versions and informs user with log and GUI status message - only v3.2.3. and up is compatible.
 - Non-breaking changes (WOM-352, WOM-383, WOM-371, WOM-390, WOM-392, WOM-396, WOM-397, WOM-405, WOM-406):
     - Data logger reads all Management.NamePlate children and adds the values as attributes to the root of the created HDF5 file.
