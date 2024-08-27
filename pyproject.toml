@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "DiSQ"
-version = "0.3.0"
+version = "0.4.0"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: BSD 3-Clause License",
@@ -82,7 +82,7 @@ name = "Jarrett Engelbrecht"
 [tool.poetry]
 include = ["MANIFEST.skao.int"]
 name = "DiSQ"
-version = "0.3.0"
+version = "0.4.0"
 description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
 authors = [
     "Oliver Skivington <oliver.skivington@criticalsoftware.com>",
