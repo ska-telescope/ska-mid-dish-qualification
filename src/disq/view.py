@@ -528,7 +528,9 @@ class MainView(QtWidgets.QMainWindow):
         )
 
     @cached_property
-    def opcua_widgets(self) -> dict[str, tuple[QtWidgets.QWidget, Callable]]:
+    def opcua_widgets(
+        self,
+    ) -> dict[str, tuple[list[QtWidgets.QWidget], Callable]]:
         """
         A dict of of all 'opcua' widgets and their update method.
 
@@ -539,14 +541,14 @@ class MainView(QtWidgets.QMainWindow):
         This is a cached property, meaning the function will only run once, scanning
         the UI for 'opcua widgets' and subsequent calls will return the cached result.
 
-        :return: {name: (widget, func)}
+        :return: {name: (list of widgets, update function)}
         """
         all_widgets = (
             self.findChildren(QtWidgets.QLineEdit)
             + self.findChildren(QtWidgets.QLabel)
             + self.findChildren(QtWidgets.QRadioButton)
         )
-        opcua_widget_updates: dict = {}
+        opcua_widget_updates: dict[str, tuple[list[QtWidgets.QWidget], Callable]] = {}
         for wgt in all_widgets:
             if "opcua" not in wgt.dynamicPropertyNames():
                 # Skip all the non-opcua widgets
@@ -571,12 +573,15 @@ class MainView(QtWidgets.QMainWindow):
                 else:
                     opcua_widget_update_func = self._update_opcua_enum_widget
                 logger.debug("OPCUA widget type: %s", opcua_type)
+            # Return the list from the tuple or an empty list as default
+            widgets: list = opcua_widget_updates.get(opcua_parameter_name, [[]])[0]
+            widgets.append(wgt)
             opcua_widget_updates.update(
-                {opcua_parameter_name: (wgt, opcua_widget_update_func)}
+                {opcua_parameter_name: (widgets, opcua_widget_update_func)}
             )
         # dict with (key, value) where the key is the name of the "opcua" widget
-        # property (dot-notated OPC-UA parameter name) and value is a tuple with
-        # the widget and a callback method to update the widget
+        # property (dot-notated OPC-UA parameter name) and the value is a tuple with
+        # a list of widgets (mostly single) and callback method to update the widget(s)
         return opcua_widget_updates
 
     @cached_property
@@ -681,18 +686,18 @@ class MainView(QtWidgets.QMainWindow):
         """
         logger.debug("View: data update: %s value=%s", event["name"], event["value"])
         # Get the widget update method from the dict of opcua widgets
-        _widget = self.opcua_widgets[event["name"]][0]
-        self._update_opcua_widget_tooltip(_widget, event)
-        _widget_update_func = self.opcua_widgets[event["name"]][1]
-        _widget_update_func(_widget, event)
+        widgets = self.opcua_widgets[event["name"]][0]
+        self._update_opcua_widget_tooltip(widgets, event)
+        widget_update_func = self.opcua_widgets[event["name"]][1]
+        widget_update_func(widgets, event)
 
     def _update_opcua_widget_tooltip(
-        self, widget: QtWidgets.QWidget, opcua_event: dict
+        self, widgets: list[QtWidgets.QWidget], opcua_event: dict
     ) -> None:
         """Update the tooltip of the OPCUA widget."""
         str_val = str(opcua_event["value"])
-        if "opcua_type" in widget.dynamicPropertyNames():
-            opcua_type = widget.property("opcua_type")
+        if "opcua_type" in widgets[0].dynamicPropertyNames():
+            opcua_type = widgets[0].property("opcua_type")
             if opcua_type in self.model.opcua_enum_types:
                 opcua_enum: type = self.model.opcua_enum_types[opcua_type]
                 enum_val: Enum = opcua_enum(int(str_val))
@@ -700,7 +705,8 @@ class MainView(QtWidgets.QMainWindow):
         tooltip = (
             f"<b>OPCUA param:</b> {opcua_event['name']}<br>" f"<b>Value:</b> {str_val}"
         )
-        widget.setToolTip(tooltip)
+        for widget in widgets:
+            widget.setToolTip(tooltip)
 
     def _init_opcua_combo_widgets(self) -> None:
         """Initialise all the OPC-UA combo widgets."""
@@ -718,7 +724,7 @@ class MainView(QtWidgets.QMainWindow):
                 wgt.addItems(enum_strings)
 
     def _update_opcua_text_widget(
-        self, widget: QtWidgets.QLineEdit, event: dict
+        self, widgets: list[QtWidgets.QLineEdit], event: dict
     ) -> None:
         """
         Update the text of the widget with the event value.
@@ -733,10 +739,11 @@ class MainView(QtWidgets.QMainWindow):
             str_val = f"{val:.3f}"
         else:
             str_val = str(val)
-        widget.setText(str_val)
+        for widget in widgets:
+            widget.setText(str_val)
 
     def _update_opcua_enum_widget(
-        self, widget: QtWidgets.QLineEdit, event: dict
+        self, widgets: list[QtWidgets.QLineEdit], event: dict
     ) -> None:
         """
         Update the text of the widget with the event data.
@@ -755,7 +762,7 @@ class MainView(QtWidgets.QMainWindow):
         - server_timestamp: server_timestamp
         - data: data
         """
-        opcua_type: str = widget.property("opcua_type")
+        opcua_type: str = widgets[0].property("opcua_type")
         int_val = int(event["value"])
         try:
             opcua_enum: type = self.model.opcua_enum_types[opcua_type]
@@ -769,16 +776,18 @@ class MainView(QtWidgets.QMainWindow):
             val: Enum = opcua_enum(int_val)
             str_val = val.name
         finally:
-            widget.setText(str_val.replace("_", " "))  # For BandType
+            for widget in widgets:
+                widget.setText(str_val.replace("_", " "))  # For BandType
 
         if opcua_type in self._LED_COLOURS:
             try:
                 led_colour = self._LED_COLOURS[opcua_type][str_val.lower()]
-                widget.setStyleSheet(
-                    "QLineEdit {"
-                    f"background-color: {led_colour};"
-                    "border-color: black;} "
-                )
+                for widget in widgets:
+                    widget.setStyleSheet(
+                        "QLineEdit {"
+                        f"background-color: {led_colour};"
+                        "border-color: black;} "
+                    )
             except KeyError:
                 logger.warning(
                     "Enum value '%s' for opcua type '%s' not found in LED colours dict",
@@ -787,7 +796,7 @@ class MainView(QtWidgets.QMainWindow):
                 )
 
     def _update_opcua_boolean_radio_button_widget(
-        self, button: QtWidgets.QRadioButton, event: dict
+        self, buttons: list[QtWidgets.QRadioButton], event: dict
     ) -> None:
         """
         Set radio button in exclusive group based on its boolean OPC-UA parameter.
@@ -795,6 +804,8 @@ class MainView(QtWidgets.QMainWindow):
         :param button: Button that signal came from.
         :param event: A dictionary containing event data.
         """
+        # There should only be one radio button connected to an OPC-UA parameter.
+        button = buttons[0]
         logger.debug(
             "Widget: %s. Boolean OPCUA update: %s value=%s",
             button.objectName(),
@@ -826,7 +837,7 @@ class MainView(QtWidgets.QMainWindow):
                 self.temp_correction_checked_prev = int(event["value"])
 
     def _update_opcua_boolean_text_widget(
-        self, widget: QtWidgets.QLineEdit, event: dict
+        self, widgets: list[QtWidgets.QLineEdit], event: dict
     ) -> None:
         """
         Update background colour of widget to reflect boolean state of OPC-UA parameter.
@@ -837,6 +848,8 @@ class MainView(QtWidgets.QMainWindow):
          - False: the OPC-UA parameter is False. Colour background dark green (LED off).
         """
         logger.debug("Boolean OPCUA update: %s value=%s", event["name"], event["value"])
+        # There should only be one 'LED' indicator connected to an OPC-UA parameter.
+        widget = widgets[0]
         if event["value"] is None:
             widget.setEnabled(False)
             widget.setStyleSheet("QLineEdit { border-color: white;} ")
