@@ -5,7 +5,6 @@ import platform
 import signal
 import sys
 
-from dotenv import load_dotenv
 from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QApplication
 
@@ -21,10 +20,9 @@ def main():
     """
     Entry point for the application.
 
-    Loads environment variables, configures logging, creates the application and
-    necessary components, displays the main view, and starts the event loop.
+    Configures logging, creates the application and necessary components, displays the
+    main view, and starts the event loop.
     """
-    load_dotenv()
     configure_logging(default_log_level=logging.DEBUG)
     app = QApplication([])
     # Create our M, V and C...

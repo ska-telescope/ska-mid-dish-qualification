@@ -17,7 +17,6 @@ dependencies = [
     "asyncua>=1.1.0",
     "PyQt6>=6.4.0",
     "pyqt6-tools>=6.4.0",
-    "python-dotenv>=1.0.0",
     # matplotlib and plotly are only used in the reader class.
     "matplotlib>=3.9.0",
     "plotly>=5.23.0",
@@ -105,11 +104,10 @@ url = "https://artefact.skao.int/repository/pypi-all/simple"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-cryptography = "41.0.7"  # TODO, deprecation warning originating from asyncua
+cryptography = "41.0.7" # TODO, deprecation warning originating from asyncua
 asyncua = "^1.1.0"
 PyQt6 = "^6.4.0"
 pyqt6-tools = "^6.4.0"
-python-dotenv = "^1.0.0"
 # matplotlib and plotly are only used in the reader class.
 matplotlib = "^3.9.0"
 plotly = "^5.23.0"
