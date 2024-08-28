@@ -3189,4 +3189,4 @@ reference = "ska"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "b4a2be662f4eb80a468e73cffe87eb72b1381a122b65b6c7653a7d9faf4222be"
+content-hash = "af3fbb816fdf19779b000bd4ce7b008dc0bb7a90ffb205204ebc5741fae6108b"

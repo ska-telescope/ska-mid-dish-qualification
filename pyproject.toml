@@ -14,17 +14,17 @@ description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
 requires-python = ">=3.10"
 dependencies = [
     "cryptography==41.0.7", # TODO, deprecation warning originating from asyncua
-    "asyncua",
-    "PyQt6==6.4.2",
-    "pyqt6-tools",
-    "python-dotenv",
-    "h5py",
-    "numpy",
+    "asyncua>=1.1.0",
+    "PyQt6>=6.4.0",
+    "pyqt6-tools>=6.4.0",
+    "python-dotenv>=1.0.0",
     # matplotlib and plotly are only used in the reader class.
-    "matplotlib",
-    "plotly",
-    "pyyaml",
-    "platformdirs",
+    "matplotlib>=3.9.0",
+    "plotly>=5.23.0",
+    "pyyaml>=6.0.0",
+    "h5py>=3.11.0",
+    "numpy>=1.26.0",
+    "platformdirs>=4.2.0",
 ]
 license.file = "LICENSE"
 readme = "README.md"
@@ -104,17 +104,17 @@ name = "ska"
 url = "https://artefact.skao.int/repository/pypi-all/simple"
 
 [tool.poetry.dependencies]
-cryptography = "41.0.7"  # TODO, deprecation warning originating from asyncua
 python = "^3.10"
-asyncua = "^1.0.0"
+cryptography = "41.0.7"  # TODO, deprecation warning originating from asyncua
+asyncua = "^1.1.0"
 PyQt6 = "^6.4.0"
 pyqt6-tools = "^6.4.0"
 python-dotenv = "^1.0.0"
 # matplotlib and plotly are only used in the reader class.
-matplotlib = "^3.8.0"
-plotly = "^5.18.0"
+matplotlib = "^3.9.0"
+plotly = "^5.23.0"
 pyyaml = "^6.0.0"
-h5py = "^3.10.0"
+h5py = "^3.11.0"
 numpy = "^1.26.0"
 platformdirs = "^4.2.0"
 
