@@ -6,6 +6,7 @@ from typing import Final
 
 # Constants
 PACKAGE_VERSION: Final = metadata.version("DiSQ")
+SUBSCRIPTION_RATE_MS: Final = 100
 
 
 # Enumerations
