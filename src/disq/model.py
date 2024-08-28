@@ -1,7 +1,6 @@
 """DiSQ GUI model."""
 
 import logging
-import os
 from asyncio import exceptions as asyncexc
 from datetime import datetime
 from enum import Enum
@@ -12,7 +11,14 @@ from typing import Any, Callable, Final, Type
 
 from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
-from disq.constants import PACKAGE_VERSION, CmdReturn, Command, NodesStatus, ResultCode
+from disq.constants import (
+    PACKAGE_VERSION,
+    SUBSCRIPTION_RATE_MS,
+    CmdReturn,
+    Command,
+    NodesStatus,
+    ResultCode,
+)
 from disq.logger import Logger
 from disq.sculib import SteeringControlUnit
 
@@ -238,9 +244,7 @@ class Model(QObject):
         self._scu: SteeringControlUnit | None = None
         self._data_logger: Logger | None = None
         self._recording_config: list[str] = []
-        self.subscription_rate_ms = int(
-            os.getenv("DISQ_OPCUA_SUBSCRIPTION_PERIOD_MS", "100")
-        )
+        self.subscription_rate_ms = SUBSCRIPTION_RATE_MS
         self._event_q_poller: QueuePollThread | None = None
         self._nodes_status = NodesStatus.NOT_CONNECTED
         self.status_warning_tree: StatusTreeHierarchy | None = None
