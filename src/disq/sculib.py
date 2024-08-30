@@ -265,19 +265,19 @@ class SubscriptionHandler:
         self,
         subscription_queue: queue.Queue,
         nodes: dict[Node, str],
-        bad_shutdown_callback: Callable[[str], None] | None = None,
+        bad_connection_callback: Callable[[str], None] | None = None,
     ) -> None:
         """
         Initialize the object with a subscription queue and nodes.
 
         :param subscription_queue: A queue for subscriptions.
         :param nodes: A dictionary of nodes.
-        :param bad_shutdown_callback: will be called if a BadShutdown subscription
+        :param bad_connection_callback: will be called if a BadShutdown subscription
             status notification is received, defaults to None.
         """
         self.subscription_queue = subscription_queue
         self.nodes = nodes
-        self.bad_shutdown_callback = bad_shutdown_callback
+        self.bad_connection_callback = bad_connection_callback
 
     def datachange_notification(
         self, node: Node, value: Any, data: ua.DataChangeNotification
@@ -314,8 +314,14 @@ class SubscriptionHandler:
                 "Received bad status change notification: %s",
                 e,
             )
-            if status.Status.value == ua.StatusCodes.BadShutdown:
-                self.bad_shutdown_callback(
+            if status.Status.value in (
+                ua.StatusCodes.BadInvalidState,
+                ua.StatusCodes.BadServerHalted,
+                ua.StatusCodes.BadServerNotConnected,
+                ua.StatusCodes.BadShutdown,
+                ua.StatusCodes.BadTimeout,
+            ):
+                self.bad_connection_callback(
                     f"Connection is closed - asyncua exception: {e}"
                 )
 
@@ -1594,7 +1600,7 @@ class SteeringControlUnit:
         attributes: str | list[str],
         period: int = 100,
         data_queue: queue.Queue | None = None,
-        bad_shutdown_callback: Callable[[str], None] | None = None,
+        bad_connection_callback: Callable[[str], None] | None = None,
     ) -> tuple[int, list, list]:
         """
         Subscribe to OPC-UA attributes for event updates.
@@ -1605,13 +1611,13 @@ class SteeringControlUnit:
         :param data_queue: A queue to store the subscribed attribute data. If None, uses
             the default subscription queue.
         :return: unique identifier for the subscription and lists of missing/bad nodes.
-        :param bad_shutdown_callback: will be called if a BadShutdown subscription
+        :param bad_connection_callback: will be called if a BadShutdown subscription
             status notification is received, defaults to None.
         """
         if data_queue is None:
             data_queue = self._subscription_queue
         subscription_handler = SubscriptionHandler(
-            data_queue, self._nodes_reversed, bad_shutdown_callback
+            data_queue, self._nodes_reversed, bad_connection_callback
         )
         if not isinstance(attributes, list):
             attributes = [

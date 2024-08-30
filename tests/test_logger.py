@@ -62,7 +62,7 @@ class StubScu(SteeringControlUnit):
         attributes: str | list[str] | None = None,
         period: int | None = None,
         data_queue: Queue | None = None,
-        bad_shutdown_callback: Callable[[str], None] | None = None,
+        bad_connection_callback: Callable[[str], None] | None = None,
     ) -> tuple[int, list, list]:
         """
         Subscribe to a data source.
@@ -73,7 +73,7 @@ class StubScu(SteeringControlUnit):
         :type period: int
         :param data_queue: Optional. Queue to store incoming data.
         :type data_queue: list
-        :param bad_shutdown_callback: will be called if a BadShutdown subscription
+        :param bad_connection_callback: will be called if a BadShutdown subscription
             status notification is received, defaults to None.
         :return: unique identifier for the subscription and lists of missing/bad nodes.
         :rtype: tuple[int, list, list]

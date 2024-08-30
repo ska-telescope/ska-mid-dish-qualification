@@ -372,13 +372,13 @@ class Model(QObject):
     def register_event_updates(
         self,
         registrations: list[str],
-        bad_shutdown_callback: Callable[[str], None] | None = None,
+        bad_connection_callback: Callable[[str], None] | None = None,
     ) -> None:
         """
         Register event updates for specific event registrations.
 
         :param registrations: A list containing events to subscribe to.
-        :param bad_shutdown_callback: will be called if a BadShutdown subscription
+        :param bad_connection_callback: will be called if a BadShutdown subscription
             status notification is received, defaults to None.
         """
         self._event_q_poller = QueuePollThread(self.data_received)
@@ -389,7 +389,7 @@ class Model(QObject):
                 registrations,
                 period=self.subscription_rate_ms,
                 data_queue=self._event_q_poller.queue,
-                bad_shutdown_callback=bad_shutdown_callback,
+                bad_connection_callback=bad_connection_callback,
             )
             if missing_nodes and not bad_nodes:
                 self._nodes_status = NodesStatus.ATTR_NOT_FOUND
