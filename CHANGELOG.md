@@ -1,7 +1,10 @@
 # Changelog
 
 ## Unreleased
-- 
+
+- Non-breaking changes:
+    - WOM-308: Update slew velocity input boxes with maximum allowed value on startup.
+    - WOM-332: Removed loading/use of environment variables from .env file.
 
 ## 0.4.0
 
