@@ -5,7 +5,7 @@
 - Non-breaking changes:
     - WOM-308: Update slew velocity input boxes with maximum allowed value on startup.
     - WOM-332: Removed loading/use of environment variables from .env file.
-    - WOM-414: Updated some sculib exception handling. 
+    - WOM-414: Try using exception.add_note() in SCU for python 3.11.
 
 ## 0.4.0
 
