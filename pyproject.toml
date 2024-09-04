@@ -24,6 +24,7 @@ dependencies = [
     "h5py>=3.11.0",
     "numpy>=1.26.0",
     "platformdirs>=4.2.0",
+    "ska-dish-steering-control==0.0.1",
 ]
 license.file = "LICENSE"
 readme = "README.md"
@@ -115,6 +116,7 @@ pyyaml = "^6.0.0"
 h5py = "^3.11.0"
 numpy = "^1.26.0"
 platformdirs = "^4.2.0"
+ska-dish-steering-control = "0.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"

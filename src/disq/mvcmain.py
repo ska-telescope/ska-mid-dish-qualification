@@ -7,10 +7,10 @@ import sys
 
 from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QApplication
+from ska_dish_steering_control.sculib import configure_logging
 
 from disq.controller import Controller
 from disq.model import Model
-from disq.sculib import configure_logging
 from disq.view import MainView
 
 logger = logging.getLogger("gui.main")

@@ -17,9 +17,9 @@ from typing import Callable
 
 import h5py
 import pytest
+from ska_dish_steering_control.sculib import SteeringControlUnit
 
 from disq.logger import Logger
-from disq.sculib import SteeringControlUnit
 
 
 @pytest.fixture(scope="module", autouse=True)

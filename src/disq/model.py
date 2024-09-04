@@ -10,8 +10,7 @@ from queue import Empty, Queue
 from typing import Any, Callable, Final, Type
 
 from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
-
-from disq.constants import (
+from ska_dish_steering_control.constants import (
     PACKAGE_VERSION,
     SUBSCRIPTION_RATE_MS,
     CmdReturn,
@@ -19,8 +18,9 @@ from disq.constants import (
     NodesStatus,
     ResultCode,
 )
+from ska_dish_steering_control.sculib import SteeringControlUnit
+
 from disq.logger import Logger
-from disq.sculib import SteeringControlUnit
 
 logger = logging.getLogger("gui.model")
 

@@ -8,9 +8,9 @@ from datetime import datetime, timedelta, timezone
 from typing import Final
 
 import h5py
+from ska_dish_steering_control.constants import NamePlate
 
 from disq import sculib
-from disq.constants import NamePlate
 
 app_logger = logging.getLogger("datalog")
 

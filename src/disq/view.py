@@ -12,9 +12,9 @@ from typing import Any, Callable, Final
 
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import QColor
+from ska_dish_steering_control.constants import NodesStatus
 
 from disq import controller, model
-from disq.constants import NodesStatus
 
 logger = logging.getLogger("gui.view")
 

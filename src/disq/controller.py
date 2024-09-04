@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import Any
 
 from PyQt6.QtCore import QCoreApplication, QObject, pyqtSignal
+from ska_dish_steering_control.constants import Command, ResultCode
 
 from disq import configuration, model
-from disq.constants import Command, ResultCode
 
 logger = logging.getLogger("gui.controller")
 

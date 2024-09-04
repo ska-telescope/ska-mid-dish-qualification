@@ -4,8 +4,8 @@ from time import sleep
 
 import pytest
 from PyQt6 import QtWidgets
+from ska_dish_steering_control.constants import Command
 
-from disq.constants import Command
 from disq.view import MainView
 
 
