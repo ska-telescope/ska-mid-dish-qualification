@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- API changes:
+    - WOM-402: Removed `parameter_commands`, `server`, `server_nodes`, `server_attributes` and `server_commands` properties.
 - Non-breaking changes:
     - WOM-308: Update slew velocity input boxes with maximum allowed value on startup.
     - WOM-332: Removed loading/use of environment variables from .env file.
