@@ -11,14 +11,12 @@ Dish Structure Steering Control Unit
 .. autoclass:: disq.SteeringControlUnit
    :members:
 
-Configuration methods
+SCU generator methods
 =====================
 
 .. autofunction:: disq.SCU
 
 .. autofunction:: disq.SCU_from_config
-
-.. autofunction:: disq.configure_logging
 
 Enum classes
 ============
