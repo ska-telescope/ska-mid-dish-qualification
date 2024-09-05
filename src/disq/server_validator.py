@@ -287,8 +287,8 @@ class OPCUAServerValidator:
         ) as server:
             self.server = server
             self.event_loop = self.server.event_loop
-            # Fill tree dict for server
-            server_tree = self._fill_tree_recursive(self.server.plc_prg, [])
+            # Fill tree dict for server. pylint: disable=protected-access
+            server_tree = self._fill_tree_recursive(self.server._plc_prg, [])
         return server_tree
 
     def _args_match(self, actual_args: dict, expected_args: dict) -> bool:
