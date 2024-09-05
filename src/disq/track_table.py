@@ -3,7 +3,7 @@
 import logging
 import threading
 
-logger = logging.getLogger("sculib")
+logger = logging.getLogger("ska-mid-ds-scu")
 
 
 # pylint: disable=too-many-instance-attributes
