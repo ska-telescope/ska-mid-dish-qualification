@@ -35,7 +35,11 @@ def find_config_file(config_filename: str | None = None) -> Path:
     1. By providing the file path as a command line option.
     2. By setting the ``DISQ_CONFIG`` environment variable to the file path.
     3. If neither of the above are provided, the function will look for the file in the
-       user's data directory.
+       user's data directory. The path for each OS:
+
+       - Windows: /Users/your-username/AppData/Local/disq
+       - Ubuntu: /home/your-username/.config/disq
+       - MacOS: /Users/your-username/Library/Application Support/disq
 
     :param config_filename: The name and path to a configuration file.
         If provided, it will be checked first. Defaults to None.
