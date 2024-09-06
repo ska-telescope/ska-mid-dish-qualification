@@ -3313,7 +3313,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="power">
        <attribute name="title">
@@ -5822,209 +5822,145 @@
         <property name="title">
          <string/>
         </property>
-        <widget class="QPushButton" name="button_load_track_table">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>155</y>
-           <width>471</width>
-           <height>36</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Load Track Table File</string>
-         </property>
-         <property name="opcua_cmd" stdset="0">
-          <string>Tracking.Commands.TrackLoadTable</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_34">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>8</y>
-           <width>132</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Select track table file:</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="button_select_track_table_file">
-         <property name="geometry">
-          <rect>
-           <x>200</x>
-           <y>9</y>
-           <width>80</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>File...</string>
-         </property>
-         <property name="opcua" stdset="0">
-          <string/>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="line_edit_track_table_file">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>36</y>
-           <width>471</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>200</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-         <property name="readOnly">
-          <bool>false</bool>
-         </property>
-         <property name="placeholderText">
-          <string>file</string>
-         </property>
-         <property name="opcua" stdset="0">
-          <string/>
-         </property>
-         <property name="opcua_type" stdset="0">
-          <string>String</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_82">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>64</y>
-           <width>172</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>File contains absolute times:</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_87">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>90</y>
-           <width>177</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Additional offset to file times:</string>
-         </property>
-        </widget>
-        <widget class="QDoubleSpinBox" name="spinbox_file_track_additional_offset">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="geometry">
-          <rect>
-           <x>200</x>
-           <y>90</y>
-           <width>62</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="decimals">
-          <number>1</number>
-         </property>
-         <property name="value">
-          <double>5.000000000000000</double>
-         </property>
-         <property name="opcua" stdset="0">
-          <string/>
-         </property>
-         <property name="opcua_type" stdset="0">
-          <string>Double</string>
-         </property>
-        </widget>
-        <widget class="QRadioButton" name="button_file_track_absolute_times">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="geometry">
-          <rect>
-           <x>200</x>
-           <y>64</y>
-           <width>45</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Yes</string>
-         </property>
-         <property name="opcua" stdset="0">
-          <string/>
-         </property>
-         <property name="opcua_type" stdset="0">
-          <string>Boolean</string>
-         </property>
-        </widget>
-        <widget class="QRadioButton" name="button_file_track_relative_times">
-         <property name="geometry">
-          <rect>
-           <x>250</x>
-           <y>64</y>
-           <width>42</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>No</string>
-         </property>
-         <property name="opcua" stdset="0">
-          <string/>
-         </property>
-         <property name="opcua_type" stdset="0">
-          <string>Boolean</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_88">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>120</y>
-           <width>81</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Load mode:</string>
-         </property>
-        </widget>
-        <widget class="QComboBox" name="combobox_file_track_mode">
-         <property name="geometry">
-          <rect>
-           <x>200</x>
-           <y>120</y>
-           <width>79</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="opcua" stdset="0">
-          <string/>
-         </property>
-         <property name="opcua_type" stdset="0">
-          <string>LoadModeType</string>
-         </property>
-        </widget>
+        <layout class="QGridLayout" name="gridLayout_12">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_34">
+           <property name="text">
+            <string>Select track table file:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" colspan="2">
+          <widget class="QPushButton" name="button_select_track_table_file">
+           <property name="text">
+            <string>File...</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="3">
+          <widget class="QLineEdit" name="line_edit_track_table_file">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>false</bool>
+           </property>
+           <property name="placeholderText">
+            <string>file</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string/>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>String</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_82">
+           <property name="text">
+            <string>File contains absolute times:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QRadioButton" name="button_file_track_absolute_times">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Yes</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string/>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QRadioButton" name="button_file_track_relative_times">
+           <property name="text">
+            <string>No</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string/>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Boolean</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_87">
+           <property name="text">
+            <string>Additional offset to file times [s]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" colspan="2">
+          <widget class="QDoubleSpinBox" name="spinbox_file_track_additional_offset">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <double>5.000000000000000</double>
+           </property>
+           <property name="opcua" stdset="0">
+            <string/>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>Double</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_88">
+           <property name="text">
+            <string>Load mode:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1" colspan="2">
+          <widget class="QComboBox" name="combobox_file_track_mode">
+           <property name="opcua" stdset="0">
+            <string/>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>LoadModeType</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" colspan="3">
+          <widget class="QPushButton" name="button_load_track_table">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Load Track Table File</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Tracking.Commands.TrackLoadTable</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
        <widget class="QGroupBox" name="groupBox_3">
         <property name="geometry">
@@ -6299,7 +6235,7 @@
      <x>0</x>
      <y>0</y>
      <width>1527</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
