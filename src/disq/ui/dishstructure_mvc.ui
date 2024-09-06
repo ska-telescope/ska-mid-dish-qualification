@@ -5287,7 +5287,7 @@
              <item row="12" column="0">
               <widget class="QLabel" name="label_84">
                <property name="text">
-                <string>Param 6:</string>
+                <string>Param 6 [&quot;/°C]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -5329,7 +5329,7 @@
              <item row="7" column="0">
               <widget class="QLabel" name="label_77">
                <property name="text">
-                <string>Param 2:</string>
+                <string>Param 2 [&quot;/°C]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -5358,7 +5358,7 @@
              <item row="11" column="0">
               <widget class="QLabel" name="label_83">
                <property name="text">
-                <string>Param 5:</string>
+                <string>Param 5 [&quot;/°C]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -5368,7 +5368,7 @@
              <item row="6" column="0">
               <widget class="QLabel" name="label_76">
                <property name="text">
-                <string>Param 1:</string>
+                <string>Param 1 [&quot;/°C]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -5400,7 +5400,7 @@
              <item row="5" column="0">
               <widget class="QLabel" name="label_85">
                <property name="text">
-                <string>Filter dt:</string>
+                <string>Filter dt [s]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -5598,7 +5598,7 @@
              <item row="9" column="0">
               <widget class="QLabel" name="label_79">
                <property name="text">
-                <string>Param 4:</string>
+                <string>Param 4 [&quot;/°C]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -5754,7 +5754,7 @@
              <item row="8" column="0">
               <widget class="QLabel" name="label_78">
                <property name="text">
-                <string>Param 3:</string>
+                <string>Param 3 [&quot;/°C]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
