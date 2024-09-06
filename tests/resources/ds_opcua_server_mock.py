@@ -41,6 +41,8 @@ class DSSimulatorOPCUAServer:
         self.server.set_server_name("DS OPC-UA server")
         self.namespace_to_use = "http://skao.int/DS_ICD/"
 
+        self.session_id = None
+
         self.track_table = None
         self.tracking_thread = None
         self.tracking_stop_event = None
@@ -52,7 +54,7 @@ class DSSimulatorOPCUAServer:
         await self.server.init()
 
         # Import server definition at start so it doesn't overwrite anything added on
-        await self.server.import_xml("resources/ds_icd_0.0.4_mock.xml")
+        await self.server.import_xml("resources/ds_icd_0.0.11_mock.xml")
 
         self.idx = await self.server.get_namespace_index(uri=self.namespace_to_use)
         logging.info("Namespace index: %s", self.idx)
@@ -74,41 +76,66 @@ class DSSimulatorOPCUAServer:
 
         self.management_status = await self.management.get_child(
             [
-                f"{self.idx}:ManagementStatus",
+                f"{self.idx}:Status",
             ]
         )
 
+        self.command_arbiter = await self.plc_prg.get_child(
+            [f"{self.idx}:CommandArbiter"]
+        )
+
         # Link methods to functionality
+        take_auth_node = await self.command_arbiter.get_child(
+            [f"{self.idx}:Commands", f"{self.idx}:TakeAuth"]
+        )
+        self.server.link_method(take_auth_node, self.take_auth)
+
         set_power_mode_node = await self.management.get_child(
-            [f"{self.idx}:SetPowerMode"]
+            [f"{self.idx}:Commands", f"{self.idx}:SetPowerMode"]
         )
         self.server.link_method(set_power_mode_node, self.set_power_mode)
 
-        activate_node = await self.management.get_child([f"{self.idx}:Activate"])
+        activate_node = await self.management.get_child(
+            [f"{self.idx}:Commands", f"{self.idx}:Activate"]
+        )
         self.server.link_method(activate_node, self.activate)
 
-        deactivate_node = await self.management.get_child([f"{self.idx}:DeActivate"])
+        deactivate_node = await self.management.get_child(
+            [f"{self.idx}:Commands", f"{self.idx}:DeActivate"]
+        )
         self.server.link_method(deactivate_node, self.deactivate)
 
-        stow_node = await self.management.get_child([f"{self.idx}:Stow"])
+        stow_node = await self.management.get_child(
+            [f"{self.idx}:Commands", f"{self.idx}:Stow"]
+        )
         self.server.link_method(stow_node, self.stow)
 
-        move_2_band_node = await self.management.get_child([f"{self.idx}:Move2Band"])
+        move_2_band_node = await self.management.get_child(
+            [f"{self.idx}:Commands", f"{self.idx}:Move2Band"]
+        )
         self.server.link_method(move_2_band_node, self.move_2_band)
 
-        stop_node = await self.management.get_child([f"{self.idx}:Stop"])
+        stop_node = await self.management.get_child(
+            [f"{self.idx}:Commands", f"{self.idx}:Stop"]
+        )
         self.server.link_method(stop_node, self.stop)
 
         track_start_dm_node = await self.management.get_child(
-            [f"{self.idx}:TrackStartDM"]
+            [f"{self.idx}:Commands", f"{self.idx}:TrackStartDM"]
         )
         self.server.link_method(track_start_dm_node, self.track_start_dm)
 
-        slew_abs_node = await self.management.get_child([f"{self.idx}:Slew2AbsAzEl"])
+        slew_abs_node = await self.management.get_child(
+            [f"{self.idx}:Commands", f"{self.idx}:Slew2AbsAzEl"]
+        )
         self.server.link_method(slew_abs_node, self.slew_abs)
 
         track_load_table_node = await self.plc_prg.get_child(
-            [f"{self.idx}:Tracking", f"{self.idx}:TrackLoadTable"]
+            [
+                f"{self.idx}:Tracking",
+                f"{self.idx}:Commands",
+                f"{self.idx}:TrackLoadTable",
+            ]
         )
         self.server.link_method(track_load_table_node, self.track_load_table)
 
@@ -132,6 +159,8 @@ class DSSimulatorOPCUAServer:
     #  Helper methods
     # ================
     async def reset_attributes(self):
+        await self.initialise_nameplate()
+
         az_axis_state = await self.get_az_axis_state()
         az_axis_moving = await self.get_az_axis_moving()
         az_axis_p_set = await self.get_az_p_set()
@@ -220,6 +249,7 @@ class DSSimulatorOPCUAServer:
         val = await self.plc_prg.get_child(
             [
                 f"{self.idx}:Azimuth",
+                f"{self.idx}:Status",
                 f"{self.idx}:AxisState",
             ]
         )
@@ -230,6 +260,7 @@ class DSSimulatorOPCUAServer:
         val = await self.plc_prg.get_child(
             [
                 f"{self.idx}:Azimuth",
+                f"{self.idx}:Status",
                 f"{self.idx}:AxisMoving",
             ]
         )
@@ -240,6 +271,7 @@ class DSSimulatorOPCUAServer:
         val = await self.plc_prg.get_child(
             [
                 f"{self.idx}:Azimuth",
+                f"{self.idx}:Status",
                 f"{self.idx}:p_Set",
             ]
         )
@@ -250,6 +282,7 @@ class DSSimulatorOPCUAServer:
         val = await self.plc_prg.get_child(
             [
                 f"{self.idx}:Elevation",
+                f"{self.idx}:Status",
                 f"{self.idx}:AxisState",
             ]
         )
@@ -260,6 +293,7 @@ class DSSimulatorOPCUAServer:
         val = await self.plc_prg.get_child(
             [
                 f"{self.idx}:Elevation",
+                f"{self.idx}:Status",
                 f"{self.idx}:AxisMoving",
             ]
         )
@@ -270,6 +304,7 @@ class DSSimulatorOPCUAServer:
         val = await self.plc_prg.get_child(
             [
                 f"{self.idx}:Elevation",
+                f"{self.idx}:Status",
                 f"{self.idx}:p_Set",
             ]
         )
@@ -280,6 +315,7 @@ class DSSimulatorOPCUAServer:
         val = await self.plc_prg.get_child(
             [
                 f"{self.idx}:FeedIndexer",
+                f"{self.idx}:Status",
                 f"{self.idx}:AxisState",
             ]
         )
@@ -290,6 +326,7 @@ class DSSimulatorOPCUAServer:
         val = await self.plc_prg.get_child(
             [
                 f"{self.idx}:FeedIndexer",
+                f"{self.idx}:Status",
                 f"{self.idx}:AxisMoving",
             ]
         )
@@ -306,7 +343,7 @@ class DSSimulatorOPCUAServer:
         return val
 
     async def get_low_power_active(self) -> any:
-        val = await self.management_status.get_child(
+        val = await self.management.get_child(
             [
                 f"{self.idx}:PowerStatus",
                 f"{self.idx}:LowPowerActive",
@@ -328,6 +365,7 @@ class DSSimulatorOPCUAServer:
         val = await self.plc_prg.get_child(
             [
                 f"{self.idx}:Safety",
+                f"{self.idx}:Status",
                 f"{self.idx}:StowPinStatus",
             ]
         )
@@ -539,6 +577,22 @@ class DSSimulatorOPCUAServer:
     # ================
     #  UA methods
     # ================
+
+    @uamethod
+    async def take_auth(self, user: int) -> int:
+        logging.info("Called TakeAuth with parameter: %s", user)
+
+        self.session_id = 12345
+
+        return [ua.CmdResponseType.CommandDone, self.session_id]
+
+    @uamethod
+    async def release_auth(self, user: int) -> int:
+        logging.info("Called ReleseAuth with parameter: %s", user)
+
+        self.session_id = None
+
+        return ua.CmdResponseType.CommandDone
 
     @uamethod
     async def set_power_mode(
@@ -845,6 +899,42 @@ class DSSimulatorOPCUAServer:
         self.track_table = track_table
 
         return ua.CmdResponseType.CommandDone
+
+    async def initialise_nameplate(self):
+        nameplate_node = await self.management.get_child([f"{self.idx}:NamePlate"])
+
+        dish_id = await nameplate_node.get_child([f"{self.idx}:DishId"])
+        await dish_id.write_value("Mock XML test server")
+
+        dish_structure_serial_number = await nameplate_node.get_child(
+            [f"{self.idx}:DishStructureSerialNo"]
+        )
+        await dish_structure_serial_number.write_value("Mock serial number")
+
+        dsc_software_version = await nameplate_node.get_child(
+            [f"{self.idx}:DscSoftwareVersion"]
+        )
+        await dsc_software_version.write_value("ds_icd_0.0.11_mock.xml")
+
+        icd_version = await nameplate_node.get_child([f"{self.idx}:IcdVersion"])
+        await icd_version.write_value("2")
+
+        run_hours = await nameplate_node.get_child([f"{self.idx}:RunHours"])
+        await run_hours.write_value(0.0)
+
+        total_dist_az = await nameplate_node.get_child([f"{self.idx}:TotalDist_Az"])
+        await total_dist_az.write_value(0.0)
+
+        total_dist_el_deg = await nameplate_node.get_child(
+            [f"{self.idx}:TotalDist_El_deg"]
+        )
+        await total_dist_el_deg.write_value(0.0)
+
+        total_dist_el_m = await nameplate_node.get_child([f"{self.idx}:TotalDist_El_m"])
+        await total_dist_el_m.write_value(0.0)
+
+        total_dist_el_fi = await nameplate_node.get_child([f"{self.idx}:TotalDist_Fi"])
+        await total_dist_el_fi.write_value(0.0)
 
     @uamethod
     async def new_mock_data_values(self, values_list):

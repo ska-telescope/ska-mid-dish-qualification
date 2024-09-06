@@ -358,8 +358,8 @@ def test_enum_attribute(high_level_library: StubScu) -> None:
     logger.stop()
     output_f_o = h5py.File(output_file, "r", libver="latest")
     expected_attribute = (
-        "StartUp,Standby,Locked,EStop,Stowed,Locked&Stowed,Activating,Deactivation,"
-        "Standstill,Stop,Slew,Jog,Track"
+        "StartUp,Standby,Locked,Stowed,Locked_Stowed,Activating,Deactivating,"
+        "Standstill,Stopping,Slew,Jog,Track"
     )
     assert (
         output_f_o["MockData.enum"]["Value"].attrs["Enumerations"] == expected_attribute
