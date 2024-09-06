@@ -2694,6 +2694,26 @@ url = "https://artefact.skao.int/repository/pypi-all/simple"
 reference = "ska"
 
 [[package]]
+name = "ska-mid-dish-steering-control"
+version = "0.0.1"
+description = "Python module that interfaces with the OPCUA protocol of the dish structure controller"
+optional = false
+python-versions = "^3.10"
+files = []
+develop = false
+
+[package.dependencies]
+asyncua = "^1.1.5"
+platformdirs = "^4.2.2"
+pyyaml = "^6.0.0"
+
+[package.source]
+type = "git"
+url = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git"
+reference = "main"
+resolved_reference = "a568c3df4db6a4de0b245327f178dcc171d7999d"
+
+[[package]]
 name = "ska-ser-sphinx-theme"
 version = "0.1.3"
 description = "A Sphinx ReadTheDocs theme for SKA"
@@ -3207,4 +3227,4 @@ reference = "ska"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "e0d5e75793cce51897e10e4df71d6744088bd90bb2fa5db11bfb07cc3b95855d"
+content-hash = "2961d7fad5440b83e2b1fe9fcd73ccee892c5e176e2189b162d71a1bf5bc65d0"

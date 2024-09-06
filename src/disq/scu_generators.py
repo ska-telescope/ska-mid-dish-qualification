@@ -2,8 +2,8 @@
 
 import logging
 
-from disq import configuration
-from disq.sculib import SCU, SteeringControlUnit
+from disq import SCU, SteeringControlUnit, configuration
+from disq.constants import USER_CACHE_DIR
 
 logger = logging.getLogger("ska-mid-ds-scu")
 
@@ -40,6 +40,7 @@ def SCU_from_config(  # noqa: N802
         scu = SCU(
             **sculib_args,
             use_nodes_cache=use_nodes_cache,
+            nodes_cache_dir=USER_CACHE_DIR,
             authority_name=authority_name,
         )
     except ConnectionRefusedError:

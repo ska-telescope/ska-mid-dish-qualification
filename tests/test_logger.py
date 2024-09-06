@@ -18,8 +18,8 @@ from typing import Callable
 import h5py
 import pytest
 
+from disq import SteeringControlUnit
 from disq.logger import Logger
-from disq.sculib import SteeringControlUnit
 
 
 @pytest.fixture(scope="module", autouse=True)

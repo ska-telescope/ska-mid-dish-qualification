@@ -11,17 +11,14 @@ from typing import Any, Callable, Final, Type
 
 from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
+from disq import PACKAGE_VERSION, CmdReturn, Command, ResultCode, SteeringControlUnit
 from disq.constants import (
-    PACKAGE_VERSION,
     SUBSCRIPTION_RATE_MS,
-    CmdReturn,
-    Command,
+    USER_CACHE_DIR,
     NodesStatus,
-    ResultCode,
     StatusTreeCategory,
 )
 from disq.logger import Logger
-from disq.sculib import SteeringControlUnit
 
 logger = logging.getLogger("gui.model")
 
@@ -284,6 +281,7 @@ class Model(QObject):
             self._scu = SteeringControlUnit(
                 **connect_details,
                 gui_app=True,
+                nodes_cache_dir=USER_CACHE_DIR,
                 app_name=f"DiSQ GUI v{PACKAGE_VERSION}",
             )
             self._scu.connect_and_setup()
