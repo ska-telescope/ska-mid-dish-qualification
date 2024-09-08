@@ -872,7 +872,7 @@ class MainView(QtWidgets.QMainWindow):
             widget.setStyleSheet(
                 "QLineEdit { "
                 f"background-color: {background_colour_rbg}; "
-                "border-color: black;} "
+                "color: rgb(238, 238, 238);border-color: black;} "
             )
 
     def _track_table_file_exist(self) -> bool:
