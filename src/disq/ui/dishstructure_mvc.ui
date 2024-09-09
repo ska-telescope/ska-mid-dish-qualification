@@ -4963,7 +4963,7 @@
              <item row="10" column="0">
               <widget class="QLabel" name="label_69">
                <property name="text">
-                <string>Elev [&quot;]:</string>
+                <string>Azim [&quot;]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -5066,7 +5066,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.Status.TiltCorrVal_Az</string>
+                <string>Pointing.Status.TiltCorrVal_El</string>
                </property>
               </widget>
              </item>
@@ -5128,7 +5128,7 @@
              <item row="12" column="0">
               <widget class="QLabel" name="label_70">
                <property name="text">
-                <string>Azim [&quot;]:</string>
+                <string>Elev [&quot;]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -5185,7 +5185,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.Status.TiltCorrVal_El</string>
+                <string>Pointing.Status.TiltCorrVal_Az</string>
                </property>
               </widget>
              </item>
@@ -5604,7 +5604,7 @@
              <item row="17" column="0">
               <widget class="QLabel" name="label_74">
                <property name="text">
-                <string>Azim [&quot;]:</string>
+                <string>Elev [&quot;]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -5680,7 +5680,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.Status.AmbTempCorrVal_Az</string>
+                <string>Pointing.Status.AmbTempCorrVal_El</string>
                </property>
               </widget>
              </item>
@@ -5699,7 +5699,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.Status.AmbTempCorrVal_El</string>
+                <string>Pointing.Status.AmbTempCorrVal_Az</string>
                </property>
               </widget>
              </item>
@@ -5725,7 +5725,7 @@
              <item row="16" column="0">
               <widget class="QLabel" name="label_75">
                <property name="text">
-                <string>Elev [&quot;]:</string>
+                <string>Azim [&quot;]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
