@@ -358,8 +358,8 @@ def test_enum_attribute(high_level_library: StubScu) -> None:
     logger.stop()
     output_f_o = h5py.File(output_file, "r", libver="latest")
     expected_attribute = (
-        "StartUp,Standby,Locked,EStop,Stowed,Locked&Stowed,Activating,Deactivation,"
-        "Standstill,Stop,Slew,Jog,Track"
+        "StartUp,Standby,Locked,Stowed,Locked_Stowed,Activating,Deactivating,"
+        "Standstill,Stopping,Slew,Jog,Track"
     )
     assert (
         output_f_o["MockData.enum"]["Value"].attrs["Enumerations"] == expected_attribute
@@ -399,3 +399,24 @@ def test_performance(high_level_library: StubScu) -> None:
     # The h5diff linux tool is returning 2 (i.e. error code) for 0 differences
     # found on the MockData.bool dataset.
     # assert result.returncode == 0 # assert excluded because of tool bug
+
+
+def test_nameplate_attributes(high_level_library: StubScu) -> None:
+    """Test the nameplate nodes are added to the root hdf5 object."""
+    output_file = "tests/resources/output_files/nameplate_attributes.hdf5"
+    logger = Logger(file_name=output_file, high_level_library=high_level_library)
+    nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
+    logger.add_nodes(nodes, 100)
+    logger.start()
+    logger.stop()
+    output_f_o = h5py.File(output_file, "r", libver="latest")
+    assert output_f_o.attrs["DishId"] == "Mock XML test server"
+    assert output_f_o.attrs["DishStructureSerialNo"] == "Mock serial number"
+    assert output_f_o.attrs["DscSoftwareVersion"] == "ds_icd_0.0.11_mock.xml"
+    assert output_f_o.attrs["IcdVersion"] == "2"
+    assert output_f_o.attrs["RunHours"] == 0.0
+    assert output_f_o.attrs["TotalDist_Az"] == 0.0
+    assert output_f_o.attrs["TotalDist_El_deg"] == 0.0
+    assert output_f_o.attrs["TotalDist_El_m"] == 0.0
+    assert output_f_o.attrs["TotalDist_Fi"] == 0.0
+    output_f_o.close()
