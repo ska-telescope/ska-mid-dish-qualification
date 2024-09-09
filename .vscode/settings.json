@@ -4,7 +4,7 @@
         // "--with-cetc-sim"
         // "--with-plc"
     ],
-    "editor.formatOnSave": false,
+    "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
     },

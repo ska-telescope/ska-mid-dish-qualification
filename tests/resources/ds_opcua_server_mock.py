@@ -80,11 +80,15 @@ class DSSimulatorOPCUAServer:
             ]
         )
 
+        self.management_commands = await self.management.get_child(
+            [f"{self.idx}:Commands"]
+        )
+
+        # Link methods to functionality
         self.command_arbiter = await self.plc_prg.get_child(
             [f"{self.idx}:CommandArbiter"]
         )
 
-        # Link methods to functionality
         take_auth_node = await self.command_arbiter.get_child(
             [f"{self.idx}:Commands", f"{self.idx}:TakeAuth"]
         )
@@ -750,7 +754,11 @@ class DSSimulatorOPCUAServer:
         # Transition to standstill
         # Stop tracking if tracking
         # Stop slewing if slewing
-        if axis in [ua.AxisSelectType.Az, ua.AxisSelectType.El, ua.AxisSelectType.AzEl]:
+        if axis in [
+            ua.AxisSelectType.Az,
+            ua.AxisSelectType.El,
+            ua.AxisSelectType.AzEl,
+        ]:
             dsc_state_node = await self.get_dsc_state()
             dsc_state = await dsc_state_node.get_value()
 
@@ -809,11 +817,15 @@ class DSSimulatorOPCUAServer:
             axis_activated = await self.are_axis_activated()
 
             if not axis_activated:
-                await self.management.call_method(
-                    f"{self.idx}:Activate", ua.AxisSelectType.AzEl
+                await self.management_commands.call_method(
+                    f"{self.idx}:Activate",
+                    self.session_id,
+                    ua.AxisSelectType.AzEl,
                 )
-                await self.management.call_method(
-                    f"{self.idx}:Activate", ua.AxisSelectType.Fi
+                await self.management_commands.call_method(
+                    f"{self.idx}:Activate",
+                    self.session_id,
+                    ua.AxisSelectType.Fi,
                 )
 
             # Start tracking
@@ -851,7 +863,12 @@ class DSSimulatorOPCUAServer:
 
     @uamethod
     async def slew_abs(
-        self, parent, pos_az: float, pos_el: float, speed_az: float, speed_el: float
+        self,
+        parent,
+        pos_az: float,
+        pos_el: float,
+        speed_az: float,
+        speed_el: float,
     ) -> enum.Enum:
         logging.info(
             "Slew2AbsAzEl method called with %s, %s, %s, %s!",
@@ -865,21 +882,30 @@ class DSSimulatorOPCUAServer:
         is_stowed = await self.is_dish_stowed()
 
         if is_stowed:
-            await self.management.call_method(f"{self.idx}:Stow", False)
+            await self.management_commands.call_method(
+                f"{self.idx}:Stow", self.session_id, False
+            )
 
         # If not activated, activate
         axis_activated = await self.are_axis_activated()
 
         if not axis_activated:
-            await self.management.call_method(
-                f"{self.idx}:Activate", ua.AxisSelectType.AzEl
+            await self.management_commands.call_method(
+                f"{self.idx}:Activate", self.session_id, ua.AxisSelectType.AzEl
             )
 
         # Slew
         self.movement_stop_event = threading.Event()
         self.movement_thread = threading.Thread(
             target=self.run_dish_movement_task,
-            args=(pos_az, pos_el, speed_az, speed_el, self.movement_stop_event, False),
+            args=(
+                pos_az,
+                pos_el,
+                speed_az,
+                speed_el,
+                self.movement_stop_event,
+                False,
+            ),
         )
         self.movement_thread.start()
 
@@ -887,7 +913,11 @@ class DSSimulatorOPCUAServer:
 
     @uamethod
     async def track_load_table(
-        self, parent, load_mode: enum.Enum, sequence_length: int, track_table: any
+        self,
+        parent,
+        load_mode: enum.Enum,
+        sequence_length: int,
+        track_table: any,
     ) -> enum.Enum:
         logging.info(
             "TrackLoadTable method called with %s, %s, %s!",
