@@ -14,7 +14,11 @@ from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import QColor
 
 from disq import controller, model
+<<<<<<< HEAD
 from disq.constants import PACKAGE_VERSION, NodesStatus
+=======
+from disq.constants import GUI_ERROR_TAB, GUI_WARNING_TAB, NodesStatus
+>>>>>>> 158da8f (WOM-408 Error warning tab tree group aggregates)
 
 logger = logging.getLogger("gui.view")
 
@@ -518,7 +522,11 @@ class MainView(QtWidgets.QMainWindow):
         self.error_tree_view: QtWidgets.QTreeWidget
         self.error_status_show_only_errors: QtWidgets.QCheckBox
         self._status_widget_update_lut: dict[str, QtWidgets.QTreeWidgetItem] = {}
+        self._status_group_update_lut: dict[
+            int, dict[str, QtWidgets.QTreeWidgetItem]
+        ] = {}
         self.model.status_attribute_update.connect(self._status_attribute_event_handler)
+        self.model.status_group_update.connect(self._status_group_event_handler)
         self.warning_error_filter: bool = False
         self.warning_status_show_only_warnings.stateChanged.connect(
             self.warning_status_show_only_warnings_clicked
@@ -1338,6 +1346,7 @@ class MainView(QtWidgets.QMainWindow):
 
     def _configure_status_tree_widget(
         self,
+        tab: int,
         tree_widget: QtWidgets.QTreeWidget,
         status_attributes: dict[str, list[tuple[str, str, str]]],
     ) -> None:
@@ -1350,10 +1359,12 @@ class MainView(QtWidgets.QMainWindow):
         tree_widget.setColumnWidth(1, 50)  # Status
         tree_widget.setColumnWidth(2, 180)  # Time
         # tree_widget.setColumnWidth(3, 400)  # Description - TODO: add description
+        self._status_group_update_lut[tab] = {}
 
         for group, status_list in status_attributes.items():
             parent = QtWidgets.QTreeWidgetItem([group])
             tree_widget.addTopLevelItem(parent)
+            self._status_group_update_lut[tab][group] = parent
             for attr_short_name, attr_value, attr_full_name in status_list:
                 status_widget = QtWidgets.QTreeWidgetItem(
                     parent, [attr_short_name, attr_value, "", ""]
@@ -1363,10 +1374,12 @@ class MainView(QtWidgets.QMainWindow):
     def _initialise_error_warning_widgets(self) -> None:
         """Initialise the error and warning widgets."""
         self._configure_status_tree_widget(
-            self.warning_tree_view, self.controller.get_warning_attributes()
+            GUI_WARNING_TAB,
+            self.warning_tree_view,
+            self.controller.get_warning_attributes(),
         )
         self._configure_status_tree_widget(
-            self.error_tree_view, self.controller.get_error_attributes()
+            GUI_ERROR_TAB, self.error_tree_view, self.controller.get_error_attributes()
         )
 
     def _status_attribute_event_handler(
@@ -1389,6 +1402,19 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.list_cmd_history.addItem(history_line)
         self.list_cmd_history.scrollToBottom()
+
+    def _status_group_event_handler(
+        self,
+        tab: int,
+        group_name: str,
+        group_value: bool,
+    ) -> None:
+        tree_widget_item = self._status_group_update_lut[tab][group_name]
+        tree_widget_item.setText(1, str(group_value))
+        if group_value:
+            tree_widget_item.setBackground(1, QColor("red"))
+        else:
+            tree_widget_item.setBackground(1, QColor("green"))
 
     def warning_status_show_only_warnings_clicked(self, checked: int) -> None:
         """Show only warnings checkbox clicked slot function."""

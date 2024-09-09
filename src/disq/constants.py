@@ -5,6 +5,8 @@ from importlib import metadata
 from typing import Final
 
 # Constants
+GUI_ERROR_TAB: Final = 5
+GUI_WARNING_TAB: Final = 4
 PACKAGE_VERSION: Final = metadata.version("DiSQ")
 SUBSCRIPTION_RATE_MS: Final = 100
 

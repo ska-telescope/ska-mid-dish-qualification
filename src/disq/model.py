@@ -12,6 +12,8 @@ from typing import Any, Callable, Final, Type
 from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
 from disq.constants import (
+    GUI_ERROR_TAB,
+    GUI_WARNING_TAB,
     PACKAGE_VERSION,
     SUBSCRIPTION_RATE_MS,
     CmdReturn,
@@ -106,6 +108,7 @@ class StatusTreeHierarchy(QueuePollThread):
 
     def __init__(
         self,
+        tab: int,
         status_signal: pyqtBoundSignal,
         group_signal: pyqtBoundSignal,
         status_attributes: list[str],
@@ -116,6 +119,7 @@ class StatusTreeHierarchy(QueuePollThread):
                                   attribute name
         :type status_attributes: list[str]
         """
+        self._tab = tab
         super().__init__(status_signal)
         self._group_signal: pyqtBoundSignal = group_signal
         self._status_attribute_full_names: list[str] = status_attributes
@@ -196,7 +200,7 @@ class StatusTreeHierarchy(QueuePollThread):
         self._set_group_error_status(group)
 
     def _group_has_error(self, group: str) -> bool:
-        return "true" in self._status[group].values()
+        return "True" in self._status[group].values()
 
     def _set_group_error_status(self, group):
         group_error_status = self._group_has_error(group)
@@ -204,7 +208,7 @@ class StatusTreeHierarchy(QueuePollThread):
         if group_error_status != self._group_summary_status[group]:
             self._group_summary_status[group] = group_error_status
             # signal a group error status change
-            self._group_signal.emit(group, group_error_status)
+            self._group_signal.emit(self._tab, group, group_error_status)
             logger.debug("signal a group error status change on %s", group)
 
     def _attr_group_name(self, attr_full_name: str) -> tuple[str, str]:
@@ -232,7 +236,7 @@ class Model(QObject):
     command_response = pyqtSignal(str)
     data_received = pyqtSignal(dict)
     status_attribute_update = pyqtSignal(str, str, datetime)
-    status_group_update = pyqtSignal(str, bool)
+    status_group_update = pyqtSignal(int, str, bool)
 
     def __init__(self, parent: QObject | None = None) -> None:
         """
@@ -406,11 +410,13 @@ class Model(QObject):
         """Register status event updates."""
         # Create each of the status hiearchy objects
         self.status_warning_tree = StatusTreeHierarchy(
+            GUI_WARNING_TAB,
             self.status_attribute_update,
             self.status_group_update,
             self.status_warning_attributes,
         )
         self.status_error_tree = StatusTreeHierarchy(
+            GUI_ERROR_TAB,
             self.status_attribute_update,
             self.status_group_update,
             self.status_error_attributes,
