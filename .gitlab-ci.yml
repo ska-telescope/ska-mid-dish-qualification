@@ -45,8 +45,14 @@ python-test:
     - make python-test PYTHON_VARS_BEFORE_PYTEST=xvfb-run
 
 python-publish-to-gitlab:
-  rules: # Only publish package to Gitlab registry for main branch
+  rules: # Only automatically publish package to Gitlab registry for main branch
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual # Allow manual run on merge requests
+      allow_failure: true
+    - when: manual # Allow manual run on any other branch
+      allow_failure: true
 
 build-changelog:
   variables:
