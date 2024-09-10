@@ -529,7 +529,6 @@ class MainView(QtWidgets.QMainWindow):
         self._status_group_update_lut: dict[
             int, dict[str, QtWidgets.QTreeWidgetItem]
         ] = {}
-        self._status_global_update_lut: dict[int, QtWidgets.QLineEdit] = {}
         self.model.status_attribute_update.connect(self._status_attribute_event_handler)
         self.model.status_group_update.connect(self._status_group_event_handler)
         self.model.status_global_update.connect(self._status_global_event_handler)
