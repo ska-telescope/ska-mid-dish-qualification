@@ -44,6 +44,10 @@ python-test:
   script:
     - make python-test PYTHON_VARS_BEFORE_PYTEST=xvfb-run
 
+python-publish-to-gitlab:
+  rules: # Only publish package to Gitlab registry for main branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 build-changelog:
   variables:
     # Override the gitlab project slug (ska-mid-dish-qualification) for the generated CAR links to be correct
