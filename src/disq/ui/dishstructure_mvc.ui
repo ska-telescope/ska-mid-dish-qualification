@@ -604,6 +604,9 @@
          <property name="opcua_type" stdset="0">
           <string>Boolean</string>
          </property>
+         <property name="led_colour" stdset="0">
+          <string>red</string>
+         </property>
         </widget>
        </item>
        <item row="0" column="5">
@@ -1098,6 +1101,9 @@
          </property>
          <property name="opcua_type" stdset="0">
           <string>Boolean</string>
+         </property>
+         <property name="led_colour" stdset="0">
+          <string>orange</string>
          </property>
         </widget>
        </item>

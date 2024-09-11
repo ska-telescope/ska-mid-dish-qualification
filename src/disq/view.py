@@ -14,11 +14,7 @@ from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import QColor
 
 from disq import controller, model
-<<<<<<< HEAD
-from disq.constants import PACKAGE_VERSION, NodesStatus
-=======
-from disq.constants import GUI_ERROR_TAB, GUI_WARNING_TAB, NodesStatus
->>>>>>> 158da8f (WOM-408 Error warning tab tree group aggregates)
+from disq.constants import GUI_ERROR_TAB, GUI_WARNING_TAB, PACKAGE_VERSION, NodesStatus
 
 logger = logging.getLogger("gui.view")
 
@@ -213,9 +209,6 @@ class MainView(QtWidgets.QMainWindow):
 
         # Listen for Model event signals
         self.model.data_received.connect(self.event_update)
-
-        # Status panel widgets
-        self.line_edit_warning_general: QtWidgets.QLineEdit
 
         # Authority status group widgets
         self.combobox_authority: QtWidgets.QComboBox
@@ -520,7 +513,6 @@ class MainView(QtWidgets.QMainWindow):
         self.button_start_track_table: QtWidgets.QPushButton
         self.button_start_track_table.clicked.connect(self.start_tracking_clicked)
 
-        # Warning and Error tabs
         self.warning_tree_view: QtWidgets.QTreeWidget
         self.warning_status_show_only_warnings: QtWidgets.QCheckBox
         self.error_tree_view: QtWidgets.QTreeWidget
@@ -531,7 +523,6 @@ class MainView(QtWidgets.QMainWindow):
         ] = {}
         self.model.status_attribute_update.connect(self._status_attribute_event_handler)
         self.model.status_group_update.connect(self._status_group_event_handler)
-        self.model.status_global_update.connect(self._status_global_event_handler)
         self.warning_error_filter: bool = False
         self.warning_status_show_only_warnings.stateChanged.connect(
             self.warning_status_show_only_warnings_clicked
@@ -1420,15 +1411,6 @@ class MainView(QtWidgets.QMainWindow):
             tree_widget_item.setBackground(1, QColor("red"))
         else:
             tree_widget_item.setBackground(1, QColor("green"))
-
-    def _status_global_event_handler(self, tab: int, global_value: bool) -> None:
-        # Only updates warning status indicator, as error uses
-        # Management.ErrorStatus.errGeneral
-        if tab == GUI_WARNING_TAB:
-            status_indicator = self.line_edit_warning_general
-            self._update_opcua_boolean_text_widget(
-                [status_indicator], {"name": "global warning", "value": global_value}
-            )
 
     def warning_status_show_only_warnings_clicked(self, checked: int) -> None:
         """Show only warnings checkbox clicked slot function."""
