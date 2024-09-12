@@ -5,8 +5,6 @@ from importlib import metadata
 from typing import Final
 
 # Constants
-GUI_ERROR_TAB: Final = 5
-GUI_WARNING_TAB: Final = 4
 PACKAGE_VERSION: Final = metadata.version("DiSQ")
 SUBSCRIPTION_RATE_MS: Final = 100
 
@@ -114,6 +112,17 @@ class ResultCode(IntEnum):
     completed in a few milliseconds."""
     NOT_IMPLEMENTED = 11
     """The command has not been implemented."""
+
+
+class StatusTreeCategory(IntEnum):
+    """
+    Category of status update.
+
+    Describes whether a status update is a warning or error.
+    """
+
+    ERROR = 0
+    WARNING = 1
 
 
 # Type aliases
