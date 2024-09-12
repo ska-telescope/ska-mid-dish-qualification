@@ -13,8 +13,8 @@ from typing import Any, Callable, Final
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import QColor
 
-from disq import controller, model
-from disq.constants import PACKAGE_VERSION, NodesStatus, StatusTreeCategory
+from disq import __version__, controller, model
+from disq.constants import NodesStatus, StatusTreeCategory
 
 logger = logging.getLogger("gui.view")
 
@@ -144,7 +144,7 @@ class MainView(QtWidgets.QMainWindow):
         # Load the UI from the XML .ui file
         ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
         uic.loadUi(ui_xml_filename, self)
-        self.setWindowTitle(f"DiSQ GUI v{PACKAGE_VERSION}")
+        self.setWindowTitle(f"DiSQ GUI v{__version__}")
 
         # Adding a default style for the tooltip with a white background and black text
         # This is a work-around for the issue that tooltips inherit style from the

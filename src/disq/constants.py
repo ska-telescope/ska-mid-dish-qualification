@@ -1,7 +1,6 @@
 """Common DiSQ enumerated types and other constants used in the package."""
 
 from enum import Enum, IntEnum
-from importlib import metadata
 from pathlib import Path
 from typing import Final
 
@@ -9,7 +8,6 @@ from platformdirs import user_cache_dir
 
 # Constants
 USER_CACHE_DIR: Final = Path(user_cache_dir(appauthor="SKAO", appname="disq"))
-PACKAGE_VERSION: Final = metadata.version("DiSQ")
 SUBSCRIPTION_RATE_MS: Final = 100
 
 

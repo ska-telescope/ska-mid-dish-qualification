@@ -11,7 +11,7 @@ from typing import Any, Callable, Final, Type
 
 from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
-from disq import PACKAGE_VERSION, CmdReturn, Command, ResultCode, SteeringControlUnit
+from disq import CmdReturn, Command, ResultCode, SteeringControlUnit, __version__
 from disq.constants import (
     SUBSCRIPTION_RATE_MS,
     USER_CACHE_DIR,
@@ -282,7 +282,7 @@ class Model(QObject):
                 **connect_details,
                 gui_app=True,
                 nodes_cache_dir=USER_CACHE_DIR,
-                app_name=f"DiSQ GUI v{PACKAGE_VERSION}",
+                app_name=f"DiSQ GUI v{__version__}",
             )
             self._scu.connect_and_setup()
         except RuntimeError as e:

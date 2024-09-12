@@ -10,7 +10,7 @@ from typing import Any
 
 from asyncua import Node, ua
 
-from disq import PACKAGE_VERSION, SteeringControlUnit, configuration
+from disq import SteeringControlUnit, __version__, configuration
 from disq.constants import USER_CACHE_DIR
 from disq.serval_internal_server import SerValInternalServer
 
@@ -286,7 +286,7 @@ class OPCUAServerValidator:
             password,
             gui_app=True,  # Only use the PLC_PRG node tree.
             nodes_cache_dir=USER_CACHE_DIR,
-            app_name=f"DiSQ Server Validator v{PACKAGE_VERSION}",
+            app_name=f"DiSQ Server Validator v{__version__}",
         ) as server:
             self.server = server
             self.event_loop = self.server.event_loop
