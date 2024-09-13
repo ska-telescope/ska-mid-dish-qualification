@@ -14,7 +14,7 @@ from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import QColor
 
 from disq import controller, model
-from disq.constants import PACKAGE_VERSION, NodesStatus
+from disq.constants import PACKAGE_VERSION, NodesStatus, StatusTreeCategory
 
 logger = logging.getLogger("gui.view")
 
@@ -209,6 +209,9 @@ class MainView(QtWidgets.QMainWindow):
 
         # Listen for Model event signals
         self.model.data_received.connect(self.event_update)
+
+        # Status panel widgets
+        self.line_edit_warning_general: QtWidgets.QLineEdit
 
         # Authority status group widgets
         self.combobox_authority: QtWidgets.QComboBox
@@ -513,12 +516,18 @@ class MainView(QtWidgets.QMainWindow):
         self.button_start_track_table: QtWidgets.QPushButton
         self.button_start_track_table.clicked.connect(self.start_tracking_clicked)
 
+        # Warning and Error tabs
         self.warning_tree_view: QtWidgets.QTreeWidget
         self.warning_status_show_only_warnings: QtWidgets.QCheckBox
         self.error_tree_view: QtWidgets.QTreeWidget
         self.error_status_show_only_errors: QtWidgets.QCheckBox
         self._status_widget_update_lut: dict[str, QtWidgets.QTreeWidgetItem] = {}
+        self._status_group_update_lut: dict[
+            tuple[StatusTreeCategory, str], QtWidgets.QTreeWidgetItem
+        ] = {}
         self.model.status_attribute_update.connect(self._status_attribute_event_handler)
+        self.model.status_group_update.connect(self._status_group_event_handler)
+        self.model.status_global_update.connect(self._status_global_event_handler)
         self.warning_error_filter: bool = False
         self.warning_status_show_only_warnings.stateChanged.connect(
             self.warning_status_show_only_warnings_clicked
@@ -1338,6 +1347,7 @@ class MainView(QtWidgets.QMainWindow):
 
     def _configure_status_tree_widget(
         self,
+        category: StatusTreeCategory,
         tree_widget: QtWidgets.QTreeWidget,
         status_attributes: dict[str, list[tuple[str, str, str]]],
     ) -> None:
@@ -1354,6 +1364,7 @@ class MainView(QtWidgets.QMainWindow):
         for group, status_list in status_attributes.items():
             parent = QtWidgets.QTreeWidgetItem([group])
             tree_widget.addTopLevelItem(parent)
+            self._status_group_update_lut[(category, group)] = parent
             for attr_short_name, attr_value, attr_full_name in status_list:
                 status_widget = QtWidgets.QTreeWidgetItem(
                     parent, [attr_short_name, attr_value, "", ""]
@@ -1363,10 +1374,14 @@ class MainView(QtWidgets.QMainWindow):
     def _initialise_error_warning_widgets(self) -> None:
         """Initialise the error and warning widgets."""
         self._configure_status_tree_widget(
-            self.warning_tree_view, self.controller.get_warning_attributes()
+            StatusTreeCategory.WARNING,
+            self.warning_tree_view,
+            self.controller.get_warning_attributes(),
         )
         self._configure_status_tree_widget(
-            self.error_tree_view, self.controller.get_error_attributes()
+            StatusTreeCategory.ERROR,
+            self.error_tree_view,
+            self.controller.get_error_attributes(),
         )
 
     def _status_attribute_event_handler(
@@ -1389,6 +1404,30 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.list_cmd_history.addItem(history_line)
         self.list_cmd_history.scrollToBottom()
+
+    def _status_group_event_handler(
+        self,
+        category: StatusTreeCategory,
+        group_name: str,
+        group_value: bool,
+    ) -> None:
+        tree_widget_item = self._status_group_update_lut[(category, group_name)]
+        tree_widget_item.setText(1, str(group_value))
+        if group_value:
+            tree_widget_item.setBackground(1, QColor("red"))
+        else:
+            tree_widget_item.setBackground(1, QColor("green"))
+
+    def _status_global_event_handler(
+        self, category: StatusTreeCategory, global_value: bool
+    ) -> None:
+        # Only updates warning status indicator, as error uses
+        # Management.ErrorStatus.errGeneral
+        if category == StatusTreeCategory.WARNING:
+            status_indicator = self.line_edit_warning_general
+            self._update_opcua_boolean_text_widget(
+                [status_indicator], {"name": "global warning", "value": global_value}
+            )
 
     def warning_status_show_only_warnings_clicked(self, checked: int) -> None:
         """Show only warnings checkbox clicked slot function."""

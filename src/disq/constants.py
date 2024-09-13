@@ -114,5 +114,16 @@ class ResultCode(IntEnum):
     """The command has not been implemented."""
 
 
+class StatusTreeCategory(IntEnum):
+    """
+    Category of status update.
+
+    Describes whether a status update is a warning or error.
+    """
+
+    ERROR = 0
+    WARNING = 1
+
+
 # Type aliases
 CmdReturn = tuple[ResultCode, str, list[int | None] | None]

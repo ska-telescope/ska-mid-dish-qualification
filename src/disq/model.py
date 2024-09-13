@@ -18,6 +18,7 @@ from disq.constants import (
     Command,
     NodesStatus,
     ResultCode,
+    StatusTreeCategory,
 )
 from disq.logger import Logger
 from disq.sculib import SteeringControlUnit
@@ -104,10 +105,13 @@ class QueuePollThread(QThread):
 class StatusTreeHierarchy(QueuePollThread):
     """A class to represent a hierarchy of status attributes."""
 
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
+        category: StatusTreeCategory,
         status_signal: pyqtBoundSignal,
         group_signal: pyqtBoundSignal,
+        global_signal: pyqtBoundSignal,
         status_attributes: list[str],
     ) -> None:
         """A class to represent a hierarchy of status attributes.
@@ -116,11 +120,14 @@ class StatusTreeHierarchy(QueuePollThread):
                                   attribute name
         :type status_attributes: list[str]
         """
+        self._category = category
         super().__init__(status_signal)
         self._group_signal: pyqtBoundSignal = group_signal
+        self._global_signal: pyqtBoundSignal = global_signal
         self._status_attribute_full_names: list[str] = status_attributes
         self._status: dict[str, dict[str, str]] = {}
         self._group_summary_status: dict[str, bool] = {}
+        self._global_summary_status: bool | None = None
 
         for attr_full_name in status_attributes:
             group, attr_name = self._attr_group_name(attr_full_name)
@@ -196,7 +203,7 @@ class StatusTreeHierarchy(QueuePollThread):
         self._set_group_error_status(group)
 
     def _group_has_error(self, group: str) -> bool:
-        return "true" in self._status[group].values()
+        return "True" in self._status[group].values()
 
     def _set_group_error_status(self, group):
         group_error_status = self._group_has_error(group)
@@ -204,8 +211,18 @@ class StatusTreeHierarchy(QueuePollThread):
         if group_error_status != self._group_summary_status[group]:
             self._group_summary_status[group] = group_error_status
             # signal a group error status change
-            self._group_signal.emit(group, group_error_status)
+            self._group_signal.emit(self._category, group, group_error_status)
             logger.debug("signal a group error status change on %s", group)
+            self._set_global_error_status()
+
+    def _global_has_error(self) -> bool:
+        return True in self._group_summary_status.values()
+
+    def _set_global_error_status(self):
+        global_error_status = self._global_has_error()
+        if global_error_status != self._global_summary_status:
+            self._global_summary_status = global_error_status
+            self._global_signal.emit(self._category, global_error_status)
 
     def _attr_group_name(self, attr_full_name: str) -> tuple[str, str]:
         """Split a full dot-notated attribute name into group and attribute name.
@@ -232,7 +249,8 @@ class Model(QObject):
     command_response = pyqtSignal(str)
     data_received = pyqtSignal(dict)
     status_attribute_update = pyqtSignal(str, str, datetime)
-    status_group_update = pyqtSignal(str, bool)
+    status_group_update = pyqtSignal(int, str, bool)
+    status_global_update = pyqtSignal(int, bool)
 
     def __init__(self, parent: QObject | None = None) -> None:
         """
@@ -406,13 +424,17 @@ class Model(QObject):
         """Register status event updates."""
         # Create each of the status hiearchy objects
         self.status_warning_tree = StatusTreeHierarchy(
+            StatusTreeCategory.WARNING,
             self.status_attribute_update,
             self.status_group_update,
+            self.status_global_update,
             self.status_warning_attributes,
         )
         self.status_error_tree = StatusTreeHierarchy(
+            StatusTreeCategory.ERROR,
             self.status_attribute_update,
             self.status_group_update,
+            self.status_global_update,
             self.status_error_attributes,
         )
 
