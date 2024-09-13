@@ -39,7 +39,7 @@ loggers:
     handlers: []
     propogate: no
 
-  sculib:
+  ska-mid-ds-scu:
     level: INFO
     handlers: []
     propogate: no

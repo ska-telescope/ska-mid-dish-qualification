@@ -198,7 +198,7 @@ def configure_logging(default_log_level: int = logging.INFO) -> None:
     else:
         Path("logs").mkdir(parents=True, exist_ok=True)
         try:
-            logging.config.dictConfig(config)
+            logging.config.dictConfig(config)  # type: ignore
         except ValueError as e:
             print(f"{type(e).__name__}: '{e}'")
             print(

@@ -6,8 +6,7 @@ from typing import Any
 
 from PyQt6.QtCore import QCoreApplication, QObject, pyqtSignal
 
-from disq import configuration, model
-from disq.constants import Command, ResultCode
+from disq import Command, ResultCode, configuration, model
 
 logger = logging.getLogger("gui.controller")
 

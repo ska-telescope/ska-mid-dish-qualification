@@ -13,17 +13,17 @@ classifiers = [
 description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
 requires-python = ">=3.10"
 dependencies = [
-    "cryptography==41.0.7", # TODO, deprecation warning originating from asyncua
-    "asyncua>=1.1.0",
-    "PyQt6>=6.4.0",
-    "pyqt6-tools>=6.4.0",
+    "asyncua>=1.1.5",
+    "PyQt6>=6.4.2",
+    "pyqt6-tools>=6.4.2",
     # matplotlib and plotly are only used in the reader class.
     "matplotlib>=3.9.0",
-    "plotly>=5.23.0",
+    "plotly>=5.24.0",
     "pyyaml>=6.0.0",
     "h5py>=3.11.0",
     "numpy>=1.26.0",
-    "platformdirs>=4.2.0",
+    "platformdirs>=4.2.2",
+    "ska-mid-dish-steering-control @ git+https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git@main",
 ]
 license.file = "LICENSE"
 readme = "README.md"
@@ -104,17 +104,18 @@ url = "https://artefact.skao.int/repository/pypi-all/simple"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-cryptography = "41.0.7" # TODO, deprecation warning originating from asyncua
-asyncua = "^1.1.0"
-PyQt6 = "^6.4.0"
-pyqt6-tools = "^6.4.0"
+asyncua = "^1.1.5"
+PyQt6 = "^6.4.2"
+pyqt6-tools = "^6.4.2"
 # matplotlib and plotly are only used in the reader class.
 matplotlib = "^3.9.0"
-plotly = "^5.23.0"
+plotly = "^5.24.0"
 pyyaml = "^6.0.0"
 h5py = "^3.11.0"
 numpy = "^1.26.0"
-platformdirs = "^4.2.0"
+platformdirs = "^4.2.2"
+# ska-mid-dish-steering-control = { path = "../ska-mid-dish-steering-control", develop = true }
+ska-mid-dish-steering-control = { git = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git", branch = "main" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"

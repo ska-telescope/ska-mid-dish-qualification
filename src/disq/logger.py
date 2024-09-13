@@ -9,8 +9,7 @@ from typing import Final
 
 import h5py
 
-from disq import sculib
-from disq.constants import NamePlate
+from disq import NamePlate, SteeringControlUnit
 
 app_logger = logging.getLogger("datalog")
 
@@ -59,7 +58,7 @@ class Logger:
 
     def __init__(
         self,
-        high_level_library: sculib.SteeringControlUnit,
+        high_level_library: SteeringControlUnit,
         file_name: str = None,
     ):
         """

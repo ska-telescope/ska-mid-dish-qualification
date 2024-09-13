@@ -41,8 +41,6 @@ def disq_cetc_simulator_fixture(main_view: MainView) -> MainView:  # type: ignor
             "port": "4840",
             "endpoint": "/OPCUA/SimpleServer",
             "namespace": "CETC54",
-            "username": "LMC",
-            "password": "lmc",
         }
     )
     yield main_view

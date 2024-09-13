@@ -10,7 +10,8 @@ from typing import Any
 
 from asyncua import Node, ua
 
-from disq import configuration, sculib
+from disq import SteeringControlUnit, __version__, configuration
+from disq.constants import USER_CACHE_DIR
 from disq.serval_internal_server import SerValInternalServer
 
 
@@ -93,7 +94,7 @@ class OPCUAServerValidator:
         else:
             self.in_args = "InputArguments"
             self.out_args = "OutputArguments"
-        self.server: sculib.SteeringControlUnit
+        self.server: SteeringControlUnit
         self.event_loop: asyncio.AbstractEventLoop
 
     async def _run_internal_server(self, xml_file: str) -> None:
@@ -276,7 +277,7 @@ class OPCUAServerValidator:
         :param password: The password of the OPC UA server.
         :return: A dictionary representing the server tree.
         """
-        with sculib.SteeringControlUnit(
+        with SteeringControlUnit(
             host,
             int(port),
             endpoint,
@@ -284,6 +285,8 @@ class OPCUAServerValidator:
             username,
             password,
             gui_app=True,  # Only use the PLC_PRG node tree.
+            nodes_cache_dir=USER_CACHE_DIR,
+            app_name=f"DiSQ Server Validator v{__version__}",
         ) as server:
             self.server = server
             self.event_loop = self.server.event_loop
