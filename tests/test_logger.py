@@ -410,13 +410,19 @@ def test_nameplate_attributes(high_level_library: StubScu) -> None:
     logger.start()
     logger.stop()
     output_f_o = h5py.File(output_file, "r", libver="latest")
-    assert output_f_o.attrs["DishId"] == "Mock XML test server"
-    assert output_f_o.attrs["DishStructureSerialNo"] == "Mock serial number"
-    assert output_f_o.attrs["DscSoftwareVersion"] == "ds_icd_0.0.11_mock.xml"
-    assert output_f_o.attrs["IcdVersion"] == "2"
-    assert output_f_o.attrs["RunHours"] == 0.0
-    assert output_f_o.attrs["TotalDist_Az"] == 0.0
-    assert output_f_o.attrs["TotalDist_El_deg"] == 0.0
-    assert output_f_o.attrs["TotalDist_El_m"] == 0.0
-    assert output_f_o.attrs["TotalDist_Fi"] == 0.0
+    assert output_f_o.attrs["Management.NamePlate.DishId"] == "Mock XML test server"
+    assert (
+        output_f_o.attrs["Management.NamePlate.DishStructureSerialNo"]
+        == "Mock serial number"
+    )
+    assert (
+        output_f_o.attrs["Management.NamePlate.DscSoftwareVersion"]
+        == "ds_icd_0.0.11_mock.xml"
+    )
+    assert output_f_o.attrs["Management.NamePlate.IcdVersion"] == "2"
+    assert output_f_o.attrs["Management.NamePlate.RunHours"] == 0.0
+    assert output_f_o.attrs["Management.NamePlate.TotalDist_Az"] == 0.0
+    assert output_f_o.attrs["Management.NamePlate.TotalDist_El_deg"] == 0.0
+    assert output_f_o.attrs["Management.NamePlate.TotalDist_El_m"] == 0.0
+    assert output_f_o.attrs["Management.NamePlate.TotalDist_Fi"] == 0.0
     output_f_o.close()
