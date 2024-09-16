@@ -78,7 +78,9 @@ class Converter:
             elif self._node_d[node]["type"] == "String":
                 value = self._file_object[node]["Value"].asstr()[idx]
             elif self._node_d[node]["type"] == "Pointing.Status.CurrentPointing":
-                value = "|".join([str(x) for x in self._file_object[node]["Value"][idx]])
+                value = "|".join(
+                    [str(x) for x in self._file_object[node]["Value"][idx]]
+                )
 
             else:
                 value = str(self._file_object[node]["Value"][idx])

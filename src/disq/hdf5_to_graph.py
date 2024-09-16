@@ -119,6 +119,14 @@ class Grapher:
             for node in f.keys():
                 print(node)
 
+    def _allowed_type(self, fo: h5py.File, node: str) -> bool:
+        node_type = fo[node]["Value"].attrs["Type"]
+        if node_type in ["String", "Pointing.Status.CurrentPointing"]:
+            print(f"Cannot graph attribute {node}, type {node_type} is incompatible.")
+            return False
+
+        return True
+
     def _get_hdf5_data(
         self, fo: h5py.File, node: str, start: datetime, stop: datetime
     ) -> tuple:
@@ -234,9 +242,15 @@ class Grapher:
             start_dt = datetime.fromisoformat(start)
             stop_dt = datetime.fromisoformat(stop)
 
+            if not self._allowed_type(f, node1):
+                return
+
             y1_dts, y1_data, y1_categories = self._get_hdf5_data(
                 f, node1, start_dt, stop_dt
             )
+
+            if not self._allowed_type(f, node2):
+                node2 = None
 
             if node2 is not None:
                 y2_dts, y2_data, y2_categories = self._get_hdf5_data(

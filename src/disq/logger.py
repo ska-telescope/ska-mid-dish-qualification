@@ -129,7 +129,7 @@ class Logger:
                 app_logger.info(
                     "%s is automatically included as an attribute of the HDF5 root "
                     "group and will not be logged further.",
-                    node
+                    node,
                 )
                 continue
 
