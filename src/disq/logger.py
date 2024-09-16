@@ -20,41 +20,58 @@ class Logger:
 
     # Constants
     _CHUNK_SIZE_BYTES: Final = 4096
-    _CHUNK_DOUBLE: Final = 4096 / 8  # 512
-    _CHUNK_BOOL: Final = 4096 / 1
-    _CHUNK_ENUM: Final = 4096 / 4  # 1024
-    _CHUNK_CURRENT_POINTING: Final = int(4096 / (7 * 8))  # 73
+    _CHUNK_BOOL: Final = _CHUNK_SIZE_BYTES / 1  # A bool is 1 byte
+    _CHUNK_DOUBLE: Final = _CHUNK_SIZE_BYTES / 8  # 512
+    _CHUNK_ENUM: Final = _CHUNK_SIZE_BYTES / 4  # 1024
+    _CHUNK_CURRENT_POINTING: Final = int(_CHUNK_SIZE_BYTES / (7 * 8))  # 73
+    _CHUNK_STRING: Final = int(_CHUNK_SIZE_BYTES / 20)  # 204
+    _CHUNK_UINT16: Final = _CHUNK_SIZE_BYTES / 2  # 2048
+    _CHUNK_UINT32: Final = _CHUNK_SIZE_BYTES / 4  # 1024
     _CHUNKS_PER_FLUSH: Final = 2
-    _FLUSH_DOUBLE: Final = _CHUNK_DOUBLE * _CHUNKS_PER_FLUSH
     _FLUSH_BOOL: Final = _CHUNK_BOOL * _CHUNKS_PER_FLUSH
+    _FLUSH_DOUBLE: Final = _CHUNK_DOUBLE * _CHUNKS_PER_FLUSH
     _FLUSH_ENUM: Final = _CHUNK_ENUM * _CHUNKS_PER_FLUSH
     _FLUSH_CURRENT_POINTING: Final = _CHUNK_CURRENT_POINTING * _CHUNKS_PER_FLUSH
+    _FLUSH_STRING: Final = _CHUNK_STRING * _CHUNKS_PER_FLUSH
+    _FLUSH_UINT16: Final = _CHUNK_UINT16 * _CHUNKS_PER_FLUSH
+    _FLUSH_UINT32: Final = _CHUNK_UINT32 * _CHUNKS_PER_FLUSH
     _FLUSH_PERIOD_MSECS: Final = 5000
     _QUEUE_GET_TIMEOUT_SECS: Final = 0.01
     _COMPLETION_LOOP_TIMEOUT_SECS: Final = 0.01
     _HDF5_TYPE_FROM_VALUE_TYPE: Final = {
-        "Double": "f8",  # 64 bit double numpy type
         "Boolean": "?",
+        "Double": "f8",  # 64 bit double numpy type
         "Enumeration": "u4",  # 32 bit unsigned integer numpy type
         "Pointing.Status.CurrentPointing": "(7,)f8",
+        "String": "S20",  # 19 character zero-terminated bytes (IPv4 address)
+        "UInt16": "u2",
+        "UInt32": "u4",
     }
     _CHUNKS_FROM_VALUE_TYPE: Final = {
-        "Double": _CHUNK_DOUBLE,
         "Boolean": _CHUNK_BOOL,
+        "Double": _CHUNK_DOUBLE,
         "Enumeration": _CHUNK_ENUM,
         "Pointing.Status.CurrentPointing": _CHUNK_CURRENT_POINTING,
+        "String": _CHUNK_STRING,
+        "UInt16": _CHUNK_UINT16,
+        "UInt32": _CHUNK_UINT32,
     }
     _FLUSH_FROM_VALUE_TYPE: Final = {
-        "Double": _FLUSH_DOUBLE,
         "Boolean": _FLUSH_BOOL,
+        "Double": _FLUSH_DOUBLE,
         "Enumeration": _FLUSH_ENUM,
         "Pointing.Status.CurrentPointing": _FLUSH_CURRENT_POINTING,
+        "String": _FLUSH_STRING,
+        "UInt16": _FLUSH_UINT16,
+        "UInt32": _FLUSH_UINT32,
     }
     _TOTAL_COUND_IDX: Final = 0
     _TYPE_IDX: Final = 1
     _COUNT_IDX: Final = 2
     _TIMESTAMP_IDX: Final = 3
     _VALUE_IDX: Final = 4
+
+    _ROOT_ATTRIBUTES: Final = [e.value for e in NamePlate]
 
     def __init__(
         self,
@@ -108,8 +125,19 @@ class Logger:
                 )
                 continue
 
+            if node in self._ROOT_ATTRIBUTES:
+                app_logger.info(
+                    "%s is automatically included as an attribute of the HDF5 root "
+                    "group and will not be logged further.",
+                    node
+                )
+                continue
+
             node_strings = self.hll.get_attribute_data_type(node)
             node_type = node_strings.pop(0)
+            if node_type == "Float":
+                node_type = "Double"
+
             if node_type not in self._HDF5_TYPE_FROM_VALUE_TYPE:
                 app_logger.info(
                     'Unsupported type for "%s": "%s"; skipping. '
@@ -142,7 +170,6 @@ class Logger:
         """
         for node in NamePlate:
             node_string = node.value
-            node_short = node_string.rsplit(".", 1)[1]
             try:
                 value = self.hll.attributes[node_string].value  # type: ignore
             except KeyError:
@@ -150,11 +177,11 @@ class Logger:
                     "WARNING: node %s is not available on the server. "
                     "HDF5 file will not contain %s.",
                     node_string,
-                    node_short,
+                    node_string,
                 )
             else:
                 try:
-                    self.file_object.attrs.create(node_short, value)
+                    self.file_object.attrs.create(node_string, value)
                 except TypeError as e:
                     app_logger.error(
                         "ERROR: Could not create attr for %s; %s",
