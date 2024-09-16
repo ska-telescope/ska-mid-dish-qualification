@@ -108,7 +108,8 @@ class Logger:
                 )
                 continue
 
-            node_type = self.hll.get_attribute_data_type(node)
+            node_strings = self.hll.get_attribute_data_type(node)
+            node_type = node_strings.pop(0)
             if node_type not in self._HDF5_TYPE_FROM_VALUE_TYPE:
                 app_logger.info(
                     'Unsupported type for "%s": "%s"; skipping. '
@@ -122,11 +123,15 @@ class Logger:
                 app_logger.info(
                     "Updating period for node %s from %d to %d.",
                     node,
-                    self._nodes[node],
+                    self._nodes[node]["Period"],
                     period,
                 )
 
-            self._nodes[node] = period
+            node_data = {"Period": period, "Type": node_type}
+            if node_type == "Enumeration":
+                node_data["Enum strings"] = node_strings
+
+            self._nodes[node] = node_data
 
     def _build_hdf5_structure(self) -> None:
         """
@@ -157,7 +162,7 @@ class Logger:
                         e,
                     )
 
-        for node in self._nodes:
+        for node, data in self._nodes.items():
             # One group per node containing a single dataset for each of
             # SourceTimestamp, Value
             group = self.file_object.create_group(node)
@@ -174,7 +179,7 @@ class Logger:
                 "Info", "Source Timestamp; time since Unix epoch."
             )
 
-            value_type = self.hll.get_attribute_data_type(node)
+            value_type = data["Type"]
             dtype = self._HDF5_TYPE_FROM_VALUE_TYPE[value_type]
             value_chunks = self._CHUNKS_FROM_VALUE_TYPE[value_type]
             value_dataset = group.create_dataset(
@@ -190,7 +195,7 @@ class Logger:
             value_dataset.attrs.create("Type", value_type)
             if value_type == "Enumeration":
                 value_dataset.attrs.create(
-                    "Enumerations", ",".join(self.hll.get_enum_strings(node))
+                    "Enumerations", ",".join(data["Enum strings"])
                 )
 
             # While here create cache structure per node.
@@ -211,12 +216,12 @@ class Logger:
         """
         # Sort added nodes into lists per period
         period_dict = {}
-        for node, period in self._nodes.items():
-            if period in period_dict:
-                period_dict[period].append(node)
-            else:
+        for node, data in self._nodes.items():
+            period = data["Period"]
+            if period not in period_dict:
                 period_dict[period] = []
-                period_dict[period].append(node)
+
+            period_dict[period].append(node)
 
         # Start to fill queue
         self.start_time = datetime.now(timezone.utc)

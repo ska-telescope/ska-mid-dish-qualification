@@ -147,23 +147,6 @@ class OPCUAServerValidator:
 
         return (name, node_class, children)
 
-    def _get_param_type_tuple(self, node_id: ua.uatypes.NodeId) -> tuple:
-        """
-        Get the parameter type tuple for a given NodeId.
-
-        :param node_id: The NodeId of the parameter.
-        :return: A tuple containing the parameter type and additional information if the
-            type is 'Enumeration'.
-        """
-        param_type = self.server.get_attribute_data_type(node_id)
-        if param_type == "Enumeration":
-            return (
-                param_type,
-                ",".join(self.server.get_enum_strings(node_id)),
-            )
-
-        return (param_type,)
-
     def _get_method_info(self, node: Node) -> dict:
         """
         Get information about the method associated with a Node.
@@ -182,7 +165,7 @@ class OPCUAServerValidator:
         args = {}
         if params is not None:
             for param in params:
-                args[param.Name] = self._get_param_type_tuple(param.DataType)
+                args[param.Name] = self._read_data_type_tuple(param.DataType)
 
         return args
 
@@ -203,13 +186,14 @@ class OPCUAServerValidator:
         :return: A tuple containing the data type information.
         """
         try:
-            data_type = self.server.get_attribute_data_type(sculib_path)
+            type_strings = self.server.get_attribute_data_type(sculib_path)
+            data_type = type_strings.pop(0)
         except Exception:  # pylint: disable=broad-exception-caught
             return ("Node name error",)
         if data_type == "Enumeration":
             return (
                 data_type,
-                ",".join(self.server.get_enum_strings(sculib_path)),
+                ",".join(type_strings),
             )
 
         return (data_type,)
