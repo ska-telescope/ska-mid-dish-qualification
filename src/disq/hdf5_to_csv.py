@@ -6,6 +6,8 @@ from typing import Any, Final
 
 import h5py
 
+from disq.constants import CURRENT_POINTING_NODE
+
 # TODO: This class could use some refactoring. There is no __init__, so the only public
 # method make_csv() can be decorated as a static method and the private methods as class
 # methods.
@@ -77,7 +79,7 @@ class Converter:
                 ]
             elif self._node_d[node]["type"] == "String":
                 value = self._file_object[node]["Value"].asstr()[idx]
-            elif self._node_d[node]["type"] == "Pointing.Status.CurrentPointing":
+            elif self._node_d[node]["type"] == CURRENT_POINTING_NODE:
                 value = "|".join(
                     [str(x) for x in self._file_object[node]["Value"][idx]]
                 )

@@ -6,6 +6,8 @@ from typing import Callable
 import h5py
 from matplotlib import axes, dates, pyplot
 
+from disq.constants import CURRENT_POINTING_NODE
+
 
 # pylint: disable=consider-using-f-string
 def make_format(
@@ -121,7 +123,7 @@ class Grapher:
 
     def _allowed_type(self, fo: h5py.File, node: str) -> bool:
         node_type = fo[node]["Value"].attrs["Type"]
-        if node_type in ["String", "Pointing.Status.CurrentPointing"]:
+        if node_type in ["String", CURRENT_POINTING_NODE]:
             print(f"Cannot graph attribute {node}, type {node_type} is incompatible.")
             return False
 

@@ -9,7 +9,8 @@ from typing import Final
 
 import h5py
 
-from disq import NamePlate, SteeringControlUnit
+from disq import SteeringControlUnit
+from disq.constants import CURRENT_POINTING_NODE, NamePlate
 
 app_logger = logging.getLogger("datalog")
 
@@ -42,7 +43,7 @@ class Logger:
         "Boolean": "?",
         "Double": "f8",  # 64 bit double numpy type
         "Enumeration": "u4",  # 32 bit unsigned integer numpy type
-        "Pointing.Status.CurrentPointing": "(7,)f8",
+        CURRENT_POINTING_NODE: "(7,)f8",
         "String": "S20",  # 19 character zero-terminated bytes (IPv4 address)
         "UInt16": "u2",
         "UInt32": "u4",
@@ -51,7 +52,7 @@ class Logger:
         "Boolean": _CHUNK_BOOL,
         "Double": _CHUNK_DOUBLE,
         "Enumeration": _CHUNK_ENUM,
-        "Pointing.Status.CurrentPointing": _CHUNK_CURRENT_POINTING,
+        CURRENT_POINTING_NODE: _CHUNK_CURRENT_POINTING,
         "String": _CHUNK_STRING,
         "UInt16": _CHUNK_UINT16,
         "UInt32": _CHUNK_UINT32,
@@ -60,7 +61,7 @@ class Logger:
         "Boolean": _FLUSH_BOOL,
         "Double": _FLUSH_DOUBLE,
         "Enumeration": _FLUSH_ENUM,
-        "Pointing.Status.CurrentPointing": _FLUSH_CURRENT_POINTING,
+        CURRENT_POINTING_NODE: _FLUSH_CURRENT_POINTING,
         "String": _FLUSH_STRING,
         "UInt16": _FLUSH_UINT16,
         "UInt32": _FLUSH_UINT32,
