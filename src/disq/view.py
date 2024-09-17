@@ -693,6 +693,11 @@ class MainView(QtWidgets.QMainWindow):
 
         :param event: A dictionary containing event data.
         """
+        if event["value"] is None:
+            logger.warning(
+                "View: data update: %s value=%s", event["name"], event["value"]
+            )
+            return  # This prevents exceptions from trying to cast 'None' to int
         logger.debug("View: data update: %s value=%s", event["name"], event["value"])
         # Get the widget update method from the dict of opcua widgets
         widgets = self.opcua_widgets[event["name"]][0]

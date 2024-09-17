@@ -15,6 +15,7 @@
 - Bug fixes:
     - WOM-235: Fix track table get details string list index out of range.
     - WOM-428: Various small bugs in GUI and other GUI improvements.
+    - WOM-471: Prevent DiSQ crashing when resetting the PLC it's connected to.
 
 ## 0.4.0
 
