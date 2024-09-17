@@ -81,7 +81,6 @@ class Converter:
                 value = "|".join(
                     [str(x) for x in self._file_object[node]["Value"][idx]]
                 )
-
             else:
                 value = str(self._file_object[node]["Value"][idx])
 
