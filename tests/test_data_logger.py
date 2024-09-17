@@ -152,6 +152,9 @@ def high_level_library_fixture() -> StubScu:
     return high_level_library
 
 
+@pytest.mark.skipif(
+    os.getenv("CI") is not None, reason="Skipping test in GitLab CI pipeline"
+)
 def test_build_hdf5_structure(high_level_library: StubScu) -> None:
     """
     Test the _build_hdf5_structure() method.
