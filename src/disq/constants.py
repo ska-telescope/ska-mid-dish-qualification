@@ -9,9 +9,30 @@ from platformdirs import user_cache_dir
 # Constants
 USER_CACHE_DIR: Final = Path(user_cache_dir(appauthor="SKAO", appname="disq"))
 SUBSCRIPTION_RATE_MS: Final = 100
+CURRENT_POINTING_NODE = "Pointing.Status.CurrentPointing"
 
 
 # Enumerations
+class NamePlate(Enum):
+    """
+    Nodes used for DSC lifetime and identification.
+
+    This needs to be kept up to date with the ICD.
+    """
+
+    DISH_ID = "Management.NamePlate.DishId"
+    DISH_STRUCTURE_SERIAL_NO = "Management.NamePlate.DishStructureSerialNo"
+    DSC_SOFTWARE_VERSION = "Management.NamePlate.DscSoftwareVersion"
+    ICD_VERSION = "Management.NamePlate.IcdVersion"
+    RUN_HOURS = "Management.NamePlate.RunHours"
+    TOTAL_DIST_AZ = "Management.NamePlate.TotalDist_Az"
+    TOTAL_DIST_EL_DEG = "Management.NamePlate.TotalDist_El_deg"
+    TOTAL_DIST_EL_M = "Management.NamePlate.TotalDist_El_m"
+    TOTAL_DIST_FI = "Management.NamePlate.TotalDist_Fi"
+    TILTMETER_ONE_SERIAL_NO = "Pointing.TiltmeterParameters.One.Tiltmeter_serial_no"
+    TILTMETER_TWO_SERIAL_NO = "Pointing.TiltmeterParameters.Two.Tiltmeter_serial_no"
+
+
 class NodesStatus(Enum):
     """Nodes status."""
 

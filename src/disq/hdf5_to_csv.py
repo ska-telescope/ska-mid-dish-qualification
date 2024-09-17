@@ -6,6 +6,8 @@ from typing import Any, Final
 
 import h5py
 
+from disq.constants import CURRENT_POINTING_NODE
+
 # TODO: This class could use some refactoring. There is no __init__, so the only public
 # method make_csv() can be decorated as a static method and the private methods as class
 # methods.
@@ -71,10 +73,16 @@ class Converter:
             before = after
             # Get the value at the new idx as a string
             value = ""
-            if self._node_d[node]["type"] == "enum":
+            if self._node_d[node]["type"] == "Enumeration":
                 value = self._node_d[node]["enums"][
                     self._file_object[node]["Value"][idx]
                 ]
+            elif self._node_d[node]["type"] == "String":
+                value = self._file_object[node]["Value"].asstr()[idx]
+            elif self._node_d[node]["type"] == CURRENT_POINTING_NODE:
+                value = "|".join(
+                    [str(x) for x in self._file_object[node]["Value"][idx]]
+                )
             else:
                 value = str(self._file_object[node]["Value"][idx])
 
@@ -130,7 +138,7 @@ class Converter:
                 "current": None,
                 "next": None,
             }
-            if node_type == "enum":
+            if node_type == "Enumeration":
                 self._node_d[node]["enums"] = (
                     self._file_object[node]["Value"].attrs["Enumerations"].split(",")
                 )

@@ -12,6 +12,7 @@
     - WOM-418: Update mock test server to version 2 of ICD.
     - WOM-450: Move configure_logging to configuration module.
     - WOM-471: Swop sculib with ska-mid-dish-steering-control package and update dependencies (asyncua 1.1.5).
+    - WOM-480: Add more allowed OPCUA types to data logger.
 - Bug fixes:
     - WOM-235: Fix track table get details string list index out of range.
     - WOM-428: Various small bugs in GUI and other GUI improvements.
