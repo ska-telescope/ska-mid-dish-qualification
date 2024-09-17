@@ -3,7 +3,7 @@ requires = ["setuptools>=70", "setuptools_scm[toml]>=8.1", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "DiSQ"
+name = "ska-mid-disq"
 version = "0.4.0"
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -58,12 +58,12 @@ dev = [
 ]
 
 [project.scripts]
-disq-gui = "disq.mvcmain:main"
-disq-validate-server = "disq.server_validator:main"
+disq-gui = "ska_mid_disq.mvcmain:main"
+disq-validate-server = "ska_mid_disq.server_validator:main"
 
 [project.urls]
-GitLab = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
-source = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
+GitLab = "https://gitlab.com/ska-telescope/ska-mid-disq"
+source = "https://gitlab.com/ska-telescope/ska-mid-disq"
 
 [[project.authors]] # Further authors may be added by duplicating this section
 email = "Thomas.Juerges@skao.int"
@@ -80,7 +80,7 @@ name = "Jarrett Engelbrecht"
 
 [tool.poetry]
 include = ["MANIFEST.skao.int"]
-name = "DiSQ"
+name = "ska-mid-disq"
 version = "0.4.0"
 description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
 authors = [
@@ -91,12 +91,12 @@ authors = [
 ]
 license = "BSD-3-Clause"
 readme = "README.md"
-repository = "https://gitlab.com/ska-telescope/ska-mid-dish-qualification"
-documentation = "https://developer.skatelescope.org/projects/ska-mid-dish-qualification"
+repository = "https://gitlab.com/ska-telescope/ska-mid-disq"
+documentation = "https://developer.skatelescope.org/projects/ska-mid-disq"
 
 [tool.poetry.scripts]
-disq-gui = "disq.mvcmain:main"
-disq-validate-server = "disq.server_validator:main"
+disq-gui = "ska_mid_disq.mvcmain:main"
+disq-validate-server = "ska_mid_disq.server_validator:main"
 
 [[tool.poetry.source]]
 name = "ska"

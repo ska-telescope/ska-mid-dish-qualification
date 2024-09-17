@@ -8,10 +8,10 @@ import sys
 from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QApplication
 
-from disq.configuration import configure_logging
-from disq.controller import Controller
-from disq.model import Model
-from disq.view import MainView
+from ska_mid_disq.configuration import configure_logging
+from ska_mid_disq.controller import Controller
+from ska_mid_disq.model import Model
+from ska_mid_disq.view import MainView
 
 logger = logging.getLogger("gui.main")
 

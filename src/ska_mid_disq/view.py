@@ -13,8 +13,8 @@ from typing import Any, Callable, Final
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import QColor
 
-from disq import __version__, controller, model
-from disq.constants import NodesStatus, StatusTreeCategory
+from ska_mid_disq import __version__, controller, model
+from ska_mid_disq.constants import NodesStatus, StatusTreeCategory
 
 logger = logging.getLogger("gui.view")
 

@@ -1,9 +1,9 @@
-# Dish Structure Qualification (DiSQ)
+# SKA-Mid Dish Structure Qualification (DiSQ)
 
-This repository: `ska-mid-dish-qualification` contain the source code for the Dish Structure Qualification software, known as "DiSQ" in everyday terminology. 
+This repository contains the source code for the Dish Structure Qualification software, known as "DiSQ" in everyday terminology. 
 
 ## Description
-DiSQ enables engineers and scientists to control and qualify observatory dish structures for the SKAO MID telescope. The dish structures will be delivered with a PLC based control system which provides an OPC-UA interface for external control and monitoring. The DiSQ software communicates with the PLC via this interface and provides the users with:
+DiSQ enables engineers and scientists to control and qualify observatory dish structures for the SKA-Mid telescope. The dish structures will be delivered with a PLC based control system which provides an OPC-UA interface for external control and monitoring. The DiSQ software communicates with the PLC via this interface and provides the users with:
 
 * A GUI application for easy control and monitoring of key features.
 * A Python API intended for performing complex operations such as tracking for verification of the dish structure, intended to be used in Jupyter notebooks.
@@ -23,31 +23,31 @@ source .venv/bin/activate
 ### For users
 Users can easily install the latest development build directly from the project's package registry: 
 ```
-pip install disq --index-url https://gitlab.com/api/v4/projects/47618837/packages/pypi/simple
+pip install ska-mid-disq --index-url https://gitlab.com/api/v4/projects/47618837/packages/pypi/simple
 ```
 
 In other words, users should not keep a git clone and pull from main anymore to get the latest changes,
 just python and pip needs to be installed. Installing the pre-built package is recommemded 
 because it will display an accurate version number containing the relevant short commit hash, 
 such as  `0.4.0+dev.c68862160`. This helps the developers when providing support.
-To check the currently installed version, use `pip show disq`.
+To check the currently installed version, use `pip show ska-mid-disq`.
 
 Users can also install the latest stable release from the SKAO central artefact repository: 
 ```
-pip install disq --index-url https://artefact.skao.int/repository/pypi-all/simple
+pip install ska-mid-disq --index-url https://artefact.skao.int/repository/pypi-all/simple
 ```
 
 Alternatively, if given a packaged wheel (`.whl`) from the developers: `pip install <package-name-version>.whl`
 
 If you want to install a newer build in an existing evironment, you might need to first 
-uninstall the existing version using `pip uninstall disq`. This should only be necessary
+uninstall the existing version using `pip uninstall ska-mid-disq`. This should only be necessary
 if the currently installed version is a recent development build based on the same 
 tagged release as the one you are trying to install. 
 
 ### For developers
 Assuming you have your ssh keys setup in gitlab and access to the repo, first clone the repo:
 ```
-git clone --recurse-submodules git@gitlab.com:ska-telescope/ska-mid-dish-qualification.git
+git clone --recurse-submodules git@gitlab.com:ska-telescope/ska-mid-disq.git
 ```
 
 Then install as an ["editable" development installation](https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs):
@@ -114,18 +114,18 @@ The GUI application will search for the configuration file in the following orde
 * First the current working directory (CWD) is searched for a `disq.ini` file.
 * Then the environment variable `DISQ_CONFIG` is scanned for the existence of a file (any filename)
 * Finally the users data directory is scanned for a `disq.ini` file. This is cross-platform compatible using [platformdirs](https://pypi.org/project/platformdirs/):
-  * Windows: /Users/your-username/AppData/Local/disq
+  * Windows: /Users/your-username/AppData/Local/SKAO/disq
   * Ubuntu: /home/your-username/.config/disq
   * MacOS: /Users/your-username/Library/Application Support/disq
 
 An example `disq.ini` file is provided in the root directory of the source distribution of this repo.
 
 ### Application Logs
-DiSQ uses Python logging to log and output or record debug/info/warning/error messages. The logging comes pre-configured in `src/disq/default_logging_config.yaml` but this default configuration can be overridden by a custom configuration if a file named `disq_logging_config.yaml` is found in the current working directory (CWD) when starting the app. 
+DiSQ uses Python logging to log and output or record debug/info/warning/error messages. The logging comes pre-configured in `src/ska_mid_disq/default_logging_config.yaml` but this default configuration can be overridden by a custom configuration if a file named `disq_logging_config.yaml` is found in the current working directory (CWD) when starting the app. 
 
 To tweak the default configuration, for example to switch to debug level, simply copy and rename the default logging config and make the required modifications to the copy:
 ```
-cp src/disq/default_logging_config.yaml disq_logging_config.yaml
+cp src/ska_mid_disq/default_logging_config.yaml disq_logging_config.yaml
 ```
 
 ### Powershell Logs
@@ -137,11 +137,9 @@ to easily create logs of git commands run in a Windows powershell.
 WARNING: This will only work with commands that output to the terminal. Commands that open a text editor will not behave correctly.
 
 ## Testing
-
 At the time of writing, manual exploratory testing of the GUI application is done against the latest CETC54 simulator, which lags behind the current ICD version.
 
 ### Regression tests
-
 Some regression tests with limited coverage are run as part of the CI/CD pipeline. If you have a development installation, these test should always be run locally with `make python-test` before pushing any commits.
 
 The GUI tests mock the `model.run_opcua_command` method, so no simulator is involved other than the basic `DSSimulatorOPCUAServer` for the Logger's tests. This is what is done in the CI job.

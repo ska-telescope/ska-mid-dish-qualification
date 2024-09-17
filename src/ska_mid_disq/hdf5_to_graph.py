@@ -6,7 +6,7 @@ from typing import Callable
 import h5py
 from matplotlib import axes, dates, pyplot
 
-from disq.constants import CURRENT_POINTING_NODE
+from ska_mid_disq.constants import CURRENT_POINTING_NODE
 
 
 # pylint: disable=consider-using-f-string

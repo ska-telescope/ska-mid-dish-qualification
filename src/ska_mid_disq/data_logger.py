@@ -1,4 +1,4 @@
-"""DiSQ logger."""
+"""DiSQ data logger."""
 
 import logging
 import os
@@ -9,14 +9,14 @@ from typing import Final
 
 import h5py
 
-from disq import SteeringControlUnit
-from disq.constants import CURRENT_POINTING_NODE, NamePlate
+from ska_mid_disq import SteeringControlUnit
+from ska_mid_disq.constants import CURRENT_POINTING_NODE, NamePlate
 
 app_logger = logging.getLogger("datalog")
 
 
 # pylint: disable=too-many-instance-attributes
-class Logger:
+class DataLogger:
     """Data logger class for DiSQ software."""
 
     # Constants

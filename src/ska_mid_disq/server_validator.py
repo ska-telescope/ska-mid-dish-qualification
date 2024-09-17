@@ -10,9 +10,9 @@ from typing import Any
 
 from asyncua import Node, ua
 
-from disq import SteeringControlUnit, __version__, configuration
-from disq.constants import USER_CACHE_DIR
-from disq.serval_internal_server import SerValInternalServer
+from ska_mid_disq import SteeringControlUnit, __version__, configuration
+from ska_mid_disq.constants import USER_CACHE_DIR
+from ska_mid_disq.serval_internal_server import SerValInternalServer
 
 
 # pylint: disable=too-many-instance-attributes

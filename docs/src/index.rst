@@ -27,9 +27,9 @@ DiSQ enables engineers and scientists to control and qualify observatory dish st
    :caption: Reference
 
    Dish Steering Control Unit (SCU)<api/sculib>
-   Dish OPC UA Server Validator<api/server_validator>
+   Dish OPC UA Server Validator<api/server-validator>
    DiSQ Configuration<api/configuration>
-   DiSQ Data Logger<api/logger>
+   DiSQ Data Logger<api/data-logger>
    
 .. toctree::
    :titlesonly:

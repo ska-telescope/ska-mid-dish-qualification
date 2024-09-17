@@ -2,5 +2,5 @@
 Dish Structure Controller OPC UA Server Validator
 =================================================
 
-.. autoclass:: disq.OPCUAServerValidator
+.. autoclass:: ska_mid_disq.OPCUAServerValidator
    :members:

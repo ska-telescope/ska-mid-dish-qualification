@@ -5,8 +5,8 @@ from time import sleep
 import pytest
 from PyQt6 import QtWidgets
 
-from disq import Command
-from disq.view import MainView
+from ska_mid_disq import Command
+from ska_mid_disq.view import MainView
 
 
 @pytest.fixture(name="disq_app")

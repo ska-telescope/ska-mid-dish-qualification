@@ -11,14 +11,20 @@ from typing import Any, Callable, Final, Type
 
 from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
-from disq import CmdReturn, Command, ResultCode, SteeringControlUnit, __version__
-from disq.constants import (
+from ska_mid_disq import (
+    CmdReturn,
+    Command,
+    DataLogger,
+    ResultCode,
+    SteeringControlUnit,
+    __version__,
+)
+from ska_mid_disq.constants import (
     SUBSCRIPTION_RATE_MS,
     USER_CACHE_DIR,
     NodesStatus,
     StatusTreeCategory,
 )
-from disq.logger import Logger
 
 logger = logging.getLogger("gui.model")
 
@@ -257,7 +263,7 @@ class Model(QObject):
         """
         super().__init__(parent)
         self._scu: SteeringControlUnit | None = None
-        self._data_logger: Logger | None = None
+        self._data_logger: DataLogger | None = None
         self._recording_config: list[str] = []
         self.subscription_rate_ms = SUBSCRIPTION_RATE_MS
         self._event_q_poller: QueuePollThread | None = None
@@ -590,7 +596,7 @@ class Model(QObject):
         if self._data_logger is not None:
             raise RuntimeError("Data logger already exist")
         logger.debug("Creating Logger and file: %s", filename.absolute())
-        self._data_logger = Logger(self._scu, str(filename.absolute()))
+        self._data_logger = DataLogger(self._scu, str(filename.absolute()))
         self._data_logger.add_nodes(
             self.recording_config,
             period=50,

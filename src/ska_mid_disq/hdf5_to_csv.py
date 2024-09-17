@@ -6,7 +6,7 @@ from typing import Any, Final
 
 import h5py
 
-from disq.constants import CURRENT_POINTING_NODE
+from ska_mid_disq.constants import CURRENT_POINTING_NODE
 
 # TODO: This class could use some refactoring. There is no __init__, so the only public
 # method make_csv() can be decorated as a static method and the private methods as class

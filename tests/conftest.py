@@ -4,9 +4,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from disq.controller import Controller
-from disq.model import Model
-from disq.view import MainView
+from ska_mid_disq.controller import Controller
+from ska_mid_disq.model import Model
+from ska_mid_disq.view import MainView
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:

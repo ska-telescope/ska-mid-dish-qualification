@@ -4,12 +4,9 @@
 # Distributed under the terms of the BSD 3-clause new license.
 # See LICENSE for more info.
 
-PROJECT = DiSQ
-
 include .make/base.mk
-# include .make/raw.mk
 
-# -include PrivateRules.mak
+-include PrivateRules.mak
 
 #######################################
 # PYTHON
