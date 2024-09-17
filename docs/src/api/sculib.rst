@@ -10,14 +10,14 @@ calling methods on it, reading or writing attributes.
 How to use SCU
 --------------
 
-The simplest way to initialise a :class:`~disq.SteeringControlUnit`, is to use the :meth:`~disq.SCU`
+The simplest way to initialise a :class:`~ska_mid_disq.SteeringControlUnit`, is to use the :meth:`~ska_mid_disq.SCU`
 object generator method. It creates an instance, connects to the server, and can also
 take command authority immediately. Provided here are some of the defaults which can be
 overwritten by specifying the named parameter:
 
 .. code-block:: python
 
-    from disq import SCU
+    from ska_mid_disq import SCU
     scu = SCU(
         host="localhost",
         port=4840,
@@ -29,41 +29,41 @@ overwritten by specifying the named parameter:
     # Do things with the scu instance..
     scu.disconnect_and_cleanup()
 
-Altenatively the :class:`~disq.SteeringControlUnit` class can be used directly as a context
+Altenatively the :class:`~ska_mid_disq.SteeringControlUnit` class can be used directly as a context
 manager without calling the teardown method explicitly:
 
 .. code-block:: python
 
-    from disq import SteeringControlUnit
+    from ska_mid_disq import SteeringControlUnit
     with SteeringControlUnit(host="localhost") as scu:
         scu.take_authority("LMC")
 
 Finally, the third and most complete option to initialise and connect a
-:class:`~disq.SteeringControlUnit`, is to use the :meth:`~disq.SCU_from_config` object 
+:class:`~ska_mid_disq.SteeringControlUnit`, is to use the :meth:`~ska_mid_disq.SCU_from_config` object 
 generator method, which will:
 
 - Read the server address/port/namespace from the configuration file.
 - Configure logging.
-- Create (and return) the :class:`~disq.SteeringControlUnit` object.
+- Create (and return) the :class:`~ska_mid_disq.SteeringControlUnit` object.
 - Connect to the server.
 - Take authority if requested.
 
 .. code-block:: python
 
-    from disq import SCU_from_config
+    from ska_mid_disq import SCU_from_config
     scu = SCU_from_config("cetc54_simulator", authority_name="LMC")
     # Do things with the scu instance..
     scu.disconnect_and_cleanup()
 
 All nodes from and including the PLC_PRG node are stored in the nodes dictionary:
-:attr:`~disq.SteeringControlUnit.nodes`. The keys are the full node names, the values 
+:attr:`~ska_mid_disq.SteeringControlUnit.nodes`. The keys are the full node names, the values 
 are the Node objects. The full names of all nodes can be retrieved with:
 
 .. code-block:: python
 
     scu.get_node_list()
 
-Every value in :attr:`~disq.SteeringControlUnit.nodes` exposes the full OPC UA functionality for a node.
+Every value in :attr:`~ska_mid_disq.SteeringControlUnit.nodes` exposes the full OPC UA functionality for a node.
 Note: When accessing nodes directly, it is mandatory to await any calls:
 
 .. code-block:: python
@@ -72,7 +72,7 @@ Note: When accessing nodes directly, it is mandatory to await any calls:
     node_name = (await node.read_display_name()).Text
 
 The command methods that are below the PLC_PRG node's hierarchy can be accessed through
-the :attr:`~disq.SteeringControlUnit.commands` dictionary:
+the :attr:`~ska_mid_disq.SteeringControlUnit.commands` dictionary:
 
 .. code-block:: python
 
@@ -87,12 +87,12 @@ calling a command is really simple:
 
     result = scu.commands["COMMAND_NAME"](YOUR_PARAMETERS)
 
-You can also use the :class:`~disq.Command` enum, as well as the helper method for 
+You can also use the :class:`~ska_mid_disq.Command` enum, as well as the helper method for 
 converting types from the OPC UA server to the correct base integer type:
 
 .. code-block:: python
 
-    from disq import Command
+    from ska_mid_disq import Command
     axis = scu.convert_enum_to_int("AxisSelectType", "Az")
     result = scu.commands[Command.ACTIVATE.value](axis)
 
@@ -103,7 +103,7 @@ For instance, command the PLC to slew to a new position:
     az = 182.0; el = 21.8; az_v = 1.2; el_v = 2.1
     code, msg, _ = scu.commands[Command.SLEW2ABS_AZ_EL.value](az, el, az_v, el_v)
 
-The OPC UA server also provides read-writeable and read-only :attr:`~disq.SteeringControlUnit.attributes`. 
+The OPC UA server also provides read-writeable and read-only :attr:`~ska_mid_disq.SteeringControlUnit.attributes`. 
 An attribute's value can easily be read:
 
 .. code-block:: python
@@ -122,28 +122,28 @@ In case an attribute is not writeable, the OPC UA server will report an error:
 `*** Exception caught: User does not have permission to perform the requested operation.
 (BadUserAccessDenied)`
 
-.. Include the publicly exposed functions and classes as in src/disq/__init_.py
+.. Include the publicly exposed functions and classes as in src/ska_mid_disq/__init_.py
 
 SteeringControlUnit class
 -------------------------
 
-.. autoclass:: disq.SteeringControlUnit
+.. autoclass:: ska_mid_disq.SteeringControlUnit
    :members:
 
 SCU generator methods
 ---------------------
 
-.. autofunction:: disq.SCU
+.. autofunction:: ska_mid_disq.SCU
 
-.. autofunction:: disq.SCU_from_config
+.. autofunction:: ska_mid_disq.SCU_from_config
 
 Enum classes
 ------------
 
-.. autoclass:: disq.Command
+.. autoclass:: ska_mid_disq.Command
    :members:
    :undoc-members:
 
-.. autoclass:: disq.ResultCode
+.. autoclass:: ska_mid_disq.ResultCode
    :members:
    :undoc-members:

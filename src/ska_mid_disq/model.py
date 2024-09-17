@@ -11,14 +11,20 @@ from typing import Any, Callable, Final, Type
 
 from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
 
-from disq import CmdReturn, Command, ResultCode, SteeringControlUnit, __version__
-from disq.constants import (
+from ska_mid_disq import (
+    CmdReturn,
+    Command,
+    ResultCode,
+    SteeringControlUnit,
+    __version__,
+)
+from ska_mid_disq.constants import (
     SUBSCRIPTION_RATE_MS,
     USER_CACHE_DIR,
     NodesStatus,
     StatusTreeCategory,
 )
-from disq.logger import Logger
+from ska_mid_disq.logger import Logger
 
 logger = logging.getLogger("gui.model")
 

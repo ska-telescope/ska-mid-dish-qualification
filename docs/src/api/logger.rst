@@ -2,5 +2,5 @@
 DiSQ Data Logger
 ================
 
-.. autoclass:: disq.Logger
+.. autoclass:: ska_mid_disq.Logger
    :members:

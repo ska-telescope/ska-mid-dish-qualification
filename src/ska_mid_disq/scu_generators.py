@@ -2,8 +2,8 @@
 
 import logging
 
-from disq import SCU, SteeringControlUnit, configuration
-from disq.constants import USER_CACHE_DIR
+from ska_mid_disq import SCU, SteeringControlUnit, configuration
+from ska_mid_disq.constants import USER_CACHE_DIR
 
 logger = logging.getLogger("ska-mid-ds-scu")
 

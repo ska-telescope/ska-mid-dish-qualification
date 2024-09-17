@@ -3,14 +3,15 @@
 ## Unreleased
 
 - API changes:
+    - WOM-481: Renamed the python package to `ska-mid-disq` and the data logger class to `DataLogger` to differentiate it from python's built-in `Logger` class.
     - WOM-402: Removed `parameter_commands`, `server`, `server_nodes`, `server_attributes` and `server_commands` properties.
     - WOM-453: Made many class variables and methods of SCU private.
 - Non-breaking changes:
     - WOM-308: Update slew velocity input boxes with maximum allowed value on startup.
     - WOM-332: Removed loading/use of environment variables from .env file.
-    - WOM-414: Try using exception.add_note() in SCU for python 3.11.
+    - WOM-414: Try using `exception.add_note()` in SCU for python 3.11.
     - WOM-418: Update mock test server to version 2 of ICD.
-    - WOM-450: Move configure_logging to configuration module.
+    - WOM-450: Move `configure_logging()` to configuration module.
     - WOM-471: Swop sculib with ska-mid-dish-steering-control package and update dependencies (asyncua 1.1.5).
     - WOM-480: Add more allowed OPCUA types to data logger.
 - Bug fixes:

@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from disq.configuration import find_config_file, get_configurations
+from ska_mid_disq.configuration import find_config_file, get_configurations
 
 
 def test_find_config_file():
@@ -42,18 +42,24 @@ def test_get_configuration():
 
     :raises: AssertionError: If any of the test cases fail.
     """
-    with patch("disq.configuration.find_config_file", return_value=Path("disq.ini")):
+    with patch(
+        "ska_mid_disq.configuration.find_config_file", return_value=Path("disq.ini")
+    ):
         config = get_configurations(None)
         assert config is not None
 
     # Test when fname is a valid config file
-    with patch("disq.configuration.find_config_file", return_value=Path("disq.ini")):
+    with patch(
+        "ska_mid_disq.configuration.find_config_file", return_value=Path("disq.ini")
+    ):
         config = get_configurations("disq.ini")
         assert config is not None
 
     # Test when the file exist but is not a valid configuration file
     with (
-        patch("disq.configuration.find_config_file", return_value=Path(__file__)),
+        patch(
+            "ska_mid_disq.configuration.find_config_file", return_value=Path(__file__)
+        ),
         pytest.raises(configparser.Error),
     ):
         config = get_configurations(__file__)

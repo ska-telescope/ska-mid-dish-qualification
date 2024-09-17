@@ -18,8 +18,8 @@ from typing import Callable
 import h5py
 import pytest
 
-from disq import SteeringControlUnit
-from disq.logger import Logger
+from ska_mid_disq import SteeringControlUnit
+from ska_mid_disq.logger import Logger
 
 
 @pytest.fixture(scope="module", autouse=True)

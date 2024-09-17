@@ -2,5 +2,5 @@
 DiSQ Configuration
 ==================
 
-.. automodule:: disq.configuration
+.. automodule:: ska_mid_disq.configuration
    :members:
