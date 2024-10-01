@@ -243,6 +243,15 @@ class MainView(QtWidgets.QMainWindow):
         self.button_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("AzEl")
         )
+        # Power tab widgets
+        self.button_power_mode_normal: QtWidgets.QRadioButton
+        self.button_power_mode_normal.setChecked(True)
+        self.button_power_mode_low: QtWidgets.QRadioButton
+        self.button_power_mode_low.setChecked(False)
+        self.spinbox_power_lim_kw: QtWidgets.QDoubleSpinBox
+        self.button_set_power_mode: QtWidgets.QPushButton
+        self.button_set_power_mode.clicked.connect(self.set_power_mode_clicked)
+
         # Axis tab elevation group widgets
         self.button_elevation_slew: QtWidgets.QPushButton
         self.button_elevation_slew.clicked.connect(
@@ -1226,6 +1235,15 @@ class MainView(QtWidgets.QMainWindow):
         for spinbox in self.ambtemp_correction_spinboxes:
             params.append(round(spinbox.value(), self._DECIMAL_PLACES))
         self.controller.command_set_ambtemp_correction_parameters(params)
+
+    def set_power_mode_clicked(self):
+        """Set dish power mode."""
+        args = [
+            self.button_power_mode_low.isChecked(),
+            self.spinbox_power_lim_kw.value(),
+        ]
+        logger.debug("set_power_mode args: %s", args)
+        self.controller.command_set_power_mode(*args)
 
     def pointing_model_band_selected(self):
         """Static pointing model band changed slot function."""

@@ -270,6 +270,12 @@ class Controller(QObject):
         """Issue a command to take or release authority."""
         self._issue_command(Command.RELEASE_AUTH)
 
+    def command_set_power_mode(
+        self, low_power: bool, power_lim_kw: float
+    ) -> tuple[ResultCode, str]:
+        """Issue a command to set the dish power mode."""
+        return self._issue_command(Command.SET_POWER_MODE, low_power, power_lim_kw)
+
     def command_config_pointing_model_corrections(
         self, static: bool, tilt: str, temperature: bool, band: str
     ) -> tuple[int, str]:
