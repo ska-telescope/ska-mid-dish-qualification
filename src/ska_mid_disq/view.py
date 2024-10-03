@@ -839,7 +839,6 @@ class MainView(QtWidgets.QMainWindow):
         )
 
         if event["value"] is None:
-            button.setEnabled(False)
             return
 
         # Update can come from either OFF or ON radio button, but need to explicitly
