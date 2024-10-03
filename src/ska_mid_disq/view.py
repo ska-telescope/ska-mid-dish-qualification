@@ -702,11 +702,6 @@ class MainView(QtWidgets.QMainWindow):
 
         :param event: A dictionary containing event data.
         """
-        if event["value"] is None:
-            logger.warning(
-                "View: data update: %s value=%s", event["name"], event["value"]
-            )
-            return  # This prevents exceptions from trying to cast 'None' to int
         logger.debug("View: data update: %s value=%s", event["name"], event["value"])
         # Get the widget update method from the dict of opcua widgets
         widgets = self.opcua_widgets[event["name"]][0]
@@ -785,6 +780,13 @@ class MainView(QtWidgets.QMainWindow):
         - server_timestamp: server_timestamp
         - data: data
         """
+        if event["value"] is None:
+            for widget in widgets:
+                widget.setEnabled(False)
+                widget.setStyleSheet("QLineEdit { border-color: white;} ")
+
+            return
+
         opcua_type: str = widgets[0].property("opcua_type")
         int_val = int(event["value"])
         try:
@@ -835,6 +837,10 @@ class MainView(QtWidgets.QMainWindow):
             event["name"],
             event["value"],
         )
+
+        if event["value"] is None:
+            button.setEnabled(False)
+            return
 
         # Update can come from either OFF or ON radio button, but need to explicitly
         # set one of the two in a group with setChecked(True)
