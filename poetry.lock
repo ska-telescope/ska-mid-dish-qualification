@@ -2736,7 +2736,7 @@ pyyaml = "^6.0.0"
 type = "git"
 url = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git"
 reference = "main"
-resolved_reference = "121da417e3c4216c70d411a180ab144adf42d358"
+resolved_reference = "2d1b80f7a7075d2d71182c955e4bb2c044f1d72e"
 
 [[package]]
 name = "ska-ser-sphinx-theme"

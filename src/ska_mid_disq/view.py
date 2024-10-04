@@ -243,6 +243,15 @@ class MainView(QtWidgets.QMainWindow):
         self.button_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("AzEl")
         )
+        # Power tab widgets
+        self.button_power_mode_normal: QtWidgets.QRadioButton
+        self.button_power_mode_normal.setChecked(True)
+        self.button_power_mode_low: QtWidgets.QRadioButton
+        self.button_power_mode_low.setChecked(False)
+        self.spinbox_power_lim_kw: QtWidgets.QDoubleSpinBox
+        self.button_set_power_mode: QtWidgets.QPushButton
+        self.button_set_power_mode.clicked.connect(self.set_power_mode_clicked)
+
         # Axis tab elevation group widgets
         self.button_elevation_slew: QtWidgets.QPushButton
         self.button_elevation_slew.clicked.connect(
@@ -693,11 +702,6 @@ class MainView(QtWidgets.QMainWindow):
 
         :param event: A dictionary containing event data.
         """
-        if event["value"] is None:
-            logger.warning(
-                "View: data update: %s value=%s", event["name"], event["value"]
-            )
-            return  # This prevents exceptions from trying to cast 'None' to int
         logger.debug("View: data update: %s value=%s", event["name"], event["value"])
         # Get the widget update method from the dict of opcua widgets
         widgets = self.opcua_widgets[event["name"]][0]
@@ -776,6 +780,13 @@ class MainView(QtWidgets.QMainWindow):
         - server_timestamp: server_timestamp
         - data: data
         """
+        if event["value"] is None:
+            for widget in widgets:
+                widget.setEnabled(False)
+                widget.setStyleSheet("QLineEdit { border-color: white;} ")
+
+            return
+
         opcua_type: str = widgets[0].property("opcua_type")
         int_val = int(event["value"])
         try:
@@ -826,6 +837,9 @@ class MainView(QtWidgets.QMainWindow):
             event["name"],
             event["value"],
         )
+
+        if event["value"] is None:
+            return
 
         # Update can come from either OFF or ON radio button, but need to explicitly
         # set one of the two in a group with setChecked(True)
@@ -1226,6 +1240,15 @@ class MainView(QtWidgets.QMainWindow):
         for spinbox in self.ambtemp_correction_spinboxes:
             params.append(round(spinbox.value(), self._DECIMAL_PLACES))
         self.controller.command_set_ambtemp_correction_parameters(params)
+
+    def set_power_mode_clicked(self):
+        """Set dish power mode."""
+        args = [
+            self.button_power_mode_low.isChecked(),
+            self.spinbox_power_lim_kw.value(),
+        ]
+        logger.debug("set_power_mode args: %s", args)
+        self.controller.command_set_power_mode(*args)
 
     def pointing_model_band_selected(self):
         """Static pointing model band changed slot function."""

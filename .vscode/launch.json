@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
@@ -14,9 +14,9 @@
         },
         {
             "name": "DiSQ GUI",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/disq/mvcmain.py",
+            "program": "${workspaceFolder}/src/ska_mid_disq/mvcmain.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "env": {
@@ -25,7 +25,7 @@
         },
         {
             "name": "Server Validator",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "args": [
                 "-x",
