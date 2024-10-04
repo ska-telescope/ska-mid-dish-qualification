@@ -276,6 +276,10 @@ class Controller(QObject):
         """Issue a command to set the dish power mode."""
         return self._issue_command(Command.SET_POWER_MODE, low_power, power_lim_kw)
 
+    def command_reset_axis(self, axis: str) -> tuple[ResultCode, str]:
+        """Issue a command to clear servo amplifier axis/axes latched errors."""
+        return self._issue_command(Command.RESET, axis)
+
     def command_config_pointing_model_corrections(
         self, static: bool, tilt: str, temperature: bool, band: str
     ) -> tuple[int, str]:

@@ -3577,8 +3577,8 @@
              <property name="text">
               <string>Set Power Mode</string>
              </property>
-             <property name="opcua" stdset="0">
-              <string/>
+             <property name="opcua_cmd" stdset="0">
+              <string>Management.Commands.SetPowerMode</string>
              </property>
             </widget>
            </item>
@@ -5179,6 +5179,47 @@
              </property>
              <property name="opcua_cmd" stdset="0">
               <string>Management.Commands.Stop</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_axes_reset">
+          <property name="title">
+           <string>Axes Reset</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QComboBox" name="combobox_axis_to_reset">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>AxisSelectType</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="button_reset_axis">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Reset Axis</string>
+             </property>
+             <property name="opcua_cmd" stdset="0">
+              <string>Management.Commands.Reset</string>
              </property>
             </widget>
            </item>

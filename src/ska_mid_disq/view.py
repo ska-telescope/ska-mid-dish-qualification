@@ -301,6 +301,10 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.line_edit_slew_only_indexer_position: QtWidgets.QLineEdit
         self.line_edit_slew_only_indexer_velocity: QtWidgets.QLineEdit
+        # Axis tab axes reset widgets
+        self.combobox_axis_to_reset: QtWidgets.QComboBox
+        self.button_reset_axis: QtWidgets.QPushButton
+        self.button_reset_axis.clicked.connect(self.reset_axis_clicked)
         # Point tab static pointing model widgets
         self.button_static_point_model_off: QtWidgets.QRadioButton
         self.button_static_point_model_off.setChecked(True)
@@ -1197,6 +1201,12 @@ class MainView(QtWidgets.QMainWindow):
         :param axis: Axis identifier for deactivation.
         """
         self.controller.command_deactivate(axis)
+
+    def reset_axis_clicked(self) -> None:
+        """Clear latched errors for the axis/axes in the servo amplifiers."""
+        axis = self.combobox_axis_to_reset.currentText()
+        logger.debug("reset_axis args: %s", axis)
+        self.controller.command_reset_axis(axis)
 
     def take_authority_button_clicked(self):
         """Handle the click event of the take authority button."""
