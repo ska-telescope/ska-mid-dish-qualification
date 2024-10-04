@@ -598,6 +598,9 @@
            <height>0</height>
           </size>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -899,6 +902,9 @@
            <height>0</height>
           </size>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
@@ -1099,6 +1105,9 @@
            <height>0</height>
           </size>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -1235,6 +1244,9 @@
              <width>22</width>
              <height>22</height>
             </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -3405,7 +3417,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="power">
        <attribute name="title">
@@ -3669,6 +3681,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -3702,6 +3717,9 @@
                  <width>0</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -3851,6 +3869,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -3935,6 +3956,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -3962,6 +3986,9 @@
                  <width>0</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -3991,6 +4018,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4018,6 +4048,9 @@
                  <width>0</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -4075,6 +4108,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4131,6 +4167,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4158,6 +4197,9 @@
                  <width>0</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -4215,6 +4257,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4246,6 +4291,9 @@
                  <width>0</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -4309,6 +4357,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4343,6 +4394,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4376,6 +4430,9 @@
                  <width>0</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -4523,6 +4580,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4556,6 +4616,9 @@
                  <width>0</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -4705,6 +4768,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4732,6 +4798,9 @@
                  <width>0</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -4794,6 +4863,9 @@
                  <width>0</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -7886,7 +7958,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QListWidget" name="list_cmd_history"/>
+         <widget class="QListWidget" name="list_cmd_history">
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -7920,6 +7996,7 @@
   <tabstop>input_server_namespace</tabstop>
   <tabstop>dropdown_server_config_select</tabstop>
   <tabstop>button_server_connect</tabstop>
+  <tabstop>cache_checkbox</tabstop>
   <tabstop>combobox_authority</tabstop>
   <tabstop>button_take_auth</tabstop>
   <tabstop>button_release_auth</tabstop>
@@ -7948,16 +8025,31 @@
   <tabstop>button_recording_start</tabstop>
   <tabstop>button_recording_stop</tabstop>
   <tabstop>tabWidget</tabstop>
+  <tabstop>button_power_mode_normal</tabstop>
+  <tabstop>button_power_mode_low</tabstop>
+  <tabstop>spinbox_power_lim_kw</tabstop>
+  <tabstop>button_set_power_mode</tabstop>
   <tabstop>button_azimuth_activate</tabstop>
   <tabstop>button_azimuth_deactivate</tabstop>
+  <tabstop>button_azimuth_stop</tabstop>
+  <tabstop>button_azimuth_reset</tabstop>
+  <tabstop>spinbox_slew_only_azimuth_position</tabstop>
+  <tabstop>spinbox_slew_only_azimuth_velocity</tabstop>
   <tabstop>button_azimuth_slew</tabstop>
   <tabstop>button_elevation_activate</tabstop>
   <tabstop>button_elevation_deactivate</tabstop>
+  <tabstop>button_elevation_stop</tabstop>
+  <tabstop>button_elevation_reset</tabstop>
+  <tabstop>spinbox_slew_only_elevation_position</tabstop>
+  <tabstop>spinbox_slew_only_elevation_velocity</tabstop>
   <tabstop>button_elevation_slew</tabstop>
   <tabstop>button_indexer_activate</tabstop>
   <tabstop>button_indexer_deactivate</tabstop>
-  <tabstop>button_indexer_slew</tabstop>
   <tabstop>button_indexer_stop</tabstop>
+  <tabstop>button_indexer_reset</tabstop>
+  <tabstop>spinbox_slew_only_indexer_position</tabstop>
+  <tabstop>spinbox_slew_only_indexer_velocity</tabstop>
+  <tabstop>button_indexer_slew</tabstop>
   <tabstop>combo_static_point_model_band</tabstop>
   <tabstop>spinbox_ia</tabstop>
   <tabstop>spinbox_ca</tabstop>
@@ -7997,7 +8089,19 @@
   <tabstop>button_select_track_table_file</tabstop>
   <tabstop>line_edit_track_table_file</tabstop>
   <tabstop>button_load_track_table</tabstop>
-  <tabstop>list_cmd_history</tabstop>
+  <tabstop>button_file_track_absolute_times</tabstop>
+  <tabstop>button_file_track_relative_times</tabstop>
+  <tabstop>spinbox_file_track_additional_offset</tabstop>
+  <tabstop>combobox_file_track_mode</tabstop>
+  <tabstop>button_start_track_table</tabstop>
+  <tabstop>combobox_track_start_interpol_type</tabstop>
+  <tabstop>button_start_track_now</tabstop>
+  <tabstop>button_start_track_at</tabstop>
+  <tabstop>line_edit_start_track_at</tabstop>
+  <tabstop>warning_tree_view</tabstop>
+  <tabstop>warning_status_show_only_warnings</tabstop>
+  <tabstop>error_tree_view</tabstop>
+  <tabstop>error_status_show_only_errors</tabstop>
  </tabstops>
  <resources/>
  <connections/>
