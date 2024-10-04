@@ -269,8 +269,9 @@ class MainView(QtWidgets.QMainWindow):
         self.button_elevation_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("El")
         )
-        self.line_edit_slew_only_elevation_position: QtWidgets.QLineEdit
-        self.line_edit_slew_only_elevation_velocity: QtWidgets.QLineEdit
+        self.spinbox_slew_only_elevation_position: AxisPosSpinBox
+        self.spinbox_slew_only_elevation_position.set_callback(self.slew_button_clicked)
+        self.spinbox_slew_only_elevation_velocity: QtWidgets.QDoubleSpinBox
         self.button_elevation_reset: QtWidgets.QPushButton
         self.button_elevation_reset.clicked.connect(
             lambda: self.reset_button_clicked("El")
@@ -288,8 +289,9 @@ class MainView(QtWidgets.QMainWindow):
         self.button_azimuth_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Az")
         )
-        self.line_edit_slew_only_azimuth_position: QtWidgets.QLineEdit
-        self.line_edit_slew_only_azimuth_velocity: QtWidgets.QLineEdit
+        self.spinbox_slew_only_azimuth_position: AxisPosSpinBox
+        self.spinbox_slew_only_azimuth_position.set_callback(self.slew_button_clicked)
+        self.spinbox_slew_only_azimuth_velocity: QtWidgets.QDoubleSpinBox
         self.button_azimuth_reset: QtWidgets.QPushButton
         self.button_azimuth_reset.clicked.connect(
             lambda: self.reset_button_clicked("Az")
@@ -307,8 +309,9 @@ class MainView(QtWidgets.QMainWindow):
         self.button_indexer_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Fi")
         )
-        self.line_edit_slew_only_indexer_position: QtWidgets.QLineEdit
-        self.line_edit_slew_only_indexer_velocity: QtWidgets.QLineEdit
+        self.spinbox_slew_only_indexer_position: AxisPosSpinBox
+        self.spinbox_slew_only_indexer_position.set_callback(self.slew_button_clicked)
+        self.spinbox_slew_only_indexer_velocity: QtWidgets.QDoubleSpinBox
         self.button_indexer_reset: QtWidgets.QPushButton
         self.button_indexer_reset.clicked.connect(
             lambda: self.reset_button_clicked("Fi")
@@ -577,6 +580,7 @@ class MainView(QtWidgets.QMainWindow):
             self.findChildren(QtWidgets.QLineEdit)
             + self.findChildren(QtWidgets.QLabel)
             + self.findChildren(QtWidgets.QRadioButton)
+            + self.findChildren(QtWidgets.QDoubleSpinBox)
         )
         opcua_widget_updates: dict[str, tuple[list[QtWidgets.QWidget], Callable]] = {}
         for wgt in all_widgets:
@@ -754,7 +758,7 @@ class MainView(QtWidgets.QMainWindow):
                 wgt.addItems(enum_strings)
 
     def _update_opcua_text_widget(
-        self, widgets: list[QtWidgets.QLineEdit], event: dict
+        self, widgets: list[QtWidgets.QLineEdit | QtWidgets.QDoubleSpinBox], event: dict
     ) -> None:
         """
         Update the text of the widget with the event value.
@@ -770,7 +774,10 @@ class MainView(QtWidgets.QMainWindow):
         else:
             str_val = str(val)
         for widget in widgets:
-            widget.setText(str_val)
+            if isinstance(widget, QtWidgets.QLineEdit):
+                widget.setText(str_val)
+            elif isinstance(widget, QtWidgets.QDoubleSpinBox):
+                widget.setValue(val)
 
     def _update_opcua_enum_widget(
         self, widgets: list[QtWidgets.QLineEdit], event: dict
@@ -1122,50 +1129,28 @@ class MainView(QtWidgets.QMainWindow):
         """
         Slot function to handle the click event of a slew button.
 
+        Also called for the up/down clicks of an axis' position spinbox.
+
         :param axis: The axis for which the slew operation is being performed.
         """
-
-        def validate_args(text_widget_args: list[str]) -> list[float] | None:
-            """
-            Validate and convert a list of string arguments to a list of float values.
-
-            :param text_widget_args: A list of string arguments to be converted to float
-                  values.
-            :return: A list of float values converted from the input string arguments.
-            :raises ValueError: If any of the string arguments cannot be converted to a
-                  float.
-            """
-            try:
-                args = [float(str_input) for str_input in text_widget_args]
-                return args
-            except ValueError as e:
-                logger.error("Error converting slew args to float: %s", e)
-                self.controller.emit_ui_status_message(
-                    "ERROR",
-                    f"Slew invalid arguments. Could not convert to number: "
-                    f"{text_widget_args}",
-                )
-                return None
-
         match axis:
             case "El":
-                text_widget_args = [
-                    self.line_edit_slew_only_elevation_position.text(),
-                    self.line_edit_slew_only_elevation_velocity.text(),
+                args = [
+                    round(self.spinbox_slew_only_elevation_position.value(), 3),
+                    round(self.spinbox_slew_only_elevation_velocity.value(), 3),
                 ]
             case "Az":
-                text_widget_args = [
-                    self.line_edit_slew_only_azimuth_position.text(),
-                    self.line_edit_slew_only_azimuth_velocity.text(),
+                args = [
+                    round(self.spinbox_slew_only_azimuth_position.value(), 3),
+                    round(self.spinbox_slew_only_azimuth_velocity.value(), 3),
                 ]
             case "Fi":
-                text_widget_args = [
-                    self.line_edit_slew_only_indexer_position.text(),
-                    self.line_edit_slew_only_indexer_velocity.text(),
+                args = [
+                    round(self.spinbox_slew_only_indexer_position.value(), 3),
+                    round(self.spinbox_slew_only_indexer_velocity.value(), 3),
                 ]
             case _:
                 return
-        args = validate_args(text_widget_args)
         if args is not None:
             logger.debug("args: %s", args)
             self.controller.command_slew_single_axis(axis, *args)
@@ -1488,3 +1473,23 @@ class MainView(QtWidgets.QMainWindow):
                 widget.setHidden(True)
             else:
                 widget.setHidden(False)
+
+
+class AxisPosSpinBox(QtWidgets.QDoubleSpinBox):
+    """Custom axis position double/float spinbox."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        """Init AxisSpinBox."""
+        super().__init__(**kwargs)
+        self._callback: Callable[[str], None] | None = None
+
+    def set_callback(self, callback: Callable[[str], None]) -> None:
+        """Set the callback function to be called in stepBy."""
+        self._callback = callback
+
+    # pylint: disable=invalid-name
+    def stepBy(self, steps: int) -> None:  # noqa: N802
+        """This method is triggered only by the up/down buttons."""
+        super().stepBy(steps)  # Call the base class functionality
+        if self._callback is not None:
+            self._callback(self.property("axis"))

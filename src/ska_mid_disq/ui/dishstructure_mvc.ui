@@ -4834,8 +4834,8 @@
            <string>Azimuth Control</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_15">
-           <item row="0" column="0">
-            <widget class="QPushButton" name="button_azimuth_activate">
+           <item row="2" column="0">
+            <widget class="QPushButton" name="button_azimuth_deactivate">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -4843,10 +4843,52 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Activate</string>
+              <string>De-Activate</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.Commands.Activate</string>
+              <string>Management.Commands.DeActivate</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QLabel" name="label_39">
+             <property name="text">
+              <string>Velocity [deg/s]:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2" colspan="2">
+            <widget class="QPushButton" name="button_azimuth_slew">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Slew2Abs Azimuth</string>
+             </property>
+             <property name="opcua_cmd" stdset="0">
+              <string>Management.Commands.Slew2AbsSingleAx</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="button_azimuth_reset">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Reset Axis Errors</string>
+             </property>
+             <property name="opcua_cmd" stdset="0">
+              <string>Management.Commands.Reset</string>
              </property>
             </widget>
            </item>
@@ -4872,8 +4914,8 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="2" colspan="2">
-            <widget class="QPushButton" name="button_azimuth_slew">
+           <item row="0" column="0">
+            <widget class="QPushButton" name="button_azimuth_activate">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -4881,46 +4923,14 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Slew2Abs Azimuth</string>
+              <string>Activate</string>
              </property>
              <property name="opcua_cmd" stdset="0">
-              <string>Management.Commands.Slew2AbsSingleAx</string>
+              <string>Management.Commands.Activate</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QPushButton" name="button_azimuth_deactivate">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>De-Activate</string>
-             </property>
-             <property name="opcua_cmd" stdset="0">
-              <string>Management.Commands.DeActivate</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QPushButton" name="button_azimuth_reset">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Reset Axis Errors</string>
-             </property>
-             <property name="opcua_cmd" stdset="0">
-              <string>Management.Commands.Reset</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
+           <item row="2" column="2">
             <widget class="QLabel" name="label_38">
              <property name="text">
               <string>Position [deg]:</string>
@@ -4930,39 +4940,65 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="3">
-            <widget class="QLineEdit" name="line_edit_slew_only_azimuth_position">
+           <item row="2" column="3">
+            <widget class="AxisPosSpinBox" name="spinbox_slew_only_azimuth_position">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
-             <property name="placeholderText">
-              <string>position</string>
+             <property name="decimals">
+              <number>3</number>
+             </property>
+             <property name="minimum">
+              <double>-271.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>271.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Azimuth.Status.p_Act</string>
+             </property>
+             <property name="axis" stdset="0">
+              <string>Az</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <widget class="QDoubleSpinBox" name="spinbox_slew_only_azimuth_velocity">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="decimals">
+              <number>3</number>
+             </property>
+             <property name="minimum">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>3.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="value">
+              <double>3.000000000000000</double>
              </property>
              <property name="opcua" stdset="0">
               <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QLabel" name="label_39">
-             <property name="text">
-              <string>Velocity [deg/s]:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="3">
-            <widget class="QLineEdit" name="line_edit_slew_only_azimuth_velocity">
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="placeholderText">
-              <string>velocity</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string>Azimuth.Status.v_SetMax</string>
              </property>
             </widget>
            </item>
@@ -5065,19 +5101,6 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="3">
-            <widget class="QLineEdit" name="line_edit_slew_only_elevation_position">
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="placeholderText">
-              <string>position</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="2">
             <widget class="QLabel" name="label_37">
              <property name="text">
@@ -5088,16 +5111,65 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="3">
-            <widget class="QLineEdit" name="line_edit_slew_only_elevation_velocity">
+           <item row="1" column="3">
+            <widget class="AxisPosSpinBox" name="spinbox_slew_only_elevation_position">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
-             <property name="placeholderText">
-              <string>velocity</string>
+             <property name="decimals">
+              <number>3</number>
+             </property>
+             <property name="minimum">
+              <double>14.800000000000001</double>
+             </property>
+             <property name="maximum">
+              <double>90.200000000000003</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
              </property>
              <property name="opcua" stdset="0">
-              <string>Elevation.Status.v_SetMax</string>
+              <string>Elevation.Status.p_Act</string>
+             </property>
+             <property name="axis" stdset="0">
+              <string>El</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QDoubleSpinBox" name="spinbox_slew_only_elevation_velocity">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="decimals">
+              <number>3</number>
+             </property>
+             <property name="minimum">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="value">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
              </property>
             </widget>
            </item>
@@ -5200,19 +5272,6 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="3">
-            <widget class="QLineEdit" name="line_edit_slew_only_indexer_position">
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="placeholderText">
-              <string>position</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="2">
             <widget class="QLabel" name="label_41">
              <property name="text">
@@ -5223,16 +5282,65 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="3">
-            <widget class="QLineEdit" name="line_edit_slew_only_indexer_velocity">
+           <item row="1" column="3">
+            <widget class="AxisPosSpinBox" name="spinbox_slew_only_indexer_position">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
-             <property name="placeholderText">
-              <string>velocity</string>
+             <property name="decimals">
+              <number>3</number>
+             </property>
+             <property name="minimum">
+              <double>-106.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>106.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
              </property>
              <property name="opcua" stdset="0">
-              <string>FeedIndexer.Status.v_SetMax</string>
+              <string>FeedIndexer.Status.p_Act</string>
+             </property>
+             <property name="axis" stdset="0">
+              <string>Fi</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QDoubleSpinBox" name="spinbox_slew_only_indexer_velocity">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="decimals">
+              <number>3</number>
+             </property>
+             <property name="minimum">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>12.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="value">
+              <double>12.000000000000000</double>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
              </property>
             </widget>
            </item>
@@ -7798,6 +7906,13 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AxisPosSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>ska_mid_disq.view</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>input_server_address</tabstop>
   <tabstop>input_server_port</tabstop>
@@ -7835,18 +7950,12 @@
   <tabstop>tabWidget</tabstop>
   <tabstop>button_azimuth_activate</tabstop>
   <tabstop>button_azimuth_deactivate</tabstop>
-  <tabstop>line_edit_slew_only_azimuth_position</tabstop>
-  <tabstop>line_edit_slew_only_azimuth_velocity</tabstop>
   <tabstop>button_azimuth_slew</tabstop>
   <tabstop>button_elevation_activate</tabstop>
   <tabstop>button_elevation_deactivate</tabstop>
-  <tabstop>line_edit_slew_only_elevation_position</tabstop>
-  <tabstop>line_edit_slew_only_elevation_velocity</tabstop>
   <tabstop>button_elevation_slew</tabstop>
   <tabstop>button_indexer_activate</tabstop>
   <tabstop>button_indexer_deactivate</tabstop>
-  <tabstop>line_edit_slew_only_indexer_position</tabstop>
-  <tabstop>line_edit_slew_only_indexer_velocity</tabstop>
   <tabstop>button_indexer_slew</tabstop>
   <tabstop>button_indexer_stop</tabstop>
   <tabstop>combo_static_point_model_band</tabstop>
