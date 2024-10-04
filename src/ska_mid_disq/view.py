@@ -271,6 +271,10 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.line_edit_slew_only_elevation_position: QtWidgets.QLineEdit
         self.line_edit_slew_only_elevation_velocity: QtWidgets.QLineEdit
+        self.button_elevation_reset: QtWidgets.QPushButton
+        self.button_elevation_reset.clicked.connect(
+            lambda: self.reset_button_clicked("El")
+        )
         # Axis tab azimuth group widgets
         self.button_azimuth_slew: QtWidgets.QPushButton
         self.button_azimuth_slew.clicked.connect(lambda: self.slew_button_clicked("Az"))
@@ -286,6 +290,10 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.line_edit_slew_only_azimuth_position: QtWidgets.QLineEdit
         self.line_edit_slew_only_azimuth_velocity: QtWidgets.QLineEdit
+        self.button_azimuth_reset: QtWidgets.QPushButton
+        self.button_azimuth_reset.clicked.connect(
+            lambda: self.reset_button_clicked("Az")
+        )
         # Axis tab feed indexer group widgets
         self.button_indexer_slew: QtWidgets.QPushButton
         self.button_indexer_slew.clicked.connect(lambda: self.slew_button_clicked("Fi"))
@@ -301,6 +309,10 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.line_edit_slew_only_indexer_position: QtWidgets.QLineEdit
         self.line_edit_slew_only_indexer_velocity: QtWidgets.QLineEdit
+        self.button_indexer_reset: QtWidgets.QPushButton
+        self.button_indexer_reset.clicked.connect(
+            lambda: self.reset_button_clicked("Fi")
+        )
         # Point tab static pointing model widgets
         self.button_static_point_model_off: QtWidgets.QRadioButton
         self.button_static_point_model_off.setChecked(True)
@@ -1197,6 +1209,11 @@ class MainView(QtWidgets.QMainWindow):
         :param axis: Axis identifier for deactivation.
         """
         self.controller.command_deactivate(axis)
+
+    def reset_button_clicked(self, axis: str) -> None:
+        """Clear latched errors for the axis/axes in the servo amplifiers."""
+        logger.debug("reset_axis args: %s", axis)
+        self.controller.command_reset_axis(axis)
 
     def take_authority_button_clicked(self):
         """Handle the click event of the take authority button."""
