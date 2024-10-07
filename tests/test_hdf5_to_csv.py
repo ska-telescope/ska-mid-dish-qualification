@@ -29,8 +29,8 @@ def test_node_not_in_file(capsys, base_path):
     expected_file = base_path / "resources/expected_files/node_not_in_file.csv"
     nodes = ["not_a_node", "MockData.increment"]
     fo = h5py.File(input_files, "r")
-    start = datetime.fromisoformat(fo.attrs["Start time"])
-    stop = datetime.fromisoformat(fo.attrs["Stop time"])
+    start = datetime.fromisoformat(fo.attrs["Data start time"])
+    stop = datetime.fromisoformat(fo.attrs["Data stop time"])
     fo.close()
     step = 100
     converter = h2c.Converter()
@@ -54,8 +54,8 @@ def test_no_matching_nodes(capsys, base_path):
     output_file = base_path / "resources/output_files/no_matching_nodes.csv"
     nodes = "not_a_node"
     fo = h5py.File(input_file, "r")
-    start = datetime.fromisoformat(fo.attrs["Start time"])
-    stop = datetime.fromisoformat(fo.attrs["Stop time"])
+    start = datetime.fromisoformat(fo.attrs["Data start time"])
+    stop = datetime.fromisoformat(fo.attrs["Data stop time"])
     fo.close()
     step = 100
     converter = h2c.Converter()
@@ -85,8 +85,8 @@ def test_start_stop_past_file(capsys, base_path):
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     fo = h5py.File(input_file, "r")
     # Cause the requested start and end times to be past the file ranges
-    start = datetime.fromisoformat(fo.attrs["Start time"]) - timedelta(seconds=4)
-    stop = datetime.fromisoformat(fo.attrs["Stop time"]) + timedelta(seconds=4)
+    start = datetime.fromisoformat(fo.attrs["Data start time"]) - timedelta(seconds=4)
+    stop = datetime.fromisoformat(fo.attrs["Data stop time"]) + timedelta(seconds=4)
     fo.close()
     step = 100
     converter = h2c.Converter()
@@ -119,8 +119,8 @@ def test_simple_input_file(capsys, base_path):
     expected_file = base_path / "resources/expected_files/simple_input_file.csv"
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     fo = h5py.File(input_file, "r")
-    start = datetime.fromisoformat(fo.attrs["Start time"])
-    stop = datetime.fromisoformat(fo.attrs["Stop time"])
+    start = datetime.fromisoformat(fo.attrs["Data start time"])
+    stop = datetime.fromisoformat(fo.attrs["Data stop time"])
     fo.close()
     step = 100
     converter = h2c.Converter()
@@ -150,8 +150,8 @@ def test_simple_input_file_double_speed(capsys, base_path):
     )
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     fo = h5py.File(input_file, "r")
-    start = datetime.fromisoformat(fo.attrs["Start time"])
-    stop = datetime.fromisoformat(fo.attrs["Stop time"])
+    start = datetime.fromisoformat(fo.attrs["Data start time"])
+    stop = datetime.fromisoformat(fo.attrs["Data stop time"])
     fo.close()
     step = 50
     converter = h2c.Converter()

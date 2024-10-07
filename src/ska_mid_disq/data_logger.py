@@ -100,8 +100,8 @@ class DataLogger:
         self._available_attributes = self.hll.get_attribute_list()
         self._subscription_ids: list = []
         self.file_object: h5py.File
-        self.start_time: datetime
-        self.stop_time: datetime
+        self.subscription_start_time: datetime
+        self.subscription_stop_time: datetime
 
     def add_nodes(self, nodes: list[str], period: int) -> None:
         """
@@ -252,7 +252,7 @@ class DataLogger:
             period_dict[period].append(node)
 
         # Start to fill queue
-        self.start_time = datetime.now(timezone.utc)
+        self.subscription_start_time = datetime.now(timezone.utc)
         for period, attributes in period_dict.items():
             self._subscription_ids.append(
                 self.hll.subscribe(
@@ -302,11 +302,62 @@ class DataLogger:
         for uid in self._subscription_ids:
             self.hll.unsubscribe(uid)
 
-        self.stop_time = datetime.now(timezone.utc)
+        self.subscription_stop_time = datetime.now(timezone.utc)
         self._stop_logging.set()
 
         if self._thread.is_alive():
             self._thread.join()
+
+    def _add_time_attributes(self):
+        """Add subscription and data start/stop times to root file object."""
+        with h5py.File(self.file, "a", libver="latest") as fo:
+            fo.attrs.create(
+                "Subscription start time",
+                self.subscription_start_time.isoformat(timespec="microseconds"),
+            )
+            fo.attrs.create(
+                "Subscription stop time",
+                self.subscription_stop_time.isoformat(timespec="microseconds"),
+            )
+            first_last_timestamps = []
+            for group in fo:
+                try:
+                    first_last_timestamps.append(fo[group]["SourceTimestamp"][0])
+                    first_last_timestamps.append(fo[group]["SourceTimestamp"][-1])
+                except IndexError:
+                    app_logger.debug(
+                        "Could not get timestamp for empty dataset %s", group
+                    )
+
+            if len(first_last_timestamps) > 0:
+                data_start_time = datetime.fromtimestamp(
+                    min(first_last_timestamps), tz=timezone.utc
+                )
+                data_stop_time = datetime.fromtimestamp(
+                    max(first_last_timestamps), tz=timezone.utc
+                )
+            else:
+                app_logger.warning(
+                    "No timestamp data recorded, data time will match subscription "
+                    "times."
+                )
+                data_start_time = self.subscription_start_time
+                data_stop_time = self.subscription_stop_time
+
+            fo.attrs.create(
+                "Data start time",
+                data_start_time.isoformat(timespec="microseconds"),
+            )
+            fo.attrs.create(
+                "Data stop time",
+                data_stop_time.isoformat(timespec="microseconds"),
+            )
+            fo.close()
+            app_logger.debug(
+                "File start time: %s, and stop time: %s",
+                data_start_time,
+                data_stop_time,
+            )
 
     def _write_cache_to_group(self, node: str) -> None:
         """Write the cache to the matching group for the given node."""
@@ -421,16 +472,5 @@ class DataLogger:
 
         self.file_object.close()
         app_logger.info("Logger received %d data points.", self._data_count)
-        self.file_object = h5py.File(self.file, "a", libver="latest")
-        self.file_object.attrs.create(
-            "Start time", self.start_time.isoformat(timespec="microseconds")
-        )
-        self.file_object.attrs.create(
-            "Stop time", self.stop_time.isoformat(timespec="microseconds")
-        )
-        self.file_object.close()
-        app_logger.debug(
-            "File start time: %s, and stop time: %s",
-            self.start_time,
-            self.stop_time,
-        )
+
+        self._add_time_attributes()

@@ -45,7 +45,6 @@ class Converter:
     """
 
     # TODO: configure good default start
-    _DEFAULT_START_DELTA: Final = timedelta(minutes=60)
     _NO_DATA_YET_STR: Final = "-"
     _OLD_DATA_STR: Final = "*"
     _DELIMITER: Final = ","
@@ -163,14 +162,14 @@ class Converter:
         :raises ValueError: If the stop time is after the end of the input file.
         :raises ValueError: If the start time is after the stop time.
         """
-        file_start = datetime.fromisoformat(self._file_object.attrs["Start time"])
-        file_stop = datetime.fromisoformat(self._file_object.attrs["Stop time"])
+        file_start = datetime.fromisoformat(self._file_object.attrs["Data start time"])
+        file_stop = datetime.fromisoformat(self._file_object.attrs["Data stop time"])
 
         if stop is None:
-            stop = datetime.now(timezone.utc)
+            stop = file_stop
 
         if start is None:
-            start = stop - self._DEFAULT_START_DELTA
+            start = file_start
 
         if start < file_start:
             print(
