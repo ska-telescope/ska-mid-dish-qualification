@@ -1136,18 +1136,18 @@ class MainView(QtWidgets.QMainWindow):
         match axis:
             case "El":
                 args = [
-                    round(self.spinbox_slew_only_elevation_position.value(), 3),
-                    round(self.spinbox_slew_only_elevation_velocity.value(), 3),
+                    self.spinbox_slew_only_elevation_position.value(),
+                    self.spinbox_slew_only_elevation_velocity.value(),
                 ]
             case "Az":
                 args = [
-                    round(self.spinbox_slew_only_azimuth_position.value(), 3),
-                    round(self.spinbox_slew_only_azimuth_velocity.value(), 3),
+                    self.spinbox_slew_only_azimuth_position.value(),
+                    self.spinbox_slew_only_azimuth_velocity.value(),
                 ]
             case "Fi":
                 args = [
-                    round(self.spinbox_slew_only_indexer_position.value(), 3),
-                    round(self.spinbox_slew_only_indexer_velocity.value(), 3),
+                    self.spinbox_slew_only_indexer_position.value(),
+                    self.spinbox_slew_only_indexer_velocity.value(),
                 ]
             case _:
                 return
