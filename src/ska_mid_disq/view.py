@@ -103,7 +103,7 @@ class MainView(QtWidgets.QMainWindow):
     :param disq_controller: The controller instance for the MainView.
     """
 
-    _DECIMAL_PLACES: Final = 3
+    _DECIMAL_PLACES: Final = 5
     _LED_COLOURS: Final[dict[str, dict[bool | str, str]]] = {
         "red": {True: "rgb(255, 0, 0)", False: "rgb(60, 0, 0)"},
         "green": {True: "rgb(10, 250, 25)", False: "rgb(10, 60, 0)"},
@@ -283,6 +283,8 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_slew_only_elevation_position: AxisPosSpinBox
         self.spinbox_slew_only_elevation_position.set_callback(self.slew_button_clicked)
         self.spinbox_slew_only_elevation_velocity: QtWidgets.QDoubleSpinBox
+        self.spinbox_slew_only_elevation_position.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_elevation_velocity.setDecimals(self._DECIMAL_PLACES)
         self.button_elevation_reset: QtWidgets.QPushButton
         self.button_elevation_reset.clicked.connect(
             lambda: self.reset_button_clicked("El")
@@ -303,6 +305,8 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_slew_only_azimuth_position: AxisPosSpinBox
         self.spinbox_slew_only_azimuth_position.set_callback(self.slew_button_clicked)
         self.spinbox_slew_only_azimuth_velocity: QtWidgets.QDoubleSpinBox
+        self.spinbox_slew_only_azimuth_position.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_azimuth_velocity.setDecimals(self._DECIMAL_PLACES)
         self.button_azimuth_reset: QtWidgets.QPushButton
         self.button_azimuth_reset.clicked.connect(
             lambda: self.reset_button_clicked("Az")
@@ -323,6 +327,8 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_slew_only_indexer_position: AxisPosSpinBox
         self.spinbox_slew_only_indexer_position.set_callback(self.slew_button_clicked)
         self.spinbox_slew_only_indexer_velocity: QtWidgets.QDoubleSpinBox
+        self.spinbox_slew_only_indexer_position.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_indexer_velocity.setDecimals(self._DECIMAL_PLACES)
         self.button_indexer_reset: QtWidgets.QPushButton
         self.button_indexer_reset.clicked.connect(
             lambda: self.reset_button_clicked("Fi")
@@ -792,7 +798,7 @@ class MainView(QtWidgets.QMainWindow):
         """
         val = event["value"]
         if isinstance(val, float):
-            str_val = f"{val:.3f}"
+            str_val = f"{val:.{self._DECIMAL_PLACES}f}"
         else:
             str_val = str(val)
         for widget in widgets:
