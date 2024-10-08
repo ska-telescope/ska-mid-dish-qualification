@@ -7,17 +7,18 @@
     - WOM-402: Removed `parameter_commands`, `server`, `server_nodes`, `server_attributes` and `server_commands` properties.
     - WOM-453: Made many class variables and methods of SCU private.
 - Non-breaking changes:
-    - WOM-308: Update slew velocity input boxes with maximum allowed value on startup.
+    - WOM-308: Updated slew velocity input boxes with maximum allowed value on startup.
+    - WOM-408: Changed the individual axis position & velocity widgets to spinboxes that immediately sends a slew command when a position's up/down buttons are clicked.
     - WOM-332: Removed loading/use of environment variables from .env file.
     - WOM-414: Try using `exception.add_note()` in SCU for python 3.11.
-    - WOM-418: Update mock test server to version 2 of ICD.
-    - WOM-450: Move `configure_logging()` to configuration module.
-    - WOM-471: Swop sculib with ska-mid-dish-steering-control package and update dependencies (asyncua 1.1.5).
-    - WOM-480: Add more allowed OPCUA types to data logger.
-    - WOM-446: Add set power mode and power status attributes to
-    the power tab.
+    - WOM-418: Updated mock test server to version 2 of ICD.
+    - WOM-450: Moved `configure_logging()` to configuration module.
+    - WOM-471: Swopped sculib with ska-mid-dish-steering-control package and updated dependencies (asyncua 1.1.5).
+    - WOM-480: Added more allowed OPCUA types to data logger.
+    - WOM-446: Added set power mode and power status attributes to the power tab.
+    - WOM-447: Added 'Reset Axis Errors' buttons to the axis tab that clears latched errors of the servos.
 - Bug fixes:
-    - WOM-235: Fix track table get details string list index out of range.
+    - WOM-235: Fixed track table get details string list index out of range.
     - WOM-428: Various small bugs in GUI and other GUI improvements.
     - WOM-471: Prevent DiSQ crashing when resetting the PLC it's connected to.
 

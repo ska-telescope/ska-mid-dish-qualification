@@ -58,16 +58,16 @@ slew2abs_input_widgets = [
     "line_edit_slew_simul_elev_velocity",
 ]
 slew_azimuth_input_widgets = [
-    "line_edit_slew_only_azimuth_position",
-    "line_edit_slew_only_azimuth_velocity",
+    "spinbox_slew_only_azimuth_position",
+    "spinbox_slew_only_azimuth_velocity",
 ]
 slew_elevation_input_widgets = [
-    "line_edit_slew_only_elevation_position",
-    "line_edit_slew_only_elevation_velocity",
+    "spinbox_slew_only_elevation_position",
+    "spinbox_slew_only_elevation_velocity",
 ]
 slew_indexer_input_widgets = [
-    "line_edit_slew_only_indexer_position",
-    "line_edit_slew_only_indexer_velocity",
+    "spinbox_slew_only_indexer_position",
+    "spinbox_slew_only_indexer_velocity",
 ]
 
 pointing_model_setup_input_widgets = [

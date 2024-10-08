@@ -23,6 +23,17 @@ TILT_CORR_ACTIVE: Final = "Pointing.Status.TiltCorrActive"
 STATIC_CORR_ACTIVE: Final = "Pointing.Status.StaticCorrActive"
 TEMP_CORR_ACTIVE: Final = "Pointing.Status.TempCorrActive"
 
+# Axis limits defined in ICD
+AZ_POS_MAX: Final = 271.0
+AZ_POS_MIN: Final = -271.0
+AZ_VEL_MAX: Final = 3.0
+EL_POS_MAX: Final = 90.2
+EL_POS_MIN: Final = 14.8
+EL_VEL_MAX: Final = 1.0
+FI_POS_MAX: Final = 106.0
+FI_POS_MIN: Final = -106.0
+FI_VEL_MAX: Final = 12.0
+
 
 # pylint: disable=too-few-public-methods
 class RecordingConfigDialog(QtWidgets.QDialog):
@@ -92,7 +103,7 @@ class MainView(QtWidgets.QMainWindow):
     :param disq_controller: The controller instance for the MainView.
     """
 
-    _DECIMAL_PLACES: Final = 3
+    _DECIMAL_PLACES: Final = 5
     _LED_COLOURS: Final[dict[str, dict[bool | str, str]]] = {
         "red": {True: "rgb(255, 0, 0)", False: "rgb(60, 0, 0)"},
         "green": {True: "rgb(10, 250, 25)", False: "rgb(10, 60, 0)"},
@@ -269,8 +280,14 @@ class MainView(QtWidgets.QMainWindow):
         self.button_elevation_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("El")
         )
-        self.line_edit_slew_only_elevation_position: QtWidgets.QLineEdit
-        self.line_edit_slew_only_elevation_velocity: QtWidgets.QLineEdit
+        self.spinbox_slew_only_elevation_position: AxisPosSpinBox
+        self.spinbox_slew_only_elevation_position.set_callback(self.slew_button_clicked)
+        self.spinbox_slew_only_elevation_velocity: QtWidgets.QDoubleSpinBox
+        self.spinbox_slew_only_elevation_position.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_elevation_velocity.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_elevation_velocity.setToolTip(
+            f"<b>Maximum:</b> {self.spinbox_slew_only_elevation_velocity.maximum()}"
+        )
         self.button_elevation_reset: QtWidgets.QPushButton
         self.button_elevation_reset.clicked.connect(
             lambda: self.reset_button_clicked("El")
@@ -288,8 +305,14 @@ class MainView(QtWidgets.QMainWindow):
         self.button_azimuth_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Az")
         )
-        self.line_edit_slew_only_azimuth_position: QtWidgets.QLineEdit
-        self.line_edit_slew_only_azimuth_velocity: QtWidgets.QLineEdit
+        self.spinbox_slew_only_azimuth_position: AxisPosSpinBox
+        self.spinbox_slew_only_azimuth_position.set_callback(self.slew_button_clicked)
+        self.spinbox_slew_only_azimuth_velocity: QtWidgets.QDoubleSpinBox
+        self.spinbox_slew_only_azimuth_position.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_azimuth_velocity.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_azimuth_velocity.setToolTip(
+            f"<b>Maximum:</b> {self.spinbox_slew_only_azimuth_velocity.maximum()}"
+        )
         self.button_azimuth_reset: QtWidgets.QPushButton
         self.button_azimuth_reset.clicked.connect(
             lambda: self.reset_button_clicked("Az")
@@ -307,12 +330,29 @@ class MainView(QtWidgets.QMainWindow):
         self.button_indexer_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Fi")
         )
-        self.line_edit_slew_only_indexer_position: QtWidgets.QLineEdit
-        self.line_edit_slew_only_indexer_velocity: QtWidgets.QLineEdit
+        self.spinbox_slew_only_indexer_position: AxisPosSpinBox
+        self.spinbox_slew_only_indexer_position.set_callback(self.slew_button_clicked)
+        self.spinbox_slew_only_indexer_velocity: QtWidgets.QDoubleSpinBox
+        self.spinbox_slew_only_indexer_position.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_indexer_velocity.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_indexer_velocity.setToolTip(
+            f"<b>Maximum:</b> {self.spinbox_slew_only_indexer_velocity.maximum()}"
+        )
         self.button_indexer_reset: QtWidgets.QPushButton
         self.button_indexer_reset.clicked.connect(
             lambda: self.reset_button_clicked("Fi")
         )
+        self.combobox_axis_input_step: QtWidgets.QComboBox
+        self.combobox_axis_input_step.currentIndexChanged.connect(
+            lambda: self.set_axis_inputs_step_size(
+                float(self.combobox_axis_input_step.currentText())
+            )
+        )
+        self.checkbox_limit_axis_inputs: QtWidgets.QCheckBox
+        self.checkbox_limit_axis_inputs.toggled.connect(
+            lambda: self.limit_axis_inputs(self.checkbox_limit_axis_inputs.isChecked())
+        )
+
         # Point tab static pointing model widgets
         self.button_static_point_model_off: QtWidgets.QRadioButton
         self.button_static_point_model_off.setChecked(True)
@@ -577,6 +617,7 @@ class MainView(QtWidgets.QMainWindow):
             self.findChildren(QtWidgets.QLineEdit)
             + self.findChildren(QtWidgets.QLabel)
             + self.findChildren(QtWidgets.QRadioButton)
+            + self.findChildren(QtWidgets.QDoubleSpinBox)
         )
         opcua_widget_updates: dict[str, tuple[list[QtWidgets.QWidget], Callable]] = {}
         for wgt in all_widgets:
@@ -736,7 +777,13 @@ class MainView(QtWidgets.QMainWindow):
             f"<b>OPCUA param:</b> {opcua_event['name']}<br>" f"<b>Value:</b> {str_val}"
         )
         for widget in widgets:
-            widget.setToolTip(tooltip)
+            if isinstance(widget, QtWidgets.QDoubleSpinBox):
+                widget.setToolTip(
+                    tooltip + f"<br><b>Maximum:</b> {widget.maximum()}"
+                    f"<br><b>Minimum:</b> {widget.minimum()}"
+                )
+            else:
+                widget.setToolTip(tooltip)
 
     def _init_opcua_combo_widgets(self) -> None:
         """Initialise all the OPC-UA combo widgets."""
@@ -754,7 +801,7 @@ class MainView(QtWidgets.QMainWindow):
                 wgt.addItems(enum_strings)
 
     def _update_opcua_text_widget(
-        self, widgets: list[QtWidgets.QLineEdit], event: dict
+        self, widgets: list[QtWidgets.QLineEdit | QtWidgets.QDoubleSpinBox], event: dict
     ) -> None:
         """
         Update the text of the widget with the event value.
@@ -766,11 +813,14 @@ class MainView(QtWidgets.QMainWindow):
         """
         val = event["value"]
         if isinstance(val, float):
-            str_val = f"{val:.3f}"
+            str_val = f"{val:.{self._DECIMAL_PLACES}f}"
         else:
             str_val = str(val)
         for widget in widgets:
-            widget.setText(str_val)
+            if isinstance(widget, QtWidgets.QLineEdit):
+                widget.setText(str_val)
+            elif isinstance(widget, QtWidgets.QDoubleSpinBox):
+                widget.setValue(val)
 
     def _update_opcua_enum_widget(
         self, widgets: list[QtWidgets.QLineEdit], event: dict
@@ -956,6 +1006,8 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_file_track_additional_offset.setEnabled(
             not self.button_file_track_absolute_times.isChecked()
         )
+        self.combobox_axis_input_step.setEnabled(True)
+        self.checkbox_limit_axis_inputs.setEnabled(True)
 
     def server_disconnected_event(self):
         """Handle the server disconnected event."""
@@ -972,6 +1024,8 @@ class MainView(QtWidgets.QMainWindow):
         self.warning_tree_view.setEnabled(False)
         self.error_status_show_only_errors.setEnabled(False)
         self.error_tree_view.setEnabled(False)
+        self.combobox_axis_input_step.setEnabled(False)
+        self.checkbox_limit_axis_inputs.setEnabled(False)
 
     def connect_button_clicked(self):
         """Setup a connection to the server."""
@@ -1122,54 +1176,74 @@ class MainView(QtWidgets.QMainWindow):
         """
         Slot function to handle the click event of a slew button.
 
+        Also called for the up/down clicks of an axis' position spinbox.
+
         :param axis: The axis for which the slew operation is being performed.
         """
-
-        def validate_args(text_widget_args: list[str]) -> list[float] | None:
-            """
-            Validate and convert a list of string arguments to a list of float values.
-
-            :param text_widget_args: A list of string arguments to be converted to float
-                  values.
-            :return: A list of float values converted from the input string arguments.
-            :raises ValueError: If any of the string arguments cannot be converted to a
-                  float.
-            """
-            try:
-                args = [float(str_input) for str_input in text_widget_args]
-                return args
-            except ValueError as e:
-                logger.error("Error converting slew args to float: %s", e)
-                self.controller.emit_ui_status_message(
-                    "ERROR",
-                    f"Slew invalid arguments. Could not convert to number: "
-                    f"{text_widget_args}",
-                )
-                return None
-
         match axis:
             case "El":
-                text_widget_args = [
-                    self.line_edit_slew_only_elevation_position.text(),
-                    self.line_edit_slew_only_elevation_velocity.text(),
+                args = [
+                    self.spinbox_slew_only_elevation_position.value(),
+                    self.spinbox_slew_only_elevation_velocity.value(),
                 ]
             case "Az":
-                text_widget_args = [
-                    self.line_edit_slew_only_azimuth_position.text(),
-                    self.line_edit_slew_only_azimuth_velocity.text(),
+                args = [
+                    self.spinbox_slew_only_azimuth_position.value(),
+                    self.spinbox_slew_only_azimuth_velocity.value(),
                 ]
             case "Fi":
-                text_widget_args = [
-                    self.line_edit_slew_only_indexer_position.text(),
-                    self.line_edit_slew_only_indexer_velocity.text(),
+                args = [
+                    self.spinbox_slew_only_indexer_position.value(),
+                    self.spinbox_slew_only_indexer_velocity.value(),
                 ]
             case _:
                 return
-        args = validate_args(text_widget_args)
         if args is not None:
             logger.debug("args: %s", args)
             self.controller.command_slew_single_axis(axis, *args)
         return
+
+    def set_axis_inputs_step_size(self, step_size: float) -> None:
+        """
+        Set the input spinbox step size of the axis slew commands.
+
+        :param step: Step size to use.
+        """
+        self.spinbox_slew_only_azimuth_position.setSingleStep(step_size)
+        self.spinbox_slew_only_azimuth_velocity.setSingleStep(step_size)
+        self.spinbox_slew_only_elevation_position.setSingleStep(step_size)
+        self.spinbox_slew_only_elevation_velocity.setSingleStep(step_size)
+        self.spinbox_slew_only_indexer_position.setSingleStep(step_size)
+        self.spinbox_slew_only_indexer_velocity.setSingleStep(step_size)
+
+    def limit_axis_inputs(self, limit: bool) -> None:
+        """
+        Limit the input ranges of the axis slew commands as specified in the ICD.
+
+        :param limit: True to apply the limits, False to use -1000 to 1000.
+        """
+        if limit:
+            self.spinbox_slew_only_azimuth_position.setMaximum(AZ_POS_MAX)
+            self.spinbox_slew_only_azimuth_position.setMinimum(AZ_POS_MIN)
+            self.spinbox_slew_only_azimuth_velocity.setMaximum(AZ_VEL_MAX)
+            self.spinbox_slew_only_elevation_position.setMaximum(EL_POS_MAX)
+            self.spinbox_slew_only_elevation_position.setMinimum(EL_POS_MIN)
+            self.spinbox_slew_only_elevation_velocity.setMaximum(EL_VEL_MAX)
+            self.spinbox_slew_only_indexer_position.setMaximum(FI_POS_MAX)
+            self.spinbox_slew_only_indexer_position.setMinimum(FI_POS_MIN)
+            self.spinbox_slew_only_indexer_velocity.setMaximum(FI_VEL_MAX)
+        else:
+            default_max = 1000.0
+            default_min = -1000.0
+            self.spinbox_slew_only_azimuth_position.setMaximum(default_max)
+            self.spinbox_slew_only_azimuth_position.setMinimum(default_min)
+            self.spinbox_slew_only_azimuth_velocity.setMaximum(default_max)
+            self.spinbox_slew_only_elevation_position.setMaximum(default_max)
+            self.spinbox_slew_only_elevation_position.setMinimum(default_min)
+            self.spinbox_slew_only_elevation_velocity.setMaximum(default_max)
+            self.spinbox_slew_only_indexer_position.setMaximum(default_max)
+            self.spinbox_slew_only_indexer_position.setMinimum(default_min)
+            self.spinbox_slew_only_indexer_velocity.setMaximum(default_max)
 
     def stop_button_clicked(self, axis: str) -> None:
         """
@@ -1488,3 +1562,23 @@ class MainView(QtWidgets.QMainWindow):
                 widget.setHidden(True)
             else:
                 widget.setHidden(False)
+
+
+class AxisPosSpinBox(QtWidgets.QDoubleSpinBox):
+    """Custom axis position double/float spinbox."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        """Init AxisSpinBox."""
+        super().__init__(**kwargs)
+        self._callback: Callable[[str], None] | None = None
+
+    def set_callback(self, callback: Callable[[str], None]) -> None:
+        """Set the callback function to be called in stepBy."""
+        self._callback = callback
+
+    # pylint: disable=invalid-name
+    def stepBy(self, steps: int) -> None:  # noqa: N802
+        """This method is triggered only by the up/down buttons."""
+        super().stepBy(steps)  # Call the base class functionality
+        if self._callback is not None:
+            self._callback(self.property("axis"))
