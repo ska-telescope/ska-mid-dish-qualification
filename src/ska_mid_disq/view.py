@@ -327,6 +327,12 @@ class MainView(QtWidgets.QMainWindow):
         self.button_indexer_reset.clicked.connect(
             lambda: self.reset_button_clicked("Fi")
         )
+        self.combobox_axis_input_step: QtWidgets.QComboBox
+        self.combobox_axis_input_step.currentIndexChanged.connect(
+            lambda: self.set_axis_inputs_step_size(
+                float(self.combobox_axis_input_step.currentText())
+            )
+        )
         self.checkbox_limit_axis_inputs: QtWidgets.QCheckBox
         self.checkbox_limit_axis_inputs.toggled.connect(
             lambda: self.limit_axis_inputs(self.checkbox_limit_axis_inputs.isChecked())
@@ -979,6 +985,7 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_file_track_additional_offset.setEnabled(
             not self.button_file_track_absolute_times.isChecked()
         )
+        self.combobox_axis_input_step.setEnabled(True)
         self.checkbox_limit_axis_inputs.setEnabled(True)
 
     def server_disconnected_event(self):
@@ -996,6 +1003,7 @@ class MainView(QtWidgets.QMainWindow):
         self.warning_tree_view.setEnabled(False)
         self.error_status_show_only_errors.setEnabled(False)
         self.error_tree_view.setEnabled(False)
+        self.combobox_axis_input_step.setEnabled(False)
         self.checkbox_limit_axis_inputs.setEnabled(False)
 
     def connect_button_clicked(self):
@@ -1173,6 +1181,19 @@ class MainView(QtWidgets.QMainWindow):
             logger.debug("args: %s", args)
             self.controller.command_slew_single_axis(axis, *args)
         return
+
+    def set_axis_inputs_step_size(self, step_size: float) -> None:
+        """
+        Set the input spinbox step size of the axis slew commands.
+
+        :param step: Step size to use.
+        """
+        self.spinbox_slew_only_azimuth_position.setSingleStep(step_size)
+        self.spinbox_slew_only_azimuth_velocity.setSingleStep(step_size)
+        self.spinbox_slew_only_elevation_position.setSingleStep(step_size)
+        self.spinbox_slew_only_elevation_velocity.setSingleStep(step_size)
+        self.spinbox_slew_only_indexer_position.setSingleStep(step_size)
+        self.spinbox_slew_only_indexer_velocity.setSingleStep(step_size)
 
     def limit_axis_inputs(self, limit: bool) -> None:
         """

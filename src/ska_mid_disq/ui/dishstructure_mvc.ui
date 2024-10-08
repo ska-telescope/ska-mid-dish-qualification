@@ -5420,6 +5420,67 @@
          </widget>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_111">
+            <property name="text">
+             <string>Input step size</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="combobox_axis_input_step">
+            <property name="currentIndex">
+             <number>3</number>
+            </property>
+            <item>
+             <property name="text">
+              <string>1.0</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>0.1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>0.01</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>0.001</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>0.0001</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>0.00001</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QCheckBox" name="checkbox_limit_axis_inputs">
           <property name="layoutDirection">
            <enum>Qt::RightToLeft</enum>
