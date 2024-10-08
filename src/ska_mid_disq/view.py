@@ -285,6 +285,9 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_slew_only_elevation_velocity: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_elevation_position.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_elevation_velocity.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_elevation_velocity.setToolTip(
+            f"<b>Maximum:</b> {self.spinbox_slew_only_elevation_velocity.maximum()}"
+        )
         self.button_elevation_reset: QtWidgets.QPushButton
         self.button_elevation_reset.clicked.connect(
             lambda: self.reset_button_clicked("El")
@@ -307,6 +310,9 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_slew_only_azimuth_velocity: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_azimuth_position.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_azimuth_velocity.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_azimuth_velocity.setToolTip(
+            f"<b>Maximum:</b> {self.spinbox_slew_only_azimuth_velocity.maximum()}"
+        )
         self.button_azimuth_reset: QtWidgets.QPushButton
         self.button_azimuth_reset.clicked.connect(
             lambda: self.reset_button_clicked("Az")
@@ -329,6 +335,9 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_slew_only_indexer_velocity: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_indexer_position.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_indexer_velocity.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_indexer_velocity.setToolTip(
+            f"<b>Maximum:</b> {self.spinbox_slew_only_indexer_velocity.maximum()}"
+        )
         self.button_indexer_reset: QtWidgets.QPushButton
         self.button_indexer_reset.clicked.connect(
             lambda: self.reset_button_clicked("Fi")
@@ -768,7 +777,13 @@ class MainView(QtWidgets.QMainWindow):
             f"<b>OPCUA param:</b> {opcua_event['name']}<br>" f"<b>Value:</b> {str_val}"
         )
         for widget in widgets:
-            widget.setToolTip(tooltip)
+            if isinstance(widget, QtWidgets.QDoubleSpinBox):
+                widget.setToolTip(
+                    tooltip + f"<br><b>Maximum:</b> {widget.maximum()}"
+                    f"<br><b>Minimum:</b> {widget.minimum()}"
+                )
+            else:
+                widget.setToolTip(tooltip)
 
     def _init_opcua_combo_widgets(self) -> None:
         """Initialise all the OPC-UA combo widgets."""
