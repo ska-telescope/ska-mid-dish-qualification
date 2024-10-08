@@ -270,6 +270,12 @@ class Controller(QObject):
         """Issue a command to take or release authority."""
         self._issue_command(Command.RELEASE_AUTH)
 
+    def command_set_time_source(
+        self, source: str, address: str
+    ) -> tuple[ResultCode, str]:
+        """Issue a command to set the time source."""
+        return self._issue_command(Command.SET_TIME_SOURCE, source, address)
+
     def command_set_power_mode(
         self, low_power: bool, power_lim_kw: float
     ) -> tuple[ResultCode, str]:
@@ -282,7 +288,7 @@ class Controller(QObject):
 
     def command_config_pointing_model_corrections(
         self, static: bool, tilt: str, temperature: bool, band: str
-    ) -> tuple[int, str]:
+    ) -> tuple[ResultCode, str]:
         """
         Issue command to configure the pointing model corrections.
 
@@ -454,7 +460,6 @@ class Controller(QObject):
                 return
 
             params.append(at_num)
-
         self._issue_command(Command.TRACK_START, *params)
 
     def recording_start(self, filename: str) -> None:

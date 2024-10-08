@@ -577,6 +577,12 @@ class MainView(QtWidgets.QMainWindow):
         self.button_start_track_table: QtWidgets.QPushButton
         self.button_start_track_table.clicked.connect(self.start_tracking_clicked)
 
+        # Track tab time widgets
+        self.button_set_time_source: QtWidgets.QPushButton
+        self.button_set_time_source.clicked.connect(self.set_time_source_clicked)
+        self.combobox_time_source: QtWidgets.QComboBox
+        self.line_edit_ntp_source_addr: QtWidgets.QLineEdit
+
         # Warning and Error tabs
         self.warning_tree_view: QtWidgets.QTreeWidget
         self.warning_status_show_only_warnings: QtWidgets.QCheckBox
@@ -1125,6 +1131,13 @@ class MainView(QtWidgets.QMainWindow):
             self.combobox_track_start_interpol_type.currentText(),
             self.button_start_track_now.isChecked(),
             self.line_edit_start_track_at.text(),
+        )
+
+    def set_time_source_clicked(self):
+        """Set the time axis source of the PLC."""
+        self.controller.command_set_time_source(
+            self.combobox_time_source.currentText(),
+            self.line_edit_ntp_source_addr.text(),
         )
 
     def recording_config_button_clicked(self):
