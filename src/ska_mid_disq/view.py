@@ -23,6 +23,17 @@ TILT_CORR_ACTIVE: Final = "Pointing.Status.TiltCorrActive"
 STATIC_CORR_ACTIVE: Final = "Pointing.Status.StaticCorrActive"
 TEMP_CORR_ACTIVE: Final = "Pointing.Status.TempCorrActive"
 
+# Axis limits defined in ICD
+AZ_POS_MAX: Final = 271.0
+AZ_POS_MIN: Final = -271.0
+AZ_VEL_MAX: Final = 3.0
+EL_POS_MAX: Final = 90.2
+EL_POS_MIN: Final = 14.8
+EL_VEL_MAX: Final = 1.0
+FI_POS_MAX: Final = 106.0
+FI_POS_MIN: Final = -106.0
+FI_VEL_MAX: Final = 12.0
+
 
 # pylint: disable=too-few-public-methods
 class RecordingConfigDialog(QtWidgets.QDialog):
@@ -316,6 +327,11 @@ class MainView(QtWidgets.QMainWindow):
         self.button_indexer_reset.clicked.connect(
             lambda: self.reset_button_clicked("Fi")
         )
+        self.checkbox_limit_axis_inputs: QtWidgets.QCheckBox
+        self.checkbox_limit_axis_inputs.toggled.connect(
+            lambda: self.limit_axis_inputs(self.checkbox_limit_axis_inputs.isChecked())
+        )
+
         # Point tab static pointing model widgets
         self.button_static_point_model_off: QtWidgets.QRadioButton
         self.button_static_point_model_off.setChecked(True)
@@ -963,6 +979,7 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_file_track_additional_offset.setEnabled(
             not self.button_file_track_absolute_times.isChecked()
         )
+        self.checkbox_limit_axis_inputs.setEnabled(True)
 
     def server_disconnected_event(self):
         """Handle the server disconnected event."""
@@ -979,6 +996,7 @@ class MainView(QtWidgets.QMainWindow):
         self.warning_tree_view.setEnabled(False)
         self.error_status_show_only_errors.setEnabled(False)
         self.error_tree_view.setEnabled(False)
+        self.checkbox_limit_axis_inputs.setEnabled(False)
 
     def connect_button_clicked(self):
         """Setup a connection to the server."""
@@ -1155,6 +1173,35 @@ class MainView(QtWidgets.QMainWindow):
             logger.debug("args: %s", args)
             self.controller.command_slew_single_axis(axis, *args)
         return
+
+    def limit_axis_inputs(self, limit: bool) -> None:
+        """
+        Limit the input ranges of the axis slew commands as specified in the ICD.
+
+        :param limit: True to apply the limits, False to use -1000 to 1000.
+        """
+        if limit:
+            self.spinbox_slew_only_azimuth_position.setMaximum(AZ_POS_MAX)
+            self.spinbox_slew_only_azimuth_position.setMinimum(AZ_POS_MIN)
+            self.spinbox_slew_only_azimuth_velocity.setMaximum(AZ_VEL_MAX)
+            self.spinbox_slew_only_elevation_position.setMaximum(EL_POS_MAX)
+            self.spinbox_slew_only_elevation_position.setMinimum(EL_POS_MIN)
+            self.spinbox_slew_only_elevation_velocity.setMaximum(EL_VEL_MAX)
+            self.spinbox_slew_only_indexer_position.setMaximum(FI_POS_MAX)
+            self.spinbox_slew_only_indexer_position.setMinimum(FI_POS_MIN)
+            self.spinbox_slew_only_indexer_velocity.setMaximum(FI_VEL_MAX)
+        else:
+            default_max = 1000.0
+            default_min = -1000.0
+            self.spinbox_slew_only_azimuth_position.setMaximum(default_max)
+            self.spinbox_slew_only_azimuth_position.setMinimum(default_min)
+            self.spinbox_slew_only_azimuth_velocity.setMaximum(default_max)
+            self.spinbox_slew_only_elevation_position.setMaximum(default_max)
+            self.spinbox_slew_only_elevation_position.setMinimum(default_min)
+            self.spinbox_slew_only_elevation_velocity.setMaximum(default_max)
+            self.spinbox_slew_only_indexer_position.setMaximum(default_max)
+            self.spinbox_slew_only_indexer_position.setMinimum(default_min)
+            self.spinbox_slew_only_indexer_velocity.setMaximum(default_max)
 
     def stop_button_clicked(self, axis: str) -> None:
         """

@@ -5058,7 +5058,7 @@
               <number>3</number>
              </property>
              <property name="minimum">
-              <double>0.001000000000000</double>
+              <double>0.000000000000000</double>
              </property>
              <property name="maximum">
               <double>3.000000000000000</double>
@@ -5229,7 +5229,7 @@
               <number>3</number>
              </property>
              <property name="minimum">
-              <double>0.001000000000000</double>
+              <double>0.000000000000000</double>
              </property>
              <property name="maximum">
               <double>1.000000000000000</double>
@@ -5400,7 +5400,7 @@
               <number>3</number>
              </property>
              <property name="minimum">
-              <double>0.001000000000000</double>
+              <double>0.000000000000000</double>
              </property>
              <property name="maximum">
               <double>12.000000000000000</double>
@@ -5417,6 +5417,19 @@
             </widget>
            </item>
           </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkbox_limit_axis_inputs">
+          <property name="layoutDirection">
+           <enum>Qt::RightToLeft</enum>
+          </property>
+          <property name="text">
+           <string>Limit input ranges</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
