@@ -61,7 +61,8 @@ class Converter:
         before: tuple[Any, ...] = None
         after: tuple[Any, ...] = look_from
 
-        while after[0] < time:
+        # Loop until the time of the next datapoint is after the line time.
+        while not after[0] > time:
             idx = after[3] + 1
             if idx >= self._node_d[node]["length"]:
                 # No more data for this node in this file (length of SourceTimestamp
@@ -88,7 +89,8 @@ class Converter:
             # The timestamp stored in the hdf5 file (read: returned from the OPCUA
             # server) must be UTC
             aware_datetime = datetime.fromtimestamp(
-                self._file_object[node]["SourceTimestamp"][idx], tz=timezone.utc
+                self._file_object[node]["SourceTimestamp"][idx],
+                tz=timezone.utc,
             )
             after = (
                 aware_datetime,
@@ -99,7 +101,9 @@ class Converter:
 
         return before, after
 
-    def _make_node_d(self, input_nodes: list[str], file_nodes: list[str]) -> bool:
+    def _make_node_d(
+        self, input_nodes: list[str], file_nodes: list[str]
+    ) -> bool:
         """
         Make a node dictionary based on input nodes and file nodes.
 
@@ -121,7 +125,9 @@ class Converter:
             if node in file_nodes:
                 known_nodes.append(node)
             else:
-                print(f"Node {node} is not in the input file and will be ignored.")
+                print(
+                    f"Node {node} is not in the input file and will be ignored."
+                )
 
         if len(known_nodes) == 0:
             print("ERROR: No data for requested nodes, exiting")
@@ -139,12 +145,16 @@ class Converter:
             }
             if node_type == "Enumeration":
                 self._node_d[node]["enums"] = (
-                    self._file_object[node]["Value"].attrs["Enumerations"].split(",")
+                    self._file_object[node]["Value"]
+                    .attrs["Enumerations"]
+                    .split(",")
                 )
 
         return True
 
-    def _check_start_stop(self, start: datetime | None, stop: datetime | None) -> bool:
+    def _check_start_stop(
+        self, start: datetime | None, stop: datetime | None
+    ) -> bool:
         """
         Check and adjust the start and stop times based on file attributes.
 
@@ -162,8 +172,12 @@ class Converter:
         :raises ValueError: If the stop time is after the end of the input file.
         :raises ValueError: If the start time is after the stop time.
         """
-        file_start = datetime.fromisoformat(self._file_object.attrs["Data start time"])
-        file_stop = datetime.fromisoformat(self._file_object.attrs["Data stop time"])
+        file_start = datetime.fromisoformat(
+            self._file_object.attrs["Data start time"]
+        )
+        file_stop = datetime.fromisoformat(
+            self._file_object.attrs["Data stop time"]
+        )
 
         if stop is None:
             stop = file_stop
@@ -199,11 +213,6 @@ class Converter:
             )
             return False
 
-        # Determine if start falls within a file
-        self._start_in_file = False
-        if file_start < start < file_stop:
-            self._start_in_file = True
-
         if stop <= start:
             print("ERROR: Start must be before stop, exiting.")
             return False
@@ -212,7 +221,9 @@ class Converter:
         self.stop = stop
         return True
 
-    def _create_next_line(self, line_time: datetime, prev_time: datetime) -> str:
+    def _create_next_line(
+        self, line_time: datetime, prev_time: datetime
+    ) -> str:
         """
         Create the next line in a data file based on the current time and previous time.
 
@@ -225,14 +236,18 @@ class Converter:
         """
         line = [f"{line_time.isoformat()}Z"]
         # Add a column in the line for each node
-        for node in self._node_d:  # TODO: pylint: disable=consider-using-dict-items
+        for (
+            node
+        ) in self._node_d:  # TODO: pylint: disable=consider-using-dict-items
             current: tuple[Any, ...] = self._node_d[node]["current"]
             next_val: tuple[Any, ...] = self._node_d[node]["next"]
             # We already have the most recent value, no need to look again
             # Or reached end of node data in file
             if (current[0] < line_time < next_val[0]) or current[2]:
-                if current[0] < prev_time:
-                    line.append(f"{self._DELIMITER}{current[1]}{self._OLD_DATA_STR}")
+                if current[0] <= prev_time:
+                    line.append(
+                        f"{self._DELIMITER}{current[1]}{self._OLD_DATA_STR}"
+                    )
                 else:
                     line.append(f"{self._DELIMITER}{current[1]}")
                 continue
@@ -243,10 +258,14 @@ class Converter:
             # step_ms.
             # Minimises disk access as HDF5 should store recently read
             # chunks in memory.
-            current, next_val = self._get_adjacent_data(line_time, node, current)
+            current, next_val = self._get_adjacent_data(
+                line_time, node, current
+            )
 
             if current[0] < prev_time:
-                line.append(f"{self._DELIMITER}{current[1]}{self._OLD_DATA_STR}")
+                line.append(
+                    f"{self._DELIMITER}{current[1]}{self._OLD_DATA_STR}"
+                )
             else:
                 line.append(f"{self._DELIMITER}{current[1]}")
 
@@ -302,7 +321,9 @@ class Converter:
             False,
             -1,
         )
-        for node in self._node_d:  # TODO: pylint: disable=consider-using-dict-items
+        for (
+            node
+        ) in self._node_d:  # TODO: pylint: disable=consider-using-dict-items
             self._node_d[node]["current"] = cache_init
             self._node_d[node]["next"] = cache_init
 
@@ -325,14 +346,10 @@ class Converter:
             f.write(header + "\n")
 
             line_time = self.start
-            # File start times are always before first value so skip first loop unless
-            # we start in the middle of the file.
-            if not self._start_in_file:
-                line_time += timedelta(milliseconds=step_ms)
 
             prev_time = line_time - timedelta(milliseconds=step_ms)
             # Loop until we reach end of the input file
-            while line_time <= self.stop:
+            while line_time <= self.stop + timedelta(milliseconds=step_ms):
                 line = self._create_next_line(line_time, prev_time)
                 f.write(line)
 
