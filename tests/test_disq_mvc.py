@@ -110,6 +110,14 @@ ambtemp_correction_input_widgets = [
     "spinbox_ambtempparam5",
     "spinbox_ambtempparam6",
 ]
+set_time_source_input_widgets = [
+    "combobox_time_source",
+    "line_edit_ntp_source_addr",
+]
+set_power_mode_input_widgets = [
+    "button_power_mode_low",
+    "spinbox_power_lim_kw",
+]
 
 
 # pylint: disable=too-many-arguments,too-many-branches
@@ -124,6 +132,23 @@ ambtemp_correction_input_widgets = [
     ),
     [
         (
+            "set_time_source_clicked",
+            None,
+            "Time_cds.Commands.SetTimeSource",
+            ("NTP", "196.10.54.57"),
+            set_time_source_input_widgets,
+            ("CommandActivated", 9),
+        ),
+        (
+            "set_power_mode_clicked",
+            None,
+            "Management.Commands.SetPowerMode",
+            (False, 20.0),
+            set_power_mode_input_widgets,
+            ("CommandActivated", 9),
+            # ("CommandRejected", 2),  # CETC simulator v4.3
+        ),
+        (
             "unstow_button_clicked",
             None,
             "Management.Commands.Stow",
@@ -137,8 +162,8 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Activate",
             None,
             None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandDone", 10),  # CETC simulator v4.1
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandDone", 10),  # CETC simulator v4.1
         ),
         (
             "activate_button_clicked",
@@ -146,8 +171,8 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Activate",
             None,
             None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandDone", 10),  # CETC simulator v4.1
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandDone", 10),  # CETC simulator v4.1
         ),
         (
             "activate_button_clicked",
@@ -155,8 +180,8 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Activate",
             None,
             None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandDone", 10),  # CETC simulator v4.1
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandDone", 10),  # CETC simulator v4.1
         ),
         (
             "activate_button_clicked",
@@ -164,8 +189,8 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Activate",
             None,
             None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandRejected", 2),  # CETC simulator v4.1
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandRejected", 2),  # CETC simulator v4.1
         ),
         (
             "slew2abs_button_clicked",
@@ -181,8 +206,8 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandDone", 10),  # CETC simulator v4.1
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandDone", 10),  # CETC simulator v4.1
         ),
         (
             "slew2abs_button_clicked",
@@ -198,8 +223,8 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandDone", 10),  # CETC simulator v4.1
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandDone", 10),  # CETC simulator v4.1
         ),
         (
             "slew_button_clicked",
@@ -210,12 +235,30 @@ ambtemp_correction_input_widgets = [
             ("CommandActivated", 9),
         ),
         (
+            "stop_button_clicked",
+            "Az",
+            "Management.Commands.Stop",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandDone", 10),  # CETC simulator v4.1
+        ),
+        (
             "slew_button_clicked",
             "El",
             "Management.Commands.Slew2AbsSingleAx",
             (20.0, 1.0),
             slew_elevation_input_widgets,
             ("CommandActivated", 9),
+        ),
+        (
+            "stop_button_clicked",
+            "El",
+            "Management.Commands.Stop",
+            None,
+            None,
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandDone", 10),  # CETC simulator v4.1
         ),
         (
             "slew_button_clicked",
@@ -227,30 +270,12 @@ ambtemp_correction_input_widgets = [
         ),
         (
             "stop_button_clicked",
-            "Az",
-            "Management.Commands.Stop",
-            None,
-            None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandDone", 10),  # CETC simulator v4.1
-        ),
-        (
-            "stop_button_clicked",
-            "El",
-            "Management.Commands.Stop",
-            None,
-            None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandDone", 10),  # CETC simulator v4.1
-        ),
-        (
-            "stop_button_clicked",
             "Fi",
             "Management.Commands.Stop",
             None,
             None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandDone", 10),  # CETC simulator v4.1
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandDone", 10),  # CETC simulator v4.1
         ),
         (
             "take_authority_button_clicked",
@@ -258,7 +283,7 @@ ambtemp_correction_input_widgets = [
             "CommandArbiter.Commands.TakeAuth",
             ("LMC",),
             ["combobox_authority"],
-            ("DiSQ-SCU already has command authority with user EGUI", -1),
+            ("SCU already has command authority with user EGUI", -1),
         ),
         # TODO: The interactions of this slot is complex, so cannot test 'ON' values
         # here in this test - a custom test is needed.
@@ -276,8 +301,8 @@ ambtemp_correction_input_widgets = [
             "Pointing.Commands.StaticPmSetup",
             ("Optical",) + (0.0,) * 18,
             static_pointing_params_input_widgets,
-            # ("CommandDone", 10),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandActivated", 9),  # CETC simulator v4.1
+            ("CommandDone", 10),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandActivated", 9),  # CETC simulator v4.1
         ),
         (
             "static_pointing_offset_changed",
@@ -293,8 +318,8 @@ ambtemp_correction_input_widgets = [
             "Pointing.Commands.AmbTempCorrSetup",
             (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0),
             ambtemp_correction_input_widgets,
-            # ("CommandDone", 10),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandActivated", 9),  # CETC simulator v4.1
+            ("CommandDone", 10),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandActivated", 9),  # CETC simulator v4.1
         ),
         (
             "deactivate_button_clicked",
@@ -302,8 +327,8 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.DeActivate",
             None,
             None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandDone", 10),  # CETC simulator v4.1
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandDone", 10),  # CETC simulator v4.1
         ),
         (
             "deactivate_button_clicked",
@@ -311,8 +336,8 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.DeActivate",
             None,
             None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandDone", 10),  # CETC simulator v4.1
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandDone", 10),  # CETC simulator v4.1
         ),
         (
             "deactivate_button_clicked",
@@ -320,8 +345,8 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.DeActivate",
             None,
             None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandDone", 10),  # CETC simulator v4.1
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandDone", 10),  # CETC simulator v4.1
         ),
         (
             "deactivate_button_clicked",
@@ -329,8 +354,8 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.DeActivate",
             None,
             None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandRejected", 2),  # CETC simulator v4.1 - already deactivated
+            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandRejected", 2),  # CETC simulator v4.1 - already deactivated
         ),
         (
             "move2band_button_clicked",
@@ -354,8 +379,8 @@ ambtemp_correction_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            # ("CommandActivated", 9),  # PLC at MID-ITF response as of 18 July 2024
-            ("CommandDone", 10),  # CETC simulator v4.1
+            ("CommandRejected", 2),  # PLC at MID-ITF response as of 9 Oct 2024
+            # ("CommandDone", 10),  # CETC simulator v4.1
         ),
         (
             "stow_button_clicked",
