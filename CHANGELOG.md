@@ -17,6 +17,7 @@
     - WOM-480: Added more allowed OPCUA types to data logger.
     - WOM-446: Added set power mode and power status attributes to the power tab.
     - WOM-447: Added 'Reset Axis Errors' buttons to the axis tab that clears latched errors of the servos.
+    - WOM-496: Update DataLogger subscription times to be from server time
 - Bug fixes:
     - WOM-235: Fixed track table get details string list index out of range.
     - WOM-428: Various small bugs in GUI and other GUI improvements.
