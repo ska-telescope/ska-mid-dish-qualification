@@ -115,7 +115,7 @@ class Grapher:
         """Print start and stop times and available nodes for the input hdf5 file."""
         with h5py.File(file, "r") as f:
             print(f"File: {file}")
-            print(f"{f.attrs['Data start time']} file starts.")
+            print(f"{f.attrs['Subscription start time']} file starts.")
             print(f"{f.attrs['Data stop time']} file stops.")
             print("The following nodes are available:")
             for node in f.keys():

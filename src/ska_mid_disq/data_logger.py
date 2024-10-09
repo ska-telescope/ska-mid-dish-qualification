@@ -252,7 +252,9 @@ class DataLogger:
             period_dict[period].append(node)
 
         # Start to fill queue
-        self.subscription_start_time = datetime.now(timezone.utc)
+        self.subscription_start_time = self.hll.attributes[
+            "ServerStatus.CurrentTime"
+        ].value
         for period, attributes in period_dict.items():
             self._subscription_ids.append(
                 self.hll.subscribe(
@@ -302,7 +304,9 @@ class DataLogger:
         for uid in self._subscription_ids:
             self.hll.unsubscribe(uid)
 
-        self.subscription_stop_time = datetime.now(timezone.utc)
+        self.subscription_stop_time = self.hll.attributes[
+            "ServerStatus.CurrentTime"
+        ].value
         self._stop_logging.set()
 
         if self._thread.is_alive():

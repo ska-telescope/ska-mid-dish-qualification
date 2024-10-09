@@ -228,8 +228,6 @@ def test_add_nodes(
     assert logger._nodes == expected_object_nodes
 
 
-# TODO: Fix test
-# @pytest.mark.skip(reason="Test currently fails!")
 def test_start(caplog: pytest.LogCaptureFixture, high_level_library: StubScu) -> None:
     """
     Test the start() method.
