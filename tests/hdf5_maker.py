@@ -124,7 +124,8 @@ class Maker:
             data_d[node] = {"SourceTimestamp": [], "Value": []}
 
         fo.attrs.create(
-            "Start time", datetime.now(timezone.utc).isoformat(timespec="microseconds")
+            "Data start time",
+            datetime.now(timezone.utc).isoformat(timespec="microseconds"),
         )
         # Make data
         data_rows = 10
@@ -146,7 +147,8 @@ class Maker:
             sleep(self.SLEEP_TIME)
 
         fo.attrs.create(
-            "Stop time", datetime.now(timezone.utc).isoformat(timespec="microseconds")
+            "Data stop time",
+            datetime.now(timezone.utc).isoformat(timespec="microseconds"),
         )
 
         # Store data

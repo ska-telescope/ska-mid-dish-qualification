@@ -29,8 +29,8 @@ def test_node_not_in_file(capsys, base_path):
     expected_file = base_path / "resources/expected_files/node_not_in_file.csv"
     nodes = ["not_a_node", "MockData.increment"]
     fo = h5py.File(input_files, "r")
-    start = datetime.fromisoformat(fo.attrs["Start time"])
-    stop = datetime.fromisoformat(fo.attrs["Stop time"])
+    start = datetime.fromisoformat(fo.attrs["Subscription start time"])
+    stop = datetime.fromisoformat(fo.attrs["Data stop time"])
     fo.close()
     step = 100
     converter = h2c.Converter()
@@ -54,8 +54,8 @@ def test_no_matching_nodes(capsys, base_path):
     output_file = base_path / "resources/output_files/no_matching_nodes.csv"
     nodes = "not_a_node"
     fo = h5py.File(input_file, "r")
-    start = datetime.fromisoformat(fo.attrs["Start time"])
-    stop = datetime.fromisoformat(fo.attrs["Stop time"])
+    start = datetime.fromisoformat(fo.attrs["Subscription start time"])
+    stop = datetime.fromisoformat(fo.attrs["Data stop time"])
     fo.close()
     step = 100
     converter = h2c.Converter()
@@ -85,8 +85,10 @@ def test_start_stop_past_file(capsys, base_path):
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     fo = h5py.File(input_file, "r")
     # Cause the requested start and end times to be past the file ranges
-    start = datetime.fromisoformat(fo.attrs["Start time"]) - timedelta(seconds=4)
-    stop = datetime.fromisoformat(fo.attrs["Stop time"]) + timedelta(seconds=4)
+    start = datetime.fromisoformat(fo.attrs["Subscription start time"]) - timedelta(
+        seconds=4
+    )
+    stop = datetime.fromisoformat(fo.attrs["Data stop time"]) + timedelta(seconds=4)
     fo.close()
     step = 100
     converter = h2c.Converter()
@@ -96,9 +98,9 @@ def test_start_stop_past_file(capsys, base_path):
         "Requested start time 2023-10-30 16:14:52.138859+00:00 is before earliest "
         "file start 2023-10-30 16:14:56.138859+00:00. Output CSV will start from "
         "2023-10-30 16:14:56.138859+00:00\nRequested stop time 2023-10-30 "
-        "16:15:01.315888+00:00 is after latest file stop 2023-10-30 "
-        "16:14:57.315888+00:00. Output CSV will stop at 2023-10-30 "
-        "16:14:57.315888+00:00\n"
+        "16:15:01.206607+00:00 is after latest file stop 2023-10-30 "
+        "16:14:57.206607+00:00. Output CSV will stop at 2023-10-30 "
+        "16:14:57.206607+00:00\n"
     )
     # Check that error message matches expected
     assert captured.out == expected_stdout
@@ -119,8 +121,8 @@ def test_simple_input_file(capsys, base_path):
     expected_file = base_path / "resources/expected_files/simple_input_file.csv"
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     fo = h5py.File(input_file, "r")
-    start = datetime.fromisoformat(fo.attrs["Start time"])
-    stop = datetime.fromisoformat(fo.attrs["Stop time"])
+    start = datetime.fromisoformat(fo.attrs["Subscription start time"])
+    stop = datetime.fromisoformat(fo.attrs["Data stop time"])
     fo.close()
     step = 100
     converter = h2c.Converter()
@@ -150,8 +152,8 @@ def test_simple_input_file_double_speed(capsys, base_path):
     )
     nodes = ["MockData.increment", "MockData.bool", "MockData.enum"]
     fo = h5py.File(input_file, "r")
-    start = datetime.fromisoformat(fo.attrs["Start time"])
-    stop = datetime.fromisoformat(fo.attrs["Stop time"])
+    start = datetime.fromisoformat(fo.attrs["Subscription start time"])
+    stop = datetime.fromisoformat(fo.attrs["Data stop time"])
     fo.close()
     step = 50
     converter = h2c.Converter()

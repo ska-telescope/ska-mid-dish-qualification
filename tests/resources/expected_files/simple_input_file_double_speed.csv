@@ -1,5 +1,5 @@
 StartTime,2023-10-30T12:51:30.661904+00:00Z
-EndTime,2023-10-30T12:51:31.757726+00:00Z
+EndTime,2023-10-30T12:51:31.646541+00:00Z
 Date/Time,MockData.increment,MockData.bool,MockData.enum
 2023-10-30T12:51:30.711904+00:00Z,0.0,True,one
 2023-10-30T12:51:30.761904+00:00Z,0.0*,True*,one*
@@ -21,4 +21,3 @@ Date/Time,MockData.increment,MockData.bool,MockData.enum
 2023-10-30T12:51:31.561904+00:00Z,8.0,True,one
 2023-10-30T12:51:31.611904+00:00Z,8.0*,True*,one*
 2023-10-30T12:51:31.661904+00:00Z,9.0,False,two
-2023-10-30T12:51:31.711904+00:00Z,9.0*,False*,two*

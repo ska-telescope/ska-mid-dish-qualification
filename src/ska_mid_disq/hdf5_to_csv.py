@@ -45,7 +45,6 @@ class Converter:
     """
 
     # TODO: configure good default start
-    _DEFAULT_START_DELTA: Final = timedelta(minutes=60)
     _NO_DATA_YET_STR: Final = "-"
     _OLD_DATA_STR: Final = "*"
     _DELIMITER: Final = ","
@@ -62,7 +61,8 @@ class Converter:
         before: tuple[Any, ...] = None
         after: tuple[Any, ...] = look_from
 
-        while after[0] < time:
+        # Loop until the time of the next datapoint is after the line time.
+        while not after[0] > time:
             idx = after[3] + 1
             if idx >= self._node_d[node]["length"]:
                 # No more data for this node in this file (length of SourceTimestamp
@@ -89,7 +89,8 @@ class Converter:
             # The timestamp stored in the hdf5 file (read: returned from the OPCUA
             # server) must be UTC
             aware_datetime = datetime.fromtimestamp(
-                self._file_object[node]["SourceTimestamp"][idx], tz=timezone.utc
+                self._file_object[node]["SourceTimestamp"][idx],
+                tz=timezone.utc,
             )
             after = (
                 aware_datetime,
@@ -163,14 +164,16 @@ class Converter:
         :raises ValueError: If the stop time is after the end of the input file.
         :raises ValueError: If the start time is after the stop time.
         """
-        file_start = datetime.fromisoformat(self._file_object.attrs["Start time"])
-        file_stop = datetime.fromisoformat(self._file_object.attrs["Stop time"])
+        file_start = datetime.fromisoformat(
+            self._file_object.attrs["Subscription start time"]
+        )
+        file_stop = datetime.fromisoformat(self._file_object.attrs["Data stop time"])
 
         if stop is None:
-            stop = datetime.now(timezone.utc)
+            stop = file_stop
 
         if start is None:
-            start = stop - self._DEFAULT_START_DELTA
+            start = file_start
 
         if start < file_start:
             print(
@@ -200,11 +203,6 @@ class Converter:
             )
             return False
 
-        # Determine if start falls within a file
-        self._start_in_file = False
-        if file_start < start < file_stop:
-            self._start_in_file = True
-
         if stop <= start:
             print("ERROR: Start must be before stop, exiting.")
             return False
@@ -232,7 +230,7 @@ class Converter:
             # We already have the most recent value, no need to look again
             # Or reached end of node data in file
             if (current[0] < line_time < next_val[0]) or current[2]:
-                if current[0] < prev_time:
+                if current[0] <= prev_time:
                     line.append(f"{self._DELIMITER}{current[1]}{self._OLD_DATA_STR}")
                 else:
                     line.append(f"{self._DELIMITER}{current[1]}")
@@ -296,6 +294,9 @@ class Converter:
         if not self._check_start_stop(start, stop):
             return
 
+        data_start_time = datetime.fromisoformat(
+            self._file_object.attrs["Data start time"]
+        )
         # Populate the node cache
         cache_init = (
             self.start - timedelta(milliseconds=step_ms),
@@ -326,14 +327,16 @@ class Converter:
             f.write(header + "\n")
 
             line_time = self.start
-            # File start times are always before first value so skip first loop unless
-            # we start in the middle of the file.
-            if not self._start_in_file:
-                line_time += timedelta(milliseconds=step_ms)
 
             prev_time = line_time - timedelta(milliseconds=step_ms)
             # Loop until we reach end of the input file
-            while line_time <= self.stop:
+            while line_time <= self.stop + timedelta(milliseconds=step_ms):
+                # Skip until at least one node has data
+                if line_time < data_start_time:
+                    prev_time = line_time
+                    line_time += timedelta(milliseconds=step_ms)
+                    continue
+
                 line = self._create_next_line(line_time, prev_time)
                 f.write(line)
 

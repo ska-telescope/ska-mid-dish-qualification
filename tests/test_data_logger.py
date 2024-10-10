@@ -6,6 +6,8 @@ gathered from the server. Specifically the custom server available in the ska-mi
 simulators repo on branch wom-133-custom-nodes-for-pretty-graphs
 """
 
+import logging
+
 # pylint: disable=protected-access
 import os
 import random
@@ -226,8 +228,6 @@ def test_add_nodes(
     assert logger._nodes == expected_object_nodes
 
 
-# TODO: Fix test
-@pytest.mark.skip(reason="Test currently fails!")
 def test_start(caplog: pytest.LogCaptureFixture, high_level_library: StubScu) -> None:
     """
     Test the start() method.
@@ -235,6 +235,7 @@ def test_start(caplog: pytest.LogCaptureFixture, high_level_library: StubScu) ->
     Check that a file (and directory) is made with the input file name, and that it
     cannot be invoked twice, logging the correct messages.
     """
+    caplog.set_level(logging.INFO)
     output_file = "tests/resources/output_files/start.hdf5"
     logger = DataLogger(file_name=output_file, high_level_library=high_level_library)
     nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
@@ -242,18 +243,13 @@ def test_start(caplog: pytest.LogCaptureFixture, high_level_library: StubScu) ->
     logger.start()
     logger.start()
     expected_log = [
-        "renamed Locked&Stowed to Locked_Stowed due to Python syntax",
-        "Writing data to file: output_files/start.hdf5",
-        "WARNING: start() can only be invoked once per object.",
-    ]
-    # Sometimes the first line above does not appear
-    expected_log2 = [
-        "Writing data to file: output_files/start.hdf5",
+        "Writing data to file: tests/resources/output_files/start.hdf5",
         "WARNING: start() can only be invoked once per object.",
     ]
     # Check messages are those expected.
-    # pylint: disable=consider-using-in
-    assert caplog.messages == expected_log or caplog.messages == expected_log2
+    for message in expected_log:
+        assert message in caplog.messages
+
     # Check file was created.
     assert os.path.exists(output_file) is True
     logger.stop()
