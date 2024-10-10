@@ -577,6 +577,12 @@ class MainView(QtWidgets.QMainWindow):
         self.button_start_track_table: QtWidgets.QPushButton
         self.button_start_track_table.clicked.connect(self.start_tracking_clicked)
 
+        # Track tab time widgets
+        self.button_set_time_source: QtWidgets.QPushButton
+        self.button_set_time_source.clicked.connect(self.set_time_source_clicked)
+        self.combobox_time_source: QtWidgets.QComboBox
+        self.line_edit_ntp_source_addr: QtWidgets.QLineEdit
+
         # Warning and Error tabs
         self.warning_tree_view: QtWidgets.QTreeWidget
         self.warning_status_show_only_warnings: QtWidgets.QCheckBox
@@ -769,7 +775,7 @@ class MainView(QtWidgets.QMainWindow):
         str_val = str(opcua_event["value"])
         if "opcua_type" in widgets[0].dynamicPropertyNames():
             opcua_type = widgets[0].property("opcua_type")
-            if opcua_type in self.model.opcua_enum_types:
+            if opcua_type in self.model.opcua_enum_types and str_val != "None":
                 opcua_enum: type = self.model.opcua_enum_types[opcua_type]
                 enum_val: Enum = opcua_enum(int(str_val))
                 str_val = enum_val.name
@@ -938,32 +944,31 @@ class MainView(QtWidgets.QMainWindow):
          - False: the OPC-UA parameter is False. Colour background dark green (LED off).
         """
         logger.debug("Boolean OPCUA update: %s value=%s", event["name"], event["value"])
-        # There should only be one 'LED' indicator connected to an OPC-UA parameter.
-        widget = widgets[0]
-        if event["value"] is None:
-            widget.setEnabled(False)
-            widget.setStyleSheet("QLineEdit { border-color: white;} ")
-        else:
-            led_base_colour = "green"  # default colour
-            if "led_colour" in widget.dynamicPropertyNames():
-                led_base_colour = widget.property("led_colour")
-            try:
-                background_colour_rbg: str = self._LED_COLOURS[led_base_colour][
-                    event["value"]
-                ]
-            except KeyError:
-                logger.warning(
-                    "LED colour for base colour '%s' and value '%s' not found",
-                    led_base_colour,
-                    event["value"],
+        for widget in widgets:
+            if event["value"] is None:
+                widget.setEnabled(False)
+                widget.setStyleSheet("QLineEdit { border-color: white;} ")
+            else:
+                led_base_colour = "green"  # default colour
+                if "led_colour" in widget.dynamicPropertyNames():
+                    led_base_colour = widget.property("led_colour")
+                try:
+                    background_colour_rbg: str = self._LED_COLOURS[led_base_colour][
+                        event["value"]
+                    ]
+                except KeyError:
+                    logger.warning(
+                        "LED colour for base colour '%s' and value '%s' not found",
+                        led_base_colour,
+                        event["value"],
+                    )
+                    return
+                widget.setEnabled(True)
+                widget.setStyleSheet(
+                    "QLineEdit { "
+                    f"background-color: {background_colour_rbg}; "
+                    "color: rgb(238, 238, 238);border-color: black;} "
                 )
-                return
-            widget.setEnabled(True)
-            widget.setStyleSheet(
-                "QLineEdit { "
-                f"background-color: {background_colour_rbg}; "
-                "color: rgb(238, 238, 238);border-color: black;} "
-            )
 
     def _track_table_file_exist(self) -> bool:
         """Check if the track table file exists."""
@@ -1126,6 +1131,13 @@ class MainView(QtWidgets.QMainWindow):
             self.combobox_track_start_interpol_type.currentText(),
             self.button_start_track_now.isChecked(),
             self.line_edit_start_track_at.text(),
+        )
+
+    def set_time_source_clicked(self):
+        """Set the time axis source of the PLC."""
+        self.controller.command_set_time_source(
+            self.combobox_time_source.currentText(),
+            self.line_edit_ntp_source_addr.text(),
         )
 
     def recording_config_button_clicked(self):

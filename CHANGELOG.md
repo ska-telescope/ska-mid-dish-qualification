@@ -3,25 +3,29 @@
 ## Unreleased
 
 - API changes:
-    - WOM-481: Renamed the python package to `ska-mid-disq` and the data logger class to `DataLogger` to differentiate it from python's built-in `Logger` class.
     - WOM-402: Removed `parameter_commands`, `server`, `server_nodes`, `server_attributes` and `server_commands` properties.
     - WOM-453: Made many class variables and methods of SCU private.
+    - WOM-482: Renamed the python package to `ska-mid-disq` and the data logger class to `DataLogger` to differentiate it from python's built-in `Logger` class.
 - Non-breaking changes:
-    - WOM-308: Updated slew velocity input boxes with maximum allowed value on startup.
-    - WOM-408: Changed the individual axis position & velocity widgets to spinboxes that immediately sends a slew command when a position's up/down buttons are clicked.
     - WOM-332: Removed loading/use of environment variables from .env file.
+    - WOM-308: Updated slew velocity input boxes with maximum allowed value on startup.
     - WOM-414: Try using `exception.add_note()` in SCU for python 3.11.
-    - WOM-418: Updated mock test server to version 2 of ICD.
     - WOM-450: Moved `configure_logging()` to configuration module.
+    - WOM-418: Updated mock test server to version 2 of ICD.
+    - WOM-478: Display package version in GUI's main window title.
+    - WOM-408: Added status indicators for aggregated warnings and errors in main window.
     - WOM-471: Swopped sculib with ska-mid-dish-steering-control package and updated dependencies (asyncua 1.1.5).
+    - WOM-479: Update `DataLogger` to use newer SCU enum methods.
     - WOM-480: Added more allowed OPCUA types to data logger.
     - WOM-446: Added set power mode and power status attributes to the power tab.
     - WOM-447: Added 'Reset Axis Errors' buttons to the axis tab that clears latched errors of the servos.
+    - WOM-401: Changed the individual axis position & velocity widgets to spinboxes that immediately sends a slew command when a position's up/down buttons are clicked.
+    - WOM-464: Added time info and 'Set Time Source' in track tab, and also indicator of time source and synced status in main window.
     - WOM-496: Update DataLogger subscription times to be from server time
 - Bug fixes:
     - WOM-235: Fixed track table get details string list index out of range.
     - WOM-428: Various small bugs in GUI and other GUI improvements.
-    - WOM-471: Prevent DiSQ crashing when resetting the PLC it's connected to.
+    - WOM-427: Prevent DiSQ crashing when resetting the PLC it's connected to.
 
 ## 0.4.0
 

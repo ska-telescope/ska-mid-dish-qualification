@@ -496,6 +496,9 @@ class Model(QObject):
             case Command.MOVE2BAND | Command.STATIC_PM_SETUP:
                 band = self._scu.convert_enum_to_int("BandType", args[0])
                 result = _log_and_call(command, band, *args[1:])
+            case Command.SET_TIME_SOURCE:
+                source = self._scu.convert_enum_to_int("DscTimeSyncSourceType", args[0])
+                result = _log_and_call(command, source, *args[1:])
             case Command.PM_CORR_ON_OFF:
                 static = args[0]
                 tilt = self._scu.convert_enum_to_int("TiltOnType", args[1])

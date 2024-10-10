@@ -54,7 +54,7 @@ def disq_mid_itf_plc_fixture(main_view: MainView) -> MainView:  # type: ignore
     """Fixture of DiSQ connected to the PLC at the MID-ITF."""
     main_view.controller.connect_server(
         {
-            "host": "10.165.3.41",
+            "host": "10.165.3.43",
             "port": "4840",
             "endpoint": "",
             "namespace": "",
