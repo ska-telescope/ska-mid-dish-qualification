@@ -27,7 +27,9 @@ class Controller(QObject):
     server_disconnected = pyqtSignal()
     recording_status = pyqtSignal(bool)
 
-    def __init__(self, mvc_model: model.Model, parent: QObject | None = None) -> None:
+    def __init__(
+        self, mvc_model: model.Model, parent: QObject | None = None
+    ) -> None:
         """
         Initialize a new instance of the `Controller` class.
 
@@ -92,7 +94,9 @@ class Controller(QObject):
             logger.warning("Unable to find config file")
         return server_list
 
-    def get_config_server_args(self, server_name: str) -> dict[str, str] | None:
+    def get_config_server_args(
+        self, server_name: str
+    ) -> dict[str, str] | None:
         """
         Get the server arguments from the configuration file.
 
@@ -106,7 +110,9 @@ class Controller(QObject):
         except FileNotFoundError:
             logger.warning("Unable to find config file")
         except KeyError:
-            logger.warning("Specified server not found in the configuration file")
+            logger.warning(
+                "Specified server not found in the configuration file"
+            )
         return None
 
     def is_server_connected(self) -> bool:
@@ -129,7 +135,9 @@ class Controller(QObject):
         """
         self.emit_ui_status_message("INFO", "Connecting to server...")
         try:
-            connection_details["port"] = int(connection_details["port"].strip())
+            connection_details["port"] = int(
+                connection_details["port"].strip()
+            )
         except ValueError:
             self.emit_ui_status_message(
                 "ERROR",
@@ -206,7 +214,9 @@ class Controller(QObject):
         :param position: The target position to slew to.
         :param velocity: The velocity at which to slew.
         """
-        self._issue_command(Command.SLEW2ABS_SINGLE_AX, axis, position, velocity)
+        self._issue_command(
+            Command.SLEW2ABS_SINGLE_AX, axis, position, velocity
+        )
 
     def command_activate(self, axis: str = "AzEl") -> None:
         """
@@ -280,7 +290,9 @@ class Controller(QObject):
         self, low_power: bool, power_lim_kw: float
     ) -> tuple[ResultCode, str]:
         """Issue a command to set the dish power mode."""
-        return self._issue_command(Command.SET_POWER_MODE, low_power, power_lim_kw)
+        return self._issue_command(
+            Command.SET_POWER_MODE, low_power, power_lim_kw
+        )
 
     def command_reset_axis(self, axis: str) -> tuple[ResultCode, str]:
         """Issue a command to clear servo amplifier axis/axes latched errors."""
@@ -339,7 +351,9 @@ class Controller(QObject):
         """
         if self._static_pointing_offsets != [azim, elev]:
             self._static_pointing_offsets = [azim, elev]
-            return self._issue_command(Command.TRACK_LOAD_STATIC_OFF, azim, elev)
+            return self._issue_command(
+                Command.TRACK_LOAD_STATIC_OFF, azim, elev
+            )
         return None
 
     def command_set_ambtemp_correction_parameters(
@@ -358,7 +372,9 @@ class Controller(QObject):
             return self._issue_command(Command.AMBTEMP_CORR_SETUP, *params)
         return None
 
-    def _issue_command(self, command: Command, *args: Any) -> tuple[ResultCode, str]:
+    def _issue_command(
+        self, command: Command, *args: Any
+    ) -> tuple[ResultCode, str]:
         """
         Issue a command to the OPCUA server.
 
@@ -368,13 +384,19 @@ class Controller(QObject):
         """
         logger.debug("Command: %s, args: %s", command.value, args)
         # TODO: Nothing is currently done with other possible return values
-        result_code, result_msg, _ = self._model.run_opcua_command(command, *args)
-        self._command_response_str(f"{command.value}{args}", result_code, result_msg)
+        result_code, result_msg, _ = self._model.run_opcua_command(
+            command, *args
+        )
+        self._command_response_str(
+            f"{command.value}{args}", result_code, result_msg
+        )
         if result_code == ResultCode.CONNECTION_CLOSED:
             self._handle_closed_connection()
         return (result_code, result_msg)
 
-    def _handle_closed_connection(self, status_message: str | None = None) -> None:
+    def _handle_closed_connection(
+        self, status_message: str | None = None
+    ) -> None:
         """Handle unexpected closed connection."""
         self._model.handle_closed_connection()
         if status_message:
@@ -401,7 +423,9 @@ class Controller(QObject):
             effect when absolute_times is False.
         """
 
-        def emit_result_to_ui(result_code: ResultCode, result_msg: str) -> None:
+        def emit_result_to_ui(
+            result_code: ResultCode, result_msg: str
+        ) -> None:
             if result_code == ResultCode.NOT_EXECUTED:
                 self.emit_ui_status_message(
                     "WARNING", f"Track table cannot be loaded: {result_msg}"
@@ -433,7 +457,9 @@ class Controller(QObject):
             )
             emit_result_to_ui(result_code, result_msg)  # emit immediate result
         except Exception as exc:  # pylint: disable=broad-except
-            exc_msg = f"Unable to load track table from file: {fname.absolute()}"
+            exc_msg = (
+                f"Unable to load track table from file: {fname.absolute()}"
+            )
             logger.exception("%s - %s", exc_msg, exc)
             msg = f"Unable to load track table: {exc}"
             self.emit_ui_status_message("ERROR", msg)
@@ -462,7 +488,7 @@ class Controller(QObject):
             params.append(at_num)
         self._issue_command(Command.TRACK_START, *params)
 
-    def recording_start(self, filename: str) -> None:
+    def recording_start(self, filename: str, allow_overwrite: bool) -> None:
         """
         Start recording OPC-UA parameter updates to `filename`.
 
@@ -474,9 +500,12 @@ class Controller(QObject):
 
         :param filename: Name of HDF5 file to write to.
         """
+        if not filename.rsplit(".", 1)[-1] == "hdf5":
+            filename += ".hdf5"
+
         fname = Path(filename)
         logger.debug("Recording to file: %s", fname.absolute())
-        if fname.exists():
+        if not allow_overwrite and fname.exists():
             msg = f"⛔️ Not recording. Data file already exists: {fname.absolute()}"
             self.emit_ui_status_message("WARNING", msg)
             return
