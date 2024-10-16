@@ -1,6 +1,7 @@
 # pylint: disable=too-many-lines
 """DiSQ GUI View."""
 
+import json
 import logging
 import os
 from datetime import datetime, timezone
@@ -35,8 +36,28 @@ FI_POS_MIN: Final = -106.0
 FI_VEL_MAX: Final = 12.0
 
 
-# pylint: disable=too-few-public-methods
-class RecordingConfigDialog(QtWidgets.QDialog):
+class StatusBarMixin:
+    """A mixin class to provide a window with a status bar."""
+
+    def create_status_bar_widget(
+        self,
+        label: str = "",
+    ) -> QtWidgets.QStatusBar:
+        """Create the status bar widgets for the window."""
+        # Add a label widget to the status bar for command/response status
+        status_bar = QtWidgets.QStatusBar()
+        self.cmd_status_label = QtWidgets.QLabel(label)
+        status_bar.addWidget(self.cmd_status_label)
+        return status_bar
+
+    def status_bar_update(self, status: str) -> None:
+        """Update the status bar with a status update."""
+        self.cmd_status_label.setText(status[:200])
+
+
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-statements
+class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
     """
     A dialog-window class for selecting OPC-UA parameters to be recorded.
 
@@ -44,7 +65,11 @@ class RecordingConfigDialog(QtWidgets.QDialog):
     :param attributes: A list of OPC-UA attributes to be displayed and selected.
     """
 
-    def __init__(self, parent: QtWidgets.QWidget, attributes: list[str]):
+    def __init__(
+        self,
+        parent: QtWidgets.QWidget,
+        attributes: dict[str, dict[str, bool | int]],
+    ):
         """
         Initialize the Recording Configuration dialog.
 
@@ -55,6 +80,11 @@ class RecordingConfigDialog(QtWidgets.QDialog):
         super().__init__(parent)
 
         self.setWindowTitle("Recording Configuration")
+        self.resize(544, 512)
+
+        self._node_table_widgets: dict[
+            str, dict[str, QtWidgets.QCheckBox | QtWidgets.QLineEdit]
+        ] = {}
 
         button = (
             QtWidgets.QDialogButtonBox.StandardButton.Ok
@@ -65,37 +95,235 @@ class RecordingConfigDialog(QtWidgets.QDialog):
         self.btn_box.accepted.connect(self.accept_selection)
         self.btn_box.rejected.connect(self.reject)
 
-        self.vbox_layout = QtWidgets.QVBoxLayout()
+        self.grid_layout = QtWidgets.QGridLayout()
+        table_options_layout = QtWidgets.QGridLayout()
+        self.table_file_label = QtWidgets.QLabel("Table file:")
+        self.table_file_label.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.table_file_load = QtWidgets.QPushButton("Load")
+        self.table_file_load.clicked.connect(self._load_node_table)
+        self.table_file_save = QtWidgets.QPushButton("Save")
+        self.table_file_save.clicked.connect(self._save_node_table)
+        self.record_column_label = QtWidgets.QLabel("Record column:")
+        self.record_column_label.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.record_column_tick = QtWidgets.QPushButton("Record All")
+        self.record_column_tick.clicked.connect(
+            lambda: self._set_all_record_checkboxes(True)
+        )
+        self.record_column_clear = QtWidgets.QPushButton("Clear All")
+        self.record_column_clear.clicked.connect(
+            lambda: self._set_all_record_checkboxes(False)
+        )
+        self.period_column_label = QtWidgets.QLabel("Period column:")
+        self.period_column_label.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.period_column_value = QtWidgets.QSpinBox()
+        # Remove step buttons and prevent mouse wheel interaction
+        self.period_column_value.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
+        )
+        self.period_column_value.wheelEvent = lambda event: None
+        self.period_column_value.setRange(50, 60000)
+        self.period_column_value.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.period_column_set = QtWidgets.QPushButton("Set All")
+        self.period_column_set.clicked.connect(self._set_all_period_spinboxes)
+        table_options_layout.addWidget(self.table_file_label, 0, 0)
+        table_options_layout.addWidget(self.table_file_load, 0, 1)
+        table_options_layout.addWidget(self.table_file_save, 0, 2)
+        table_options_layout.addWidget(self.record_column_label, 1, 0)
+        table_options_layout.addWidget(self.record_column_tick, 1, 1)
+        table_options_layout.addWidget(self.record_column_clear, 1, 2)
+        table_options_layout.addWidget(self.period_column_label, 2, 0)
+        table_options_layout.addWidget(self.period_column_value, 2, 1)
+        table_options_layout.addWidget(self.period_column_set, 2, 2)
+        self.grid_layout.addLayout(table_options_layout, 0, 0)
+
         message = QtWidgets.QLabel(
             "Select all the OPC-UA attributes to record from the list and click OK"
         )
-        self.vbox_layout.addWidget(message)
+        message.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.grid_layout.addWidget(message)
 
-        self.list_widget = QtWidgets.QListWidget()
-        self.list_widget.setSelectionMode(
+        self.node_table = QtWidgets.QTableWidget(len(attributes), 3, self)
+        self._create_node_table(attributes, self.node_table)
+        self.grid_layout.addWidget(self.node_table)
+
+        self.grid_layout.addWidget(self.btn_box)
+        status_bar = self.create_status_bar_widget()
+        self.grid_layout.addWidget(status_bar)
+        self.setLayout(self.grid_layout)
+        self.config_parameters: dict[str, dict[str, bool | int]] = {}
+
+    def _create_node_table(self, attributes, node_table):
+        """Create the attribute node table."""
+        node_table.setStyleSheet(
+            "QCheckBox {margin-left: 28px;} "
+            "QCheckBox::indicator {width: 24px; height: 24px}"
+        )
+        node_table.setHorizontalHeaderLabels(["Attribute Name", "", "Period (ms)"])
+        horizontal_header = node_table.horizontalHeader()
+        horizontal_header.setDefaultSectionSize(80)
+        horizontal_header.setSectionResizeMode(
+            0, QtWidgets.QHeaderView.ResizeMode.Stretch
+        )
+
+        vertical_header = QtWidgets.QHeaderView(QtCore.Qt.Orientation.Vertical)
+        vertical_header.hide()
+        node_table.setVerticalHeader(vertical_header)
+        node_table.setSelectionMode(
             QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
         )
-        self.list_widget.resize(300, 120)
-        for attr in attributes:
-            self.list_widget.addItem(attr)
-        self.vbox_layout.addWidget(self.list_widget)
+        for i, (attr, value) in enumerate(attributes.items()):
+            # Add node name in first column and turn off table interactions
+            node_name = QtWidgets.QTableWidgetItem(attr)
+            node_name.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
+            node_table.setItem(i, 0, node_name)
+            # Ensure "Record" and "Period" columns are also not interactable
+            add_background = QtWidgets.QTableWidgetItem()
+            period_background = QtWidgets.QTableWidgetItem()
+            add_background.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
+            period_background.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
+            node_table.setItem(i, 1, add_background)
+            node_table.setItem(i, 2, period_background)
+            # Add "Record" checkbox
+            record_node = QtWidgets.QCheckBox()
+            record_node.setChecked(value["record"])
+            node_table.setCellWidget(i, 1, record_node)
+            # Add "Period" line edit
+            node_period = QtWidgets.QSpinBox()
+            # Remove step buttons and prevent mouse wheel interaction
+            node_period.setButtonSymbols(
+                QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
+            )
+            node_period.wheelEvent = node_table.wheelEvent
+            node_period.setRange(50, 60000)
+            node_period.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+            node_period.setValue(value["period"])
+            node_table.setCellWidget(i, 2, node_period)
+            self._node_table_widgets[attr] = {
+                "record_check_box": record_node,
+                "period_spin_box": node_period,
+            }
 
-        self.vbox_layout.addWidget(self.btn_box)
-        self.setLayout(self.vbox_layout)
-        self.config_parameters: list[str] = []
+    def _set_all_record_checkboxes(self, checked: bool) -> None:
+        """Unchecks all of the "Record" checkboxes."""
+        for widgets in self._node_table_widgets.values():
+            widgets["record_check_box"].setChecked(checked)
+
+        status_update = "Record column "
+        if checked:
+            status_update += "ticked."
+        else:
+            status_update += "cleared."
+
+        self.status_bar_update(status_update)
+
+    def _set_all_period_spinboxes(self) -> None:
+        """Sets all period spinboxes to the value in self.period_column_value."""
+        value = self.period_column_value.value()
+        for widgets in self._node_table_widgets.values():
+            widgets["period_spin_box"].setValue(value)
+
+        self.status_bar_update(f"Period column set to {value} milliseconds.")
+
+    def _save_node_table(self) -> None:
+        """Save the node table to a json file."""
+        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self,
+            "Save Recording Config File",
+            "",
+            "Recording Config Files (*.json)",
+        )
+        if filename:
+            logger.info("Recording save file name: %s", filename)
+            if not filename.rsplit(".", 1)[-1] == "json":
+                filename += ".json"
+            with open(filename, "w", encoding="UTF-8") as f:
+                json.dump(self._get_current_config(), f, indent=4, sort_keys=True)
+
+            self.status_bar_update(f"Recording config saved to file {filename}")
+
+    def _load_node_table(self) -> None:
+        """Load the node table from a json file."""
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            "Load Recording Config File",
+            "",
+            "Recording Config Files (*.json)",
+        )
+        if filename:
+            logger.info("Recording load file name: %s", filename)
+            with open(filename, "r", encoding="UTF-8") as f:
+                config = json.load(f)
+
+            missing_nodes = list(self._node_table_widgets.keys())
+            extra_nodes = []
+            for node, values in config.items():
+                if node in self._node_table_widgets:
+                    self._node_table_widgets[node]["record_check_box"].setChecked(
+                        values["record"]
+                    )
+                    self._node_table_widgets[node]["period_spin_box"].setValue(
+                        values["period"]
+                    )
+                    missing_nodes.remove(node)
+                else:
+                    extra_nodes.append(node)
+
+            self.status_bar_update(f"Recording config loaded from file {filename}")
+            error_status_update = ""
+            if missing_nodes:
+                logger.warning(
+                    "The server has attributes not in the config file. "
+                    "The following attributes have not been updated: %s",
+                    missing_nodes,
+                )
+                error_status_update += (
+                    "This server has attributes not in the selected " "config file. "
+                )
+
+            if extra_nodes:
+                logger.warning(
+                    "The file contains attributes not available on the server. "
+                    "The following attributes have not been updated: %s",
+                    extra_nodes,
+                )
+                error_status_update += (
+                    "The selected config file contains attributes not available on "
+                    "this server. "
+                )
+
+            if error_status_update:
+                error_status_update += "Only overlapping attributes will be updated."
+                self.status_bar_update(error_status_update)
+
+    def _get_current_config(self) -> dict[str, dict[str, bool | int]]:
+        """Get the current attribute record and period values."""
+        config_parameters = {}
+        for node, widgets in self._node_table_widgets.items():
+            config_parameters[node] = {
+                "record": widgets["record_check_box"].isChecked(),
+                "period": widgets["period_spin_box"].value(),
+            }
+
+        return config_parameters
 
     def accept_selection(self):
         """Accepts the selection made in the configuration dialog."""
         logger.debug("Recording config dialog accepted")
-        self.config_parameters = [
-            item.text() for item in self.list_widget.selectedItems()
-        ]
+        self.config_parameters = self._get_current_config()
         self.accept()
 
 
 # pylint: disable=too-many-statements, too-many-public-methods,
 # pylint: disable=too-many-instance-attributes
-class MainView(QtWidgets.QMainWindow):
+class MainView(StatusBarMixin, QtWidgets.QMainWindow):
     """
     A class representing the main Window of the DiSQ GUI application.
 
@@ -153,9 +381,7 @@ class MainView(QtWidgets.QMainWindow):
         """
         super().__init__(*args, **kwargs)
         # Load the UI from the XML .ui file
-        ui_xml_filename = (
-            resources.files(__package__) / "ui/dishstructure_mvc.ui"
-        )
+        ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
         uic.loadUi(ui_xml_filename, self)
         self.setWindowTitle(f"DiSQ GUI v{__version__}")
 
@@ -168,32 +394,19 @@ class MainView(QtWidgets.QMainWindow):
             "border: 1px solid black; }"
         )
 
-        # Add a label widget to the status bar for command/response status
-        # The QT Designer doesn't allow us to add this label so we have to do it here
-        self.cmd_status_label = QtWidgets.QLabel("ℹ️ Status")
-        self.status_bar = QtWidgets.QStatusBar()
-        self.setStatusBar(self.status_bar)
-        self.status_bar.addWidget(self.cmd_status_label)
-        self.list_cmd_history: (
-            QtWidgets.QListWidget
-        )  # Command history list widget
+        self.list_cmd_history: QtWidgets.QListWidget  # Command history list widget
+        self.setStatusBar(self.create_status_bar_widget("ℹ️ Status"))
 
         # Set the server URI from environment variable if defined
-        server_address: str | None = os.environ.get(
-            "DISQ_OPCUA_SERVER_ADDRESS", None
-        )
+        server_address: str | None = os.environ.get("DISQ_OPCUA_SERVER_ADDRESS", None)
         if server_address is not None:
             self.input_server_address: QtWidgets.QLineEdit
             self.input_server_address.setText(server_address)
-        server_port: str | None = os.environ.get(
-            "DISQ_OPCUA_SERVER_PORT", None
-        )
+        server_port: str | None = os.environ.get("DISQ_OPCUA_SERVER_PORT", None)
         if server_port is not None:
             self.input_server_port: QtWidgets.QLineEdit
             self.input_server_port.setText(server_port)
-        server_endpoint: str | None = os.environ.get(
-            "DISQ_OPCUA_SERVER_ENDPOINT", None
-        )
+        server_endpoint: str | None = os.environ.get("DISQ_OPCUA_SERVER_ENDPOINT", None)
         if server_endpoint is not None:
             self.input_server_endpoint: QtWidgets.QLineEdit
             self.input_server_endpoint.setText(server_endpoint)
@@ -224,13 +437,9 @@ class MainView(QtWidgets.QMainWindow):
         )
 
         # Connect widgets and slots to the Controller
-        self.controller.ui_status_message.connect(
-            self.command_response_status_update
-        )
+        self.controller.ui_status_message.connect(self.command_response_status_update)
         self.controller.server_connected.connect(self.server_connected_event)
-        self.controller.server_disconnected.connect(
-            self.server_disconnected_event
-        )
+        self.controller.server_disconnected.connect(self.server_disconnected_event)
 
         # Listen for Model event signals
         self.model.data_received.connect(self.event_update)
@@ -241,17 +450,11 @@ class MainView(QtWidgets.QMainWindow):
         # Authority status group widgets
         self.combobox_authority: QtWidgets.QComboBox
         self.button_take_auth: QtWidgets.QPushButton
-        self.button_take_auth.clicked.connect(
-            self.take_authority_button_clicked
-        )
+        self.button_take_auth.clicked.connect(self.take_authority_button_clicked)
         self.button_release_auth: QtWidgets.QPushButton
-        self.button_release_auth.clicked.connect(
-            self.release_authority_button_clicked
-        )
+        self.button_release_auth.clicked.connect(self.release_authority_button_clicked)
         self.button_interlock_ack: QtWidgets.QPushButton
-        self.button_interlock_ack.clicked.connect(
-            self.controller.command_interlock_ack
-        )
+        self.button_interlock_ack.clicked.connect(self.controller.command_interlock_ack)
         # Slew group widgets
         self.line_edit_slew_simul_azim_position: QtWidgets.QLineEdit
         self.line_edit_slew_simul_elev_position: QtWidgets.QLineEdit
@@ -261,9 +464,7 @@ class MainView(QtWidgets.QMainWindow):
         self.button_slew2abs.clicked.connect(self.slew2abs_button_clicked)
         # Commands group widgets
         self.button_stop: QtWidgets.QPushButton
-        self.button_stop.clicked.connect(
-            lambda: self.stop_button_clicked("AzEl")
-        )
+        self.button_stop.clicked.connect(lambda: self.stop_button_clicked("AzEl"))
         self.button_stow: QtWidgets.QPushButton
         self.button_stow.clicked.connect(self.stow_button_clicked)
         self.button_unstow: QtWidgets.QPushButton
@@ -303,16 +504,10 @@ class MainView(QtWidgets.QMainWindow):
             lambda: self.deactivate_button_clicked("El")
         )
         self.spinbox_slew_only_elevation_position: AxisPosSpinBox
-        self.spinbox_slew_only_elevation_position.set_callback(
-            self.slew_button_clicked
-        )
+        self.spinbox_slew_only_elevation_position.set_callback(self.slew_button_clicked)
         self.spinbox_slew_only_elevation_velocity: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_elevation_position.setDecimals(
-            self._DECIMAL_PLACES
-        )
-        self.spinbox_slew_only_elevation_velocity.setDecimals(
-            self._DECIMAL_PLACES
-        )
+        self.spinbox_slew_only_elevation_position.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_elevation_velocity.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_elevation_velocity.setToolTip(
             f"<b>Maximum:</b> {self.spinbox_slew_only_elevation_velocity.maximum()}"
         )
@@ -322,13 +517,9 @@ class MainView(QtWidgets.QMainWindow):
         )
         # Axis tab azimuth group widgets
         self.button_azimuth_slew: QtWidgets.QPushButton
-        self.button_azimuth_slew.clicked.connect(
-            lambda: self.slew_button_clicked("Az")
-        )
+        self.button_azimuth_slew.clicked.connect(lambda: self.slew_button_clicked("Az"))
         self.button_azimuth_stop: QtWidgets.QPushButton
-        self.button_azimuth_stop.clicked.connect(
-            lambda: self.stop_button_clicked("Az")
-        )
+        self.button_azimuth_stop.clicked.connect(lambda: self.stop_button_clicked("Az"))
         self.button_azimuth_activate: QtWidgets.QPushButton
         self.button_azimuth_activate.clicked.connect(
             lambda: self.activate_button_clicked("Az")
@@ -338,16 +529,10 @@ class MainView(QtWidgets.QMainWindow):
             lambda: self.deactivate_button_clicked("Az")
         )
         self.spinbox_slew_only_azimuth_position: AxisPosSpinBox
-        self.spinbox_slew_only_azimuth_position.set_callback(
-            self.slew_button_clicked
-        )
+        self.spinbox_slew_only_azimuth_position.set_callback(self.slew_button_clicked)
         self.spinbox_slew_only_azimuth_velocity: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_azimuth_position.setDecimals(
-            self._DECIMAL_PLACES
-        )
-        self.spinbox_slew_only_azimuth_velocity.setDecimals(
-            self._DECIMAL_PLACES
-        )
+        self.spinbox_slew_only_azimuth_position.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_azimuth_velocity.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_azimuth_velocity.setToolTip(
             f"<b>Maximum:</b> {self.spinbox_slew_only_azimuth_velocity.maximum()}"
         )
@@ -357,13 +542,9 @@ class MainView(QtWidgets.QMainWindow):
         )
         # Axis tab feed indexer group widgets
         self.button_indexer_slew: QtWidgets.QPushButton
-        self.button_indexer_slew.clicked.connect(
-            lambda: self.slew_button_clicked("Fi")
-        )
+        self.button_indexer_slew.clicked.connect(lambda: self.slew_button_clicked("Fi"))
         self.button_indexer_stop: QtWidgets.QPushButton
-        self.button_indexer_stop.clicked.connect(
-            lambda: self.stop_button_clicked("Fi")
-        )
+        self.button_indexer_stop.clicked.connect(lambda: self.stop_button_clicked("Fi"))
         self.button_indexer_activate: QtWidgets.QPushButton
         self.button_indexer_activate.clicked.connect(
             lambda: self.activate_button_clicked("Fi")
@@ -373,16 +554,10 @@ class MainView(QtWidgets.QMainWindow):
             lambda: self.deactivate_button_clicked("Fi")
         )
         self.spinbox_slew_only_indexer_position: AxisPosSpinBox
-        self.spinbox_slew_only_indexer_position.set_callback(
-            self.slew_button_clicked
-        )
+        self.spinbox_slew_only_indexer_position.set_callback(self.slew_button_clicked)
         self.spinbox_slew_only_indexer_velocity: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_indexer_position.setDecimals(
-            self._DECIMAL_PLACES
-        )
-        self.spinbox_slew_only_indexer_velocity.setDecimals(
-            self._DECIMAL_PLACES
-        )
+        self.spinbox_slew_only_indexer_position.setDecimals(self._DECIMAL_PLACES)
+        self.spinbox_slew_only_indexer_velocity.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_indexer_velocity.setToolTip(
             f"<b>Maximum:</b> {self.spinbox_slew_only_indexer_velocity.maximum()}"
         )
@@ -398,9 +573,7 @@ class MainView(QtWidgets.QMainWindow):
         )
         self.checkbox_limit_axis_inputs: QtWidgets.QCheckBox
         self.checkbox_limit_axis_inputs.toggled.connect(
-            lambda: self.limit_axis_inputs(
-                self.checkbox_limit_axis_inputs.isChecked()
-            )
+            lambda: self.limit_axis_inputs(self.checkbox_limit_axis_inputs.isChecked())
         )
 
         # Point tab static pointing model widgets
@@ -467,9 +640,7 @@ class MainView(QtWidgets.QMainWindow):
             self.spinbox_hese8,  # type: ignore
         ]
         for spinbox in self.static_pointing_spinboxes:
-            spinbox.editingFinished.connect(
-                self.static_pointing_parameter_changed
-            )
+            spinbox.editingFinished.connect(self.static_pointing_parameter_changed)
             spinbox.blockSignals(True)
         self.opcua_offset_xelev: QtWidgets.QLabel
         self.opcua_offset_elev: QtWidgets.QLabel
@@ -496,12 +667,8 @@ class MainView(QtWidgets.QMainWindow):
             self.pointing_model_button_clicked
         )
         self.tilt_correction_checked_prev: int = 0
-        self.button_group_tilt_correction.addButton(
-            self.button_tilt_correction_off, 0
-        )
-        self.button_group_tilt_correction.addButton(
-            self.button_tilt_correction_on, 1
-        )
+        self.button_group_tilt_correction.addButton(self.button_tilt_correction_off, 0)
+        self.button_group_tilt_correction.addButton(self.button_tilt_correction_on, 1)
         self.button_group_tilt_correction_meter = QtWidgets.QButtonGroup()
         self.button_group_tilt_correction_meter.buttonClicked.connect(
             self.pointing_model_button_clicked
@@ -523,12 +690,8 @@ class MainView(QtWidgets.QMainWindow):
             self.pointing_model_button_clicked
         )
         self.temp_correction_checked_prev: int = 0
-        self.button_group_temp_correction.addButton(
-            self.button_temp_correction_off, 0
-        )
-        self.button_group_temp_correction.addButton(
-            self.button_temp_correction_on, 1
-        )
+        self.button_group_temp_correction.addButton(self.button_temp_correction_off, 0)
+        self.button_group_temp_correction.addButton(self.button_temp_correction_on, 1)
         self.ambtemp_correction_values: list[QtWidgets.QLabel] = [
             self.opcua_ambtempfiltdt,  # type: ignore
             self.opcua_ambtempparam1,  # type: ignore
@@ -548,9 +711,7 @@ class MainView(QtWidgets.QMainWindow):
             self.spinbox_ambtempparam6,  # type: ignore
         ]
         for spinbox in self.ambtemp_correction_spinboxes:
-            spinbox.editingFinished.connect(
-                self.ambtemp_correction_parameter_changed
-            )
+            spinbox.editingFinished.connect(self.ambtemp_correction_parameter_changed)
             spinbox.blockSignals(True)
         self._update_temp_correction_inputs_text = False
         # Bands group widgets
@@ -600,18 +761,13 @@ class MainView(QtWidgets.QMainWindow):
             self.recording_config_button_clicked
         )
         self.button_recording_start: QtWidgets.QPushButton
-        self.button_recording_start.clicked.connect(
-            lambda: self.controller.recording_start(
-                self.line_edit_recording_file.text(),
-                not self.button_recording_overwrite_no.isChecked(),
-            )
-        )
+        self.button_recording_start.clicked.connect(self.recording_start_clicked)
         self.button_recording_stop: QtWidgets.QPushButton
-        self.button_recording_stop.clicked.connect(
-            self.controller.recording_stop
-        )
+        self.button_recording_stop.clicked.connect(self.controller.recording_stop)
+        self.button_recording_stop.setEnabled(False)
         self.line_edit_recording_status: QtWidgets.QLineEdit
         self.controller.recording_status.connect(self.recording_status_update)
+        self.recording_start_success = False
 
         # Track tab load widgets
         self.button_select_track_table_file: QtWidgets.QPushButton
@@ -633,31 +789,23 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_file_track_additional_offset.setEnabled(False)
         self.combobox_file_track_mode: QtWidgets.QComboBox
         self.button_load_track_table: QtWidgets.QPushButton
-        self.button_load_track_table.clicked.connect(
-            self.load_track_table_clicked
-        )
+        self.button_load_track_table.clicked.connect(self.load_track_table_clicked)
 
         # Track tab start widgets
         self.combobox_track_start_interpol_type: QtWidgets.QComboBox
         self.button_start_track_now: QtWidgets.QRadioButton
         self.button_start_track_now.setChecked(True)
         self.button_start_track_at: QtWidgets.QRadioButton
-        self.button_start_track_at.toggled.connect(
-            self.button_start_track_at_toggled
-        )
+        self.button_start_track_at.toggled.connect(self.button_start_track_at_toggled)
         self.button_start_track_at.setChecked(False)
         self.line_edit_start_track_at: QtWidgets.QLineEdit
         self.line_edit_start_track_at.setEnabled(False)
         self.button_start_track_table: QtWidgets.QPushButton
-        self.button_start_track_table.clicked.connect(
-            self.start_tracking_clicked
-        )
+        self.button_start_track_table.clicked.connect(self.start_tracking_clicked)
 
         # Track tab time widgets
         self.button_set_time_source: QtWidgets.QPushButton
-        self.button_set_time_source.clicked.connect(
-            self.set_time_source_clicked
-        )
+        self.button_set_time_source.clicked.connect(self.set_time_source_clicked)
         self.combobox_time_source: QtWidgets.QComboBox
         self.line_edit_ntp_source_addr: QtWidgets.QLineEdit
 
@@ -666,21 +814,13 @@ class MainView(QtWidgets.QMainWindow):
         self.warning_status_show_only_warnings: QtWidgets.QCheckBox
         self.error_tree_view: QtWidgets.QTreeWidget
         self.error_status_show_only_errors: QtWidgets.QCheckBox
-        self._status_widget_update_lut: dict[
-            str, QtWidgets.QTreeWidgetItem
-        ] = {}
+        self._status_widget_update_lut: dict[str, QtWidgets.QTreeWidgetItem] = {}
         self._status_group_update_lut: dict[
             tuple[StatusTreeCategory, str], QtWidgets.QTreeWidgetItem
         ] = {}
-        self.model.status_attribute_update.connect(
-            self._status_attribute_event_handler
-        )
-        self.model.status_group_update.connect(
-            self._status_group_event_handler
-        )
-        self.model.status_global_update.connect(
-            self._status_global_event_handler
-        )
+        self.model.status_attribute_update.connect(self._status_attribute_event_handler)
+        self.model.status_group_update.connect(self._status_group_event_handler)
+        self.model.status_global_update.connect(self._status_global_event_handler)
         self.warning_error_filter: bool = False
         self.warning_status_show_only_warnings.stateChanged.connect(
             self.warning_status_show_only_warnings_clicked
@@ -711,9 +851,7 @@ class MainView(QtWidgets.QMainWindow):
             + self.findChildren(QtWidgets.QRadioButton)
             + self.findChildren(QtWidgets.QDoubleSpinBox)
         )
-        opcua_widget_updates: dict[
-            str, tuple[list[QtWidgets.QWidget], Callable]
-        ] = {}
+        opcua_widget_updates: dict[str, tuple[list[QtWidgets.QWidget], Callable]] = {}
         for wgt in all_widgets:
             if "opcua" not in wgt.dynamicPropertyNames():
                 # Skip all the non-opcua widgets
@@ -739,9 +877,7 @@ class MainView(QtWidgets.QMainWindow):
                     opcua_widget_update_func = self._update_opcua_enum_widget
                 logger.debug("OPCUA widget type: %s", opcua_type)
             # Return the list from the tuple or an empty list as default
-            widgets: list = opcua_widget_updates.get(
-                opcua_parameter_name, [[]]
-            )[0]
+            widgets: list = opcua_widget_updates.get(opcua_parameter_name, [[]])[0]
             widgets.append(wgt)
             opcua_widget_updates.update(
                 {opcua_parameter_name: (widgets, opcua_widget_update_func)}
@@ -777,13 +913,9 @@ class MainView(QtWidgets.QMainWindow):
         )
         opcua_widgets: list[QtCore.QObject] = []
         for wgt in all_widgets:
-            property_names: list[QtCore.QByteArray] = (
-                wgt.dynamicPropertyNames()
-            )
+            property_names: list[QtCore.QByteArray] = wgt.dynamicPropertyNames()
             for property_name in property_names:
-                if property_name.startsWith(
-                    QtCore.QByteArray("opcua".encode())
-                ):
+                if property_name.startsWith(QtCore.QByteArray("opcua".encode())):
                     opcua_widgets.append(wgt)
                     break
         return opcua_widgets
@@ -828,9 +960,7 @@ class MainView(QtWidgets.QMainWindow):
         self.input_server_endpoint.setEnabled(enable)
         self.input_server_namespace.setEnabled(enable)
         if connect_button:
-            self.button_server_connect.setText(
-                "Connect" if enable else "Disconnect"
-            )
+            self.button_server_connect.setText("Connect" if enable else "Disconnect")
 
     def recording_status_update(self, status: bool) -> None:
         """Update the recording status."""
@@ -857,9 +987,7 @@ class MainView(QtWidgets.QMainWindow):
 
         :param event: A dictionary containing event data.
         """
-        logger.debug(
-            "View: data update: %s value=%s", event["name"], event["value"]
-        )
+        logger.debug("View: data update: %s value=%s", event["name"], event["value"])
         # Get the widget update method from the dict of opcua widgets
         widgets = self.opcua_widgets[event["name"]][0]
         self._update_opcua_widget_tooltip(widgets, event)
@@ -878,8 +1006,7 @@ class MainView(QtWidgets.QMainWindow):
                 enum_val: Enum = opcua_enum(int(str_val))
                 str_val = enum_val.name
         tooltip = (
-            f"<b>OPCUA param:</b> {opcua_event['name']}<br>"
-            f"<b>Value:</b> {str_val}"
+            f"<b>OPCUA param:</b> {opcua_event['name']}<br>" f"<b>Value:</b> {str_val}"
         )
         for widget in widgets:
             if isinstance(widget, QtWidgets.QDoubleSpinBox):
@@ -1019,9 +1146,7 @@ class MainView(QtWidgets.QMainWindow):
         button.setChecked(True)
         # Block or unblock tilt meter selection signal whether function is active
         if event["name"] == TILT_CORR_ACTIVE:
-            self.button_group_tilt_correction_meter.blockSignals(
-                not event["value"]
-            )
+            self.button_group_tilt_correction_meter.blockSignals(not event["value"])
             self.tilt_correction_checked_prev = int(event["value"])
         # Populate input boxes with current read values after connecting to server
         elif event["name"] == STATIC_CORR_ACTIVE:
@@ -1046,9 +1171,7 @@ class MainView(QtWidgets.QMainWindow):
          - True: the OPC-UA parameter is True. Colour background light green (LED on).
          - False: the OPC-UA parameter is False. Colour background dark green (LED off).
         """
-        logger.debug(
-            "Boolean OPCUA update: %s value=%s", event["name"], event["value"]
-        )
+        logger.debug("Boolean OPCUA update: %s value=%s", event["name"], event["value"])
         for widget in widgets:
             if event["value"] is None:
                 widget.setEnabled(False)
@@ -1058,9 +1181,9 @@ class MainView(QtWidgets.QMainWindow):
                 if "led_colour" in widget.dynamicPropertyNames():
                     led_base_colour = widget.property("led_colour")
                 try:
-                    background_colour_rbg: str = self._LED_COLOURS[
-                        led_base_colour
-                    ][event["value"]]
+                    background_colour_rbg: str = self._LED_COLOURS[led_base_colour][
+                        event["value"]
+                    ]
                 except KeyError:
                     logger.warning(
                         "LED colour for base colour '%s' and value '%s' not found",
@@ -1087,12 +1210,8 @@ class MainView(QtWidgets.QMainWindow):
         This function is called when the server is successfully connected.
         """
         logger.debug("server connected event")
-        self.label_conn_status.setText(
-            "Status: Subscribing to OPC-UA updates..."
-        )
-        self.controller.subscribe_opcua_updates(
-            list(self.opcua_widgets.keys())
-        )
+        self.label_conn_status.setText("Status: Subscribing to OPC-UA updates...")
+        self.controller.subscribe_opcua_updates(list(self.opcua_widgets.keys()))
         self.label_conn_status.setText(
             f"Connected to {self.model.get_server_uri()} - "
             f"Version {self.model.server_version}"
@@ -1204,10 +1323,7 @@ class MainView(QtWidgets.QMainWindow):
 
     def track_table_file_changed(self):
         """Update the track table file path in the model."""
-        if (
-            self._track_table_file_exist()
-            and self.controller.is_server_connected()
-        ):
+        if self._track_table_file_exist() and self.controller.is_server_connected():
             self.button_load_track_table.setEnabled(True)
         else:
             self.button_load_track_table.setEnabled(False)
@@ -1254,13 +1370,30 @@ class MainView(QtWidgets.QMainWindow):
 
     def recording_config_button_clicked(self):
         """Open the recording configuration dialog."""
-        dialog = RecordingConfigDialog(self, self.model.opcua_attributes)
+        if not self.controller.recording_config:
+            for node in self.model.opcua_attributes:
+                self.controller.recording_config[node] = {
+                    "record": False,
+                    "period": 100,
+                }
+
+        dialog = RecordingConfigDialog(self, self.controller.recording_config)
         if dialog.exec():
             logger.debug("Recording config dialog accepted")
             logger.debug("Selected: %s", dialog.config_parameters)
             self.controller.recording_config = dialog.config_parameters
         else:
             logger.debug("Recording config dialog cancelled")
+
+    def recording_start_clicked(self) -> None:
+        """Start the data recording."""
+        output_filename = self.controller.recording_start(
+            self.line_edit_recording_file.text(),
+            not self.button_recording_overwrite_no.isChecked(),
+        )
+
+        if self.line_edit_recording_file.text() == "":
+            self.line_edit_recording_file.setText(output_filename.rsplit(".")[0])
 
     def recording_file_button_clicked(self) -> None:
         """Open a dialog to select a file or folder for the recording file box."""
@@ -1435,7 +1568,7 @@ class MainView(QtWidgets.QMainWindow):
 
     def command_response_status_update(self, status: str) -> None:
         """Update the main window status bar with a status update."""
-        self.cmd_status_label.setText(status[:200])
+        self.status_bar_update(status)
         history_line: str = (
             f"{datetime.now(timezone.utc).strftime('%H:%M:%S')} - {status}"
         )
@@ -1448,9 +1581,7 @@ class MainView(QtWidgets.QMainWindow):
 
     def static_pointing_parameter_changed(self):
         """Static pointing model parameter changed slot function."""
-        band = self.combo_static_point_model_band.currentText().replace(
-            " ", "_"
-        )
+        band = self.combo_static_point_model_band.currentText().replace(" ", "_")
         params = []
         for spinbox in self.static_pointing_spinboxes:
             params.append(round(spinbox.value(), self._DECIMAL_PLACES))
@@ -1485,18 +1616,10 @@ class MainView(QtWidgets.QMainWindow):
 
     def pointing_model_button_clicked(self):
         """Any pointing model toggle button clicked slot function."""
-        static_point_model_checked_id = (
-            self.button_group_static_point_model.checkedId()
-        )
-        temp_correction_checked_id = (
-            self.button_group_temp_correction.checkedId()
-        )
-        tilt_correction_checked_id = (
-            self.button_group_tilt_correction.checkedId()
-        )
-        tilt_corr_meter_checked_id = (
-            self.button_group_tilt_correction_meter.checkedId()
-        )
+        static_point_model_checked_id = self.button_group_static_point_model.checkedId()
+        temp_correction_checked_id = self.button_group_temp_correction.checkedId()
+        tilt_correction_checked_id = self.button_group_tilt_correction.checkedId()
+        tilt_corr_meter_checked_id = self.button_group_tilt_correction_meter.checkedId()
         tilt_correction = (
             tilt_corr_meter_checked_id
             if self.button_tilt_correction_on.isChecked()
@@ -1505,21 +1628,15 @@ class MainView(QtWidgets.QMainWindow):
         # Validate command parameters
         try:
             stat = {0: False, 1: True}[static_point_model_checked_id]
-            tilt = {0: "Off", 1: "TiltmeterOne", 2: "TiltmeterTwo"}[
-                tilt_correction
-            ]
+            tilt = {0: "Off", 1: "TiltmeterOne", 2: "TiltmeterTwo"}[tilt_correction]
             ambtemp = {0: False, 1: True}[temp_correction_checked_id]
         except KeyError:
             logger.exception("Invalid button ID.")
             return
-        band = self.combo_static_point_model_band.currentText().replace(
-            " ", "_"
-        )
+        band = self.combo_static_point_model_band.currentText().replace(" ", "_")
         # Send command and check result
-        _, result_msg = (
-            self.controller.command_config_pointing_model_corrections(
-                stat, tilt, ambtemp, band
-            )
+        _, result_msg = self.controller.command_config_pointing_model_corrections(
+            stat, tilt, ambtemp, band
         )
         if result_msg == "CommandDone":
             if stat:
@@ -1542,13 +1659,9 @@ class MainView(QtWidgets.QMainWindow):
                 for spinbox in self.ambtemp_correction_spinboxes:
                     spinbox.blockSignals(True)
             # Keep track of radio buttons' previous states
-            self.static_point_model_checked_prev = (
-                static_point_model_checked_id
-            )
+            self.static_point_model_checked_prev = static_point_model_checked_id
             self.tilt_correction_checked_prev = tilt_correction_checked_id
-            self.tilt_correction_meter_checked_prev = (
-                tilt_corr_meter_checked_id
-            )
+            self.tilt_correction_meter_checked_prev = tilt_corr_meter_checked_id
             self.temp_correction_checked_prev = temp_correction_checked_id
         else:
             # If command did not execute for any reason, restore buttons to prev states
@@ -1585,12 +1698,8 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_offset_xelev.blockSignals(True)
         self.spinbox_offset_elev.blockSignals(True)
         try:
-            self.spinbox_offset_xelev.setValue(
-                float(self.opcua_offset_xelev.text())
-            )
-            self.spinbox_offset_elev.setValue(
-                float(self.opcua_offset_elev.text())
-            )
+            self.spinbox_offset_xelev.setValue(float(self.opcua_offset_xelev.text()))
+            self.spinbox_offset_elev.setValue(float(self.opcua_offset_elev.text()))
         except ValueError:
             self.spinbox_offset_xelev.setValue(0)
             self.spinbox_offset_elev.setValue(0)
@@ -1689,9 +1798,7 @@ class MainView(QtWidgets.QMainWindow):
         group_name: str,
         group_value: bool,
     ) -> None:
-        tree_widget_item = self._status_group_update_lut[
-            (category, group_name)
-        ]
+        tree_widget_item = self._status_group_update_lut[(category, group_name)]
         tree_widget_item.setText(1, str(group_value))
         if group_value:
             tree_widget_item.setBackground(1, QColor("red"))
@@ -1716,12 +1823,8 @@ class MainView(QtWidgets.QMainWindow):
         if checked == 2:
             self.warning_error_filter = True
 
-        self.warning_status_show_only_warnings.setChecked(
-            self.warning_error_filter
-        )
-        self.error_status_show_only_errors.setChecked(
-            self.warning_error_filter
-        )
+        self.warning_status_show_only_warnings.setChecked(self.warning_error_filter)
+        self.error_status_show_only_errors.setChecked(self.warning_error_filter)
 
         for _, widget in self._status_widget_update_lut.items():
             if self.warning_error_filter and "false" in widget.text(1).lower():

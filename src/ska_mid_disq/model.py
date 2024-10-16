@@ -264,7 +264,8 @@ class Model(QObject):
         super().__init__(parent)
         self._scu: SteeringControlUnit | None = None
         self._data_logger: DataLogger | None = None
-        self._recording_config: list[str] = []
+        self._recording = False
+        self._recording_config: dict[str, dict[str, bool | int]] = {}
         self.subscription_rate_ms = SUBSCRIPTION_RATE_MS
         self._event_q_poller: QueuePollThread | None = None
         self._nodes_status = NodesStatus.NOT_CONNECTED
@@ -370,6 +371,8 @@ class Model(QObject):
         queue poller.
         """
         self._stop_polling_threads()
+        if self._recording:
+            self.stop_recording()
         if self._scu is not None:
             self._scu.disconnect_and_cleanup()
             self._scu = None
@@ -586,26 +589,39 @@ class Model(QObject):
             result_callback=result_callback,
         )
 
-    def start_recording(self, filename: Path) -> None:
+    def start_recording(self, filename: Path | None) -> str:
         """
         Start recording data to a specified file.
 
         :param filename: The path to the file where the data will be recorded.
         :raises RuntimeError: If the server is not connected or if the data logger
             already exists.
+        :return: The output file name on successful start.
         """
         if self._scu is None:
             raise RuntimeError("Server not connected")
         if self._data_logger is not None:
             raise RuntimeError("Data logger already exist")
-        logger.debug("Creating Logger and file: %s", filename.absolute())
-        self._data_logger = DataLogger(self._scu, str(filename.absolute()))
-        self._data_logger.add_nodes(
-            self.recording_config,
-            period=50,
-        )
+        if filename is not None:
+            logger.debug("Creating Logger and file: %s", filename.absolute())
+            self._data_logger = DataLogger(self._scu, str(filename.absolute()))
+        else:
+            self._data_logger = DataLogger(self._scu)
+
+        node_to_record = False
+        for node, values in self.recording_config.items():
+            if values["record"]:
+                self._data_logger.add_nodes([node], values["period"])
+                node_to_record = True
+
+        if not node_to_record:
+            self._data_logger = None
+            raise RuntimeError("No attributes selected")
+
+        self._recording = True
         self._data_logger.start()
         logger.debug("Logger recording started")
+        return self._data_logger.file
 
     def stop_recording(self) -> None:
         """
@@ -617,9 +633,20 @@ class Model(QObject):
             logger.debug("stopping recording")
             self._data_logger.stop()
             self._data_logger = None
+            self._recording = False
 
     @property
-    def recording_config(self) -> list[str]:
+    def recording(self) -> bool:
+        """
+        Whether their is currently a data recording in progress.
+
+        :return: True if a recording has been started and not yet stopped. False
+                otherwise.
+        """
+        return self._recording
+
+    @property
+    def recording_config(self) -> dict[str, dict[str, bool | int]]:
         """
         Get the recording configuration.
 
@@ -628,7 +655,7 @@ class Model(QObject):
         return self._recording_config
 
     @recording_config.setter
-    def recording_config(self, config: list[str]) -> None:
+    def recording_config(self, config: dict[str, dict[str, bool | int]]) -> None:
         """
         Set the recording configuration.
 
