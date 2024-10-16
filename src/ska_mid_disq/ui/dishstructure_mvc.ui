@@ -3461,7 +3461,7 @@
             </widget>
            </item>
            <item row="2" column="3">
-            <widget class="AxisPosSpinBox" name="spinbox_slew_only_azimuth_position">
+            <widget class="QDoubleSpinBox" name="spinbox_slew_only_azimuth_position">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3647,7 +3647,7 @@
             </widget>
            </item>
            <item row="1" column="3">
-            <widget class="AxisPosSpinBox" name="spinbox_slew_only_elevation_position">
+            <widget class="QDoubleSpinBox" name="spinbox_slew_only_elevation_position">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3833,7 +3833,7 @@
             </widget>
            </item>
            <item row="1" column="3">
-            <widget class="AxisPosSpinBox" name="spinbox_slew_only_indexer_position">
+            <widget class="QDoubleSpinBox" name="spinbox_slew_only_indexer_position">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3921,8 +3921,14 @@
           </item>
           <item>
            <widget class="QComboBox" name="combobox_axis_input_step">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="currentIndex">
              <number>3</number>
+            </property>
+            <property name="opcua" stdset="0">
+             <string/>
             </property>
             <item>
              <property name="text">
@@ -3959,17 +3965,66 @@
          </layout>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkbox_limit_axis_inputs">
-          <property name="layoutDirection">
-           <enum>Qt::RightToLeft</enum>
-          </property>
-          <property name="text">
-           <string>Limit input ranges</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <spacer name="horizontalSpacer_12">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_36">
+            <property name="text">
+             <string>Axis range limits:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="button_disable_axis_limits">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text">
+             <string>DISABLED</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="opcua" stdset="0">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="button_enable_axis_limits">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text">
+             <string>ENABLED</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+            <property name="opcua" stdset="0">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <spacer name="verticalSpacer_3">
@@ -6775,6 +6830,9 @@
            </property>
            <item row="1" column="2">
             <widget class="QPushButton" name="button_set_time_source">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -6783,6 +6841,9 @@
              </property>
              <property name="text">
               <string>Set Time Source</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
              </property>
             </widget>
            </item>
@@ -6817,10 +6878,16 @@
              <property name="opcua_type" stdset="0">
               <string>DscTimeSyncSourceType</string>
              </property>
+             <property name="opcua" stdset="0">
+              <string/>
+             </property>
             </widget>
            </item>
            <item row="1" column="1">
             <widget class="QLineEdit" name="line_edit_ntp_source_addr">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -6829,6 +6896,9 @@
              </property>
              <property name="placeholderText">
               <string>0.0.0.0</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
              </property>
             </widget>
            </item>
@@ -8853,13 +8923,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>AxisPosSpinBox</class>
-   <extends>QDoubleSpinBox</extends>
-   <header>ska_mid_disq.view</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>button_take_auth</tabstop>
   <tabstop>button_activate</tabstop>
