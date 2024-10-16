@@ -280,8 +280,7 @@ class MainView(QtWidgets.QMainWindow):
         self.button_elevation_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("El")
         )
-        self.spinbox_slew_only_elevation_position: AxisPosSpinBox
-        self.spinbox_slew_only_elevation_position.set_callback(self.slew_button_clicked)
+        self.spinbox_slew_only_elevation_position: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_elevation_velocity: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_elevation_position.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_elevation_velocity.setDecimals(self._DECIMAL_PLACES)
@@ -305,8 +304,7 @@ class MainView(QtWidgets.QMainWindow):
         self.button_azimuth_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Az")
         )
-        self.spinbox_slew_only_azimuth_position: AxisPosSpinBox
-        self.spinbox_slew_only_azimuth_position.set_callback(self.slew_button_clicked)
+        self.spinbox_slew_only_azimuth_position: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_azimuth_velocity: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_azimuth_position.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_azimuth_velocity.setDecimals(self._DECIMAL_PLACES)
@@ -330,8 +328,7 @@ class MainView(QtWidgets.QMainWindow):
         self.button_indexer_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Fi")
         )
-        self.spinbox_slew_only_indexer_position: AxisPosSpinBox
-        self.spinbox_slew_only_indexer_position.set_callback(self.slew_button_clicked)
+        self.spinbox_slew_only_indexer_position: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_indexer_velocity: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_indexer_position.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_indexer_velocity.setDecimals(self._DECIMAL_PLACES)
@@ -348,9 +345,15 @@ class MainView(QtWidgets.QMainWindow):
                 float(self.combobox_axis_input_step.currentText())
             )
         )
-        self.checkbox_limit_axis_inputs: QtWidgets.QCheckBox
-        self.checkbox_limit_axis_inputs.toggled.connect(
-            lambda: self.limit_axis_inputs(self.checkbox_limit_axis_inputs.isChecked())
+        self.button_enable_axis_limits: QtWidgets.QRadioButton
+        self.button_disable_axis_limits: QtWidgets.QRadioButton
+        self.button_enable_axis_limits.toggled.connect(
+            lambda: self.limit_axis_inputs(self.button_enable_axis_limits.isChecked())
+        )
+        self.button_disable_axis_limits.toggled.connect(
+            lambda: self.limit_axis_inputs(
+                not self.button_disable_axis_limits.isChecked()
+            )
         )
 
         # Point tab static pointing model widgets
@@ -1011,8 +1014,6 @@ class MainView(QtWidgets.QMainWindow):
         self.spinbox_file_track_additional_offset.setEnabled(
             not self.button_file_track_absolute_times.isChecked()
         )
-        self.combobox_axis_input_step.setEnabled(True)
-        self.checkbox_limit_axis_inputs.setEnabled(True)
 
     def server_disconnected_event(self):
         """Handle the server disconnected event."""
@@ -1029,8 +1030,6 @@ class MainView(QtWidgets.QMainWindow):
         self.warning_tree_view.setEnabled(False)
         self.error_status_show_only_errors.setEnabled(False)
         self.error_tree_view.setEnabled(False)
-        self.combobox_axis_input_step.setEnabled(False)
-        self.checkbox_limit_axis_inputs.setEnabled(False)
 
     def connect_button_clicked(self):
         """Setup a connection to the server."""
@@ -1576,11 +1575,11 @@ class MainView(QtWidgets.QMainWindow):
                 widget.setHidden(False)
 
 
-class AxisPosSpinBox(QtWidgets.QDoubleSpinBox):
-    """Custom axis position double/float spinbox."""
+class CallbackOnUpDownSpinBox(QtWidgets.QDoubleSpinBox):
+    """Custom double spinbox with configurable callback for when up/down is clicked."""
 
     def __init__(self, **kwargs: Any) -> None:
-        """Init AxisSpinBox."""
+        """Init CallbackOnUpDownSpinBox."""
         super().__init__(**kwargs)
         self._callback: Callable[[str], None] | None = None
 
