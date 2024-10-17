@@ -93,6 +93,143 @@ class RecordingConfigDialog(QtWidgets.QDialog):
         self.accept()
 
 
+class ServerConnectDialog(QtWidgets.QDialog):
+    """
+    A dialog-window class for connecting to the OPC-UA server.
+
+    :param parent: The parent widget of the dialog.
+    """
+
+    def __init__(
+        self, parent: QtWidgets.QWidget, mvc_controller: controller.Controller
+    ):
+        """
+        Initialize the Server Connect dialog.
+
+        :param parent: The parent widget for the dialog.
+        """
+        super().__init__(parent)
+        self._controller = mvc_controller
+
+        self.setWindowTitle("Server Connection")
+
+        button = (
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
+        )
+
+        self.btn_box = QtWidgets.QDialogButtonBox(button)
+        self.btn_box.accepted.connect(self.confirm_connect)
+        self.btn_box.rejected.connect(self.reject)
+
+        self.vbox_layout = QtWidgets.QVBoxLayout()
+        message = QtWidgets.QLabel(
+            "Enter or select the OPC-UA server details and click OK"
+        )
+        self.vbox_layout.addWidget(message)
+
+        # Populate the server config select (drop-down) box with entries from
+        # configuration file
+        server_list = self._controller.get_config_servers()
+        self.dropdown_server_config_select = QtWidgets.QComboBox()
+        self.dropdown_server_config_select.addItems([""] + server_list)
+        self.dropdown_server_config_select.setFocus()
+        self.dropdown_server_config_select.currentTextChanged.connect(
+            self.server_config_select_changed
+        )
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Select server from config file:"))
+        self.vbox_layout.addWidget(self.dropdown_server_config_select)
+
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Server Address:"))
+        self.input_server_address = QtWidgets.QLineEdit()
+        self.input_server_address.setPlaceholderText("Server Address")
+        self.vbox_layout.addWidget(self.input_server_address)
+
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Server Port:"))
+        self.input_server_port = QtWidgets.QLineEdit()
+        self.input_server_port.setPlaceholderText("Server Port")
+        self.vbox_layout.addWidget(self.input_server_port)
+
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Server Endpoint:"))
+        self.input_server_endpoint = QtWidgets.QLineEdit()
+        self.input_server_endpoint.setPlaceholderText("Server Endpoint")
+        self.vbox_layout.addWidget(self.input_server_endpoint)
+
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Server Namespace:"))
+        self.input_server_namespace = QtWidgets.QLineEdit()
+        self.input_server_namespace.setPlaceholderText("Server Namespace")
+        self.vbox_layout.addWidget(self.input_server_namespace)
+
+        self.cache_checkbox = QtWidgets.QCheckBox()
+        self.cache_checkbox.setText("Use nodes cache")
+        self.cache_checkbox.setChecked(False)
+        self.vbox_layout.addWidget(self.cache_checkbox)
+
+        self.vbox_layout.addWidget(self.btn_box)
+        self.setLayout(self.vbox_layout)
+        self.server_details: dict[str, str] = {}
+
+    @property
+    def server_config_selected(self) -> str:
+        """Return the server config selected in the drop-down box."""
+        return self.dropdown_server_config_select.currentText()
+
+    def server_config_select_changed(self, server_name: str) -> None:
+        """
+        User changed server selection in drop-down box.
+
+        Enable/disable relevant widgets.
+        """
+        logger.debug("server config select changed: %s", server_name)
+        if server_name is None or server_name == "":
+            self._enable_server_widgets(True)
+        else:
+            # Clear the input boxes first
+            self.input_server_address.clear()
+            self.input_server_port.clear()
+            self.input_server_endpoint.clear()
+            self.input_server_namespace.clear()
+            # Get the server config args from configfile
+            server_config = self._controller.get_config_server_args(server_name)
+            # Populate the widgets with the server config args
+            if "endpoint" in server_config and "namespace" in server_config:
+                self.input_server_address.setText(server_config["host"])
+                self.input_server_port.setText(server_config["port"])
+                self.input_server_endpoint.setText(server_config["endpoint"])
+                self.input_server_namespace.setText(server_config["namespace"])
+            else:
+                # First physical controller does not have an endpoint or namespace
+                self.input_server_address.setText(server_config["host"])
+                self.input_server_port.setText(server_config["port"])
+            # Disable editing of the widgets
+            self._enable_server_widgets(False)
+
+    def _enable_server_widgets(self, enable: bool = True) -> None:
+        """
+        Enable or disable server widgets and optionally update the connect button text.
+
+        :param enable: Enable or disable server widgets (default True).
+        :param connect_button: Update the connect button text (default False).
+        """
+        self.input_server_address.setEnabled(enable)
+        self.input_server_port.setEnabled(enable)
+        self.input_server_endpoint.setEnabled(enable)
+        self.input_server_namespace.setEnabled(enable)
+
+    def confirm_connect(self):
+        """Accepts the server connection details entered in the dialog."""
+        logger.debug("Server connect dialog accepted")
+        self.server_details = {
+            "host": self.input_server_address.text(),
+            "port": self.input_server_port.text(),
+            "endpoint": self.input_server_endpoint.text(),
+            "namespace": self.input_server_namespace.text(),
+            "use_nodes_cache": self.cache_checkbox.isChecked(),
+        }
+
+        self.accept()
+
+
 # pylint: disable=too-many-statements, too-many-public-methods,
 # pylint: disable=too-many-instance-attributes
 class MainView(QtWidgets.QMainWindow):
@@ -174,44 +311,14 @@ class MainView(QtWidgets.QMainWindow):
         self.status_bar.addWidget(self.cmd_status_label)
         self.list_cmd_history: QtWidgets.QListWidget  # Command history list widget
 
-        # Set the server URI from environment variable if defined
-        server_address: str | None = os.environ.get("DISQ_OPCUA_SERVER_ADDRESS", None)
-        if server_address is not None:
-            self.input_server_address: QtWidgets.QLineEdit
-            self.input_server_address.setText(server_address)
-        server_port: str | None = os.environ.get("DISQ_OPCUA_SERVER_PORT", None)
-        if server_port is not None:
-            self.input_server_port: QtWidgets.QLineEdit
-            self.input_server_port.setText(server_port)
-        server_endpoint: str | None = os.environ.get("DISQ_OPCUA_SERVER_ENDPOINT", None)
-        if server_endpoint is not None:
-            self.input_server_endpoint: QtWidgets.QLineEdit
-            self.input_server_endpoint.setText(server_endpoint)
-        server_namespace: str | None = os.environ.get(
-            "DISQ_OPCUA_SERVER_NAMESPACE", None
-        )
-        if server_namespace is not None:
-            self.input_server_namespace: QtWidgets.QLineEdit
-            self.input_server_namespace.setText(server_namespace)
         self.button_server_connect: QtWidgets.QPushButton
         self.button_server_connect.clicked.connect(self.connect_button_clicked)
         self.label_conn_status: QtWidgets.QLabel
         self.label_cache_status: QtWidgets.QLabel
-        self.cache_checkbox: QtWidgets.QCheckBox
 
         # Keep a reference to model and controller
         self.model = disq_model
         self.controller = disq_controller
-
-        # Populate the server config select (drop-down) box with entries from
-        # configuration file
-        server_list = self.controller.get_config_servers()
-        self.dropdown_server_config_select: QtWidgets.QComboBox
-        self.dropdown_server_config_select.addItems([""] + server_list)
-        self.dropdown_server_config_select.setFocus()
-        self.dropdown_server_config_select.currentTextChanged.connect(
-            self.server_config_select_changed
-        )
 
         # Connect widgets and slots to the Controller
         self.controller.ui_status_message.connect(self.command_response_status_update)
@@ -729,10 +836,6 @@ class MainView(QtWidgets.QMainWindow):
         :param enable: Enable or disable server widgets (default True).
         :param connect_button: Update the connect button text (default False).
         """
-        self.input_server_address.setEnabled(enable)
-        self.input_server_port.setEnabled(enable)
-        self.input_server_endpoint.setEnabled(enable)
-        self.input_server_namespace.setEnabled(enable)
         if connect_button:
             self.button_server_connect.setText("Connect" if enable else "Disconnect")
 
@@ -996,7 +1099,6 @@ class MainView(QtWidgets.QMainWindow):
             self.label_cache_status.setStyleSheet("color: black;")
         else:
             self.label_cache_status.setStyleSheet("color: red;")
-        self.cache_checkbox.setEnabled(False)
         self._enable_server_widgets(False, connect_button=True)
         self._enable_opcua_widgets()
         self._enable_data_logger_widgets(True)
@@ -1021,7 +1123,6 @@ class MainView(QtWidgets.QMainWindow):
         self._enable_data_logger_widgets(False)
         self.label_conn_status.setText("Disconnected")
         self.label_cache_status.setText("")
-        self.cache_checkbox.setEnabled(True)
         self._enable_server_widgets(True, connect_button=True)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
@@ -1033,65 +1134,38 @@ class MainView(QtWidgets.QMainWindow):
         self.checkbox_limit_axis_inputs.setEnabled(False)
 
     def connect_button_clicked(self):
-        """Setup a connection to the server."""
+        """Open the Connect To Server configuration dialog."""
         if not self.controller.is_server_connected():
-            connect_details = {
-                "host": self.input_server_address.text(),
-                "port": (
-                    self.input_server_port.text()
-                    if self.input_server_port.text() != ""
-                    else self.input_server_port.placeholderText()
-                ),
-                "endpoint": self.input_server_endpoint.text(),
-                "namespace": self.input_server_namespace.text(),
-                "use_nodes_cache": self.cache_checkbox.isChecked(),
-            }
-            config_connection_details = self.controller.get_config_server_args(
-                self.dropdown_server_config_select.currentText()
-            )
-            if config_connection_details is not None:
-                connect_details["username"] = config_connection_details.get(
-                    "username", None
+            dialog = ServerConnectDialog(self, self.controller)
+            if dialog.exec():
+                logger.debug("Connection configuration dialog accepted")
+                logger.debug("Selected: %s", dialog.server_details)
+                self.server_connect(
+                    dialog.server_details, dialog.server_config_selected
                 )
-                connect_details["password"] = config_connection_details.get(
-                    "password", None
-                )
-            logger.debug("Connecting to server: %s", connect_details)
-            self.label_conn_status.setText("Connecting... please wait")
-            self.controller.connect_server(connect_details)
+            else:
+                logger.debug("Connection config dialog cancelled")
         else:
             logger.debug("disconnecting from server")
             self.controller.disconnect_server()
 
-    def server_config_select_changed(self, server_name: str) -> None:
-        """
-        User changed server selection in drop-down box.
-
-        Enable/disable relevant widgets.
-        """
-        logger.debug("server config select changed: %s", server_name)
-        if server_name is None or server_name == "":
-            self._enable_server_widgets(True)
-        else:
-            # Clear the input boxes first
-            self.input_server_address.clear()
-            self.input_server_port.clear()
-            self.input_server_endpoint.clear()
-            self.input_server_namespace.clear()
-            # Get the server config args from configfile
-            server_config = self.controller.get_config_server_args(server_name)
-            # Populate the widgets with the server config args
-            if "endpoint" in server_config and "namespace" in server_config:
-                self.input_server_address.setText(server_config["host"])
-                self.input_server_port.setText(server_config["port"])
-                self.input_server_endpoint.setText(server_config["endpoint"])
-                self.input_server_namespace.setText(server_config["namespace"])
-            else:
-                # First physical controller does not have an endpoint or namespace
-                self.input_server_address.setText(server_config["host"])
-                self.input_server_port.setText(server_config["port"])
-            # Disable editing of the widgets
-            self._enable_server_widgets(False)
+    def server_connect(
+        self, connect_details: dict[str, Any], server_config_selected: str
+    ) -> None:
+        """Setup a connection to the server."""
+        config_connection_details = self.controller.get_config_server_args(
+            server_config_selected
+        )
+        if config_connection_details is not None:
+            connect_details["username"] = config_connection_details.get(
+                "username", None
+            )
+            connect_details["password"] = config_connection_details.get(
+                "password", None
+            )
+        logger.debug("Connecting to server: %s", connect_details)
+        self.label_conn_status.setText("Connecting... please wait")
+        self.controller.connect_server(connect_details)
 
     def track_table_file_changed(self):
         """Update the track table file path in the model."""
