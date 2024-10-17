@@ -126,7 +126,7 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
         self.period_column_value.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
         )
-        self.period_column_value.wheelEvent = lambda event: None
+        self.period_column_value.wheelEvent = lambda e: None  # type: ignore[assignment]
         self.period_column_value.setRange(50, 60000)
         self.period_column_value.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.period_column_set = QtWidgets.QPushButton("Set All")
@@ -166,7 +166,9 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
             "QCheckBox {margin-left: 28px;} "
             "QCheckBox::indicator {width: 24px; height: 24px}"
         )
-        node_table.setHorizontalHeaderLabels(["Attribute Name", "", "Period (ms)"])
+        node_table.setHorizontalHeaderLabels(
+            ["Attribute Name", "Record", "Period (ms)"]
+        )
         horizontal_header = node_table.horizontalHeader()
         horizontal_header.setDefaultSectionSize(80)
         horizontal_header.setSectionResizeMode(
@@ -214,7 +216,7 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
     def _set_all_record_checkboxes(self, checked: bool) -> None:
         """Unchecks all of the "Record" checkboxes."""
         for widgets in self._node_table_widgets.values():
-            widgets["record_check_box"].setChecked(checked)
+            widgets["record_check_box"].setChecked(checked)  # type: ignore[union-attr]
 
         status_update = "Record column "
         if checked:
@@ -228,7 +230,7 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
         """Sets all period spinboxes to the value in self.period_column_value."""
         value = self.period_column_value.value()
         for widgets in self._node_table_widgets.values():
-            widgets["period_spin_box"].setValue(value)
+            widgets["period_spin_box"].setValue(value)  # type: ignore[union-attr]
 
         self.status_bar_update(f"Period column set to {value} milliseconds.")
 
@@ -266,10 +268,14 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
             extra_nodes = []
             for node, values in config.items():
                 if node in self._node_table_widgets:
-                    self._node_table_widgets[node]["record_check_box"].setChecked(
+                    self._node_table_widgets[node][
+                        "record_check_box"
+                    ].setChecked(  # type: ignore[union-attr]
                         values["record"]
                     )
-                    self._node_table_widgets[node]["period_spin_box"].setValue(
+                    self._node_table_widgets[node][
+                        "period_spin_box"
+                    ].setValue(  # type: ignore[union-attr]
                         values["period"]
                     )
                     missing_nodes.remove(node)
@@ -308,8 +314,12 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
         config_parameters = {}
         for node, widgets in self._node_table_widgets.items():
             config_parameters[node] = {
-                "record": widgets["record_check_box"].isChecked(),
-                "period": widgets["period_spin_box"].value(),
+                "record": widgets[
+                    "record_check_box"
+                ].isChecked(),  # type: ignore[union-attr]
+                "period": widgets[
+                    "period_spin_box"
+                ].value(),  # type: ignore[union-attr]
             }
 
         return config_parameters
