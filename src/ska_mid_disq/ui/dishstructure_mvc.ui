@@ -1689,7 +1689,7 @@
        </size>
       </property>
       <property name="title">
-       <string>OPC-UA server</string>
+       <string/>
       </property>
       <layout class="QGridLayout" name="gridLayout_11">
        <item row="0" column="2" colspan="2">
@@ -1708,7 +1708,20 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_81">
+         <property name="maximumSize">
+          <size>
+           <width>60</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Status:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
         <widget class="QPushButton" name="button_server_connect">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1716,22 +1729,21 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>128</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="text">
-          <string>Connect</string>
+          <string>Connect OPC-UA...</string>
          </property>
          <property name="autoDefault">
           <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_81">
-         <property name="text">
-          <string>Status:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
+       <item row="1" column="0" colspan="4">
         <widget class="QLabel" name="label_cache_status">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -8264,7 +8276,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>button_server_connect</tabstop>
   <tabstop>combobox_authority</tabstop>
   <tabstop>button_take_auth</tabstop>
   <tabstop>button_release_auth</tabstop>

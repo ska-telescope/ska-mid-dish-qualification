@@ -303,6 +303,13 @@ class MainView(QtWidgets.QMainWindow):
             "border: 1px solid black; }"
         )
 
+        self.groupBox_server: QtWidgets.QGroupBox
+        # Set the groupBox_server stylesheet to load a background image from ui/skao_colour_bar.png
+        skao_colour_bar_file = resources.files(__package__) / "ui/skao_colour_bar.png"
+        self.groupBox_server.setStyleSheet(
+            f"QGroupBox {{ background-image: url({skao_colour_bar_file}); }}"
+        )
+
         # Add a label widget to the status bar for command/response status
         # The QT Designer doesn't allow us to add this label so we have to do it here
         self.cmd_status_label = QtWidgets.QLabel("ℹ️ Status")
