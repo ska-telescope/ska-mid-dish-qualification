@@ -2,7 +2,6 @@
 """DiSQ GUI View."""
 
 import logging
-import os
 from datetime import datetime, timezone
 from enum import Enum
 from functools import cached_property
@@ -11,10 +10,10 @@ from pathlib import Path
 from typing import Any, Callable, Final
 
 from PyQt6 import QtCore, QtWidgets, uic
-from PyQt6.QtGui import QColor
+from PyQt6.QtGui import QAction, QColor
 
 from ska_mid_disq import __version__, controller, model
-from ska_mid_disq.constants import NodesStatus, StatusTreeCategory
+from ska_mid_disq.constants import StatusTreeCategory
 
 logger = logging.getLogger("gui.view")
 
@@ -303,12 +302,24 @@ class MainView(QtWidgets.QMainWindow):
             "border: 1px solid black; }"
         )
 
+        # Menubar
+        self.actionConnect_OPC_UA_server: QAction
+        self.actionConnect_OPC_UA_server.triggered.connect(self.connect_button_clicked)
+        self.actionDisconnect: QAction
+        self.actionDisconnect.triggered.connect(self.connect_button_clicked)
+
         self.groupBox_server: QtWidgets.QGroupBox
         # Set the groupBox_server stylesheet to load a background image from ui/skao_colour_bar.png
         skao_colour_bar_file = resources.files(__package__) / "ui/skao_colour_bar.png"
         self.groupBox_server.setStyleSheet(
             f"QGroupBox {{ background-image: url({skao_colour_bar_file}); }}"
         )
+        self.label_conn_status: QtWidgets.QLabel
+        self.label_cache_status: QtWidgets.QLabel
+        self.label_cache_status.setStyleSheet("QLabel { color: white; }")
+        self.label_conn_status.setStyleSheet("QLabel { color: white; }")
+        self.label_81: QtWidgets.QLabel
+        self.label_81.setStyleSheet("QLabel { color: white; }")
 
         # Add a label widget to the status bar for command/response status
         # The QT Designer doesn't allow us to add this label so we have to do it here
@@ -317,11 +328,6 @@ class MainView(QtWidgets.QMainWindow):
         self.setStatusBar(self.status_bar)
         self.status_bar.addWidget(self.cmd_status_label)
         self.list_cmd_history: QtWidgets.QListWidget  # Command history list widget
-
-        self.button_server_connect: QtWidgets.QPushButton
-        self.button_server_connect.clicked.connect(self.connect_button_clicked)
-        self.label_conn_status: QtWidgets.QLabel
-        self.label_cache_status: QtWidgets.QLabel
 
         # Keep a reference to model and controller
         self.model = disq_model
@@ -834,18 +840,6 @@ class MainView(QtWidgets.QMainWindow):
         self.line_edit_recording_status.setEnabled(enable)
         self.button_recording_config.setEnabled(enable)
 
-    def _enable_server_widgets(
-        self, enable: bool = True, connect_button: bool = False
-    ) -> None:
-        """
-        Enable or disable server widgets and optionally update the connect button text.
-
-        :param enable: Enable or disable server widgets (default True).
-        :param connect_button: Update the connect button text (default False).
-        """
-        if connect_button:
-            self.button_server_connect.setText("Connect" if enable else "Disconnect")
-
     def recording_status_update(self, status: bool) -> None:
         """Update the recording status."""
         if status:
@@ -1102,11 +1096,8 @@ class MainView(QtWidgets.QMainWindow):
             f"{self.model.opcua_nodes_status.value} - "
             f"Nodes generated {self.model.plc_prg_nodes_timestamp}"
         )
-        if self.model.opcua_nodes_status == NodesStatus.VALID:
-            self.label_cache_status.setStyleSheet("color: black;")
-        else:
-            self.label_cache_status.setStyleSheet("color: red;")
-        self._enable_server_widgets(False, connect_button=True)
+        self.actionConnect_OPC_UA_server.setEnabled(False)
+        self.actionDisconnect.setEnabled(True)
         self._enable_opcua_widgets()
         self._enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
@@ -1130,7 +1121,8 @@ class MainView(QtWidgets.QMainWindow):
         self._enable_data_logger_widgets(False)
         self.label_conn_status.setText("Disconnected")
         self.label_cache_status.setText("")
-        self._enable_server_widgets(True, connect_button=True)
+        self.actionConnect_OPC_UA_server.setEnabled(True)
+        self.actionDisconnect.setEnabled(False)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
         self.warning_status_show_only_warnings.setEnabled(False)
