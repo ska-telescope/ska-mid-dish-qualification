@@ -951,10 +951,12 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         :param enable: Whether to enable or disable the widgets. Default is True.
         """
         self.button_recording_start.setEnabled(enable)
-        self.button_recording_stop.setEnabled(enable)
         self.line_edit_recording_file.setEnabled(enable)
         self.line_edit_recording_status.setEnabled(enable)
         self.button_recording_config.setEnabled(enable)
+        # Only disable stop. Stop can only be enabled by clicking start.
+        if not enable:
+            self.button_recording_stop.setEnabled(enable)
 
     def _enable_server_widgets(
         self, enable: bool = True, connect_button: bool = False
