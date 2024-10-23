@@ -244,7 +244,7 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
         )
         if filename:
             logger.info("Recording save file name: %s", filename)
-            if not filename.rsplit(".", 1)[-1] == "json":
+            if Path(filename).suffix != "json":
                 filename += ".json"
             with open(filename, "w", encoding="UTF-8") as f:
                 json.dump(self._get_current_config(), f, indent=4, sort_keys=True)
@@ -262,7 +262,41 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
         if filename:
             logger.info("Recording load file name: %s", filename)
             with open(filename, "r", encoding="UTF-8") as f:
-                config = json.load(f)
+                try:
+                    config = json.load(f)
+                except Exception as e:  # pylint: disable=broad-except
+                    logger.warning("Could not load file %s: %s", filename, e)
+                    self.status_bar_update(f"Could not load file {filename}")
+                    return
+
+            # Check stored values before updating table
+            for node, values in config.items():
+                try:
+                    record = values["record"]
+                    period = values["period"]
+                except Exception as e:  # pylint: disable=broad-except
+                    logger.warning(
+                        "Could not load file %s: %s:%s", filename, type(e).__name__, e
+                    )
+                    self.status_bar_update(
+                        f"Error: {e} value missing for node {node} in file {filename}"
+                    )
+                    return
+
+                if not isinstance(record, bool) or not isinstance(period, int):
+                    logger.warning(
+                        "Could not load file %s: incompatible values (%s, %s) for node "
+                        "%s",
+                        filename,
+                        record,
+                        period,
+                        node,
+                    )
+                    self.status_bar_update(
+                        f"Incompatible values ({record}, {period}) for {node} in file "
+                        "{filename}"
+                    )
+                    return
 
             missing_nodes = list(self._node_table_widgets.keys())
             extra_nodes = []

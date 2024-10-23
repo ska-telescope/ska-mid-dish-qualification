@@ -589,7 +589,7 @@ class Model(QObject):
             result_callback=result_callback,
         )
 
-    def start_recording(self, filename: Path | None) -> str:
+    def start_recording(self, filename: Path | None) -> Path:
         """
         Start recording data to a specified file.
 
@@ -621,7 +621,7 @@ class Model(QObject):
         self._recording = True
         self._data_logger.start()
         logger.debug("Logger recording started")
-        return self._data_logger.file
+        return Path(self._data_logger.file)
 
     def stop_recording(self) -> None:
         """

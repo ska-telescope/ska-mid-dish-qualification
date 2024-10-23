@@ -488,14 +488,14 @@ class Controller(QObject):
                 return None
 
         try:
-            output_name = self._model.start_recording(fname)
+            output_name = str(self._model.start_recording(fname).absolute())
         except RuntimeError as e:
             msg = f"Unable to start recording: {e}"
             self.emit_ui_status_message("WARNING", msg)
             return None
         self.emit_ui_status_message(
             "INFO",
-            f"▶️ Recording started to file: {Path(output_name).absolute()}",
+            f"▶️ Recording started to file: {output_name}",
         )
         self.recording_status.emit(True)
 
