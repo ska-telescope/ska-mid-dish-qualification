@@ -462,7 +462,7 @@ class Controller(QObject):
             params.append(at_num)
         self._issue_command(Command.TRACK_START, *params)
 
-    def recording_start(self, filename: str) -> None:
+    def recording_start(self, filename: str, allow_overwrite: bool) -> str | None:
         """
         Start recording OPC-UA parameter updates to `filename`.
 
@@ -473,23 +473,33 @@ class Controller(QObject):
         exist.
 
         :param filename: Name of HDF5 file to write to.
+        :return: Output file name or None if failed to start recording.
         """
-        fname = Path(filename)
-        logger.debug("Recording to file: %s", fname.absolute())
-        if fname.exists():
-            msg = f"⛔️ Not recording. Data file already exists: {fname.absolute()}"
-            self.emit_ui_status_message("WARNING", msg)
-            return
+        fname = None
+        if filename:
+            if not filename.rsplit(".", 1)[-1] == "hdf5":
+                filename += ".hdf5"
+
+            fname = Path(filename)
+            logger.debug("Recording to file: %s", fname.absolute())
+            if not allow_overwrite and fname.exists():
+                msg = f"⛔️ Not recording. Data file already exists: {fname.absolute()}"
+                self.emit_ui_status_message("WARNING", msg)
+                return None
+
         try:
-            self._model.start_recording(fname)
+            output_name = str(self._model.start_recording(fname).absolute())
         except RuntimeError as e:
             msg = f"Unable to start recording: {e}"
             self.emit_ui_status_message("WARNING", msg)
-            return
+            return None
         self.emit_ui_status_message(
-            "INFO", f"▶️ Recording started to file: {fname.absolute()}"
+            "INFO",
+            f"▶️ Recording started to file: {output_name}",
         )
         self.recording_status.emit(True)
+
+        return output_name
 
     def recording_stop(self) -> None:
         """
@@ -497,12 +507,13 @@ class Controller(QObject):
 
         Emits UI status update.
         """
-        self._model.stop_recording()
-        self.emit_ui_status_message("INFO", "Recording stopped")
-        self.recording_status.emit(False)
+        if self._model.recording:
+            self._model.stop_recording()
+            self.emit_ui_status_message("INFO", "Recording stopped")
+            self.recording_status.emit(False)
 
     @property
-    def recording_config(self) -> list[str]:
+    def recording_config(self) -> dict[str, dict[str, bool | int]]:
         """
         Get the recording configuration of the model.
 
@@ -511,7 +522,7 @@ class Controller(QObject):
         return self._model.recording_config
 
     @recording_config.setter
-    def recording_config(self, config: list[str]) -> None:
+    def recording_config(self, config: dict[str, dict[str, bool | int]]) -> None:
         """
         Set the recording configuration for the model.
 
