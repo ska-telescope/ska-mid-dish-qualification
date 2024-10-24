@@ -821,21 +821,10 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.spinbox_hece8,  # type: ignore
             self.spinbox_hese8,  # type: ignore
         ]
-        for spinbox in self.static_pointing_spinboxes:
-            spinbox.editingFinished.connect(self.static_pointing_parameter_changed)
-            spinbox.blockSignals(True)
         self.opcua_offset_xelev: QtWidgets.QLabel
         self.opcua_offset_elev: QtWidgets.QLabel
         self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
         self.spinbox_offset_elev: QtWidgets.QDoubleSpinBox
-        self.spinbox_offset_xelev.editingFinished.connect(
-            self.static_pointing_offset_changed
-        )
-        self.spinbox_offset_elev.editingFinished.connect(
-            self.static_pointing_offset_changed
-        )
-        self.spinbox_offset_xelev.blockSignals(True)
-        self.spinbox_offset_elev.blockSignals(True)
         self._update_static_pointing_inputs_text = False
         # Point tab tilt correction widgets
         self.button_tilt_correction_off: QtWidgets.QRadioButton
@@ -892,9 +881,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.spinbox_ambtempparam5,  # type: ignore
             self.spinbox_ambtempparam6,  # type: ignore
         ]
-        for spinbox in self.ambtemp_correction_spinboxes:
-            spinbox.editingFinished.connect(self.ambtemp_correction_parameter_changed)
-            spinbox.blockSignals(True)
         self._update_temp_correction_inputs_text = False
         # Bands group widgets
         self.button_band1: QtWidgets.QPushButton
@@ -1201,7 +1187,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
     def _update_opcua_text_widget(
         self,
-        widgets: list[QtWidgets.QLineEdit | QtWidgets.QDoubleSpinBox],
+        widgets: list[
+            QtWidgets.QLineEdit | QtWidgets.QDoubleSpinBox | QtWidgets.QLabel
+        ],
         event: dict,
     ) -> None:
         """
@@ -1218,7 +1206,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         else:
             str_val = str(val)
         for widget in widgets:
-            if isinstance(widget, QtWidgets.QLineEdit):
+            if isinstance(widget, (QtWidgets.QLineEdit, QtWidgets.QLabel)):
                 widget.setText(str_val)
             elif isinstance(widget, QtWidgets.QDoubleSpinBox):
                 widget.setValue(val)
@@ -1319,12 +1307,12 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         elif event["name"] == STATIC_CORR_ACTIVE:
             if self._update_static_pointing_inputs_text:
                 self._update_static_pointing_inputs_text = False
-                self._set_static_pointing_inputs_text(not event["value"])
+                self._set_static_pointing_inputs_text()
                 self.static_point_model_checked_prev = int(event["value"])
         elif event["name"] == TEMP_CORR_ACTIVE:
             if self._update_temp_correction_inputs_text:
                 self._update_temp_correction_inputs_text = False
-                self._set_temp_correction_inputs_text(not event["value"])
+                self._set_temp_correction_inputs_text()
                 self.temp_correction_checked_prev = int(event["value"])
 
     def _update_opcua_boolean_text_widget(
@@ -1776,22 +1764,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             if stat:
                 self.static_pointing_parameter_changed()
                 self.static_pointing_offset_changed()
-                self.spinbox_offset_xelev.blockSignals(False)
-                self.spinbox_offset_elev.blockSignals(False)
-                for spinbox in self.static_pointing_spinboxes:
-                    spinbox.blockSignals(False)
-            else:
-                self.spinbox_offset_xelev.blockSignals(True)
-                self.spinbox_offset_elev.blockSignals(True)
-                for spinbox in self.static_pointing_spinboxes:
-                    spinbox.blockSignals(True)
             if ambtemp:
                 self.ambtemp_correction_parameter_changed()
-                for spinbox in self.ambtemp_correction_spinboxes:
-                    spinbox.blockSignals(False)
-            else:
-                for spinbox in self.ambtemp_correction_spinboxes:
-                    spinbox.blockSignals(True)
             # Keep track of radio buttons' previous states
             self.static_point_model_checked_prev = static_point_model_checked_id
             self.tilt_correction_checked_prev = tilt_correction_checked_id
@@ -1812,14 +1786,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 self.temp_correction_checked_prev
             ).setChecked(True)
 
-    def _set_static_pointing_inputs_text(self, block_signals: bool) -> None:
-        """
-        Set static pointing inputs' text to current read values.
-
-        :param block_signals: Block or unblock the widgets' signals.
-        """
+    def _set_static_pointing_inputs_text(self) -> None:
+        """Set static pointing inputs' text to current read values."""
         # Static pointing band
-        self.combo_static_point_model_band.blockSignals(True)
         current_band = self.static_point_model_band.text()
         if current_band != "not read":
             self.combo_static_point_model_band.setCurrentIndex(
@@ -1827,44 +1796,31 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                     "BandType", current_band.replace(" ", "_")
                 )
             )
-        self.combo_static_point_model_band.blockSignals(block_signals)
         # Static pointing offsets
-        self.spinbox_offset_xelev.blockSignals(True)
-        self.spinbox_offset_elev.blockSignals(True)
         try:
             self.spinbox_offset_xelev.setValue(float(self.opcua_offset_xelev.text()))
             self.spinbox_offset_elev.setValue(float(self.opcua_offset_elev.text()))
         except ValueError:
             self.spinbox_offset_xelev.setValue(0)
             self.spinbox_offset_elev.setValue(0)
-        self.spinbox_offset_xelev.blockSignals(block_signals)
-        self.spinbox_offset_elev.blockSignals(block_signals)
         # Static pointing parameters
         for spinbox, value in zip(
             self.static_pointing_spinboxes, self.static_pointing_values
         ):
-            spinbox.blockSignals(True)
             try:
                 spinbox.setValue(float(value.text()))
             except ValueError:
                 spinbox.setValue(0)
-            spinbox.blockSignals(block_signals)
 
-    def _set_temp_correction_inputs_text(self, block_signals: bool) -> None:
-        """
-        Set ambient temperature correction inputs' text to current read values.
-
-        :param block_signals: Block or unblock the widgets' signals.
-        """
+    def _set_temp_correction_inputs_text(self) -> None:
+        """Set ambient temperature correction inputs' text to current read values."""
         for spinbox, value in zip(
             self.ambtemp_correction_spinboxes, self.ambtemp_correction_values
         ):
-            spinbox.blockSignals(True)
             try:
                 spinbox.setValue(float(value.text()))
             except ValueError:
                 spinbox.setValue(0)
-            spinbox.blockSignals(block_signals)
 
     def _configure_status_tree_widget(
         self,
