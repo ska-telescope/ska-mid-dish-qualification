@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1518</width>
-    <height>832</height>
+    <width>1190</width>
+    <height>820</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
-    <height>832</height>
+    <width>1140</width>
+    <height>820</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -588,6 +588,19 @@
        </widget>
       </item>
       <item>
+       <spacer name="verticalSpacer_11">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QGroupBox" name="groupBox_elevation">
         <property name="maximumSize">
          <size>
@@ -599,6 +612,18 @@
          <string>Elevation</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
          <item row="0" column="2">
           <widget class="QLineEdit" name="line_edit_system_16">
            <property name="minimumSize">
@@ -1119,6 +1144,19 @@
        </widget>
       </item>
       <item>
+       <spacer name="verticalSpacer_12">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QGroupBox" name="groupBox_indexer">
         <property name="maximumSize">
          <size>
@@ -1130,6 +1168,18 @@
          <string>Feed Indexer</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
          <item row="3" column="1">
           <widget class="QLabel" name="label_17">
            <property name="maximumSize">
@@ -1697,6 +1747,12 @@
     </item>
     <item row="0" column="0" colspan="3">
      <widget class="QGroupBox" name="groupBox_server">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>80</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>16777215</width>
@@ -1707,6 +1763,21 @@
        <string/>
       </property>
       <layout class="QGridLayout" name="gridLayout_11">
+       <property name="leftMargin">
+        <number>2</number>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
+        <number>2</number>
+       </property>
+       <property name="spacing">
+        <number>6</number>
+       </property>
        <item row="1" column="0" colspan="4">
         <widget class="QLabel" name="label_cache_status">
          <property name="sizePolicy">
@@ -1761,29 +1832,14 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="power">
        <attribute name="title">
         <string>Power</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_25">
-        <property name="leftMargin">
-         <number>2</number>
-        </property>
-        <property name="topMargin">
-         <number>2</number>
-        </property>
-        <property name="rightMargin">
-         <number>2</number>
-        </property>
-        <property name="bottomMargin">
-         <number>2</number>
-        </property>
-        <property name="spacing">
-         <number>2</number>
-        </property>
-        <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
          <widget class="QGroupBox" name="groupBox_set_power_mode">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -1808,16 +1864,16 @@
           </property>
           <layout class="QGridLayout" name="gridLayout_20">
            <property name="leftMargin">
-            <number>2</number>
+            <number>4</number>
            </property>
            <property name="topMargin">
-            <number>2</number>
+            <number>4</number>
            </property>
            <property name="rightMargin">
-            <number>2</number>
+            <number>4</number>
            </property>
            <property name="bottomMargin">
-            <number>2</number>
+            <number>4</number>
            </property>
            <property name="spacing">
             <number>2</number>
@@ -1996,7 +2052,20 @@
           </layout>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item>
+         <spacer name="verticalSpacer_13">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>3</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <widget class="QGroupBox" name="groupBox_4">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -2047,6 +2116,413 @@
               </size>
              </property>
             </spacer>
+           </item>
+           <item row="6" column="0">
+            <layout class="QGridLayout" name="gridLayout_24">
+             <item row="5" column="3">
+              <widget class="QLineEdit" name="opcua_PowerStatus_cbPSC_Spare">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Management.PowerStatus.cbPSC_Spare</string>
+               </property>
+               <property name="opcua_type" stdset="0">
+                <string>Boolean</string>
+               </property>
+               <property name="led_colour" stdset="0">
+                <string>red</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" colspan="2">
+              <widget class="QLabel" name="label_105">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>EMI shielded cabinet circuit breaker open:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="3">
+              <widget class="QLineEdit" name="opcua_PowerStatus_cbHe_Comp">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Management.PowerStatus.cbHe_Comp</string>
+               </property>
+               <property name="opcua_type" stdset="0">
+                <string>Boolean</string>
+               </property>
+               <property name="led_colour" stdset="0">
+                <string>red</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QLineEdit" name="opcua_PowerStatus_cbFan_PSC">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Management.PowerStatus.cbFan_PSC</string>
+               </property>
+               <property name="opcua_type" stdset="0">
+                <string>Boolean</string>
+               </property>
+               <property name="led_colour" stdset="0">
+                <string>red</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QLineEdit" name="opcua_PowerStatus_cbEMISC">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Management.PowerStatus.cbEMISC</string>
+               </property>
+               <property name="opcua_type" stdset="0">
+                <string>Boolean</string>
+               </property>
+               <property name="led_colour" stdset="0">
+                <string>red</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1" colspan="2">
+              <widget class="QLabel" name="label_106">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Pedestal shielded compartment fan circuit breaker open:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1" colspan="2">
+              <widget class="QLabel" name="label_109">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Pedestal spare circuit breaker open:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1" colspan="2">
+              <widget class="QLabel" name="label_107">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Helium compressor circuit breaker open:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1" colspan="2">
+              <widget class="QLabel" name="label_110">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Pedestal shielded compartment spare circuit breaker open:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="3">
+              <widget class="QLineEdit" name="opcua_PowerStatus_cbPHU_Fi">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Management.PowerStatus.cbPDU_Fi</string>
+               </property>
+               <property name="opcua_type" stdset="0">
+                <string>Boolean</string>
+               </property>
+               <property name="led_colour" stdset="0">
+                <string>red</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="3">
+              <widget class="QLineEdit" name="opcua_PowerStatus_cbPED_Spare">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Management.PowerStatus.cbPED_Spare</string>
+               </property>
+               <property name="opcua_type" stdset="0">
+                <string>Boolean</string>
+               </property>
+               <property name="led_colour" stdset="0">
+                <string>red</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1" colspan="2">
+              <widget class="QLabel" name="label_108">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Feed indexer power distribution circuit breaker open:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <spacer name="horizontalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </item>
            <item row="4" column="0">
             <layout class="QGridLayout" name="gridLayout_23">
@@ -2194,19 +2670,6 @@
               </spacer>
              </item>
             </layout>
-           </item>
-           <item row="3" column="0">
-            <spacer name="verticalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>4</height>
-              </size>
-             </property>
-            </spacer>
            </item>
            <item row="2" column="0">
             <layout class="QGridLayout" name="gridLayout_22">
@@ -2659,413 +3122,6 @@
              </item>
             </layout>
            </item>
-           <item row="6" column="0">
-            <layout class="QGridLayout" name="gridLayout_24">
-             <item row="5" column="3">
-              <widget class="QLineEdit" name="opcua_PowerStatus_cbPSC_Spare">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Management.PowerStatus.cbPSC_Spare</string>
-               </property>
-               <property name="opcua_type" stdset="0">
-                <string>Boolean</string>
-               </property>
-               <property name="led_colour" stdset="0">
-                <string>red</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1" colspan="2">
-              <widget class="QLabel" name="label_105">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>EMI shielded cabinet circuit breaker open:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="3">
-              <widget class="QLineEdit" name="opcua_PowerStatus_cbHe_Comp">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Management.PowerStatus.cbHe_Comp</string>
-               </property>
-               <property name="opcua_type" stdset="0">
-                <string>Boolean</string>
-               </property>
-               <property name="led_colour" stdset="0">
-                <string>red</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="3">
-              <widget class="QLineEdit" name="opcua_PowerStatus_cbFan_PSC">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Management.PowerStatus.cbFan_PSC</string>
-               </property>
-               <property name="opcua_type" stdset="0">
-                <string>Boolean</string>
-               </property>
-               <property name="led_colour" stdset="0">
-                <string>red</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="3">
-              <widget class="QLineEdit" name="opcua_PowerStatus_cbEMISC">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Management.PowerStatus.cbEMISC</string>
-               </property>
-               <property name="opcua_type" stdset="0">
-                <string>Boolean</string>
-               </property>
-               <property name="led_colour" stdset="0">
-                <string>red</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1" colspan="2">
-              <widget class="QLabel" name="label_106">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Pedestal shielded compartment fan circuit breaker open:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1" colspan="2">
-              <widget class="QLabel" name="label_109">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Pedestal spare circuit breaker open:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1" colspan="2">
-              <widget class="QLabel" name="label_107">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Helium compressor circuit breaker open:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1" colspan="2">
-              <widget class="QLabel" name="label_110">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Pedestal shielded compartment spare circuit breaker open:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="3">
-              <widget class="QLineEdit" name="opcua_PowerStatus_cbPHU_Fi">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Management.PowerStatus.cbPDU_Fi</string>
-               </property>
-               <property name="opcua_type" stdset="0">
-                <string>Boolean</string>
-               </property>
-               <property name="led_colour" stdset="0">
-                <string>red</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="3">
-              <widget class="QLineEdit" name="opcua_PowerStatus_cbPED_Spare">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Management.PowerStatus.cbPED_Spare</string>
-               </property>
-               <property name="opcua_type" stdset="0">
-                <string>Boolean</string>
-               </property>
-               <property name="led_colour" stdset="0">
-                <string>red</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1" colspan="2">
-              <widget class="QLabel" name="label_108">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Feed indexer power distribution circuit breaker open:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <spacer name="horizontalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
            <item row="1" column="0">
             <spacer name="verticalSpacer_4">
              <property name="orientation">
@@ -3279,8 +3335,34 @@
              </item>
             </layout>
            </item>
+           <item row="3" column="0">
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>4</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
           </layout>
          </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_14">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
@@ -5029,6 +5111,19 @@
            </widget>
           </item>
           <item>
+           <spacer name="verticalSpacer_18">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <widget class="QGroupBox" name="groupBox_point_offset">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -5542,6 +5637,19 @@
              </item>
             </layout>
            </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_19">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item>
            <widget class="QGroupBox" name="groupBox_temp_correction">
@@ -6137,46 +6245,7 @@
            <string>Track Table</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_12">
-           <item row="2" column="1">
-            <widget class="QRadioButton" name="button_file_track_absolute_times">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Yes</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
-             <property name="opcua_type" stdset="0">
-              <string>Boolean</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="3">
-            <widget class="QPushButton" name="button_load_track_table">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Load Track Table File</string>
-             </property>
-             <property name="opcua_cmd" stdset="0">
-              <string>Tracking.Commands.TrackLoadTable</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_82">
-             <property name="text">
-              <string>File contains absolute times:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
+           <item row="0" column="0" colspan="2">
             <widget class="QLabel" name="label_34">
              <property name="text">
               <string>Select track table file:</string>
@@ -6186,85 +6255,19 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="3">
-            <spacer name="horizontalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
+           <item row="0" column="2" colspan="2">
+            <widget class="QPushButton" name="button_select_track_table_file">
+             <property name="minimumSize">
               <size>
-               <width>40</width>
-               <height>20</height>
+               <width>0</width>
+               <height>22</height>
               </size>
              </property>
-            </spacer>
-           </item>
-           <item row="0" column="1" colspan="2">
-            <widget class="QPushButton" name="button_select_track_table_file">
              <property name="text">
               <string>File...</string>
              </property>
              <property name="opcua" stdset="0">
               <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QRadioButton" name="button_file_track_relative_times">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
-             <property name="opcua_type" stdset="0">
-              <string>Boolean</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="label_88">
-             <property name="text">
-              <string>Load mode:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1" colspan="2">
-            <widget class="QDoubleSpinBox" name="spinbox_file_track_additional_offset">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="decimals">
-              <number>1</number>
-             </property>
-             <property name="value">
-              <double>5.000000000000000</double>
-             </property>
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
-             <property name="opcua_type" stdset="0">
-              <string>Double</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1" colspan="2">
-            <widget class="QComboBox" name="combobox_file_track_mode">
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
-             <property name="opcua_type" stdset="0">
-              <string>LoadModeType</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_87">
-             <property name="text">
-              <string>Additional offset to file times [s]</string>
              </property>
             </widget>
            </item>
@@ -6276,7 +6279,7 @@
              <property name="minimumSize">
               <size>
                <width>200</width>
-               <height>0</height>
+               <height>22</height>
               </size>
              </property>
              <property name="alignment">
@@ -6296,6 +6299,137 @@
              </property>
             </widget>
            </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QLabel" name="label_82">
+             <property name="text">
+              <string>File contains absolute times:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QRadioButton" name="button_file_track_absolute_times">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Yes</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QRadioButton" name="button_file_track_relative_times">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>No</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QLabel" name="label_87">
+             <property name="text">
+              <string>Additional offset to file times [s]</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2" colspan="2">
+            <widget class="QDoubleSpinBox" name="spinbox_file_track_additional_offset">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <double>5.000000000000000</double>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Double</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_88">
+             <property name="text">
+              <string>Load mode:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QComboBox" name="combobox_file_track_mode">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>LoadModeType</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2" colspan="2">
+            <widget class="QPushButton" name="button_load_track_table">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Load Track Table File</string>
+             </property>
+             <property name="opcua_cmd" stdset="0">
+              <string>Tracking.Commands.TrackLoadTable</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -6309,6 +6443,12 @@
             <widget class="QPushButton" name="button_start_track_table">
              <property name="enabled">
               <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
              </property>
              <property name="text">
               <string>Start Tracking</string>
@@ -6327,6 +6467,12 @@
            </item>
            <item row="2" column="1" colspan="2">
             <widget class="QComboBox" name="combobox_track_start_interpol_type">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="opcua" stdset="0">
               <string/>
              </property>
@@ -6343,7 +6489,7 @@
              <property name="minimumSize">
               <size>
                <width>150</width>
-               <height>0</height>
+               <height>22</height>
               </size>
              </property>
              <property name="text">
@@ -6378,6 +6524,12 @@
              <property name="enabled">
               <bool>true</bool>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="text">
               <string>At:</string>
              </property>
@@ -6390,6 +6542,12 @@
             <widget class="QRadioButton" name="button_start_track_now">
              <property name="enabled">
               <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
              </property>
              <property name="text">
               <string>Now</string>
@@ -6413,6 +6571,12 @@
           <layout class="QGridLayout" name="gridLayout_27">
            <item row="3" column="1" colspan="3">
             <widget class="QLineEdit" name="lineEdit_14">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>
@@ -6436,6 +6600,12 @@
            </item>
            <item row="0" column="1">
             <widget class="QLineEdit" name="lineEdit_9">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>
@@ -6458,6 +6628,12 @@
            </item>
            <item row="1" column="3">
             <widget class="QLineEdit" name="lineEdit_13">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>
@@ -6474,6 +6650,12 @@
            </item>
            <item row="1" column="1">
             <widget class="QLineEdit" name="lineEdit_8">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>
@@ -6500,6 +6682,12 @@
            </item>
            <item row="2" column="3">
             <widget class="QLineEdit" name="lineEdit_11">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>
@@ -6526,6 +6714,12 @@
            </item>
            <item row="0" column="3">
             <widget class="QLineEdit" name="lineEdit_12">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>
@@ -6588,6 +6782,12 @@
            </item>
            <item row="2" column="1">
             <widget class="QLineEdit" name="lineEdit_10">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>
@@ -6613,6 +6813,12 @@
            </property>
            <item row="1" column="2">
             <widget class="QPushButton" name="button_set_time_source">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="text">
               <string>Set Time Source</string>
              </property>
@@ -6640,6 +6846,12 @@
            </item>
            <item row="0" column="1">
             <widget class="QComboBox" name="combobox_time_source">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="opcua_type" stdset="0">
               <string>DscTimeSyncSourceType</string>
              </property>
@@ -6647,6 +6859,12 @@
            </item>
            <item row="1" column="1">
             <widget class="QLineEdit" name="line_edit_ntp_source_addr">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="placeholderText">
               <string>0.0.0.0</string>
              </property>
@@ -6680,19 +6898,6 @@
            </item>
           </layout>
          </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_5">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </widget>
@@ -7828,7 +8033,38 @@
          <string>Authority Status</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_6">
-         <item row="2" column="0" colspan="2">
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QComboBox" name="combobox_authority">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>116</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>DscCmdAuthorityType</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
           <widget class="QPushButton" name="button_release_auth">
            <property name="enabled">
             <bool>true</bool>
@@ -7836,7 +8072,7 @@
            <property name="minimumSize">
             <size>
              <width>116</width>
-             <height>0</height>
+             <height>22</height>
             </size>
            </property>
            <property name="text">
@@ -7847,23 +8083,211 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="2">
-          <widget class="QPushButton" name="button_reset">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
+         <item row="1" column="2">
+          <widget class="QLineEdit" name="opcua_cmd_authority">
            <property name="minimumSize">
             <size>
-             <width>90</width>
-             <height>0</height>
+             <width>80</width>
+             <height>22</height>
             </size>
            </property>
-           <property name="text">
-            <string>Reset</string>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>LMC</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>CommandArbiter.Status.DscCmdAuthority</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>DscCmdAuthorityType</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
+         <item row="1" column="1">
+          <widget class="QLabel" name="label_29">
+           <property name="text">
+            <string>Current Auth:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" colspan="2">
+          <widget class="QPushButton" name="button_take_auth">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>116</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Take Authority</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>CommandArbiter.Commands.TakeReleaseAuth</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_commands">
+        <property name="maximumSize">
+         <size>
+          <width>360</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Commands</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <item row="2" column="0">
+          <widget class="QPushButton" name="button_deactivate">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>De-Activate</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Commands.DeActivate</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLineEdit" name="line_edit_system">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>state</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Management.Status.DscState</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>DscStateType</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QPushButton" name="button_unstow">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Un-Stow</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Commands.Stow</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="button_activate">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Activate</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Commands.Activate</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2" rowspan="2">
+          <widget class="QPushButton" name="button_stop">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>48</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Stop</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Commands.Stop</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QPushButton" name="button_stow">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Stow</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>Management.Commands.Stow</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
           <widget class="QLineEdit" name="lineEdit_7">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -7903,7 +8327,7 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
+         <item row="3" column="2">
           <widget class="QPushButton" name="button_interlock_ack">
            <property name="enabled">
             <bool>true</bool>
@@ -7911,7 +8335,7 @@
            <property name="minimumSize">
             <size>
              <width>90</width>
-             <height>0</height>
+             <height>22</height>
             </size>
            </property>
            <property name="text">
@@ -7919,174 +8343,6 @@
            </property>
            <property name="opcua_cmd" stdset="0">
             <string>Safety.Status.Commands.InterlockAck</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0" colspan="2">
-          <widget class="QPushButton" name="button_take_auth">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>116</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Take Authority</string>
-           </property>
-           <property name="opcua_cmd" stdset="0">
-            <string>CommandArbiter.Commands.TakeReleaseAuth</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QComboBox" name="combobox_authority">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>116</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="opcua_type" stdset="0">
-            <string>DscCmdAuthorityType</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="opcua_cmd_authority">
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>LMC</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>CommandArbiter.Status.DscCmdAuthority</string>
-           </property>
-           <property name="opcua_type" stdset="0">
-            <string>DscCmdAuthorityType</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="groupBox_commands">
-        <property name="maximumSize">
-         <size>
-          <width>360</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="title">
-         <string>Commands</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="1" column="3">
-          <widget class="QPushButton" name="button_stow">
-           <property name="text">
-            <string>Stow</string>
-           </property>
-           <property name="opcua_cmd" stdset="0">
-            <string>Management.Commands.Stow</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QPushButton" name="button_deactivate">
-           <property name="text">
-            <string>De-Activate</string>
-           </property>
-           <property name="opcua_cmd" stdset="0">
-            <string>Management.Commands.DeActivate</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="3">
-          <widget class="QPushButton" name="button_unstow">
-           <property name="text">
-            <string>Un-Stow</string>
-           </property>
-           <property name="opcua_cmd" stdset="0">
-            <string>Management.Commands.Stow</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2" rowspan="2">
-          <widget class="QPushButton" name="button_stop">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Stop</string>
-           </property>
-           <property name="opcua_cmd" stdset="0">
-            <string>Management.Commands.Stop</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="button_activate">
-           <property name="text">
-            <string>Activate</string>
-           </property>
-           <property name="opcua_cmd" stdset="0">
-            <string>Management.Commands.Activate</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLineEdit" name="line_edit_system">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>state</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Management.Status.DscState</string>
-           </property>
-           <property name="opcua_type" stdset="0">
-            <string>DscStateType</string>
            </property>
           </widget>
          </item>
@@ -8105,8 +8361,29 @@
          <string>Slew</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_7">
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <property name="spacing">
+          <number>2</number>
+         </property>
          <item row="6" column="1">
           <widget class="QPushButton" name="button_slew2abs">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="text">
             <string>Slew2Abs</string>
            </property>
@@ -8185,6 +8462,12 @@
          </item>
          <item row="0" column="1">
           <widget class="QLabel" name="label_3">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
            <property name="text">
             <string>Position demand [deg]</string>
            </property>
@@ -8253,8 +8536,29 @@
          <string>Move FeedIndexer to Band</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_8">
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <property name="spacing">
+          <number>4</number>
+         </property>
          <item row="0" column="2">
           <widget class="QPushButton" name="button_band3">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="text">
             <string>Band 3</string>
            </property>
@@ -8265,6 +8569,12 @@
          </item>
          <item row="1" column="3">
           <widget class="QPushButton" name="button_band_optical">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="text">
             <string>Optical</string>
            </property>
@@ -8275,6 +8585,12 @@
          </item>
          <item row="0" column="3">
           <widget class="QPushButton" name="button_band4">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="text">
             <string>Band 4</string>
            </property>
@@ -8285,6 +8601,12 @@
          </item>
          <item row="1" column="1">
           <widget class="QPushButton" name="button_band5b">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="text">
             <string>Band 5b</string>
            </property>
@@ -8295,6 +8617,12 @@
          </item>
          <item row="0" column="0">
           <widget class="QPushButton" name="button_band1">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="text">
             <string>Band 1</string>
            </property>
@@ -8305,6 +8633,12 @@
          </item>
          <item row="0" column="1">
           <widget class="QPushButton" name="button_band2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="text">
             <string>Band 2</string>
            </property>
@@ -8315,6 +8649,12 @@
          </item>
          <item row="1" column="2">
           <widget class="QPushButton" name="button_band6">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="text">
             <string>Band 6</string>
            </property>
@@ -8325,6 +8665,12 @@
          </item>
          <item row="1" column="0">
           <widget class="QPushButton" name="button_band5a">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="text">
             <string>Band 5a</string>
            </property>
@@ -8348,18 +8694,29 @@
          <string>Recording</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_9">
-         <item row="4" column="2">
-          <widget class="QPushButton" name="button_recording_stop">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Stop</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <item row="0" column="3">
           <widget class="QPushButton" name="button_select_recording_file">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="text">
             <string>File...</string>
            </property>
@@ -8368,37 +8725,39 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0" colspan="2">
-          <widget class="QLabel" name="label_89">
-           <property name="text">
-            <string>Select output folder/file:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QPushButton" name="button_recording_start">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Start</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
+         <item row="3" column="0">
           <widget class="QPushButton" name="button_recording_config">
            <property name="enabled">
             <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
            </property>
            <property name="text">
             <string>Configure</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0" colspan="3">
+         <item row="3" column="2">
+          <widget class="QPushButton" name="button_recording_stop">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Stop</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="4">
           <widget class="QLineEdit" name="line_edit_recording_file">
            <property name="enabled">
             <bool>false</bool>
@@ -8417,14 +8776,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="3">
-          <widget class="QLabel" name="label_36">
-           <property name="text">
-            <string>.hdf5</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="3">
+         <item row="3" column="3">
           <widget class="QLineEdit" name="line_edit_recording_status">
            <property name="enabled">
             <bool>false</bool>
@@ -8452,15 +8804,14 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0" colspan="2">
-          <widget class="QLabel" name="label_120">
-           <property name="text">
-            <string>Overwriting allowed:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
+         <item row="2" column="2">
           <widget class="QRadioButton" name="button_recording_overwrite_yes">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="text">
             <string>Yes</string>
            </property>
@@ -8469,13 +8820,46 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="3">
+         <item row="3" column="1">
+          <widget class="QPushButton" name="button_recording_start">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Start</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
           <widget class="QRadioButton" name="button_recording_overwrite_no">
            <property name="text">
             <string>No</string>
            </property>
            <property name="opcua" stdset="0">
             <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QLabel" name="label_120">
+           <property name="text">
+            <string>Overwriting allowed:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="3">
+          <widget class="QLabel" name="label_89">
+           <property name="text">
+            <string>Select output folder/file:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -8491,7 +8875,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1518</width>
+     <width>1190</width>
      <height>21</height>
     </rect>
    </property>
@@ -8530,11 +8914,7 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>combobox_authority</tabstop>
   <tabstop>button_take_auth</tabstop>
-  <tabstop>button_release_auth</tabstop>
-  <tabstop>button_interlock_ack</tabstop>
-  <tabstop>button_reset</tabstop>
   <tabstop>button_activate</tabstop>
   <tabstop>button_deactivate</tabstop>
   <tabstop>button_stop</tabstop>
@@ -8615,7 +8995,6 @@
   <tabstop>spinbox_ambtempparam6</tabstop>
   <tabstop>button_temp_correction_off</tabstop>
   <tabstop>button_temp_correction_on</tabstop>
-  <tabstop>button_select_track_table_file</tabstop>
   <tabstop>line_edit_track_table_file</tabstop>
   <tabstop>button_file_track_absolute_times</tabstop>
   <tabstop>button_file_track_relative_times</tabstop>
