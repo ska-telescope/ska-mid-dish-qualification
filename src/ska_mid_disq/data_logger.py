@@ -268,6 +268,10 @@ class DataLogger:
 
         Creates and uses a thread internally.
         """
+        if not self._nodes:
+            app_logger.warning("WARNING: No nodes to subscribe to. Exiting.")
+            return
+
         if self._start_invoked:
             app_logger.warning("WARNING: start() can only be invoked once per object.")
             return
@@ -276,11 +280,12 @@ class DataLogger:
         self._stop_logging.clear()
 
         if self.file is None:
-            self.file = (
+            file = (
                 "results/"
                 + datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
                 + ".hdf5"
             )
+            self.file = os.path.abspath(file)
 
         basedir = os.path.dirname(self.file)
         if basedir != "" and not os.path.exists(basedir):

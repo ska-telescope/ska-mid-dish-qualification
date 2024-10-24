@@ -1,6 +1,7 @@
 # pylint: disable=too-many-lines
 """DiSQ GUI View."""
 
+import json
 import logging
 from datetime import datetime, timezone
 from enum import Enum
@@ -170,8 +171,28 @@ class ServerConnectDialog(QtWidgets.QDialog):
         self.accept()
 
 
-# pylint: disable=too-few-public-methods
-class RecordingConfigDialog(QtWidgets.QDialog):
+class StatusBarMixin:
+    """A mixin class to provide a window with a status bar."""
+
+    def create_status_bar_widget(
+        self,
+        label: str = "",
+    ) -> QtWidgets.QStatusBar:
+        """Create the status bar widgets for the window."""
+        # Add a label widget to the status bar for command/response status
+        status_bar = QtWidgets.QStatusBar()
+        self.cmd_status_label = QtWidgets.QLabel(label)
+        status_bar.addWidget(self.cmd_status_label)
+        return status_bar
+
+    def status_bar_update(self, status: str) -> None:
+        """Update the status bar with a status update."""
+        self.cmd_status_label.setText(status[:200])
+
+
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-statements
+class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
     """
     A dialog-window class for selecting OPC-UA parameters to be recorded.
 
@@ -179,7 +200,11 @@ class RecordingConfigDialog(QtWidgets.QDialog):
     :param attributes: A list of OPC-UA attributes to be displayed and selected.
     """
 
-    def __init__(self, parent: QtWidgets.QWidget, attributes: list[str]):
+    def __init__(
+        self,
+        parent: QtWidgets.QWidget,
+        attributes: dict[str, dict[str, bool | int]],
+    ):
         """
         Initialize the Recording Configuration dialog.
 
@@ -190,6 +215,11 @@ class RecordingConfigDialog(QtWidgets.QDialog):
         super().__init__(parent)
 
         self.setWindowTitle("Recording Configuration")
+        self.resize(544, 512)
+
+        self._node_table_widgets: dict[
+            str, dict[str, QtWidgets.QCheckBox | QtWidgets.QLineEdit]
+        ] = {}
 
         button = (
             QtWidgets.QDialogButtonBox.StandardButton.Ok
@@ -200,37 +230,279 @@ class RecordingConfigDialog(QtWidgets.QDialog):
         self.btn_box.accepted.connect(self.accept_selection)
         self.btn_box.rejected.connect(self.reject)
 
-        self.vbox_layout = QtWidgets.QVBoxLayout()
+        self.grid_layout = QtWidgets.QGridLayout()
+        table_options_layout = QtWidgets.QGridLayout()
+        self.table_file_label = QtWidgets.QLabel("Table file:")
+        self.table_file_label.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.table_file_load = QtWidgets.QPushButton("Load")
+        self.table_file_load.clicked.connect(self._load_node_table)
+        self.table_file_save = QtWidgets.QPushButton("Save")
+        self.table_file_save.clicked.connect(self._save_node_table)
+        self.record_column_label = QtWidgets.QLabel("Record column:")
+        self.record_column_label.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.record_column_tick = QtWidgets.QPushButton("Record All")
+        self.record_column_tick.clicked.connect(
+            lambda: self._set_all_record_checkboxes(True)
+        )
+        self.record_column_clear = QtWidgets.QPushButton("Clear All")
+        self.record_column_clear.clicked.connect(
+            lambda: self._set_all_record_checkboxes(False)
+        )
+        self.period_column_label = QtWidgets.QLabel("Period column:")
+        self.period_column_label.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.period_column_value = QtWidgets.QSpinBox()
+        # Remove step buttons and prevent mouse wheel interaction
+        self.period_column_value.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
+        )
+        self.period_column_value.wheelEvent = lambda e: None  # type: ignore[assignment]
+        self.period_column_value.setRange(50, 60000)
+        self.period_column_value.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.period_column_set = QtWidgets.QPushButton("Set All")
+        self.period_column_set.clicked.connect(self._set_all_period_spinboxes)
+        table_options_layout.addWidget(self.table_file_label, 0, 0)
+        table_options_layout.addWidget(self.table_file_load, 0, 1)
+        table_options_layout.addWidget(self.table_file_save, 0, 2)
+        table_options_layout.addWidget(self.record_column_label, 1, 0)
+        table_options_layout.addWidget(self.record_column_tick, 1, 1)
+        table_options_layout.addWidget(self.record_column_clear, 1, 2)
+        table_options_layout.addWidget(self.period_column_label, 2, 0)
+        table_options_layout.addWidget(self.period_column_value, 2, 1)
+        table_options_layout.addWidget(self.period_column_set, 2, 2)
+        self.grid_layout.addLayout(table_options_layout, 0, 0)
+
         message = QtWidgets.QLabel(
             "Select all the OPC-UA attributes to record from the list and click OK"
         )
-        self.vbox_layout.addWidget(message)
+        message.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.grid_layout.addWidget(message)
 
-        self.list_widget = QtWidgets.QListWidget()
-        self.list_widget.setSelectionMode(
+        self.node_table = QtWidgets.QTableWidget(len(attributes), 3, self)
+        self._create_node_table(attributes, self.node_table)
+        self.grid_layout.addWidget(self.node_table)
+
+        self.grid_layout.addWidget(self.btn_box)
+        status_bar = self.create_status_bar_widget()
+        self.grid_layout.addWidget(status_bar)
+        self.setLayout(self.grid_layout)
+        self.config_parameters: dict[str, dict[str, bool | int]] = {}
+
+    def _create_node_table(self, attributes, node_table):
+        """Create the attribute node table."""
+        node_table.setStyleSheet(
+            "QCheckBox {margin-left: 28px;} "
+            "QCheckBox::indicator {width: 24px; height: 24px}"
+        )
+        node_table.setHorizontalHeaderLabels(
+            ["Attribute Name", "Record", "Period (ms)"]
+        )
+        horizontal_header = node_table.horizontalHeader()
+        horizontal_header.setDefaultSectionSize(80)
+        horizontal_header.setSectionResizeMode(
+            0, QtWidgets.QHeaderView.ResizeMode.Stretch
+        )
+
+        vertical_header = QtWidgets.QHeaderView(QtCore.Qt.Orientation.Vertical)
+        vertical_header.hide()
+        node_table.setVerticalHeader(vertical_header)
+        node_table.setSelectionMode(
             QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
         )
-        self.list_widget.resize(300, 120)
-        for attr in attributes:
-            self.list_widget.addItem(attr)
-        self.vbox_layout.addWidget(self.list_widget)
+        for i, (attr, value) in enumerate(attributes.items()):
+            # Add node name in first column and turn off table interactions
+            node_name = QtWidgets.QTableWidgetItem(attr)
+            node_name.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
+            node_table.setItem(i, 0, node_name)
+            # Ensure "Record" and "Period" columns are also not interactable
+            add_background = QtWidgets.QTableWidgetItem()
+            period_background = QtWidgets.QTableWidgetItem()
+            add_background.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
+            period_background.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
+            node_table.setItem(i, 1, add_background)
+            node_table.setItem(i, 2, period_background)
+            # Add "Record" checkbox
+            record_node = QtWidgets.QCheckBox()
+            record_node.setChecked(value["record"])
+            node_table.setCellWidget(i, 1, record_node)
+            # Add "Period" line edit
+            node_period = QtWidgets.QSpinBox()
+            # Remove step buttons and prevent mouse wheel interaction
+            node_period.setButtonSymbols(
+                QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
+            )
+            node_period.wheelEvent = node_table.wheelEvent
+            node_period.setRange(50, 60000)
+            node_period.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+            node_period.setValue(value["period"])
+            node_table.setCellWidget(i, 2, node_period)
+            self._node_table_widgets[attr] = {
+                "record_check_box": record_node,
+                "period_spin_box": node_period,
+            }
 
-        self.vbox_layout.addWidget(self.btn_box)
-        self.setLayout(self.vbox_layout)
-        self.config_parameters: list[str] = []
+    def _set_all_record_checkboxes(self, checked: bool) -> None:
+        """Unchecks all of the "Record" checkboxes."""
+        for widgets in self._node_table_widgets.values():
+            widgets["record_check_box"].setChecked(checked)  # type: ignore[union-attr]
+
+        status_update = "Record column "
+        if checked:
+            status_update += "ticked."
+        else:
+            status_update += "cleared."
+
+        self.status_bar_update(status_update)
+
+    def _set_all_period_spinboxes(self) -> None:
+        """Sets all period spinboxes to the value in self.period_column_value."""
+        value = self.period_column_value.value()
+        for widgets in self._node_table_widgets.values():
+            widgets["period_spin_box"].setValue(value)  # type: ignore[union-attr]
+
+        self.status_bar_update(f"Period column set to {value} milliseconds.")
+
+    def _save_node_table(self) -> None:
+        """Save the node table to a json file."""
+        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self,
+            "Save Recording Config File",
+            "",
+            "Recording Config Files (*.json)",
+        )
+        if filename:
+            logger.info("Recording save file name: %s", filename)
+            if Path(filename).suffix != "json":
+                filename += ".json"
+            with open(filename, "w", encoding="UTF-8") as f:
+                json.dump(self._get_current_config(), f, indent=4, sort_keys=True)
+
+            self.status_bar_update(f"Recording config saved to file {filename}")
+
+    def _load_node_table(self) -> None:
+        """Load the node table from a json file."""
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            "Load Recording Config File",
+            "",
+            "Recording Config Files (*.json)",
+        )
+        if filename:
+            logger.info("Recording load file name: %s", filename)
+            with open(filename, "r", encoding="UTF-8") as f:
+                try:
+                    config = json.load(f)
+                except Exception as e:  # pylint: disable=broad-except
+                    logger.warning("Could not load file %s: %s", filename, e)
+                    self.status_bar_update(f"Could not load file {filename}")
+                    return
+
+            # Check stored values before updating table
+            for node, values in config.items():
+                try:
+                    record = values["record"]
+                    period = values["period"]
+                except Exception as e:  # pylint: disable=broad-except
+                    logger.warning(
+                        "Could not load file %s: %s:%s", filename, type(e).__name__, e
+                    )
+                    self.status_bar_update(
+                        f"Error: {e} value missing for node {node} in file {filename}"
+                    )
+                    return
+
+                if not isinstance(record, bool) or not isinstance(period, int):
+                    logger.warning(
+                        "Could not load file %s: incompatible values (%s, %s) for node "
+                        "%s",
+                        filename,
+                        record,
+                        period,
+                        node,
+                    )
+                    self.status_bar_update(
+                        f"Incompatible values ({record}, {period}) for {node} in file "
+                        "{filename}"
+                    )
+                    return
+
+            missing_nodes = list(self._node_table_widgets.keys())
+            extra_nodes = []
+            for node, values in config.items():
+                if node in self._node_table_widgets:
+                    self._node_table_widgets[node][
+                        "record_check_box"
+                    ].setChecked(  # type: ignore[union-attr]
+                        values["record"]
+                    )
+                    self._node_table_widgets[node][
+                        "period_spin_box"
+                    ].setValue(  # type: ignore[union-attr]
+                        values["period"]
+                    )
+                    missing_nodes.remove(node)
+                else:
+                    extra_nodes.append(node)
+
+            self.status_bar_update(f"Recording config loaded from file {filename}")
+            error_status_update = ""
+            if missing_nodes:
+                logger.warning(
+                    "The server has attributes not in the config file. "
+                    "The following attributes have not been updated: %s",
+                    missing_nodes,
+                )
+                error_status_update += (
+                    "This server has attributes not in the selected " "config file. "
+                )
+
+            if extra_nodes:
+                logger.warning(
+                    "The file contains attributes not available on the server. "
+                    "The following attributes have not been updated: %s",
+                    extra_nodes,
+                )
+                error_status_update += (
+                    "The selected config file contains attributes not available on "
+                    "this server. "
+                )
+
+            if error_status_update:
+                error_status_update += "Only overlapping attributes will be updated."
+                self.status_bar_update(error_status_update)
+
+    def _get_current_config(self) -> dict[str, dict[str, bool | int]]:
+        """Get the current attribute record and period values."""
+        config_parameters = {}
+        for node, widgets in self._node_table_widgets.items():
+            config_parameters[node] = {
+                "record": widgets[
+                    "record_check_box"
+                ].isChecked(),  # type: ignore[union-attr]
+                "period": widgets[
+                    "period_spin_box"
+                ].value(),  # type: ignore[union-attr]
+            }
+
+        return config_parameters
 
     def accept_selection(self):
         """Accepts the selection made in the configuration dialog."""
         logger.debug("Recording config dialog accepted")
-        self.config_parameters = [
-            item.text() for item in self.list_widget.selectedItems()
-        ]
+        self.config_parameters = self._get_current_config()
         self.accept()
 
 
 # pylint: disable=too-many-statements, too-many-public-methods,
 # pylint: disable=too-many-instance-attributes
-class MainView(QtWidgets.QMainWindow):
+class MainView(StatusBarMixin, QtWidgets.QMainWindow):
     """
     A class representing the main Window of the DiSQ GUI application.
 
@@ -320,13 +592,8 @@ class MainView(QtWidgets.QMainWindow):
         self.label_81: QtWidgets.QLabel
         self.label_81.setStyleSheet("QLabel { color: white; }")
 
-        # Add a label widget to the status bar for command/response status
-        # The QT Designer doesn't allow us to add this label so we have to do it here
-        self.cmd_status_label = QtWidgets.QLabel("ℹ️ Status")
-        self.status_bar = QtWidgets.QStatusBar()
-        self.setStatusBar(self.status_bar)
-        self.status_bar.addWidget(self.cmd_status_label)
         self.list_cmd_history: QtWidgets.QListWidget  # Command history list widget
+        self.setStatusBar(self.create_status_bar_widget("ℹ️ Status"))
 
         # Keep a reference to model and controller
         self.model = disq_model
@@ -645,22 +912,25 @@ class MainView(QtWidgets.QMainWindow):
         )
         self._disable_opcua_widgets()
         # Recording group widgets
-        self.button_recording_start: QtWidgets.QPushButton
-        self.line_edit_recording_file: QtWidgets.QLineEdit
-        self.line_edit_recording_status: QtWidgets.QLineEdit
-        self.button_recording_start.clicked.connect(
-            lambda: self.controller.recording_start(
-                self.line_edit_recording_file.text()
-            )
+        self.button_select_recording_file: QtWidgets.QPushButton
+        self.button_select_recording_file.clicked.connect(
+            self.recording_file_button_clicked
         )
-        self.button_recording_stop: QtWidgets.QPushButton
-        self.button_recording_stop.clicked.connect(self.controller.recording_stop)
-        self.controller.recording_status.connect(self.recording_status_update)
-
+        self.line_edit_recording_file: QtWidgets.QLineEdit
+        self.button_recording_overwrite_no: QtWidgets.QRadioButton
+        self.button_recording_overwrite_no.setChecked(True)
         self.button_recording_config: QtWidgets.QPushButton
         self.button_recording_config.clicked.connect(
             self.recording_config_button_clicked
         )
+        self.button_recording_start: QtWidgets.QPushButton
+        self.button_recording_start.clicked.connect(self.recording_start_clicked)
+        self.button_recording_stop: QtWidgets.QPushButton
+        self.button_recording_stop.clicked.connect(self.controller.recording_stop)
+        self.button_recording_stop.setEnabled(False)
+        self.line_edit_recording_status: QtWidgets.QLineEdit
+        self.controller.recording_status.connect(self.recording_status_update)
+        self.recording_start_success = False
 
         # Track tab load widgets
         self.button_select_track_table_file: QtWidgets.QPushButton
@@ -834,7 +1104,6 @@ class MainView(QtWidgets.QMainWindow):
         :param enable: Whether to enable or disable the widgets. Default is True.
         """
         self.button_recording_start.setEnabled(enable)
-        self.button_recording_stop.setEnabled(enable)
         self.line_edit_recording_file.setEnabled(enable)
         self.line_edit_recording_status.setEnabled(enable)
         self.button_recording_config.setEnabled(enable)
@@ -910,7 +1179,9 @@ class MainView(QtWidgets.QMainWindow):
                 wgt.addItems(enum_strings)
 
     def _update_opcua_text_widget(
-        self, widgets: list[QtWidgets.QLineEdit | QtWidgets.QDoubleSpinBox], event: dict
+        self,
+        widgets: list[QtWidgets.QLineEdit | QtWidgets.QDoubleSpinBox],
+        event: dict,
     ) -> None:
         """
         Update the text of the widget with the event value.
@@ -1214,13 +1485,41 @@ class MainView(QtWidgets.QMainWindow):
 
     def recording_config_button_clicked(self):
         """Open the recording configuration dialog."""
-        dialog = RecordingConfigDialog(self, self.model.opcua_attributes)
+        if not self.controller.recording_config:
+            for node in self.model.opcua_attributes:
+                self.controller.recording_config[node] = {
+                    "record": False,
+                    "period": 100,
+                }
+
+        dialog = RecordingConfigDialog(self, self.controller.recording_config)
         if dialog.exec():
             logger.debug("Recording config dialog accepted")
             logger.debug("Selected: %s", dialog.config_parameters)
             self.controller.recording_config = dialog.config_parameters
         else:
             logger.debug("Recording config dialog cancelled")
+
+    def recording_start_clicked(self) -> None:
+        """Start the data recording."""
+        output_filename = self.controller.recording_start(
+            self.line_edit_recording_file.text(),
+            not self.button_recording_overwrite_no.isChecked(),
+        )
+
+        if self.line_edit_recording_file.text() == "":
+            self.line_edit_recording_file.setText(output_filename.rsplit(".")[0])
+
+    def recording_file_button_clicked(self) -> None:
+        """Open a dialog to select a file or folder for the recording file box."""
+        dialog = QtWidgets.QFileDialog()
+        dialog.setNameFilter("DataLogger File (*.hdf5)")
+        if dialog.exec():
+            filepaths = dialog.selectedUrls()
+            if filepaths:
+                self.line_edit_recording_file.setText(
+                    str(Path(filepaths[0].toLocalFile()).with_suffix(""))
+                )
 
     def slew2abs_button_clicked(self):
         """
@@ -1384,7 +1683,7 @@ class MainView(QtWidgets.QMainWindow):
 
     def command_response_status_update(self, status: str) -> None:
         """Update the main window status bar with a status update."""
-        self.cmd_status_label.setText(status[:200])
+        self.status_bar_update(status)
         history_line: str = (
             f"{datetime.now(timezone.utc).strftime('%H:%M:%S')} - {status}"
         )
@@ -1629,7 +1928,8 @@ class MainView(QtWidgets.QMainWindow):
         if category == StatusTreeCategory.WARNING:
             status_indicator = self.line_edit_warning_general
             self._update_opcua_boolean_text_widget(
-                [status_indicator], {"name": "global warning", "value": global_value}
+                [status_indicator],
+                {"name": "global warning", "value": global_value},
             )
 
     def warning_status_show_only_warnings_clicked(self, checked: int) -> None:
