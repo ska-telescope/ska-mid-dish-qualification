@@ -34,64 +34,6 @@ FI_POS_MIN: Final = -106.0
 FI_VEL_MAX: Final = 12.0
 
 
-# pylint: disable=too-few-public-methods
-class RecordingConfigDialog(QtWidgets.QDialog):
-    """
-    A dialog-window class for selecting OPC-UA parameters to be recorded.
-
-    :param parent: The parent widget of the dialog.
-    :param attributes: A list of OPC-UA attributes to be displayed and selected.
-    """
-
-    def __init__(self, parent: QtWidgets.QWidget, attributes: list[str]):
-        """
-        Initialize the Recording Configuration dialog.
-
-        :param parent: The parent widget for the dialog.
-        :param attributes: A list of strings representing OPC-UA attributes to choose
-            from.
-        """
-        super().__init__(parent)
-
-        self.setWindowTitle("Recording Configuration")
-
-        button = (
-            QtWidgets.QDialogButtonBox.StandardButton.Ok
-            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
-        )
-
-        self.btn_box = QtWidgets.QDialogButtonBox(button)
-        self.btn_box.accepted.connect(self.accept_selection)
-        self.btn_box.rejected.connect(self.reject)
-
-        self.vbox_layout = QtWidgets.QVBoxLayout()
-        message = QtWidgets.QLabel(
-            "Select all the OPC-UA attributes to record from the list and click OK"
-        )
-        self.vbox_layout.addWidget(message)
-
-        self.list_widget = QtWidgets.QListWidget()
-        self.list_widget.setSelectionMode(
-            QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
-        )
-        self.list_widget.resize(300, 120)
-        for attr in attributes:
-            self.list_widget.addItem(attr)
-        self.vbox_layout.addWidget(self.list_widget)
-
-        self.vbox_layout.addWidget(self.btn_box)
-        self.setLayout(self.vbox_layout)
-        self.config_parameters: list[str] = []
-
-    def accept_selection(self):
-        """Accepts the selection made in the configuration dialog."""
-        logger.debug("Recording config dialog accepted")
-        self.config_parameters = [
-            item.text() for item in self.list_widget.selectedItems()
-        ]
-        self.accept()
-
-
 class ServerConnectDialog(QtWidgets.QDialog):
     """
     A dialog-window class for connecting to the OPC-UA server.
@@ -225,7 +167,64 @@ class ServerConnectDialog(QtWidgets.QDialog):
             "namespace": self.input_server_namespace.text(),
             "use_nodes_cache": self.cache_checkbox.isChecked(),
         }
+        self.accept()
 
+
+# pylint: disable=too-few-public-methods
+class RecordingConfigDialog(QtWidgets.QDialog):
+    """
+    A dialog-window class for selecting OPC-UA parameters to be recorded.
+
+    :param parent: The parent widget of the dialog.
+    :param attributes: A list of OPC-UA attributes to be displayed and selected.
+    """
+
+    def __init__(self, parent: QtWidgets.QWidget, attributes: list[str]):
+        """
+        Initialize the Recording Configuration dialog.
+
+        :param parent: The parent widget for the dialog.
+        :param attributes: A list of strings representing OPC-UA attributes to choose
+            from.
+        """
+        super().__init__(parent)
+
+        self.setWindowTitle("Recording Configuration")
+
+        button = (
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
+        )
+
+        self.btn_box = QtWidgets.QDialogButtonBox(button)
+        self.btn_box.accepted.connect(self.accept_selection)
+        self.btn_box.rejected.connect(self.reject)
+
+        self.vbox_layout = QtWidgets.QVBoxLayout()
+        message = QtWidgets.QLabel(
+            "Select all the OPC-UA attributes to record from the list and click OK"
+        )
+        self.vbox_layout.addWidget(message)
+
+        self.list_widget = QtWidgets.QListWidget()
+        self.list_widget.setSelectionMode(
+            QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
+        )
+        self.list_widget.resize(300, 120)
+        for attr in attributes:
+            self.list_widget.addItem(attr)
+        self.vbox_layout.addWidget(self.list_widget)
+
+        self.vbox_layout.addWidget(self.btn_box)
+        self.setLayout(self.vbox_layout)
+        self.config_parameters: list[str] = []
+
+    def accept_selection(self):
+        """Accepts the selection made in the configuration dialog."""
+        logger.debug("Recording config dialog accepted")
+        self.config_parameters = [
+            item.text() for item in self.list_widget.selectedItems()
+        ]
         self.accept()
 
 
@@ -309,7 +308,7 @@ class MainView(QtWidgets.QMainWindow):
         self.actionDisconnect.triggered.connect(self.connect_button_clicked)
 
         self.groupBox_server: QtWidgets.QGroupBox
-        # Set the groupBox_server stylesheet to load a background image from ui/skao_colour_bar.png
+        # Set the groupBox_server stylesheet to load a background image
         skao_colour_bar_file = resources.files(__package__) / "ui/skao_colour_bar.png"
         self.groupBox_server.setStyleSheet(
             f"QGroupBox {{ background-image: url({skao_colour_bar_file}); }}"
