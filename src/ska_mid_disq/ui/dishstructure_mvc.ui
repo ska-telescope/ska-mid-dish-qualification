@@ -8250,7 +8250,7 @@
          </size>
         </property>
         <property name="title">
-         <string>Bands</string>
+         <string>Move FeedIndexer to Band</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_8">
          <item row="0" column="2">
