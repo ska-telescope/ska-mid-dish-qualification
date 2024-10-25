@@ -10,8 +10,10 @@ from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Final
 
+import platformdirs
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import QAction, QColor
+from PyQt6.QtWidgets import QFileDialog
 
 from ska_mid_disq import __version__, controller, model
 from ska_mid_disq.constants import StatusTreeCategory
@@ -233,13 +235,13 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
 
         self.grid_layout = QtWidgets.QGridLayout()
         table_options_layout = QtWidgets.QGridLayout()
-        self.table_file_label = QtWidgets.QLabel("Table file:")
+        self.table_file_label = QtWidgets.QLabel("Table config file:")
         self.table_file_label.setAlignment(
             QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
         )
-        self.table_file_load = QtWidgets.QPushButton("Load")
+        self.table_file_load = QtWidgets.QPushButton("Open File...")
         self.table_file_load.clicked.connect(self._load_node_table)
-        self.table_file_save = QtWidgets.QPushButton("Save")
+        self.table_file_save = QtWidgets.QPushButton("Save As...")
         self.table_file_save.clicked.connect(self._save_node_table)
         self.record_column_label = QtWidgets.QLabel("Record column:")
         self.record_column_label.setAlignment(
@@ -372,16 +374,17 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
 
     def _save_node_table(self) -> None:
         """Save the node table to a json file."""
-        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
-            self,
-            "Save Recording Config File",
-            "",
-            "Recording Config Files (*.json)",
+        _fname, _ = QFileDialog.getSaveFileName(
+            parent=self,
+            caption="Save Recording Config File",
+            directory=platformdirs.user_documents_dir(),
+            filter="Recording Config Files (*.json);;All Files (*)",
         )
-        if filename:
+        if _fname:
+            filename = Path(_fname)
             logger.info("Recording save file name: %s", filename)
-            if Path(filename).suffix != "json":
-                filename += ".json"
+            if filename.suffix != ".json":
+                filename = filename.parent / (filename.name + ".json")
             with open(filename, "w", encoding="UTF-8") as f:
                 json.dump(self._get_current_config(), f, indent=4, sort_keys=True)
 
@@ -390,10 +393,10 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
     def _load_node_table(self) -> None:
         """Load the node table from a json file."""
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            "Load Recording Config File",
-            "",
-            "Recording Config Files (*.json)",
+            parent=self,
+            caption="Load Recording Config File",
+            directory=platformdirs.user_documents_dir(),
+            filter="Recording Config Files (*.json);;All Files (*)",
         )
         if filename:
             logger.info("Recording load file name: %s", filename)
@@ -1448,8 +1451,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
     def track_table_file_button_clicked(self) -> None:
         """Open a file dialog to select a track table file."""
-        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Open Track Table File", "", "Track Table Files (*.csv)"
+        options = QFileDialog.Option(QFileDialog.Option.ReadOnly)
+        filename, _ = QFileDialog.getOpenFileName(
+            parent=self,
+            caption="Open Track Table File",
+            directory=platformdirs.user_documents_dir(),
+            filter="Track Table Files (*.csv);;All Files (*)",
+            options=options,
         )
         if filename:
             self.line_edit_track_table_file.setText(filename)
@@ -1514,15 +1522,15 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.line_edit_recording_file.setText(output_filename.rsplit(".")[0])
 
     def recording_file_button_clicked(self) -> None:
-        """Open a dialog to select a file or folder for the recording file box."""
-        dialog = QtWidgets.QFileDialog()
-        dialog.setNameFilter("DataLogger File (*.hdf5)")
-        if dialog.exec():
-            filepaths = dialog.selectedUrls()
-            if filepaths:
-                self.line_edit_recording_file.setText(
-                    str(Path(filepaths[0].toLocalFile()).with_suffix(""))
-                )
+        """Open a dialog to select a file for the recording file box."""
+        fname, _ = QtWidgets.QFileDialog.getSaveFileName(
+            parent=self,
+            caption="Select Recording File",
+            directory=platformdirs.user_documents_dir(),
+            filter="DataLogger File (*.hdf5 *.h5);;All Files (*)",
+        )
+        if fname:
+            self.line_edit_recording_file.setText(fname)
 
     def slew2abs_button_clicked(self):
         """
