@@ -8889,7 +8889,14 @@
     <addaction name="action_connect_opcua_server"/>
     <addaction name="action_disconnect_opcua_server"/>
    </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>About</string>
+    </property>
+    <addaction name="action_disq_gui"/>
+   </widget>
    <addaction name="menuDSC"/>
+   <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_connect_opcua_server">
@@ -8903,6 +8910,11 @@
    </property>
    <property name="text">
     <string>Disconnect</string>
+   </property>
+  </action>
+  <action name="action_disq_gui">
+   <property name="text">
+    <string>DiSQ GUI</string>
    </property>
   </action>
  </widget>

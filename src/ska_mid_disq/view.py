@@ -584,6 +584,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.action_disconnect_opcua_server.triggered.connect(
             self.connect_button_clicked
         )
+        self.action_disq_gui: QAction
+        self.action_disq_gui.triggered.connect(self.about_button_clicked)
 
         self.groupbox_top: QtWidgets.QGroupBox
         # Set the groupBox_server stylesheet to load a background image
@@ -1957,6 +1959,31 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 widget.setHidden(True)
             else:
                 widget.setHidden(False)
+
+    def about_button_clicked(self) -> None:
+        """Open the About dialog."""
+        dialog = QtWidgets.QMessageBox(self)
+        # dialog.setIcon(QtWidgets.QMessageBox.Icon.Information)
+        dialog.setTextFormat(QtCore.Qt.TextFormat.RichText)
+        skao_logo = resources.files(__package__) / "ui/skao-logo-color.svg"
+        sarao_logo = resources.files(__package__) / "ui/NRF25_SARAO.png"
+        wombat_logo = resources.files(__package__) / "ui/wombat_logo.png"
+        source_code_url = "https://gitlab.com/ska-telescope/ska-mid-disq"
+        dialog.setText(
+            "<center><h1>DiSQ GUI</h1></center>"
+            f"<p>Version: {__version__}</p>"
+            "<p>This application is intended for expert engineers for the purpose of "
+            "controlling, monitoring and qualifying the SKAO Dish Structures.</p>"
+            "<p>Lovingly crafted by SKAO Wombats under the stern supervision of SARAO "
+            "Dish Structure Engineers.</p>"
+            f"<center><img src='{wombat_logo}' width='100'></center>"
+            f"<center><img src='{skao_logo}' width='200'></center>"
+            f"<center><img src='{sarao_logo}' width='200'></center>"
+            f"<br><p><a href='{source_code_url}'>DiSQ GUI source code</a></p>"
+        )
+        dialog.setWindowTitle("About DiSQ GUI")
+
+        dialog.exec()
 
 
 class AxisPosSpinBox(QtWidgets.QDoubleSpinBox):
