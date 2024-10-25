@@ -35,6 +35,7 @@ FI_POS_MIN: Final = -106.0
 FI_VEL_MAX: Final = 12.0
 
 
+# pylint: disable=too-many-instance-attributes
 class ServerConnectDialog(QtWidgets.QDialog):
     """
     A dialog-window class for connecting to the OPC-UA server.
@@ -574,15 +575,17 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
 
         # Menubar
-        self.actionConnect_OPC_UA_server: QAction
-        self.actionConnect_OPC_UA_server.triggered.connect(self.connect_button_clicked)
-        self.actionDisconnect: QAction
-        self.actionDisconnect.triggered.connect(self.connect_button_clicked)
+        self.action_connect_opcua_server: QAction
+        self.action_connect_opcua_server.triggered.connect(self.connect_button_clicked)
+        self.action_disconnect_opcua_server: QAction
+        self.action_disconnect_opcua_server.triggered.connect(
+            self.connect_button_clicked
+        )
 
-        self.groupBox_server: QtWidgets.QGroupBox
+        self.groupbox_top: QtWidgets.QGroupBox
         # Set the groupBox_server stylesheet to load a background image
         skao_colour_bar_file = resources.files(__package__) / "ui/skao_colour_bar.png"
-        self.groupBox_server.setStyleSheet(
+        self.groupbox_top.setStyleSheet(
             f"QGroupBox {{ background-image: url({skao_colour_bar_file}); }}"
         )
         self.label_conn_status: QtWidgets.QLabel
@@ -1366,8 +1369,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             f"{self.model.opcua_nodes_status.value} - "
             f"Nodes generated {self.model.plc_prg_nodes_timestamp}"
         )
-        self.actionConnect_OPC_UA_server.setEnabled(False)
-        self.actionDisconnect.setEnabled(True)
+        self.action_connect_opcua_server.setEnabled(False)
+        self.action_disconnect_opcua_server.setEnabled(True)
         self._enable_opcua_widgets()
         self._enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
@@ -1391,8 +1394,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self._enable_data_logger_widgets(False)
         self.label_conn_status.setText("Disconnected")
         self.label_cache_status.setText("")
-        self.actionConnect_OPC_UA_server.setEnabled(True)
-        self.actionDisconnect.setEnabled(False)
+        self.action_connect_opcua_server.setEnabled(True)
+        self.action_disconnect_opcua_server.setEnabled(False)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
         self.warning_status_show_only_warnings.setEnabled(False)

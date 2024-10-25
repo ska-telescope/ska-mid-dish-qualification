@@ -1746,7 +1746,7 @@
      </layout>
     </item>
     <item row="0" column="0" colspan="3">
-     <widget class="QGroupBox" name="groupBox_server">
+     <widget class="QGroupBox" name="groupbox_top">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -8886,18 +8886,18 @@
     <property name="title">
      <string>DSC</string>
     </property>
-    <addaction name="actionConnect_OPC_UA_server"/>
-    <addaction name="actionDisconnect"/>
+    <addaction name="action_connect_opcua_server"/>
+    <addaction name="action_disconnect_opcua_server"/>
    </widget>
    <addaction name="menuDSC"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionConnect_OPC_UA_server">
+  <action name="action_connect_opcua_server">
    <property name="text">
     <string>Connect OPC-UA server ...</string>
    </property>
   </action>
-  <action name="actionDisconnect">
+  <action name="action_disconnect_opcua_server">
    <property name="enabled">
     <bool>false</bool>
    </property>
