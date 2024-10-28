@@ -12,11 +12,21 @@ from typing import Any, Callable, Final
 
 import platformdirs
 from PyQt6 import QtCore, QtWidgets, uic
-from PyQt6.QtGui import QAction, QColor
+from PyQt6.QtGui import (
+    QAction,
+    QBrush,
+    QColor,
+    QDesktopServices,
+    QIcon,
+    QPalette,
+    QPixmap,
+)
 from PyQt6.QtWidgets import QFileDialog
 
 from ska_mid_disq import __version__, controller, model
 from ska_mid_disq.constants import StatusTreeCategory
+
+from . import ui_resources  # noqa pylint: disable=unused-import
 
 logger = logging.getLogger("gui.view")
 
@@ -35,6 +45,8 @@ EL_VEL_MAX: Final = 1.0
 FI_POS_MAX: Final = 106.0
 FI_POS_MIN: Final = -106.0
 FI_VEL_MAX: Final = 12.0
+
+SKAO_ICON_PATH: Final = ":/icons/skao.ico"
 
 
 # pylint: disable=too-many-instance-attributes
@@ -57,6 +69,7 @@ class ServerConnectDialog(QtWidgets.QDialog):
         self._controller = mvc_controller
 
         self.setWindowTitle("Server Connection")
+        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
 
         button = (
             QtWidgets.QDialogButtonBox.StandardButton.Ok
@@ -218,6 +231,7 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
         super().__init__(parent)
 
         self.setWindowTitle("Recording Configuration")
+        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
         self.resize(544, 512)
 
         self._node_table_widgets: dict[
@@ -567,6 +581,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
         uic.loadUi(ui_xml_filename, self)
         self.setWindowTitle(f"DiSQ GUI v{__version__}")
+        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
 
         # Adding a default style for the tooltip with a white background and black text
         # This is a work-around for the issue that tooltips inherit style from the
@@ -584,15 +599,19 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.action_disconnect_opcua_server.triggered.connect(
             self.connect_button_clicked
         )
-        self.action_disq_gui: QAction
-        self.action_disq_gui.triggered.connect(self.about_button_clicked)
+        self.action_about: QAction
+        self.action_about.triggered.connect(self.about_button_clicked)
+        self.action_docs: QAction
+        self.action_docs.triggered.connect(self.open_documentation)
 
         self.groupbox_top: QtWidgets.QGroupBox
-        # Set the groupBox_server stylesheet to load a background image
-        skao_colour_bar_file = resources.files(__package__) / "ui/skao_colour_bar.png"
-        self.groupbox_top.setStyleSheet(
-            f"QGroupBox {{ background-image: url({skao_colour_bar_file}); }}"
-        )
+        # Load a background image for the server connection QGroupBox
+        pixmap = QPixmap(":/images/skao_colour_bar.png")
+        palette = self.groupbox_top.palette()
+        palette.setBrush(QPalette.ColorRole.Window, QBrush(pixmap))
+        self.groupbox_top.setPalette(palette)
+        self.groupbox_top.setAutoFillBackground(True)
+
         self.label_conn_status: QtWidgets.QLabel
         self.label_cache_status: QtWidgets.QLabel
         self.label_cache_status.setStyleSheet("QLabel { color: white; }")
@@ -1965,25 +1984,29 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         dialog = QtWidgets.QMessageBox(self)
         # dialog.setIcon(QtWidgets.QMessageBox.Icon.Information)
         dialog.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        skao_logo = resources.files(__package__) / "ui/skao-logo-color.svg"
-        sarao_logo = resources.files(__package__) / "ui/NRF25_SARAO.png"
-        wombat_logo = resources.files(__package__) / "ui/wombat_logo.png"
         source_code_url = "https://gitlab.com/ska-telescope/ska-mid-disq"
         dialog.setText(
-            "<center><h1>DiSQ GUI</h1></center>"
+            "<center><h2>SKA-Mid Dish Structure Qualification GUI</h2></center>"
             f"<p>Version: {__version__}</p>"
             "<p>This application is intended for expert engineers for the purpose of "
-            "controlling, monitoring and qualifying the SKAO Dish Structures.</p>"
+            "controlling, monitoring and qualifying the SKA-Mid Dish Structures.</p>"
             "<p>Lovingly crafted by SKAO Wombats under the stern supervision of SARAO "
             "Dish Structure Engineers.</p>"
-            f"<center><img src='{wombat_logo}' width='100'></center>"
-            f"<center><img src='{skao_logo}' width='200'></center>"
-            f"<center><img src='{sarao_logo}' width='200'></center>"
-            f"<br><p><a href='{source_code_url}'>DiSQ GUI source code</a></p>"
+            "<center><img src=':/images/skao_logo.svg' width='380'></center>"
+            "<center><img src=':/images/NRF25_SARAO.png' width='368'></center>"
+            "<center><img src=':/images/wombat_logo.png' width='200'></center>"
+            f"<center><p><a href='{source_code_url}'>DiSQ GUI source code</a></p>"
+            "</center>"
         )
-        dialog.setWindowTitle("About DiSQ GUI")
-
+        dialog.setWindowTitle("About")
+        dialog.setWindowIcon(QIcon(SKAO_ICON_PATH))
         dialog.exec()
+
+    def open_documentation(self) -> None:
+        """Open the RTD website."""
+        QDesktopServices.openUrl(
+            QtCore.QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
+        )
 
 
 class AxisPosSpinBox(QtWidgets.QDoubleSpinBox):

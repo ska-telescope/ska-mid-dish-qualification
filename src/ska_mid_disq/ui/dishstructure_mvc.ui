@@ -1832,7 +1832,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="power">
        <attribute name="title">
@@ -8533,7 +8533,7 @@
          </size>
         </property>
         <property name="title">
-         <string>Move FeedIndexer to Band</string>
+         <string>Move Feed Indexer to Band</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_8">
          <property name="leftMargin">
@@ -8876,32 +8876,33 @@
      <x>0</x>
      <y>0</y>
      <width>1190</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
    <property name="nativeMenuBar">
     <bool>false</bool>
    </property>
-   <widget class="QMenu" name="menuDSC">
+   <widget class="QMenu" name="menuControl">
     <property name="title">
-     <string>DSC</string>
+     <string>Control</string>
     </property>
     <addaction name="action_connect_opcua_server"/>
     <addaction name="action_disconnect_opcua_server"/>
    </widget>
-   <widget class="QMenu" name="menuAbout">
+   <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>About</string>
+     <string>Help</string>
     </property>
-    <addaction name="action_disq_gui"/>
+    <addaction name="action_about"/>
+    <addaction name="action_docs"/>
    </widget>
-   <addaction name="menuDSC"/>
-   <addaction name="menuAbout"/>
+   <addaction name="menuControl"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_connect_opcua_server">
    <property name="text">
-    <string>Connect OPC-UA server ...</string>
+    <string>Connect to DSC ...</string>
    </property>
   </action>
   <action name="action_disconnect_opcua_server">
@@ -8912,9 +8913,14 @@
     <string>Disconnect</string>
    </property>
   </action>
-  <action name="action_disq_gui">
+  <action name="action_about">
    <property name="text">
-    <string>DiSQ GUI</string>
+    <string>About</string>
+   </property>
+  </action>
+  <action name="action_docs">
+   <property name="text">
+    <string>Documentation</string>
    </property>
   </action>
  </widget>
