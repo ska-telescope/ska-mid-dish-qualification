@@ -1122,6 +1122,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         """Disable all the OPC-UA widgets."""
         for widget in self.all_opcua_widgets:
             widget.setEnabled(False)
+            if isinstance(widget, QtWidgets.QLineEdit):
+                widget.setStyleSheet("QLineEdit { border-color: white;} ")
 
     def _enable_data_logger_widgets(self, enable: bool = True) -> None:
         """
