@@ -587,7 +587,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         # This is a work-around for the issue that tooltips inherit style from the
         # parent widget - and this choice of colour-scheme is at least readable.
         self.setStyleSheet(
-            # "QToolTip { color: #ffffff; background-color: #2a82da;"
             "QToolTip { color: black; background-color: white;"
             "border: 1px solid black; }"
         )
@@ -616,8 +615,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.label_cache_status: QtWidgets.QLabel
         self.label_cache_status.setStyleSheet("QLabel { color: white; }")
         self.label_conn_status.setStyleSheet("QLabel { color: white; }")
-        self.label_81: QtWidgets.QLabel
-        self.label_81.setStyleSheet("QLabel { color: white; }")
+        self.label_status: QtWidgets.QLabel
+        self.label_status.setStyleSheet("QLabel { color: white; }")
 
         self.list_cmd_history: QtWidgets.QListWidget  # Command history list widget
         self.setStatusBar(self.create_status_bar_widget("ℹ️ Status"))
@@ -1357,6 +1356,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                     background_colour_rbg: str = self._LED_COLOURS[led_base_colour][
                         event["value"]
                     ]
+                    text_color = "black" if event["value"] else "white"
                 except KeyError:
                     logger.warning(
                         "LED colour for base colour '%s' and value '%s' not found",
@@ -1367,8 +1367,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 widget.setEnabled(True)
                 widget.setStyleSheet(
                     "QLineEdit { "
-                    f"background-color: {background_colour_rbg}; "
-                    "color: rgb(238, 238, 238);border-color: black;} "
+                    f"background-color: {background_colour_rbg}; color: {text_color}; "
+                    "border-color: black;} "
                 )
 
     def _track_table_file_exist(self) -> bool:

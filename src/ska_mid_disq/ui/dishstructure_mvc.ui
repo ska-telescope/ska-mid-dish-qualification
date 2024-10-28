@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1190</width>
+    <width>1200</width>
     <height>820</height>
    </rect>
   </property>
@@ -431,7 +431,7 @@
             <widget class="QLineEdit" name="azimuth_warn_lim1ccw">
              <property name="minimumSize">
               <size>
-               <width>0</width>
+               <width>50</width>
                <height>20</height>
               </size>
              </property>
@@ -493,7 +493,7 @@
             <widget class="QLineEdit" name="lineEdit_28">
              <property name="minimumSize">
               <size>
-               <width>0</width>
+               <width>50</width>
                <height>20</height>
               </size>
              </property>
@@ -943,7 +943,7 @@
             <widget class="QLineEdit" name="elevation_err_lim2ccw_2">
              <property name="minimumSize">
               <size>
-               <width>0</width>
+               <width>60</width>
                <height>20</height>
               </size>
              </property>
@@ -974,7 +974,7 @@
             <widget class="QLineEdit" name="elevation_warn_lim1ccw_2">
              <property name="minimumSize">
               <size>
-               <width>0</width>
+               <width>60</width>
                <height>20</height>
               </size>
              </property>
@@ -1036,7 +1036,7 @@
             <widget class="QLineEdit" name="elevation_warn">
              <property name="minimumSize">
               <size>
-               <width>0</width>
+               <width>50</width>
                <height>20</height>
               </size>
              </property>
@@ -1478,7 +1478,7 @@
             <widget class="QLineEdit" name="lineEdit">
              <property name="minimumSize">
               <size>
-               <width>0</width>
+               <width>50</width>
                <height>20</height>
               </size>
              </property>
@@ -1509,7 +1509,7 @@
             <widget class="QLineEdit" name="lineEdit_2">
              <property name="minimumSize">
               <size>
-               <width>0</width>
+               <width>50</width>
                <height>20</height>
               </size>
              </property>
@@ -1571,7 +1571,7 @@
             <widget class="QLineEdit" name="lineEdit_4">
              <property name="minimumSize">
               <size>
-               <width>0</width>
+               <width>50</width>
                <height>20</height>
               </size>
              </property>
@@ -1792,10 +1792,10 @@
         </widget>
        </item>
        <item row="0" column="0">
-        <widget class="QLabel" name="label_81">
+        <widget class="QLabel" name="label_status">
          <property name="maximumSize">
           <size>
-           <width>60</width>
+           <width>50</width>
            <height>16777215</height>
           </size>
          </property>
@@ -1860,7 +1860,7 @@
            </size>
           </property>
           <property name="title">
-           <string/>
+           <string>Power Control</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_20">
            <property name="leftMargin">
@@ -1999,14 +1999,14 @@
            <item row="2" column="0" colspan="4">
             <widget class="QPushButton" name="button_set_power_mode">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+              <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
              <property name="minimumSize">
               <size>
-               <width>0</width>
+               <width>150</width>
                <height>20</height>
               </size>
              </property>
@@ -2086,7 +2086,7 @@
            </size>
           </property>
           <property name="title">
-           <string/>
+           <string>Power Status</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_26">
            <property name="leftMargin">
@@ -3356,10 +3356,13 @@
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>40</height>
+            <height>60</height>
            </size>
           </property>
          </spacer>
@@ -7210,9 +7213,6 @@
            <property name="readOnly">
             <bool>true</bool>
            </property>
-           <property name="placeholderText">
-            <string>replace 3 LED</string>
-           </property>
            <property name="opcua" stdset="0">
             <string>Safety.Status.STO_Az</string>
            </property>
@@ -7244,9 +7244,6 @@
            <property name="readOnly">
             <bool>true</bool>
            </property>
-           <property name="placeholderText">
-            <string>replace 3 LED</string>
-           </property>
            <property name="opcua" stdset="0">
             <string>Safety.Status.STO_El</string>
            </property>
@@ -7277,9 +7274,6 @@
            </property>
            <property name="readOnly">
             <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>replace 3 LED</string>
            </property>
            <property name="opcua" stdset="0">
             <string>Safety.Status.STO_Fi</string>
@@ -7332,7 +7326,7 @@
           <widget class="QLineEdit" name="line_edit_system_5">
            <property name="minimumSize">
             <size>
-             <width>75</width>
+             <width>70</width>
              <height>0</height>
             </size>
            </property>
@@ -7347,9 +7341,6 @@
            </property>
            <property name="readOnly">
             <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>system</string>
            </property>
            <property name="opcua" stdset="0">
             <string>Management.WarningStatus.waDoorPED</string>
@@ -7382,9 +7373,6 @@
            <property name="readOnly">
             <bool>true</bool>
            </property>
-           <property name="placeholderText">
-            <string>system</string>
-           </property>
            <property name="opcua" stdset="0">
             <string>Management.WarningStatus.waDoorPSC</string>
            </property>
@@ -7415,9 +7403,6 @@
            </property>
            <property name="readOnly">
             <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>system</string>
            </property>
            <property name="opcua" stdset="0">
             <string>Management.WarningStatus.waDoorEMISC</string>
@@ -7538,7 +7523,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>90</width>
+             <width>70</width>
              <height>0</height>
             </size>
            </property>
@@ -7553,9 +7538,6 @@
            </property>
            <property name="readOnly">
             <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>replace 4 LED</string>
            </property>
            <property name="opcua" stdset="0">
             <string>Safety.Status.EStopPed</string>
@@ -7578,7 +7560,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>90</width>
+             <width>55</width>
              <height>0</height>
             </size>
            </property>
@@ -7593,9 +7575,6 @@
            </property>
            <property name="readOnly">
             <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string/>
            </property>
            <property name="opcua" stdset="0">
             <string>Safety.Status.EStopHHP</string>
@@ -7618,7 +7597,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>90</width>
+             <width>55</width>
              <height>0</height>
             </size>
            </property>
@@ -7633,9 +7612,6 @@
            </property>
            <property name="readOnly">
             <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>replace 4 LED</string>
            </property>
            <property name="opcua" stdset="0">
             <string>Safety.Status.EStopFi</string>
@@ -7658,7 +7634,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>90</width>
+             <width>70</width>
              <height>0</height>
             </size>
            </property>
@@ -7673,9 +7649,6 @@
            </property>
            <property name="readOnly">
             <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>replace 4 LED</string>
            </property>
            <property name="opcua" stdset="0">
             <string>Safety.Status.EStopTurnhead</string>
@@ -7702,7 +7675,7 @@
           <widget class="QLineEdit" name="line_edit_system_4">
            <property name="minimumSize">
             <size>
-             <width>75</width>
+             <width>70</width>
              <height>0</height>
             </size>
            </property>
@@ -7717,9 +7690,6 @@
            </property>
            <property name="readOnly">
             <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>system</string>
            </property>
            <property name="opcua" stdset="0">
             <string>Management.WarningStatus.waHatchPscRoof</string>
@@ -7752,9 +7722,6 @@
            <property name="readOnly">
             <bool>true</bool>
            </property>
-           <property name="placeholderText">
-            <string>system</string>
-           </property>
            <property name="opcua" stdset="0">
             <string>Safety.Status.HatchAzBearing</string>
            </property>
@@ -7770,7 +7737,7 @@
           <widget class="QLineEdit" name="line_edit_system_13">
            <property name="minimumSize">
             <size>
-             <width>75</width>
+             <width>70</width>
              <height>0</height>
             </size>
            </property>
@@ -7785,9 +7752,6 @@
            </property>
            <property name="readOnly">
             <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>system</string>
            </property>
            <property name="opcua" stdset="0">
             <string>Safety.Status.HatchTurnheadRoof</string>
@@ -7844,7 +7808,7 @@
           <widget class="QLineEdit" name="lineEdit_onsource">
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>75</width>
              <height>0</height>
             </size>
            </property>
@@ -7878,7 +7842,7 @@
           <widget class="QLineEdit" name="line_edit_warning_general">
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>75</width>
              <height>0</height>
             </size>
            </property>
@@ -7909,7 +7873,7 @@
           <widget class="QLineEdit" name="line_edit_error_general">
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>75</width>
              <height>0</height>
             </size>
            </property>
@@ -7942,7 +7906,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_18">
            <property name="text">
-            <string>Time Source:</string>
+            <string>Time Sync:</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -7973,6 +7937,12 @@
          </item>
          <item row="0" column="2">
           <widget class="QLineEdit" name="lineEdit_16">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
@@ -8875,7 +8845,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1190</width>
+     <width>1200</width>
      <height>19</height>
     </rect>
    </property>
