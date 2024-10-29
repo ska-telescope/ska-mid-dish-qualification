@@ -3,6 +3,7 @@
 
 import json
 import logging
+import re
 from datetime import datetime, timezone
 from enum import Enum
 from functools import cached_property
@@ -821,6 +822,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.spinbox_hece8,  # type: ignore
             self.spinbox_hese8,  # type: ignore
         ]
+        for spinbox in self.static_pointing_spinboxes:
+            spinbox.setDecimals(self._DECIMAL_PLACES)
         self.opcua_offset_xelev: QtWidgets.QLabel
         self.opcua_offset_elev: QtWidgets.QLabel
         self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
@@ -881,6 +884,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.spinbox_ambtempparam5,  # type: ignore
             self.spinbox_ambtempparam6,  # type: ignore
         ]
+        for spinbox in self.ambtemp_correction_spinboxes:
+            spinbox.setDecimals(self._DECIMAL_PLACES)
         self._update_temp_correction_inputs_text = False
         # Bands group widgets
         self.button_band1: QtWidgets.QPushButton
@@ -1024,6 +1029,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             if "opcua" not in wgt.dynamicPropertyNames():
                 # Skip all the non-opcua widgets
                 continue
+            if "opcua_array" in wgt.dynamicPropertyNames():
+                continue
 
             opcua_parameter_name: str = wgt.property("opcua")
             # the default update callback
@@ -1044,7 +1051,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 else:
                     opcua_widget_update_func = self._update_opcua_enum_widget
                 logger.debug("OPCUA widget type: %s", opcua_type)
-            # Return the list from the tuple or an empty list as default
+
+            # Return the list from the tuple or an empty list as default. This is for
+            # updating multiple widgets with the same opcua attribute's value
             widgets: list = opcua_widget_updates.get(opcua_parameter_name, [[]])[0]
             widgets.append(wgt)
             opcua_widget_updates.update(
@@ -1056,12 +1065,11 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         return opcua_widget_updates
 
     @cached_property
-    def all_opcua_widgets(self) -> list:
+    def all_opcua_widgets(self) -> list[QtWidgets.QWidget]:
         """
         Return a list of all OPC UA widgets.
 
-        This function finds all widgets that are subclasses of QtWidgets.QLineEdit,
-        QtWidgets.QPushButton, or QtWidgets.QComboBox and have a dynamic property that
+        This function finds all interactive widgets that have a dynamic property that
         starts with 'opcua'.
 
         This is a cached property, meaning the function will only run once and
@@ -1069,7 +1077,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
         :return: List of OPC UA widgets.
         """
-        all_widgets: list[QtCore.QObject] = self.findChildren(
+        all_widgets = self.findChildren(
             (
                 QtWidgets.QLineEdit,
                 QtWidgets.QPushButton,
@@ -1079,14 +1087,14 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 QtWidgets.QLabel,
             )
         )
-        opcua_widgets: list[QtCore.QObject] = []
+        all_opcua_widgets: list[QtWidgets.QWidget] = []
         for wgt in all_widgets:
             property_names: list[QtCore.QByteArray] = wgt.dynamicPropertyNames()
             for property_name in property_names:
                 if property_name.startsWith(QtCore.QByteArray("opcua".encode())):
-                    opcua_widgets.append(wgt)
+                    all_opcua_widgets.append(wgt)  # type: ignore
                     break
-        return opcua_widgets
+        return all_opcua_widgets
 
     def _enable_opcua_widgets(self):
         """
@@ -1706,20 +1714,21 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         band = self.combo_static_point_model_band.currentText().replace(" ", "_")
         params = []
         for spinbox in self.static_pointing_spinboxes:
-            params.append(round(spinbox.value(), self._DECIMAL_PLACES))
+            params.append(spinbox.value())
         self.controller.command_set_static_pointing_parameters(band, params)
+        self.update_static_pointing_parameters_values()
 
     def static_pointing_offset_changed(self):
         """Static pointing offset changed slot function."""
-        xelev = round(self.spinbox_offset_xelev.value(), self._DECIMAL_PLACES)
-        elev = round(self.spinbox_offset_elev.value(), self._DECIMAL_PLACES)
+        xelev = self.spinbox_offset_xelev.value()
+        elev = self.spinbox_offset_elev.value()
         self.controller.command_set_static_pointing_offsets(xelev, elev)
 
     def ambtemp_correction_parameter_changed(self):
         """Ambient temperature correction parameter changed slot function."""
         params = []
         for spinbox in self.ambtemp_correction_spinboxes:
-            params.append(round(spinbox.value(), self._DECIMAL_PLACES))
+            params.append(spinbox.value())
         self.controller.command_set_ambtemp_correction_parameters(params)
 
     def set_power_mode_clicked(self):
@@ -1733,8 +1742,33 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
     def pointing_model_band_selected(self):
         """Static pointing model band changed slot function."""
-        if self.button_group_static_point_model.checkedId() != 0:  # Not OFF
-            self.pointing_model_button_clicked()
+        self.update_static_pointing_parameters_values(True)
+
+    def update_static_pointing_parameters_values(
+        self, input_boxes: bool = False
+    ) -> None:
+        """."""
+        band = self.combo_static_point_model_band.currentIndex()
+        for index, display_wgt in enumerate(self.static_pointing_values):
+            attr_name = re.sub(
+                r"\[[0-9,A-Z,a-z]+\]", f"[{band}]", display_wgt.property("opcua_array")
+            )
+            if attr_name in self.model.opcua_attributes:
+                attr_value: float = self.model.opcua_attributes[attr_name].value
+                display_wgt.setText(str(attr_value))
+                tooltip = (
+                    f"<b>OPCUA param:</b> {attr_name}<br>"
+                    f"<b>Value:</b> {str(attr_value)}"
+                )
+                display_wgt.setToolTip(tooltip)
+                if input_boxes:
+                    input_wgt = self.static_pointing_spinboxes[index]
+                    if attr_value is not None:
+                        input_wgt.setValue(attr_value)
+                    input_wgt.setToolTip(
+                        tooltip + f"<br><b>Maximum:</b> {input_wgt.maximum()}"
+                        f"<br><b>Minimum:</b> {input_wgt.minimum()}"
+                    )
 
     def pointing_model_button_clicked(self):
         """Any pointing model toggle button clicked slot function."""
@@ -1771,6 +1805,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.tilt_correction_checked_prev = tilt_correction_checked_id
             self.tilt_correction_meter_checked_prev = tilt_corr_meter_checked_id
             self.temp_correction_checked_prev = temp_correction_checked_id
+            self.update_static_pointing_parameters_values()
         else:
             # If command did not execute for any reason, restore buttons to prev states
             self.button_group_static_point_model.button(

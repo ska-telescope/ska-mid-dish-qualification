@@ -4139,10 +4139,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4161,10 +4161,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4189,7 +4189,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].CA</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].CA</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4222,10 +4228,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4263,7 +4269,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].AW</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].AW</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4276,10 +4288,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4298,10 +4310,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4326,7 +4338,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].IA</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].IA</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4365,7 +4383,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].AW0</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].AW0</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4416,7 +4440,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].ECES</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].ECES</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4449,10 +4479,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4471,10 +4501,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>0.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>360.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4499,7 +4529,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].ACES</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].ACES</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4512,10 +4548,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4560,7 +4596,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].HECE8</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].HECE8</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4573,10 +4615,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4595,10 +4637,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4623,7 +4665,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].AN0</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].AN0</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4642,7 +4690,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].HESE8</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].HESE8</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4661,7 +4715,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].ECEC</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].ECEC</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4680,7 +4740,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].AN</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].AN</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4693,10 +4759,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4721,7 +4787,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].ABphi</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].ABphi</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4734,10 +4806,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4756,10 +4828,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4784,7 +4856,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].HESE4</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].HESE4</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4803,7 +4881,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].NPAE</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].NPAE</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4822,7 +4906,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].ACEC</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].ACEC</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -4848,10 +4938,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4899,10 +4989,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4951,10 +5041,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -4979,7 +5069,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].HECE4</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].HECE4</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -5012,10 +5108,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -5044,10 +5140,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -5072,7 +5168,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].ABA</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].ABA</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -5091,7 +5193,13 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.StaticPmParameters.StaticPmParameters[0].IE</string>
+                <string/>
+               </property>
+               <property name="opcua_array" stdset="0">
+                <string>Pointing.StaticPmParameters.StaticPmParameters[x].IE</string>
+               </property>
+               <property name="opcua_index_enum" stdset="0">
+                <string>BandType</string>
                </property>
               </widget>
              </item>
@@ -5167,10 +5275,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -5195,10 +5303,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -5814,10 +5922,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -5859,10 +5967,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -5881,10 +5989,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -5932,10 +6040,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -6012,10 +6120,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -6044,10 +6152,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -6210,10 +6318,10 @@
                 <number>1</number>
                </property>
                <property name="minimum">
-                <double>-1000.000000000000000</double>
+                <double>-2000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>1000.000000000000000</double>
+                <double>2000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>

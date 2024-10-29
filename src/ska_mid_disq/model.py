@@ -3,13 +3,14 @@
 import logging
 from asyncio import exceptions as asyncexc
 from datetime import datetime
-from enum import Enum
+from enum import IntEnum
 from functools import cached_property
 from pathlib import Path
 from queue import Empty, Queue
 from typing import Any, Callable, Final, Type
 
 from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
+from ska_mid_dish_steering_control.sculib import AttrDict
 
 from ska_mid_disq import (
     CmdReturn,
@@ -526,7 +527,7 @@ class Model(QObject):
         return result
 
     @property
-    def opcua_enum_types(self) -> dict[str, Type[Enum]]:
+    def opcua_enum_types(self) -> dict[str, Type[IntEnum]]:
         """
         Retrieve a dictionary of OPC-UA enum types.
 
@@ -538,18 +539,18 @@ class Model(QObject):
         return self._scu.opcua_enum_types
 
     @property
-    def opcua_attributes(self) -> list[str]:
+    def opcua_attributes(self) -> AttrDict:
         """
-        Return the OPC UA attributes associated with the object.
+        Dictionary containing the attributes in the 'PLC_PRG' node tree.
 
         This method retrieves the attributes from the OPC UA server if the connection
         has been established.
 
-        :return: A list of OPC UA attribute names.
+        :return: A dict of OPC UA attributes.
         """
         if self._scu is None:
             return []
-        return list(self._scu.attributes.keys())
+        return self._scu.attributes
 
     @property
     def opcua_nodes_status(self) -> NodesStatus:
