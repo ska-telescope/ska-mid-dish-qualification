@@ -529,7 +529,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
     :param disq_controller: The controller instance for the MainView.
     """
 
-    _DECIMAL_PLACES: Final = 5
+    _DECIMAL_PLACES: Final = 4
     _LED_COLOURS: Final[dict[str, dict[bool | str, str]]] = {
         "red": {True: "rgb(255, 0, 0)", False: "rgb(60, 0, 0)"},
         "green": {True: "rgb(10, 250, 25)", False: "rgb(10, 60, 0)"},
@@ -763,9 +763,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_static_point_model_off: QtWidgets.QRadioButton
         self.button_static_point_model_off.setChecked(True)
         self.button_static_point_model_on: QtWidgets.QRadioButton
+        self.button_static_point_model_apply: QtWidgets.QPushButton
+        self.button_static_point_model_apply.clicked.connect(
+            self.apply_static_pointing_parameters
+        )
         self.button_group_static_point_model = QtWidgets.QButtonGroup()
         self.button_group_static_point_model.buttonClicked.connect(
-            self.pointing_model_button_clicked
+            self.pointing_or_correction_setup_button_clicked
         )
         self.static_point_model_checked_prev: int = 0
         self.button_group_static_point_model.addButton(
@@ -775,10 +779,14 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.button_static_point_model_on, 1
         )
         self.static_point_model_band: QtWidgets.QLabel
-        self.combo_static_point_model_band: QtWidgets.QComboBox
         self.static_point_model_band_index_prev: int = 0
-        self.combo_static_point_model_band.currentTextChanged.connect(
-            self.pointing_model_band_selected
+        self.combo_static_point_model_band_input: QtWidgets.QComboBox
+        self.combo_static_point_model_band_input.currentTextChanged.connect(
+            self.pointing_model_band_selected_for_input
+        )
+        self.combo_static_point_model_band_display: QtWidgets.QComboBox
+        self.combo_static_point_model_band_display.currentTextChanged.connect(
+            self.update_static_pointing_parameters_values
         )
         # NB: The order of the following two lists MUST match the order of the
         # Pointing.StaticPmSetup command's arguments
@@ -828,6 +836,10 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.opcua_offset_elev: QtWidgets.QLabel
         self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
         self.spinbox_offset_elev: QtWidgets.QDoubleSpinBox
+        self.button_static_offset_apply: QtWidgets.QPushButton
+        self.button_static_offset_apply.clicked.connect(
+            self.apply_static_pointing_offsets
+        )
         self._update_static_pointing_inputs_text = False
         # Point tab tilt correction widgets
         self.button_tilt_correction_off: QtWidgets.QRadioButton
@@ -838,14 +850,14 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_tilt_correction_meter_2: QtWidgets.QRadioButton
         self.button_group_tilt_correction = QtWidgets.QButtonGroup()
         self.button_group_tilt_correction.buttonClicked.connect(
-            self.pointing_model_button_clicked
+            self.pointing_or_correction_setup_button_clicked
         )
         self.tilt_correction_checked_prev: int = 0
         self.button_group_tilt_correction.addButton(self.button_tilt_correction_off, 0)
         self.button_group_tilt_correction.addButton(self.button_tilt_correction_on, 1)
         self.button_group_tilt_correction_meter = QtWidgets.QButtonGroup()
         self.button_group_tilt_correction_meter.buttonClicked.connect(
-            self.pointing_model_button_clicked
+            self.pointing_or_correction_setup_button_clicked
         )
         self.tilt_correction_meter_checked_prev: int = 1
         self.button_group_tilt_correction_meter.blockSignals(True)
@@ -859,9 +871,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_temp_correction_off: QtWidgets.QRadioButton
         self.button_temp_correction_off.setChecked(True)
         self.button_temp_correction_on: QtWidgets.QRadioButton
+        self.button_temp_correction_apply: QtWidgets.QPushButton
+        self.button_temp_correction_apply.clicked.connect(
+            self.apply_ambtemp_correction_parameters
+        )
         self.button_group_temp_correction = QtWidgets.QButtonGroup()
         self.button_group_temp_correction.buttonClicked.connect(
-            self.pointing_model_button_clicked
+            self.pointing_or_correction_setup_button_clicked
         )
         self.temp_correction_checked_prev: int = 0
         self.button_group_temp_correction.addButton(self.button_temp_correction_off, 0)
@@ -1709,23 +1725,23 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         """Move to the given band."""
         self.controller.command_move2band(band)
 
-    def static_pointing_parameter_changed(self):
-        """Static pointing model parameter changed slot function."""
-        band = self.combo_static_point_model_band.currentText().replace(" ", "_")
+    def apply_static_pointing_parameters(self):
+        """Apply input static pointing model parameters slot function."""
+        band = self.combo_static_point_model_band_input.currentText().replace(" ", "_")
         params = []
         for spinbox in self.static_pointing_spinboxes:
             params.append(spinbox.value())
         self.controller.command_set_static_pointing_parameters(band, params)
         self.update_static_pointing_parameters_values()
 
-    def static_pointing_offset_changed(self):
-        """Static pointing offset changed slot function."""
+    def apply_static_pointing_offsets(self):
+        """Apply static pointing offsets slot function."""
         xelev = self.spinbox_offset_xelev.value()
         elev = self.spinbox_offset_elev.value()
         self.controller.command_set_static_pointing_offsets(xelev, elev)
 
-    def ambtemp_correction_parameter_changed(self):
-        """Ambient temperature correction parameter changed slot function."""
+    def apply_ambtemp_correction_parameters(self):
+        """Apply ambient temperature correction parameters slot function."""
         params = []
         for spinbox in self.ambtemp_correction_spinboxes:
             params.append(spinbox.value())
@@ -1740,37 +1756,48 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         logger.debug("set_power_mode args: %s", args)
         self.controller.command_set_power_mode(*args)
 
-    def pointing_model_band_selected(self):
-        """Static pointing model band changed slot function."""
-        self.update_static_pointing_parameters_values(True)
+    def pointing_model_band_selected_for_input(self):
+        """Static pointing model band selected for input of parameters slot function."""
+        band = self.combo_static_point_model_band_input.currentIndex()
+        for spinbox in self.static_pointing_spinboxes:
+            attr_name = (
+                re.sub(
+                    r"\[[0-9,A-Z,a-z]+\]", f"[{band}]", spinbox.property("opcua_array")
+                )
+                if spinbox.property("opcua_array") is not None
+                else None
+            )
+            if attr_name in self.model.opcua_attributes:
+                attr_value = self.model.opcua_attributes[attr_name].value
+                if attr_value is not None:
+                    spinbox.setValue(attr_value)
+                spinbox.setToolTip(
+                    f"<b>OPCUA param:</b> {attr_name}<br>"
+                    f"<b>Maximum:</b> {spinbox.maximum()}<br>"
+                    f"<b>Minimum:</b> {spinbox.minimum()}"
+                )
 
-    def update_static_pointing_parameters_values(
-        self, input_boxes: bool = False
-    ) -> None:
-        """."""
-        band = self.combo_static_point_model_band.currentIndex()
-        for index, display_wgt in enumerate(self.static_pointing_values):
-            attr_name = re.sub(
-                r"\[[0-9,A-Z,a-z]+\]", f"[{band}]", display_wgt.property("opcua_array")
+    def update_static_pointing_parameters_values(self) -> None:
+        """Update displayed static pointing parameters values from server."""
+        band = self.combo_static_point_model_band_display.currentIndex()
+        for label in self.static_pointing_values:
+            attr_name = (
+                re.sub(
+                    r"\[[0-9,A-Z,a-z]+\]", f"[{band}]", label.property("opcua_array")
+                )
+                if label.property("opcua_array") is not None
+                else None
             )
             if attr_name in self.model.opcua_attributes:
                 attr_value: float = self.model.opcua_attributes[attr_name].value
-                display_wgt.setText(str(attr_value))
+                label.setText(f"{attr_value:.{self._DECIMAL_PLACES}f}")
                 tooltip = (
                     f"<b>OPCUA param:</b> {attr_name}<br>"
                     f"<b>Value:</b> {str(attr_value)}"
                 )
-                display_wgt.setToolTip(tooltip)
-                if input_boxes:
-                    input_wgt = self.static_pointing_spinboxes[index]
-                    if attr_value is not None:
-                        input_wgt.setValue(attr_value)
-                    input_wgt.setToolTip(
-                        tooltip + f"<br><b>Maximum:</b> {input_wgt.maximum()}"
-                        f"<br><b>Minimum:</b> {input_wgt.minimum()}"
-                    )
+                label.setToolTip(tooltip)
 
-    def pointing_model_button_clicked(self):
+    def pointing_or_correction_setup_button_clicked(self):
         """Any pointing model toggle button clicked slot function."""
         static_point_model_checked_id = self.button_group_static_point_model.checkedId()
         temp_correction_checked_id = self.button_group_temp_correction.checkedId()
@@ -1789,23 +1816,17 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         except KeyError:
             logger.exception("Invalid button ID.")
             return
-        band = self.combo_static_point_model_band.currentText().replace(" ", "_")
+        band = self.combo_static_point_model_band_input.currentText().replace(" ", "_")
         # Send command and check result
         _, result_msg = self.controller.command_config_pointing_model_corrections(
             stat, tilt, ambtemp, band
         )
         if result_msg == "CommandDone":
-            if stat:
-                self.static_pointing_parameter_changed()
-                self.static_pointing_offset_changed()
-            if ambtemp:
-                self.ambtemp_correction_parameter_changed()
             # Keep track of radio buttons' previous states
             self.static_point_model_checked_prev = static_point_model_checked_id
             self.tilt_correction_checked_prev = tilt_correction_checked_id
             self.tilt_correction_meter_checked_prev = tilt_corr_meter_checked_id
             self.temp_correction_checked_prev = temp_correction_checked_id
-            self.update_static_pointing_parameters_values()
         else:
             # If command did not execute for any reason, restore buttons to prev states
             self.button_group_static_point_model.button(
@@ -1826,7 +1847,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         # Static pointing band
         current_band = self.static_point_model_band.text()
         if current_band != "not read":
-            self.combo_static_point_model_band.setCurrentIndex(
+            self.combo_static_point_model_band_input.setCurrentIndex(
                 self.model._scu.convert_enum_to_int(  # pylint: disable=protected-access
                     "BandType", current_band.replace(" ", "_")
                 )
