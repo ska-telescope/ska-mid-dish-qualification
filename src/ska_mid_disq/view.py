@@ -603,20 +603,18 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.action_docs: QAction
         self.action_docs.triggered.connect(self.open_documentation)
 
-        self.groupbox_top: QtWidgets.QGroupBox
+        self.server_status_bar: QtWidgets.QWidget
         # Load a background image for the server connection QGroupBox
         pixmap = QPixmap(":/images/skao_colour_bar.png")
-        palette = self.groupbox_top.palette()
+        palette = self.server_status_bar.palette()
         palette.setBrush(QPalette.ColorRole.Window, QBrush(pixmap))
-        self.groupbox_top.setPalette(palette)
-        self.groupbox_top.setAutoFillBackground(True)
+        self.server_status_bar.setPalette(palette)
+        self.server_status_bar.setAutoFillBackground(True)
 
         self.label_conn_status: QtWidgets.QLabel
         self.label_cache_status: QtWidgets.QLabel
         self.label_cache_status.setStyleSheet("QLabel { color: white; }")
         self.label_conn_status.setStyleSheet("QLabel { color: white; }")
-        self.label_status: QtWidgets.QLabel
-        self.label_status.setStyleSheet("QLabel { color: white; }")
 
         self.list_cmd_history: QtWidgets.QListWidget  # Command history list widget
         self.setStatusBar(self.create_status_bar_widget("ℹ️ Status"))
