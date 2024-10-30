@@ -1,0 +1,9 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>icons/skao.ico</file>
+    <file>images/NRF25_SARAO.png</file>
+    <file>images/skao_colour_bar.png</file>
+    <file>images/skao_logo.svg</file>
+    <file>images/wombat_logo.png</file>
+</qresource>
+</RCC>

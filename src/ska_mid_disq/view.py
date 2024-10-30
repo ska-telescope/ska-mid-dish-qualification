@@ -3,7 +3,6 @@
 
 import json
 import logging
-import os
 from datetime import datetime, timezone
 from enum import Enum
 from functools import cached_property
@@ -11,11 +10,23 @@ from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Final
 
+import platformdirs
 from PyQt6 import QtCore, QtWidgets, uic
-from PyQt6.QtGui import QColor
+from PyQt6.QtGui import (
+    QAction,
+    QBrush,
+    QColor,
+    QDesktopServices,
+    QIcon,
+    QPalette,
+    QPixmap,
+)
+from PyQt6.QtWidgets import QFileDialog
 
 from ska_mid_disq import __version__, controller, model
-from ska_mid_disq.constants import NodesStatus, StatusTreeCategory
+from ska_mid_disq.constants import StatusTreeCategory
+
+from . import ui_resources  # noqa pylint: disable=unused-import
 
 logger = logging.getLogger("gui.view")
 
@@ -34,6 +45,146 @@ EL_VEL_MAX: Final = 1.0
 FI_POS_MAX: Final = 106.0
 FI_POS_MIN: Final = -106.0
 FI_VEL_MAX: Final = 12.0
+
+SKAO_ICON_PATH: Final = ":/icons/skao.ico"
+
+
+# pylint: disable=too-many-instance-attributes
+class ServerConnectDialog(QtWidgets.QDialog):
+    """
+    A dialog-window class for connecting to the OPC-UA server.
+
+    :param parent: The parent widget of the dialog.
+    """
+
+    def __init__(
+        self, parent: QtWidgets.QWidget, mvc_controller: controller.Controller
+    ):
+        """
+        Initialize the Server Connect dialog.
+
+        :param parent: The parent widget for the dialog.
+        """
+        super().__init__(parent)
+        self._controller = mvc_controller
+
+        self.setWindowTitle("Server Connection")
+        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
+
+        button = (
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
+        )
+
+        self.btn_box = QtWidgets.QDialogButtonBox(button)
+        self.btn_box.accepted.connect(self.confirm_connect)
+        self.btn_box.rejected.connect(self.reject)
+
+        self.vbox_layout = QtWidgets.QVBoxLayout()
+        message = QtWidgets.QLabel(
+            "Enter or select the OPC-UA server details and click OK"
+        )
+        self.vbox_layout.addWidget(message)
+
+        # Populate the server config select (drop-down) box with entries from
+        # configuration file
+        server_list = self._controller.get_config_servers()
+        self.dropdown_server_config_select = QtWidgets.QComboBox()
+        self.dropdown_server_config_select.addItems([""] + server_list)
+        self.dropdown_server_config_select.setFocus()
+        self.dropdown_server_config_select.currentTextChanged.connect(
+            self.server_config_select_changed
+        )
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Select server from config file:"))
+        self.vbox_layout.addWidget(self.dropdown_server_config_select)
+
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Server Address:"))
+        self.input_server_address = QtWidgets.QLineEdit()
+        self.input_server_address.setPlaceholderText("Server Address")
+        self.vbox_layout.addWidget(self.input_server_address)
+
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Server Port:"))
+        self.input_server_port = QtWidgets.QLineEdit()
+        self.input_server_port.setPlaceholderText("Server Port")
+        self.vbox_layout.addWidget(self.input_server_port)
+
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Server Endpoint:"))
+        self.input_server_endpoint = QtWidgets.QLineEdit()
+        self.input_server_endpoint.setPlaceholderText("Server Endpoint")
+        self.vbox_layout.addWidget(self.input_server_endpoint)
+
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Server Namespace:"))
+        self.input_server_namespace = QtWidgets.QLineEdit()
+        self.input_server_namespace.setPlaceholderText("Server Namespace")
+        self.vbox_layout.addWidget(self.input_server_namespace)
+
+        self.cache_checkbox = QtWidgets.QCheckBox()
+        self.cache_checkbox.setText("Use nodes cache")
+        self.cache_checkbox.setChecked(False)
+        self.vbox_layout.addWidget(self.cache_checkbox)
+
+        self.vbox_layout.addWidget(self.btn_box)
+        self.setLayout(self.vbox_layout)
+        self.server_details: dict[str, str] = {}
+
+    @property
+    def server_config_selected(self) -> str:
+        """Return the server config selected in the drop-down box."""
+        return self.dropdown_server_config_select.currentText()
+
+    def server_config_select_changed(self, server_name: str) -> None:
+        """
+        User changed server selection in drop-down box.
+
+        Enable/disable relevant widgets.
+        """
+        logger.debug("server config select changed: %s", server_name)
+        if server_name is None or server_name == "":
+            self._enable_server_widgets(True)
+        else:
+            # Clear the input boxes first
+            self.input_server_address.clear()
+            self.input_server_port.clear()
+            self.input_server_endpoint.clear()
+            self.input_server_namespace.clear()
+            # Get the server config args from configfile
+            server_config = self._controller.get_config_server_args(server_name)
+            # Populate the widgets with the server config args
+            if "endpoint" in server_config and "namespace" in server_config:
+                self.input_server_address.setText(server_config["host"])
+                self.input_server_port.setText(server_config["port"])
+                self.input_server_endpoint.setText(server_config["endpoint"])
+                self.input_server_namespace.setText(server_config["namespace"])
+            else:
+                # First physical controller does not have an endpoint or namespace
+                self.input_server_address.setText(server_config["host"])
+                self.input_server_port.setText(server_config["port"])
+            # Disable editing of the widgets
+            self._enable_server_widgets(False)
+
+    def _enable_server_widgets(self, enable: bool = True) -> None:
+        """
+        Enable or disable server widgets and optionally update the connect button text.
+
+        :param enable: Enable or disable server widgets (default True).
+        :param connect_button: Update the connect button text (default False).
+        """
+        self.input_server_address.setEnabled(enable)
+        self.input_server_port.setEnabled(enable)
+        self.input_server_endpoint.setEnabled(enable)
+        self.input_server_namespace.setEnabled(enable)
+
+    def confirm_connect(self):
+        """Accepts the server connection details entered in the dialog."""
+        logger.debug("Server connect dialog accepted")
+        self.server_details = {
+            "host": self.input_server_address.text(),
+            "port": self.input_server_port.text(),
+            "endpoint": self.input_server_endpoint.text(),
+            "namespace": self.input_server_namespace.text(),
+            "use_nodes_cache": self.cache_checkbox.isChecked(),
+        }
+        self.accept()
 
 
 class StatusBarMixin:
@@ -80,6 +231,7 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
         super().__init__(parent)
 
         self.setWindowTitle("Recording Configuration")
+        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
         self.resize(544, 512)
 
         self._node_table_widgets: dict[
@@ -97,13 +249,13 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
 
         self.grid_layout = QtWidgets.QGridLayout()
         table_options_layout = QtWidgets.QGridLayout()
-        self.table_file_label = QtWidgets.QLabel("Table file:")
+        self.table_file_label = QtWidgets.QLabel("Table config file:")
         self.table_file_label.setAlignment(
             QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
         )
-        self.table_file_load = QtWidgets.QPushButton("Load")
+        self.table_file_load = QtWidgets.QPushButton("Open File...")
         self.table_file_load.clicked.connect(self._load_node_table)
-        self.table_file_save = QtWidgets.QPushButton("Save")
+        self.table_file_save = QtWidgets.QPushButton("Save As...")
         self.table_file_save.clicked.connect(self._save_node_table)
         self.record_column_label = QtWidgets.QLabel("Record column:")
         self.record_column_label.setAlignment(
@@ -236,16 +388,17 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
 
     def _save_node_table(self) -> None:
         """Save the node table to a json file."""
-        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
-            self,
-            "Save Recording Config File",
-            "",
-            "Recording Config Files (*.json)",
+        _fname, _ = QFileDialog.getSaveFileName(
+            parent=self,
+            caption="Save Recording Config File",
+            directory=platformdirs.user_documents_dir(),
+            filter="Recording Config Files (*.json);;All Files (*)",
         )
-        if filename:
+        if _fname:
+            filename = Path(_fname)
             logger.info("Recording save file name: %s", filename)
-            if Path(filename).suffix != "json":
-                filename += ".json"
+            if filename.suffix != ".json":
+                filename = filename.parent / (filename.name + ".json")
             with open(filename, "w", encoding="UTF-8") as f:
                 json.dump(self._get_current_config(), f, indent=4, sort_keys=True)
 
@@ -254,10 +407,10 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
     def _load_node_table(self) -> None:
         """Load the node table from a json file."""
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            "Load Recording Config File",
-            "",
-            "Recording Config Files (*.json)",
+            parent=self,
+            caption="Load Recording Config File",
+            directory=platformdirs.user_documents_dir(),
+            filter="Recording Config Files (*.json);;All Files (*)",
         )
         if filename:
             logger.info("Recording load file name: %s", filename)
@@ -428,57 +581,47 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         ui_xml_filename = resources.files(__package__) / "ui/dishstructure_mvc.ui"
         uic.loadUi(ui_xml_filename, self)
         self.setWindowTitle(f"DiSQ GUI v{__version__}")
+        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
 
         # Adding a default style for the tooltip with a white background and black text
         # This is a work-around for the issue that tooltips inherit style from the
         # parent widget - and this choice of colour-scheme is at least readable.
         self.setStyleSheet(
-            # "QToolTip { color: #ffffff; background-color: #2a82da;"
             "QToolTip { color: black; background-color: white;"
             "border: 1px solid black; }"
         )
 
-        self.list_cmd_history: QtWidgets.QListWidget  # Command history list widget
-        self.setStatusBar(self.create_status_bar_widget("ℹ️ Status"))
-
-        # Set the server URI from environment variable if defined
-        server_address: str | None = os.environ.get("DISQ_OPCUA_SERVER_ADDRESS", None)
-        if server_address is not None:
-            self.input_server_address: QtWidgets.QLineEdit
-            self.input_server_address.setText(server_address)
-        server_port: str | None = os.environ.get("DISQ_OPCUA_SERVER_PORT", None)
-        if server_port is not None:
-            self.input_server_port: QtWidgets.QLineEdit
-            self.input_server_port.setText(server_port)
-        server_endpoint: str | None = os.environ.get("DISQ_OPCUA_SERVER_ENDPOINT", None)
-        if server_endpoint is not None:
-            self.input_server_endpoint: QtWidgets.QLineEdit
-            self.input_server_endpoint.setText(server_endpoint)
-        server_namespace: str | None = os.environ.get(
-            "DISQ_OPCUA_SERVER_NAMESPACE", None
+        # Menubar
+        self.action_connect_opcua_server: QAction
+        self.action_connect_opcua_server.triggered.connect(self.connect_button_clicked)
+        self.action_disconnect_opcua_server: QAction
+        self.action_disconnect_opcua_server.triggered.connect(
+            self.connect_button_clicked
         )
-        if server_namespace is not None:
-            self.input_server_namespace: QtWidgets.QLineEdit
-            self.input_server_namespace.setText(server_namespace)
-        self.button_server_connect: QtWidgets.QPushButton
-        self.button_server_connect.clicked.connect(self.connect_button_clicked)
+        self.action_about: QAction
+        self.action_about.triggered.connect(self.about_button_clicked)
+        self.action_docs: QAction
+        self.action_docs.triggered.connect(self.open_documentation)
+
+        self.server_status_bar: QtWidgets.QWidget
+        # Load a background image for the server connection QGroupBox
+        pixmap = QPixmap(":/images/skao_colour_bar.png")
+        palette = self.server_status_bar.palette()
+        palette.setBrush(QPalette.ColorRole.Window, QBrush(pixmap))
+        self.server_status_bar.setPalette(palette)
+        self.server_status_bar.setAutoFillBackground(True)
+
         self.label_conn_status: QtWidgets.QLabel
         self.label_cache_status: QtWidgets.QLabel
-        self.cache_checkbox: QtWidgets.QCheckBox
+        self.label_cache_status.setStyleSheet("QLabel { color: white; }")
+        self.label_conn_status.setStyleSheet("QLabel { color: white; }")
+
+        self.list_cmd_history: QtWidgets.QListWidget  # Command history list widget
+        self.setStatusBar(self.create_status_bar_widget("ℹ️ Status"))
 
         # Keep a reference to model and controller
         self.model = disq_model
         self.controller = disq_controller
-
-        # Populate the server config select (drop-down) box with entries from
-        # configuration file
-        server_list = self.controller.get_config_servers()
-        self.dropdown_server_config_select: QtWidgets.QComboBox
-        self.dropdown_server_config_select.addItems([""] + server_list)
-        self.dropdown_server_config_select.setFocus()
-        self.dropdown_server_config_select.currentTextChanged.connect(
-            self.server_config_select_changed
-        )
 
         # Connect widgets and slots to the Controller
         self.controller.ui_status_message.connect(self.command_response_status_update)
@@ -977,6 +1120,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         """Disable all the OPC-UA widgets."""
         for widget in self.all_opcua_widgets:
             widget.setEnabled(False)
+            if isinstance(widget, QtWidgets.QLineEdit):
+                widget.setStyleSheet("QLineEdit { border-color: white;} ")
 
     def _enable_data_logger_widgets(self, enable: bool = True) -> None:
         """
@@ -988,25 +1133,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.line_edit_recording_file.setEnabled(enable)
         self.line_edit_recording_status.setEnabled(enable)
         self.button_recording_config.setEnabled(enable)
-        # Only disable stop. Stop can only be enabled by clicking start.
-        if not enable:
-            self.button_recording_stop.setEnabled(enable)
-
-    def _enable_server_widgets(
-        self, enable: bool = True, connect_button: bool = False
-    ) -> None:
-        """
-        Enable or disable server widgets and optionally update the connect button text.
-
-        :param enable: Enable or disable server widgets (default True).
-        :param connect_button: Update the connect button text (default False).
-        """
-        self.input_server_address.setEnabled(enable)
-        self.input_server_port.setEnabled(enable)
-        self.input_server_endpoint.setEnabled(enable)
-        self.input_server_namespace.setEnabled(enable)
-        if connect_button:
-            self.button_server_connect.setText("Connect" if enable else "Disconnect")
 
     def recording_status_update(self, status: bool) -> None:
         """Update the recording status."""
@@ -1230,6 +1356,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                     background_colour_rbg: str = self._LED_COLOURS[led_base_colour][
                         event["value"]
                     ]
+                    text_color = "black" if event["value"] else "white"
                 except KeyError:
                     logger.warning(
                         "LED colour for base colour '%s' and value '%s' not found",
@@ -1240,8 +1367,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 widget.setEnabled(True)
                 widget.setStyleSheet(
                     "QLineEdit { "
-                    f"background-color: {background_colour_rbg}; "
-                    "color: rgb(238, 238, 238);border-color: black;} "
+                    f"background-color: {background_colour_rbg}; color: {text_color}; "
+                    "border-color: black;} "
                 )
 
     def _track_table_file_exist(self) -> bool:
@@ -1266,12 +1393,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             f"{self.model.opcua_nodes_status.value} - "
             f"Nodes generated {self.model.plc_prg_nodes_timestamp}"
         )
-        if self.model.opcua_nodes_status == NodesStatus.VALID:
-            self.label_cache_status.setStyleSheet("color: black;")
-        else:
-            self.label_cache_status.setStyleSheet("color: red;")
-        self.cache_checkbox.setEnabled(False)
-        self._enable_server_widgets(False, connect_button=True)
+        self.action_connect_opcua_server.setEnabled(False)
+        self.action_disconnect_opcua_server.setEnabled(True)
         self._enable_opcua_widgets()
         self._enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
@@ -1295,8 +1418,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self._enable_data_logger_widgets(False)
         self.label_conn_status.setText("Disconnected")
         self.label_cache_status.setText("")
-        self.cache_checkbox.setEnabled(True)
-        self._enable_server_widgets(True, connect_button=True)
+        self.action_connect_opcua_server.setEnabled(True)
+        self.action_disconnect_opcua_server.setEnabled(False)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
         self.warning_status_show_only_warnings.setEnabled(False)
@@ -1307,65 +1430,38 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.checkbox_limit_axis_inputs.setEnabled(False)
 
     def connect_button_clicked(self):
-        """Setup a connection to the server."""
+        """Open the Connect To Server configuration dialog."""
         if not self.controller.is_server_connected():
-            connect_details = {
-                "host": self.input_server_address.text(),
-                "port": (
-                    self.input_server_port.text()
-                    if self.input_server_port.text() != ""
-                    else self.input_server_port.placeholderText()
-                ),
-                "endpoint": self.input_server_endpoint.text(),
-                "namespace": self.input_server_namespace.text(),
-                "use_nodes_cache": self.cache_checkbox.isChecked(),
-            }
-            config_connection_details = self.controller.get_config_server_args(
-                self.dropdown_server_config_select.currentText()
-            )
-            if config_connection_details is not None:
-                connect_details["username"] = config_connection_details.get(
-                    "username", None
+            dialog = ServerConnectDialog(self, self.controller)
+            if dialog.exec():
+                logger.debug("Connection configuration dialog accepted")
+                logger.debug("Selected: %s", dialog.server_details)
+                self.server_connect(
+                    dialog.server_details, dialog.server_config_selected
                 )
-                connect_details["password"] = config_connection_details.get(
-                    "password", None
-                )
-            logger.debug("Connecting to server: %s", connect_details)
-            self.label_conn_status.setText("Connecting... please wait")
-            self.controller.connect_server(connect_details)
+            else:
+                logger.debug("Connection config dialog cancelled")
         else:
             logger.debug("disconnecting from server")
             self.controller.disconnect_server()
 
-    def server_config_select_changed(self, server_name: str) -> None:
-        """
-        User changed server selection in drop-down box.
-
-        Enable/disable relevant widgets.
-        """
-        logger.debug("server config select changed: %s", server_name)
-        if server_name is None or server_name == "":
-            self._enable_server_widgets(True)
-        else:
-            # Clear the input boxes first
-            self.input_server_address.clear()
-            self.input_server_port.clear()
-            self.input_server_endpoint.clear()
-            self.input_server_namespace.clear()
-            # Get the server config args from configfile
-            server_config = self.controller.get_config_server_args(server_name)
-            # Populate the widgets with the server config args
-            if "endpoint" in server_config and "namespace" in server_config:
-                self.input_server_address.setText(server_config["host"])
-                self.input_server_port.setText(server_config["port"])
-                self.input_server_endpoint.setText(server_config["endpoint"])
-                self.input_server_namespace.setText(server_config["namespace"])
-            else:
-                # First physical controller does not have an endpoint or namespace
-                self.input_server_address.setText(server_config["host"])
-                self.input_server_port.setText(server_config["port"])
-            # Disable editing of the widgets
-            self._enable_server_widgets(False)
+    def server_connect(
+        self, connect_details: dict[str, Any], server_config_selected: str
+    ) -> None:
+        """Setup a connection to the server."""
+        config_connection_details = self.controller.get_config_server_args(
+            server_config_selected
+        )
+        if config_connection_details is not None:
+            connect_details["username"] = config_connection_details.get(
+                "username", None
+            )
+            connect_details["password"] = config_connection_details.get(
+                "password", None
+            )
+        logger.debug("Connecting to server: %s", connect_details)
+        self.label_conn_status.setText("Connecting... please wait")
+        self.controller.connect_server(connect_details)
 
     def track_table_file_changed(self):
         """Update the track table file path in the model."""
@@ -1376,8 +1472,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
     def track_table_file_button_clicked(self) -> None:
         """Open a file dialog to select a track table file."""
-        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Open Track Table File", "", "Track Table Files (*.csv)"
+        options = QFileDialog.Option(QFileDialog.Option.ReadOnly)
+        filename, _ = QFileDialog.getOpenFileName(
+            parent=self,
+            caption="Open Track Table File",
+            directory=platformdirs.user_documents_dir(),
+            filter="Track Table Files (*.csv);;All Files (*)",
+            options=options,
         )
         if filename:
             self.line_edit_track_table_file.setText(filename)
@@ -1442,15 +1543,15 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.line_edit_recording_file.setText(output_filename.rsplit(".")[0])
 
     def recording_file_button_clicked(self) -> None:
-        """Open a dialog to select a file or folder for the recording file box."""
-        dialog = QtWidgets.QFileDialog()
-        dialog.setNameFilter("DataLogger File (*.hdf5)")
-        if dialog.exec():
-            filepaths = dialog.selectedUrls()
-            if filepaths:
-                self.line_edit_recording_file.setText(
-                    str(Path(filepaths[0].toLocalFile()).with_suffix(""))
-                )
+        """Open a dialog to select a file for the recording file box."""
+        fname, _ = QtWidgets.QFileDialog.getSaveFileName(
+            parent=self,
+            caption="Select Recording File",
+            directory=platformdirs.user_documents_dir(),
+            filter="DataLogger File (*.hdf5 *.h5);;All Files (*)",
+        )
+        if fname:
+            self.line_edit_recording_file.setText(fname)
 
     def slew2abs_button_clicked(self):
         """
@@ -1877,6 +1978,35 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 widget.setHidden(True)
             else:
                 widget.setHidden(False)
+
+    def about_button_clicked(self) -> None:
+        """Open the About dialog."""
+        dialog = QtWidgets.QMessageBox(self)
+        # dialog.setIcon(QtWidgets.QMessageBox.Icon.Information)
+        dialog.setTextFormat(QtCore.Qt.TextFormat.RichText)
+        source_code_url = "https://gitlab.com/ska-telescope/ska-mid-disq"
+        dialog.setText(
+            "<center><h2>SKA-Mid Dish Structure Qualification GUI</h2></center>"
+            f"<p>Version: {__version__}</p>"
+            "<p>This application is intended for expert engineers for the purpose of "
+            "controlling, monitoring and qualifying the SKA-Mid Dish Structures.</p>"
+            "<p>Lovingly crafted by SKAO Wombats under the stern supervision of SARAO "
+            "Dish Structure Engineers.</p>"
+            "<center><img src=':/images/skao_logo.svg' width='380'></center>"
+            "<center><img src=':/images/NRF25_SARAO.png' width='368'></center>"
+            "<center><img src=':/images/wombat_logo.png' width='200'></center>"
+            f"<center><p><a href='{source_code_url}'>DiSQ GUI source code</a></p>"
+            "</center>"
+        )
+        dialog.setWindowTitle("About")
+        dialog.setWindowIcon(QIcon(SKAO_ICON_PATH))
+        dialog.exec()
+
+    def open_documentation(self) -> None:
+        """Open the RTD website."""
+        QDesktopServices.openUrl(
+            QtCore.QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
+        )
 
 
 class AxisPosSpinBox(QtWidgets.QDoubleSpinBox):

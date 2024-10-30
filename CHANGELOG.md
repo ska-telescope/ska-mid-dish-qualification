@@ -23,6 +23,7 @@
     - WOM-464: Added time info and 'Set Time Source' in track tab, and also indicator of time source and synced status in main window.
     - WOM-496: Update DataLogger subscription times to be from server time
     - WOM-257: Update the GUI recording interface. Change the configure dialog to have a check box and a configurable period per node. Load/Save configurations. Other small changes
+    - WOM-474: Moved server connection into pop-up window. Added 'Control' and 'Help' menus with 'About' window, and various GUI display/layout improvements.
 - Bug fixes:
     - WOM-235: Fixed track table get details string list index out of range.
     - WOM-428: Various small bugs in GUI and other GUI improvements.
