@@ -398,6 +398,7 @@ set_power_mode_input_widgets = [
         ),
     ],
 )
+# pylint: disable=too-many-positional-arguments
 def test_opcua_command_slot_function(
     disq_app: MainView,
     slot_function: str,
