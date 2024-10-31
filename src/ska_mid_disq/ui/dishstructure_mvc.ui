@@ -4738,10 +4738,13 @@
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::MinimumExpanding</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>20</width>
-                 <height>40</height>
+                 <height>6</height>
                 </size>
                </property>
               </spacer>
@@ -5207,6 +5210,9 @@
                <property name="text">
                 <string>Apply</string>
                </property>
+               <property name="opcua" stdset="0">
+                <string/>
+               </property>
               </widget>
              </item>
              <item row="15" column="1">
@@ -5316,7 +5322,7 @@
                 <string>not read</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignCenter</set>
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
                 <string>Pointing.Status.BandForCorr</string>
@@ -5326,10 +5332,10 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="0">
-              <widget class="QRadioButton" name="button_static_point_model_off">
+             <item row="0" column="1">
+              <widget class="ToggleSwitch" name="button_static_point_model_toggle">
                <property name="text">
-                <string>OFF</string>
+                <string/>
                </property>
                <property name="opcua" stdset="0">
                 <string>Pointing.Status.StaticCorrActive</string>
@@ -5339,16 +5345,13 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="1">
-              <widget class="QRadioButton" name="button_static_point_model_on">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_32">
                <property name="text">
-                <string>ON</string>
+                <string>Current:</string>
                </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.Status.StaticCorrActive</string>
-               </property>
-               <property name="opcua_type" stdset="0">
-                <string>Boolean</string>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
              </item>
@@ -5531,6 +5534,9 @@
                <property name="text">
                 <string>Apply</string>
                </property>
+               <property name="opcua" stdset="0">
+                <string/>
+               </property>
               </widget>
              </item>
             </layout>
@@ -5567,141 +5573,10 @@
              <property name="spacing">
               <number>2</number>
              </property>
-             <item row="8" column="2">
-              <widget class="QLabel" name="opcua_TiltXFilt_Two">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
+             <item row="5" column="0">
+              <widget class="QLabel" name="label_67">
                <property name="text">
-                <string>not read</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.Status.TiltXFilt_Two</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="1">
-              <widget class="QLabel" name="opcua_TiltXFilt_One">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <property name="text">
-                <string>not read</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.Status.TiltXFilt_One</string>
-               </property>
-              </widget>
-             </item>
-             <item row="12" column="1">
-              <widget class="QLabel" name="opcua_TiltCorrVal_Az">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <property name="text">
-                <string>not read</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.Status.TiltCorrVal_El</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1">
-              <widget class="QLabel" name="opcua_TiltYArcsec_One">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <property name="text">
-                <string>not read</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.Status.TiltYArcsec_One</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="2">
-              <widget class="QLabel" name="opcua_TiltYFilt_Two">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <property name="text">
-                <string>not read</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.Status.TiltYFilt_Two</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="label_80">
-               <property name="text">
-                <string>X-axis [&quot;]:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QRadioButton" name="button_tilt_correction_meter_1">
-               <property name="text">
-                <string>Tilt 1</string>
-               </property>
-               <property name="opcua_cmd" stdset="0">
-                <string>Pointing.Commands.PmCorrOnOff</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0" colspan="3">
-              <widget class="QLabel" name="label_66">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Tilt measured (filtered)</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="0">
-              <widget class="QLabel" name="label_69">
-               <property name="text">
-                <string>Azim [&quot;]:</string>
+                <string>Y-axis [&quot;]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -5712,35 +5587,6 @@
               <widget class="QLabel" name="label_65">
                <property name="text">
                 <string>X-axis [&quot;]:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="2">
-              <widget class="QLabel" name="opcua_TiltXArcsec_Two">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <property name="text">
-                <string>not read</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.Status.TiltXArcsec_Two</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="label_67">
-               <property name="text">
-                <string>Y-axis [&quot;]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -5763,8 +5609,8 @@
                </property>
               </widget>
              </item>
-             <item row="4" column="1">
-              <widget class="QLabel" name="opcua_TiltXArcsec_One">
+             <item row="8" column="1">
+              <widget class="QLabel" name="opcua_TiltXFilt_One">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -5778,78 +5624,17 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.Status.TiltXArcsec_One</string>
+                <string>Pointing.Status.TiltXFilt_One</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="2">
-              <widget class="QRadioButton" name="button_tilt_correction_meter_2">
+             <item row="10" column="0">
+              <widget class="QLabel" name="label_69">
                <property name="text">
-                <string>Tilt 2</string>
-               </property>
-               <property name="opcua_cmd" stdset="0">
-                <string>Pointing.Commands.PmCorrOnOff</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QRadioButton" name="button_tilt_correction_on">
-               <property name="text">
-                <string>ON</string>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.Status.TiltCorrActive</string>
-               </property>
-               <property name="opcua_type" stdset="0">
-                <string>Boolean</string>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="1">
-              <widget class="QLabel" name="opcua_TiltCorrVal_El">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <property name="text">
-                <string>not read</string>
+                <string>Azim [&quot;]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.Status.TiltCorrVal_Az</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0">
-              <widget class="QLabel" name="label_68">
-               <property name="text">
-                <string>Y-axis [&quot;]:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="1">
-              <widget class="QLabel" name="opcua_TiltYFilt_One">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <property name="text">
-                <string>not read</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.Status.TiltYFilt_One</string>
                </property>
               </widget>
              </item>
@@ -5872,6 +5657,185 @@
                </property>
               </widget>
              </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_33">
+               <property name="text">
+                <string>Current:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QLabel" name="opcua_TiltYArcsec_One">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.Status.TiltYArcsec_One</string>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="1">
+              <widget class="QLabel" name="opcua_TiltYFilt_One">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.Status.TiltYFilt_One</string>
+               </property>
+              </widget>
+             </item>
+             <item row="12" column="1">
+              <widget class="QLabel" name="opcua_TiltCorrVal_Az">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.Status.TiltCorrVal_El</string>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="0">
+              <widget class="QLabel" name="label_68">
+               <property name="text">
+                <string>Y-axis [&quot;]:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="2">
+              <widget class="QLabel" name="opcua_TiltYFilt_Two">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.Status.TiltYFilt_Two</string>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="1">
+              <widget class="QLabel" name="opcua_TiltCorrVal_El">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.Status.TiltCorrVal_Az</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="2">
+              <widget class="QLabel" name="opcua_TiltXArcsec_Two">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.Status.TiltXArcsec_Two</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0" colspan="3">
+              <widget class="QLabel" name="label_66">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Tilt measured (filtered)</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="2">
+              <widget class="QLabel" name="opcua_TiltXFilt_Two">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.Status.TiltXFilt_Two</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="label_80">
+               <property name="text">
+                <string>X-axis [&quot;]:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
              <item row="12" column="0">
               <widget class="QLabel" name="label_70">
                <property name="text">
@@ -5882,13 +5846,45 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="1">
-              <widget class="QRadioButton" name="button_tilt_correction_off">
+             <item row="4" column="1">
+              <widget class="QLabel" name="opcua_TiltXArcsec_One">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
                <property name="text">
-                <string>OFF</string>
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.Status.TiltXArcsec_One</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="ToggleSwitch" name="button_tilt_correction_toggle">
+               <property name="text">
+                <string/>
                </property>
                <property name="opcua" stdset="0">
                 <string>Pointing.Status.TiltCorrActive</string>
+               </property>
+               <property name="opcua_type" stdset="0">
+                <string>Boolean</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="ToggleSwitch" name="button_tilt_correction_meter_toggle">
+               <property name="text">
+                <string/>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.Status.TiltTwo_On</string>
                </property>
                <property name="opcua_type" stdset="0">
                 <string>Boolean</string>
@@ -5925,67 +5921,8 @@
              <property name="spacing">
               <number>2</number>
              </property>
-             <item row="7" column="0">
-              <widget class="QLabel" name="label_77">
-               <property name="text">
-                <string>P2 [&quot;/°C]:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="2">
-              <widget class="QLabel" name="label_64">
-               <property name="text">
-                <string>Temp east [°C]:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="11" column="0">
-              <widget class="QLabel" name="label_83">
-               <property name="text">
-                <string>P5 [&quot;/°C]:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="1">
-              <widget class="QLabel" name="opcua_ambtempparam1">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <property name="text">
-                <string>not read</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParameters.AmbTempParam1</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0" colspan="2">
-              <widget class="QLabel" name="label_73">
-               <property name="text">
-                <string>Temp west [°C]:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ambtempfiltdt">
+             <item row="8" column="2">
+              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam3">
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -6006,6 +5943,138 @@
                </property>
               </widget>
              </item>
+             <item row="11" column="0">
+              <widget class="QLabel" name="label_83">
+               <property name="text">
+                <string>P5 [&quot;/°C]:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="17" column="0">
+              <widget class="QLabel" name="label_74">
+               <property name="text">
+                <string>Elev [&quot;]:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="2">
+              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam4">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="decimals">
+                <number>1</number>
+               </property>
+               <property name="minimum">
+                <double>-2000.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>2000.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+               <property name="opcua" stdset="0">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QLabel" name="opcua_ambtempparam3">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.AmbTempParameters.AmbTempParam3</string>
+               </property>
+              </widget>
+             </item>
+             <item row="16" column="0">
+              <widget class="QLabel" name="label_75">
+               <property name="text">
+                <string>Azim [&quot;]:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="2">
+              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam2">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="decimals">
+                <number>1</number>
+               </property>
+               <property name="minimum">
+                <double>-2000.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>2000.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+               <property name="opcua" stdset="0">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="0">
+              <widget class="QLabel" name="label_79">
+               <property name="text">
+                <string>P4 [&quot;/°C]:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QLabel" name="opcua_ambtempfiltdt">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.AmbTempParameters.Filt_dt</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="2">
+              <widget class="QLabel" name="label_64">
+               <property name="text">
+                <string>Temp east [°C]:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
              <item row="2" column="0" colspan="2">
               <widget class="QLabel" name="label_72">
                <property name="text">
@@ -6016,16 +6085,81 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="1">
-              <widget class="QRadioButton" name="button_temp_correction_off">
+             <item row="4" column="0" colspan="2">
+              <widget class="QLabel" name="label_73">
                <property name="text">
-                <string>OFF</string>
+                <string>Temp west [°C]:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0">
+              <widget class="QLabel" name="label_77">
+               <property name="text">
+                <string>P2 [&quot;/°C]:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="1">
+              <widget class="QLabel" name="opcua_ambtempparam5">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.Status.AmbTempCorrActive</string>
+                <string>Pointing.AmbTempParameters.AmbTempParam5</string>
                </property>
-               <property name="opcua_type" stdset="0">
-                <string>Boolean</string>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QLabel" name="label_76">
+               <property name="text">
+                <string> P1 [&quot;/°C]:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="label_85">
+               <property name="text">
+                <string>Filter dt [s]:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="1">
+              <widget class="QLabel" name="opcua_ambtempparam2">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.AmbTempParameters.AmbTempParam2</string>
                </property>
               </widget>
              </item>
@@ -6048,13 +6182,57 @@
                </property>
               </widget>
              </item>
-             <item row="17" column="0">
-              <widget class="QLabel" name="label_74">
+             <item row="12" column="1">
+              <widget class="QLabel" name="opcua_ambtempparam6">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
                <property name="text">
-                <string>Elev [&quot;]:</string>
+                <string>not read</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.AmbTempParameters.AmbTempParam6</string>
+               </property>
+              </widget>
+             </item>
+             <item row="15" column="2" rowspan="3">
+              <widget class="QPushButton" name="button_temp_correction_apply">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Apply</string>
+               </property>
+               <property name="opcua" stdset="0">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="16" column="1">
+              <widget class="QLabel" name="opcua_AmbTempCorrVal_Az">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string>not read</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="opcua" stdset="0">
+                <string>Pointing.Status.AmbTempCorrVal_Az</string>
                </property>
               </widget>
              </item>
@@ -6080,27 +6258,30 @@
                </property>
               </widget>
              </item>
-             <item row="17" column="1">
-              <widget class="QLabel" name="opcua_AmbTempCorrVal_El">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <property name="text">
-                <string>not read</string>
-               </property>
+             <item row="5" column="2">
+              <widget class="QDoubleSpinBox" name="spinbox_ambtempfiltdt">
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
+               <property name="decimals">
+                <number>1</number>
+               </property>
+               <property name="minimum">
+                <double>-2000.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>2000.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.Status.AmbTempCorrVal_El</string>
+                <string/>
                </property>
               </widget>
              </item>
-             <item row="4" column="2">
-              <widget class="QLabel" name="opcua_ActAmbTemp_West">
+             <item row="9" column="1">
+              <widget class="QLabel" name="opcua_ambtempparam4">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -6114,12 +6295,12 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.Status.ActAmbTemp_West</string>
+                <string>Pointing.AmbTempParameters.AmbTempParam4</string>
                </property>
               </widget>
              </item>
-             <item row="5" column="1">
-              <widget class="QLabel" name="opcua_ambtempfiltdt">
+             <item row="6" column="1">
+              <widget class="QLabel" name="opcua_ambtempparam1">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -6133,45 +6314,17 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParameters.Filt_dt</string>
+                <string>Pointing.AmbTempParameters.AmbTempParam1</string>
                </property>
               </widget>
              </item>
-             <item row="11" column="1">
-              <widget class="QLabel" name="opcua_ambtempparam5">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
+             <item row="8" column="0">
+              <widget class="QLabel" name="label_78">
                <property name="text">
-                <string>not read</string>
+                <string>P3 [&quot;/°C]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParameters.AmbTempParam5</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="1">
-              <widget class="QLabel" name="opcua_ambtempparam3">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <property name="text">
-                <string>not read</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParameters.AmbTempParam3</string>
                </property>
               </widget>
              </item>
@@ -6216,8 +6369,8 @@
                </property>
               </widget>
              </item>
-             <item row="7" column="1">
-              <widget class="QLabel" name="opcua_ambtempparam2">
+             <item row="17" column="1">
+              <widget class="QLabel" name="opcua_AmbTempCorrVal_El">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -6231,22 +6384,22 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParameters.AmbTempParam2</string>
+                <string>Pointing.Status.AmbTempCorrVal_El</string>
                </property>
               </widget>
              </item>
-             <item row="8" column="0">
-              <widget class="QLabel" name="label_78">
+             <item row="12" column="0">
+              <widget class="QLabel" name="label_84">
                <property name="text">
-                <string>P3 [&quot;/°C]:</string>
+                <string>P6 [&quot;/°C]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
              </item>
-             <item row="16" column="1">
-              <widget class="QLabel" name="opcua_AmbTempCorrVal_Az">
+             <item row="4" column="2">
+              <widget class="QLabel" name="opcua_ActAmbTemp_West">
                <property name="frameShape">
                 <enum>QFrame::Panel</enum>
                </property>
@@ -6260,46 +6413,7 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="opcua" stdset="0">
-                <string>Pointing.Status.AmbTempCorrVal_Az</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0">
-              <widget class="QLabel" name="label_76">
-               <property name="text">
-                <string> P1 [&quot;/°C]:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="label_85">
-               <property name="text">
-                <string>Filter dt [s]:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="1">
-              <widget class="QLabel" name="opcua_ambtempparam4">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <property name="text">
-                <string>not read</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParameters.AmbTempParam4</string>
+                <string>Pointing.Status.ActAmbTemp_West</string>
                </property>
               </widget>
              </item>
@@ -6325,144 +6439,26 @@
                </property>
               </widget>
              </item>
-             <item row="16" column="0">
-              <widget class="QLabel" name="label_75">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_36">
                <property name="text">
-                <string>Azim [&quot;]:</string>
+                <string>Current:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
              </item>
-             <item row="12" column="0">
-              <widget class="QLabel" name="label_84">
+             <item row="0" column="1">
+              <widget class="ToggleSwitch" name="button_temp_correction_toggle">
                <property name="text">
-                <string>P6 [&quot;/°C]:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam2">
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="decimals">
-                <number>1</number>
-               </property>
-               <property name="minimum">
-                <double>-2000.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>2000.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>0.100000000000000</double>
-               </property>
-               <property name="opcua" stdset="0">
                 <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="12" column="1">
-              <widget class="QLabel" name="opcua_ambtempparam6">
-               <property name="frameShape">
-                <enum>QFrame::Panel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <property name="text">
-                <string>not read</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="opcua" stdset="0">
-                <string>Pointing.AmbTempParameters.AmbTempParam6</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam4">
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="decimals">
-                <number>1</number>
-               </property>
-               <property name="minimum">
-                <double>-2000.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>2000.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>0.100000000000000</double>
-               </property>
-               <property name="opcua" stdset="0">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0">
-              <widget class="QLabel" name="label_79">
-               <property name="text">
-                <string>P4 [&quot;/°C]:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QRadioButton" name="button_temp_correction_on">
-               <property name="text">
-                <string>ON</string>
                </property>
                <property name="opcua" stdset="0">
                 <string>Pointing.Status.AmbTempCorrActive</string>
                </property>
                <property name="opcua_type" stdset="0">
                 <string>Boolean</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam3">
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="decimals">
-                <number>1</number>
-               </property>
-               <property name="minimum">
-                <double>-2000.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>2000.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>0.100000000000000</double>
-               </property>
-               <property name="opcua" stdset="0">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="15" column="2" rowspan="3">
-              <widget class="QPushButton" name="button_temp_correction_apply">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Apply</string>
                </property>
               </widget>
              </item>
@@ -9236,6 +9232,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ToggleSwitch</class>
+   <extends>QPushButton</extends>
+   <header>ska_mid_disq.view</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>button_take_auth</tabstop>
   <tabstop>button_activate</tabstop>
@@ -9303,10 +9306,7 @@
   <tabstop>spinbox_hese8</tabstop>
   <tabstop>spinbox_offset_elev</tabstop>
   <tabstop>spinbox_offset_xelev</tabstop>
-  <tabstop>button_tilt_correction_meter_1</tabstop>
-  <tabstop>button_tilt_correction_meter_2</tabstop>
-  <tabstop>button_tilt_correction_off</tabstop>
-  <tabstop>button_tilt_correction_on</tabstop>
+  <tabstop>button_tilt_correction_toggle</tabstop>
   <tabstop>spinbox_ambtempfiltdt</tabstop>
   <tabstop>spinbox_ambtempparam1</tabstop>
   <tabstop>spinbox_ambtempparam2</tabstop>
@@ -9314,8 +9314,7 @@
   <tabstop>spinbox_ambtempparam4</tabstop>
   <tabstop>spinbox_ambtempparam5</tabstop>
   <tabstop>spinbox_ambtempparam6</tabstop>
-  <tabstop>button_temp_correction_off</tabstop>
-  <tabstop>button_temp_correction_on</tabstop>
+  <tabstop>button_temp_correction_toggle</tabstop>
   <tabstop>line_edit_track_table_file</tabstop>
   <tabstop>button_file_track_absolute_times</tabstop>
   <tabstop>button_file_track_relative_times</tabstop>

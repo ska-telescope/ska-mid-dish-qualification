@@ -19,7 +19,9 @@ from PyQt6.QtGui import (
     QColor,
     QDesktopServices,
     QIcon,
+    QPainter,
     QPalette,
+    QPen,
     QPixmap,
 )
 from PyQt6.QtWidgets import QFileDialog
@@ -760,23 +762,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_enable_axis_limits.toggled.connect(self.limit_axis_inputs_toggled)
 
         # Point tab static pointing model widgets
-        self.button_static_point_model_off: QtWidgets.QRadioButton
-        self.button_static_point_model_off.setChecked(True)
-        self.button_static_point_model_on: QtWidgets.QRadioButton
         self.button_static_point_model_apply: QtWidgets.QPushButton
         self.button_static_point_model_apply.clicked.connect(
             self.apply_static_pointing_parameters
         )
-        self.button_group_static_point_model = QtWidgets.QButtonGroup()
-        self.button_group_static_point_model.buttonClicked.connect(
+        self.button_static_point_model_toggle: ToggleSwitch
+        self.button_static_point_model_toggle.clicked.connect(
             self.pointing_or_correction_setup_button_clicked
-        )
-        self.static_point_model_checked_prev: int = 0
-        self.button_group_static_point_model.addButton(
-            self.button_static_point_model_off, 0
-        )
-        self.button_group_static_point_model.addButton(
-            self.button_static_point_model_on, 1
         )
         self.static_point_model_band: QtWidgets.QLabel
         self.static_point_model_band_index_prev: int = 0
@@ -842,46 +834,27 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
         self._update_static_pointing_inputs_text = False
         # Point tab tilt correction widgets
-        self.button_tilt_correction_off: QtWidgets.QRadioButton
-        self.button_tilt_correction_off.setChecked(True)
-        self.button_tilt_correction_on: QtWidgets.QRadioButton
-        self.button_tilt_correction_meter_1: QtWidgets.QRadioButton
-        self.button_tilt_correction_meter_1.setChecked(True)
-        self.button_tilt_correction_meter_2: QtWidgets.QRadioButton
-        self.button_group_tilt_correction = QtWidgets.QButtonGroup()
-        self.button_group_tilt_correction.buttonClicked.connect(
+        self.button_tilt_correction_toggle: ToggleSwitch
+        self.button_tilt_correction_toggle.clicked.connect(
             self.pointing_or_correction_setup_button_clicked
         )
-        self.tilt_correction_checked_prev: int = 0
-        self.button_group_tilt_correction.addButton(self.button_tilt_correction_off, 0)
-        self.button_group_tilt_correction.addButton(self.button_tilt_correction_on, 1)
-        self.button_group_tilt_correction_meter = QtWidgets.QButtonGroup()
-        self.button_group_tilt_correction_meter.buttonClicked.connect(
+        self.button_tilt_correction_meter_toggle: ToggleSwitch
+        self.button_tilt_correction_meter_toggle.label_false = "TM1"
+        self.button_tilt_correction_meter_toggle.label_true = "TM2"
+        self.button_tilt_correction_meter_toggle.change_color = False
+        self.button_tilt_correction_meter_toggle.clicked.connect(
             self.pointing_or_correction_setup_button_clicked
         )
-        self.tilt_correction_meter_checked_prev: int = 1
-        self.button_group_tilt_correction_meter.blockSignals(True)
-        self.button_group_tilt_correction_meter.addButton(
-            self.button_tilt_correction_meter_1, 1
-        )
-        self.button_group_tilt_correction_meter.addButton(
-            self.button_tilt_correction_meter_2, 2
-        )
+        self.button_tilt_correction_meter_toggle.blockSignals(True)
         # Point tab ambient temperature correction widgets
-        self.button_temp_correction_off: QtWidgets.QRadioButton
-        self.button_temp_correction_off.setChecked(True)
-        self.button_temp_correction_on: QtWidgets.QRadioButton
+        self.button_temp_correction_toggle: ToggleSwitch
+        self.button_temp_correction_toggle.clicked.connect(
+            self.pointing_or_correction_setup_button_clicked
+        )
         self.button_temp_correction_apply: QtWidgets.QPushButton
         self.button_temp_correction_apply.clicked.connect(
             self.apply_ambtemp_correction_parameters
         )
-        self.button_group_temp_correction = QtWidgets.QButtonGroup()
-        self.button_group_temp_correction.buttonClicked.connect(
-            self.pointing_or_correction_setup_button_clicked
-        )
-        self.temp_correction_checked_prev: int = 0
-        self.button_group_temp_correction.addButton(self.button_temp_correction_off, 0)
-        self.button_group_temp_correction.addButton(self.button_temp_correction_on, 1)
         self.ambtemp_correction_values: list[QtWidgets.QLabel] = [
             self.opcua_ambtempfiltdt,  # type: ignore
             self.opcua_ambtempparam1,  # type: ignore
@@ -1037,7 +1010,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         all_widgets = (
             self.findChildren(QtWidgets.QLineEdit)
             + self.findChildren(QtWidgets.QLabel)
-            + self.findChildren(QtWidgets.QRadioButton)
+            + self.findChildren(ToggleSwitch)
             + self.findChildren(QtWidgets.QDoubleSpinBox)
         )
         opcua_widget_updates: dict[str, tuple[list[QtWidgets.QWidget], Callable]] = {}
@@ -1056,9 +1029,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             if "opcua_type" in wgt.dynamicPropertyNames():
                 opcua_type = wgt.property("opcua_type")
                 if opcua_type == "Boolean":
-                    if isinstance(wgt, QtWidgets.QRadioButton):
+                    if isinstance(wgt, ToggleSwitch):
                         opcua_widget_update_func = (
-                            self._update_opcua_boolean_radio_button_widget
+                            self._update_opcua_boolean_toggle_switch_widget
                         )
                     else:
                         opcua_widget_update_func = (
@@ -1295,16 +1268,11 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                     opcua_type,
                 )
 
-    def _update_opcua_boolean_radio_button_widget(
-        self, buttons: list[QtWidgets.QRadioButton], event: dict
+    def _update_opcua_boolean_toggle_switch_widget(
+        self, buttons: list[QtWidgets.QPushButton], event: dict
     ) -> None:
-        """
-        Set radio button in exclusive group based on its boolean OPC-UA parameter.
-
-        :param button: Button that signal came from.
-        :param event: A dictionary containing event data.
-        """
-        # There should only be one radio button connected to an OPC-UA parameter.
+        """Set toggle switch based on its boolean OPC-UA parameter."""
+        # There should only be one toggle button connected to an OPC-UA parameter.
         button = buttons[0]
         logger.debug(
             "Widget: %s. Boolean OPCUA update: %s value=%s",
@@ -1312,32 +1280,23 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             event["name"],
             event["value"],
         )
-
         if event["value"] is None:
             return
 
-        # Update can come from either OFF or ON radio button, but need to explicitly
-        # set one of the two in a group with setChecked(True)
-        if event["value"]:
-            button = getattr(self, button.objectName().replace("_off", "_on"))
-        else:
-            button = getattr(self, button.objectName().replace("_on", "_off"))
-        button.setChecked(True)
+        button.setChecked(event["value"])
+
         # Block or unblock tilt meter selection signal whether function is active
         if event["name"] == TILT_CORR_ACTIVE:
-            self.button_group_tilt_correction_meter.blockSignals(not event["value"])
-            self.tilt_correction_checked_prev = int(event["value"])
+            self.button_tilt_correction_meter_toggle.blockSignals(not event["value"])
         # Populate input boxes with current read values after connecting to server
         elif event["name"] == STATIC_CORR_ACTIVE:
             if self._update_static_pointing_inputs_text:
                 self._update_static_pointing_inputs_text = False
                 self._set_static_pointing_inputs_text()
-                self.static_point_model_checked_prev = int(event["value"])
         elif event["name"] == TEMP_CORR_ACTIVE:
             if self._update_temp_correction_inputs_text:
                 self._update_temp_correction_inputs_text = False
                 self._set_temp_correction_inputs_text()
-                self.temp_correction_checked_prev = int(event["value"])
 
     def _update_opcua_boolean_text_widget(
         self, widgets: list[QtWidgets.QLineEdit], event: dict
@@ -1789,8 +1748,12 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 else None
             )
             if attr_name in self.model.opcua_attributes:
-                attr_value: float = self.model.opcua_attributes[attr_name].value
-                label.setText(f"{attr_value:.{self._DECIMAL_PLACES}f}")
+                attr_value = self.model.opcua_attributes[attr_name].value
+                label.setText(
+                    f"{attr_value:.{self._DECIMAL_PLACES}f}"
+                    if isinstance(attr_value, float)
+                    else str(attr_value)
+                )
                 tooltip = (
                     f"<b>OPCUA param:</b> {attr_name}<br>"
                     f"<b>Value:</b> {str(attr_value)}"
@@ -1799,48 +1762,25 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
     def pointing_or_correction_setup_button_clicked(self):
         """Any pointing model toggle button clicked slot function."""
-        static_point_model_checked_id = self.button_group_static_point_model.checkedId()
-        temp_correction_checked_id = self.button_group_temp_correction.checkedId()
-        tilt_correction_checked_id = self.button_group_tilt_correction.checkedId()
-        tilt_corr_meter_checked_id = self.button_group_tilt_correction_meter.checkedId()
         tilt_correction = (
-            tilt_corr_meter_checked_id
-            if self.button_tilt_correction_on.isChecked()
-            else 0
+            "Off"
+            if not self.button_tilt_correction_toggle.isChecked()
+            else (
+                "TiltmeterOne"
+                if not self.button_tilt_correction_meter_toggle.isChecked()
+                else "TiltmeterTwo"
+            )
         )
-        # Validate command parameters
-        try:
-            stat = {0: False, 1: True}[static_point_model_checked_id]
-            tilt = {0: "Off", 1: "TiltmeterOne", 2: "TiltmeterTwo"}[tilt_correction]
-            ambtemp = {0: False, 1: True}[temp_correction_checked_id]
-        except KeyError:
-            logger.exception("Invalid button ID.")
-            return
-        band = self.combo_static_point_model_band_input.currentText().replace(" ", "_")
         # Send command and check result
         _, result_msg = self.controller.command_config_pointing_model_corrections(
-            stat, tilt, ambtemp, band
+            self.button_static_point_model_toggle.isChecked(),
+            tilt_correction,
+            self.button_temp_correction_toggle.isChecked(),
+            self.combo_static_point_model_band_input.currentText().replace(" ", "_"),
         )
-        if result_msg == "CommandDone":
-            # Keep track of radio buttons' previous states
-            self.static_point_model_checked_prev = static_point_model_checked_id
-            self.tilt_correction_checked_prev = tilt_correction_checked_id
-            self.tilt_correction_meter_checked_prev = tilt_corr_meter_checked_id
-            self.temp_correction_checked_prev = temp_correction_checked_id
-        else:
-            # If command did not execute for any reason, restore buttons to prev states
-            self.button_group_static_point_model.button(
-                self.static_point_model_checked_prev
-            ).setChecked(True)
-            self.button_group_tilt_correction.button(
-                self.tilt_correction_checked_prev
-            ).setChecked(True)
-            self.button_group_tilt_correction_meter.button(
-                self.tilt_correction_meter_checked_prev
-            ).setChecked(True)
-            self.button_group_temp_correction.button(
-                self.temp_correction_checked_prev
-            ).setChecked(True)
+        # If command did not succeed, toggle triggering button back to prev state
+        if result_msg != "CommandDone":
+            self.sender().toggle()
 
     def _set_static_pointing_inputs_text(self) -> None:
         """Set static pointing inputs' text to current read values."""
@@ -2006,3 +1946,52 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         QDesktopServices.openUrl(
             QtCore.QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
         )
+
+
+class ToggleSwitch(QtWidgets.QPushButton):
+    """Custom sliding style toggle push button."""
+
+    def __init__(self, parent: Any = None) -> None:
+        """Init ToggleSwitch."""
+        super().__init__(parent)
+        self.setCheckable(True)
+        self.setMinimumWidth(70)
+        self.setMinimumHeight(22)
+        self.label_true = "ON"
+        self.label_false = "OFF"
+        self.change_color = True
+
+    # pylint: disable=invalid-name,unused-argument
+    def mouseReleaseEvent(self, event: Any) -> None:  # noqa: N802
+        """Override mouseReleaseEvent to disable visual state change on click."""
+        self.setChecked(not self.isChecked())  # Toggle state manually
+        self.clicked.emit()  # Emit clicked signal for external logic
+
+    # pylint: disable=invalid-name,unused-argument
+    def paintEvent(self, event: Any) -> None:  # noqa: N802
+        """Paint event."""
+        label = self.label_true if self.isChecked() else self.label_false
+        radius = 9
+        width = 34
+        center = self.rect().center()
+        painter = QPainter(self)
+        palette = super().palette()
+        background_color = palette.color(QPalette.ColorRole.Window)
+        if self.isEnabled() and self.change_color:
+            button_color = QColor("green") if self.isChecked() else QColor("red")
+        else:
+            button_color = background_color
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        painter.translate(center)
+        painter.setBrush(background_color)
+        painter.setPen(QPen(palette.color(QPalette.ColorRole.Shadow), 1))
+        painter.drawRoundedRect(
+            QtCore.QRect(-width, -radius, 2 * width, 2 * radius), radius, radius
+        )
+        painter.setBrush(QBrush(button_color))
+        sw_rect = QtCore.QRect(-radius, -radius, width + radius, 2 * radius)
+        if not self.isChecked():
+            sw_rect.moveLeft(-width)
+        painter.drawRoundedRect(sw_rect, radius, radius)
+        painter.setPen(QPen(palette.color(QPalette.ColorRole.WindowText), 1))
+        painter.drawText(sw_rect, QtCore.Qt.AlignmentFlag.AlignCenter, label)
