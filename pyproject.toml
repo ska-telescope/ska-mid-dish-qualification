@@ -15,14 +15,11 @@ requires-python = ">=3.10"
 dependencies = [
     "asyncua>=1.1.5",
     "PyQt6>=6.4.2",
-    "pyqt6-tools>=6.4.2",
-    # matplotlib and plotly are only used in the reader class.
-    "matplotlib>=3.9.0",
-    "plotly>=5.24.0",
-    "pyyaml>=6.0.0",
-    "h5py>=3.11.0",
-    "numpy>=1.26.0",
-    "platformdirs>=4.2.2",
+    "matplotlib>=3.9.2",
+    "pyyaml>=6.0.2",
+    "h5py>=3.12.1",
+    "numpy>=2.1.2",
+    "platformdirs>=4.2.6",
     "ska-mid-dish-steering-control @ git+https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git@main",
 ]
 license.file = "LICENSE"
@@ -30,6 +27,8 @@ readme = "README.md"
 
 [project.optional-dependencies]
 dev = [
+    "pyqt6-tools",
+    "PySide6",
     "pytest",
     "pytest-qt",
     "pytest-cov",
@@ -107,13 +106,11 @@ python = "^3.10"
 asyncua = "^1.1.5"
 PyQt6 = "^6.4.2"
 pyqt6-tools = "^6.4.2"
-# matplotlib and plotly are only used in the reader class.
-matplotlib = "^3.9.0"
-plotly = "^5.24.0"
-pyyaml = "^6.0.0"
-h5py = "^3.11.0"
-numpy = "^1.26.0"
-platformdirs = "^4.2.2"
+matplotlib = "^3.9.2"
+pyyaml = "^6.0.2"
+h5py = "^3.12.1"
+numpy = "^2.1.2"
+platformdirs = "^4.2.6"
 ska-mid-dish-steering-control = "^0.1.1"
 # ska-mid-dish-steering-control = { path = "../ska-mid-dish-steering-control", develop = true }
 # ska-mid-dish-steering-control = { git = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git", branch = "main" }
