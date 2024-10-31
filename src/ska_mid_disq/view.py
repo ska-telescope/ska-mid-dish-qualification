@@ -1250,7 +1250,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             str_val = val.name
         finally:
             for widget in widgets:
-                widget.setText(str_val.replace("_", " "))  # For BandType
+                widget.setText(str_val)
 
         if opcua_type in self._LED_COLOURS:
             try:
@@ -1686,11 +1686,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
     def apply_static_pointing_parameters(self):
         """Apply input static pointing model parameters slot function."""
-        band = self.combo_static_point_model_band_input.currentText().replace(" ", "_")
+        input_band = self.combo_static_point_model_band_input.currentText()
         params = []
         for spinbox in self.static_pointing_spinboxes:
             params.append(spinbox.value())
-        self.controller.command_set_static_pointing_parameters(band, params)
+        if self.static_point_model_band.text() != input_band:
+            self.pointing_or_correction_setup_button_clicked()
+        self.controller.command_set_static_pointing_parameters(input_band, params)
         self.update_static_pointing_parameters_values()
 
     def apply_static_pointing_offsets(self):
@@ -1776,11 +1778,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.button_static_point_model_toggle.isChecked(),
             tilt_correction,
             self.button_temp_correction_toggle.isChecked(),
-            self.combo_static_point_model_band_input.currentText().replace(" ", "_"),
+            self.combo_static_point_model_band_input.currentText(),
         )
         # If command did not succeed, toggle triggering button back to prev state
         if result_msg != "CommandDone":
-            self.sender().toggle()
+            sender = self.sender()
+            if isinstance(sender, ToggleSwitch):
+                sender.toggle()
 
     def _set_static_pointing_inputs_text(self) -> None:
         """Set static pointing inputs' text to current read values."""
@@ -1789,7 +1793,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         if current_band != "not read":
             self.combo_static_point_model_band_input.setCurrentIndex(
                 self.model._scu.convert_enum_to_int(  # pylint: disable=protected-access
-                    "BandType", current_band.replace(" ", "_")
+                    "BandType", current_band
                 )
             )
         # Static pointing offsets
