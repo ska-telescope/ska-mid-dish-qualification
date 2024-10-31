@@ -768,7 +768,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
         self.button_static_point_model_toggle: ToggleSwitch
         self.button_static_point_model_toggle.clicked.connect(
-            self.pointing_or_correction_setup_button_clicked
+            self.pointing_correction_setup_button_clicked
         )
         self.static_point_model_band: QtWidgets.QLabel
         self.static_point_model_band_index_prev: int = 0
@@ -836,20 +836,20 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         # Point tab tilt correction widgets
         self.button_tilt_correction_toggle: ToggleSwitch
         self.button_tilt_correction_toggle.clicked.connect(
-            self.pointing_or_correction_setup_button_clicked
+            self.pointing_correction_setup_button_clicked
         )
         self.button_tilt_correction_meter_toggle: ToggleSwitch
         self.button_tilt_correction_meter_toggle.label_false = "TM1"
         self.button_tilt_correction_meter_toggle.label_true = "TM2"
         self.button_tilt_correction_meter_toggle.change_color = False
         self.button_tilt_correction_meter_toggle.clicked.connect(
-            self.pointing_or_correction_setup_button_clicked
+            self.pointing_correction_setup_button_clicked
         )
         self.button_tilt_correction_meter_toggle.blockSignals(True)
         # Point tab ambient temperature correction widgets
         self.button_temp_correction_toggle: ToggleSwitch
         self.button_temp_correction_toggle.clicked.connect(
-            self.pointing_or_correction_setup_button_clicked
+            self.pointing_correction_setup_button_clicked
         )
         self.button_temp_correction_apply: QtWidgets.QPushButton
         self.button_temp_correction_apply.clicked.connect(
@@ -1691,7 +1691,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         for spinbox in self.static_pointing_spinboxes:
             params.append(spinbox.value())
         if self.static_point_model_band.text() != input_band:
-            self.pointing_or_correction_setup_button_clicked()
+            self.pointing_correction_setup_button_clicked()
         self.controller.command_set_static_pointing_parameters(input_band, params)
         self.update_static_pointing_parameters_values()
 
@@ -1762,7 +1762,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 )
                 label.setToolTip(tooltip)
 
-    def pointing_or_correction_setup_button_clicked(self):
+    def pointing_correction_setup_button_clicked(self):
         """Any pointing model toggle button clicked slot function."""
         tilt_correction = (
             "Off"

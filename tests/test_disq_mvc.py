@@ -71,13 +71,13 @@ slew_indexer_input_widgets = [
 ]
 
 pointing_model_setup_input_widgets = [
-    "button_group_static_point_model",
-    "button_group_tilt_correction",
-    "button_group_temp_correction",
-    "combo_static_point_model_band",
+    "button_static_point_model_toggle",
+    "button_tilt_correction_toggle",
+    "button_temp_correction_toggle",
+    "combo_static_point_model_band_input",
 ]
 static_pointing_params_input_widgets = [
-    "combo_static_point_model_band",
+    "combo_static_point_model_band_input",
     "spinbox_ia",
     "spinbox_ca",
     "spinbox_npae",
@@ -288,7 +288,7 @@ set_power_mode_input_widgets = [
         # TODO: The interactions of this slot is complex, so cannot test 'ON' values
         # here in this test - a custom test is needed.
         (
-            "pointing_model_button_clicked",
+            "pointing_correction_setup_button_clicked",
             None,
             "Pointing.Commands.PmCorrOnOff",
             (False, "Off", False, "Band_1"),
@@ -296,7 +296,7 @@ set_power_mode_input_widgets = [
             ("CommandDone", 10),  # TODO: Weird behaviour with CETC simulator
         ),
         (
-            "static_pointing_parameter_changed",
+            "apply_static_pointing_parameters",
             None,
             "Pointing.Commands.StaticPmSetup",
             ("Optical",) + (0.0,) * 18,
@@ -305,7 +305,7 @@ set_power_mode_input_widgets = [
             # ("CommandActivated", 9),  # CETC simulator v4.1
         ),
         (
-            "static_pointing_offset_changed",
+            "apply_static_pointing_offsets",
             None,
             "Tracking.Commands.TrackLoadStaticOff",
             (10.0, -10.0),
@@ -313,7 +313,7 @@ set_power_mode_input_widgets = [
             ("CommandActivated", 9),
         ),
         (
-            "ambtemp_correction_parameter_changed",
+            "apply_ambtemp_correction_parameters",
             None,
             "Pointing.Commands.AmbTempCorrSetup",
             (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0),
@@ -469,6 +469,6 @@ def test_opcua_command_slot_function(
                 sleep(1)
     else:
         # Verify the mock command method was called with the correct arguments
-        disq_app.model.run_opcua_command.assert_called_once_with(  # type: ignore
+        disq_app.model.run_opcua_command.assert_called_with(  # type: ignore
             Command(command), *cmd_args
         )

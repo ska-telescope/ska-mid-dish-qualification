@@ -73,4 +73,5 @@ def disq_mock_model_fixture(main_view: MainView) -> MainView:
     main_view.model.run_opcua_command = MagicMock(  # type: ignore
         return_value=(0, "CommandStatus", None)
     )
+    main_view.model.is_connected = MagicMock(return_value=False)  # type: ignore
     return main_view
