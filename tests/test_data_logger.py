@@ -6,12 +6,15 @@ gathered from the server. Specifically the custom server available in the ska-mi
 simulators repo on branch wom-133-custom-nodes-for-pretty-graphs
 """
 
+import asyncio
 import logging
+import multiprocessing
 
 # pylint: disable=protected-access
 import os
 import random
 import subprocess
+import sys
 import time
 from datetime import datetime, timedelta, timezone
 from queue import Queue
@@ -22,18 +25,36 @@ import pytest
 
 from ska_mid_disq import DataLogger, SteeringControlUnit
 
+from .resources import ds_opcua_server_mock
+
+
+def wrap_sim(start_event):
+    """Wrap the async test server simulation for a multiprocessing process."""
+    asyncio.run(ds_opcua_server_mock.main(start_event))
+
 
 @pytest.fixture(scope="module", autouse=True)
 def ds_simulator_opcua_server_mock_fixture():
     """Start DSSimulatorOPCUAServer as separate process."""
-    simulator_process = subprocess.Popen(  # pylint: disable=consider-using-with
-        ["python", "tests/resources/ds_opcua_server_mock.py"]
-    )
-    # Wait for some time to ensure the simulator is fully started
-    time.sleep(10)
-    yield simulator_process
+    if sys.version_info[0] == 3 and sys.version_info[1] == 12:
+        print(
+            "The ds_opcua_server_mock is failing within pytest for Python version "
+            "3.12. To run the tests in this file on 3.12 you must start the sim "
+            "separately with python3.12 /path/to/ds_opcua_server_mock.py. Hopefully "
+            "when the CI/CD pipelines use 3.12 a fix/workaround can be found."
+        )
+        yield
+        return
+    start_event = multiprocessing.Event()
+    simulator_process = multiprocessing.Process(target=wrap_sim, args=[start_event])
+    simulator_process.start()
+    if not start_event.wait(20):
+        simulator_process.terminate()
+        raise multiprocessing.TimeoutError("Failed to start test opcua server.")
+
+    yield
+
     simulator_process.terminate()
-    simulator_process.wait()  # Wait for the process to terminate completely
 
 
 class StubScu(SteeringControlUnit):
