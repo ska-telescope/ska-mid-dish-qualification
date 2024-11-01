@@ -690,8 +690,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_elevation_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("El")
         )
-        self.spinbox_slew_only_elevation_position: AxisPosSpinBox
-        self.spinbox_slew_only_elevation_position.set_callback(self.slew_button_clicked)
+        self.spinbox_slew_only_elevation_position: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_elevation_velocity: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_elevation_position.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_elevation_velocity.setDecimals(self._DECIMAL_PLACES)
@@ -715,8 +714,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_azimuth_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Az")
         )
-        self.spinbox_slew_only_azimuth_position: AxisPosSpinBox
-        self.spinbox_slew_only_azimuth_position.set_callback(self.slew_button_clicked)
+        self.spinbox_slew_only_azimuth_position: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_azimuth_velocity: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_azimuth_position.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_azimuth_velocity.setDecimals(self._DECIMAL_PLACES)
@@ -740,8 +738,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_indexer_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Fi")
         )
-        self.spinbox_slew_only_indexer_position: AxisPosSpinBox
-        self.spinbox_slew_only_indexer_position.set_callback(self.slew_button_clicked)
+        self.spinbox_slew_only_indexer_position: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_indexer_velocity: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_indexer_position.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_indexer_velocity.setDecimals(self._DECIMAL_PLACES)
@@ -758,10 +755,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 float(self.combobox_axis_input_step.currentText())
             )
         )
-        self.checkbox_limit_axis_inputs: QtWidgets.QCheckBox
-        self.checkbox_limit_axis_inputs.toggled.connect(
-            lambda: self.limit_axis_inputs(self.checkbox_limit_axis_inputs.isChecked())
-        )
+        self.button_enable_axis_limits: QtWidgets.QRadioButton
+        self.button_enable_axis_limits.toggled.connect(self.limit_axis_inputs_toggled)
 
         # Point tab static pointing model widgets
         self.button_static_point_model_off: QtWidgets.QRadioButton
@@ -1408,8 +1403,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.spinbox_file_track_additional_offset.setEnabled(
             not self.button_file_track_absolute_times.isChecked()
         )
-        self.combobox_axis_input_step.setEnabled(True)
-        self.checkbox_limit_axis_inputs.setEnabled(True)
 
     def server_disconnected_event(self):
         """Handle the server disconnected event."""
@@ -1426,8 +1419,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.warning_tree_view.setEnabled(False)
         self.error_status_show_only_errors.setEnabled(False)
         self.error_tree_view.setEnabled(False)
-        self.combobox_axis_input_step.setEnabled(False)
-        self.checkbox_limit_axis_inputs.setEnabled(False)
 
     def connect_button_clicked(self):
         """Open the Connect To Server configuration dialog."""
@@ -1631,13 +1622,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.spinbox_slew_only_indexer_position.setSingleStep(step_size)
         self.spinbox_slew_only_indexer_velocity.setSingleStep(step_size)
 
-    def limit_axis_inputs(self, limit: bool) -> None:
-        """
-        Limit the input ranges of the axis slew commands as specified in the ICD.
-
-        :param limit: True to apply the limits, False to use -1000 to 1000.
-        """
-        if limit:
+    def limit_axis_inputs_toggled(self) -> None:
+        """Limit the input ranges of the axis slew commands as specified in the ICD."""
+        if self.button_enable_axis_limits.isChecked():
             self.spinbox_slew_only_azimuth_position.setMaximum(AZ_POS_MAX)
             self.spinbox_slew_only_azimuth_position.setMinimum(AZ_POS_MIN)
             self.spinbox_slew_only_azimuth_velocity.setMaximum(AZ_VEL_MAX)
@@ -2007,23 +1994,3 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         QDesktopServices.openUrl(
             QtCore.QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
         )
-
-
-class AxisPosSpinBox(QtWidgets.QDoubleSpinBox):
-    """Custom axis position double/float spinbox."""
-
-    def __init__(self, **kwargs: Any) -> None:
-        """Init AxisSpinBox."""
-        super().__init__(**kwargs)
-        self._callback: Callable[[str], None] | None = None
-
-    def set_callback(self, callback: Callable[[str], None]) -> None:
-        """Set the callback function to be called in stepBy."""
-        self._callback = callback
-
-    # pylint: disable=invalid-name
-    def stepBy(self, steps: int) -> None:  # noqa: N802
-        """This method is triggered only by the up/down buttons."""
-        super().stepBy(steps)  # Call the base class functionality
-        if self._callback is not None:
-            self._callback(self.property("axis"))
