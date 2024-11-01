@@ -36,9 +36,6 @@ class Controller(QObject):
         """
         super().__init__(parent)
         self._model = mvc_model
-        self._static_pointing_parameters: list[str | float] = []
-        self._static_pointing_offsets: list[float] = []
-        self._ambtemp_correction_parameters: list[float] = []
 
     def _command_response_str(
         self, command: str, result_code: int, result_msg: str
@@ -310,7 +307,7 @@ class Controller(QObject):
 
     def command_set_static_pointing_parameters(
         self, band: str, params: list[float]
-    ) -> tuple[ResultCode, str] | None:
+    ) -> tuple[ResultCode, str]:
         """
         Issue command to set the static pointing model parameters.
 
@@ -319,44 +316,43 @@ class Controller(QObject):
         :return: A tuple containing the result code and result message,
             or None if the command was not issued.
         """
-        if self._static_pointing_parameters != [band, *params]:
-            self._static_pointing_parameters = [band, *params]
-            return self._issue_command(Command.STATIC_PM_SETUP, band, *params)
-        return None
+        return self._issue_command(Command.STATIC_PM_SETUP, band, *params)
 
     def command_set_static_pointing_offsets(
         self, azim: float, elev: float
-    ) -> tuple[ResultCode, str] | None:
+    ) -> tuple[ResultCode, str]:
         """
         Issue command to set the static pointing tracking offsets.
 
         :param azim: Azimuth offset
-        :type params: float
         :param elev: Elevation offset
-        :type params: float
-        :return: A tuple containing the result code and result message,
-            or None if the command was not issued.
+        :return: A tuple containing the result code and result message
         """
-        if self._static_pointing_offsets != [azim, elev]:
-            self._static_pointing_offsets = [azim, elev]
-            return self._issue_command(Command.TRACK_LOAD_STATIC_OFF, azim, elev)
-        return None
+        return self._issue_command(Command.TRACK_LOAD_STATIC_OFF, azim, elev)
+
+    def command_set_tilt_meter_calibration_parameters(
+        self, tilt_meter: str, params: list[float]
+    ) -> tuple[ResultCode, str] | None:
+        """
+        Issue command to set the tilt meter calibration parameters.
+
+        :param tilt_meter: Tilt meter to calibrate (TiltOnType)
+        :param params: list of parameter values to apply
+        :return: A tuple containing the result code and result message
+        """
+        # TODO: Serial number of tilt meter (2nd arg?
+        return self._issue_command(Command.TILT_CAL_SETUP, tilt_meter, "", *params)
 
     def command_set_ambtemp_correction_parameters(
         self, params: list[float]
-    ) -> tuple[ResultCode, str] | None:
+    ) -> tuple[ResultCode, str]:
         """
         Issue command to set the ambient temperature correction parameters.
 
         :param params: list of parameter values to apply
-        :type params: list[float]
-        :return: A tuple containing the result code and result message,
-            or None if the command was not issued.
+        :return: A tuple containing the result code and result message
         """
-        if self._ambtemp_correction_parameters != params:
-            self._ambtemp_correction_parameters = params
-            return self._issue_command(Command.AMBTEMP_CORR_SETUP, *params)
-        return None
+        return self._issue_command(Command.AMBTEMP_CORR_SETUP, *params)
 
     def _issue_command(self, command: Command, *args: Any) -> tuple[ResultCode, str]:
         """

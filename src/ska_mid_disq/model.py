@@ -121,8 +121,7 @@ class StatusTreeHierarchy(QueuePollThread):
         """A class to represent a hierarchy of status attributes.
 
         :param status_attributes: A list of status attributes with the full dot-notated
-                                  attribute name
-        :type status_attributes: list[str]
+            attribute name
         """
         self._category = category
         super().__init__(status_signal)
@@ -232,9 +231,7 @@ class StatusTreeHierarchy(QueuePollThread):
         """Split a full dot-notated attribute name into group and attribute name.
 
         :param attr_full_name: a dot-notated attribute name
-        :type attr_full_name: str
         :return: a tuple of group and attribute name
-        :rtype: tuple[str, str]
         """
         group = attr_full_name.split(".")[0]
         attr_name = attr_full_name.split(".")[-1]
@@ -509,6 +506,9 @@ class Model(QObject):
                 temperature = args[2]
                 band = self._scu.convert_enum_to_int("BandType", args[3])
                 result = _log_and_call(command, static, tilt, temperature, band)
+            case Command.TILT_CAL_SETUP:
+                tilt = self._scu.convert_enum_to_int("TiltOnType", args[0])
+                result = _log_and_call(command, tilt, *args[1:])
             case Command.TAKE_AUTH:
                 logger.debug("Calling command: %s, args: %s", command.value, args)
                 code, msg = self._scu.take_authority(args[0])

@@ -35,7 +35,8 @@ logger = logging.getLogger("gui.view")
 
 # Constant definitions of attribute names on the OPC-UA server
 TILT_CORR_ACTIVE: Final = "Pointing.Status.TiltCorrActive"
-STATIC_CORR_ACTIVE: Final = "Pointing.Status.StaticCorrActive"
+TILT_METER_TWO_ON: Final = "Pointing.Status.TiltTwo_On"
+BAND_FOR_CORR: Final = "Pointing.Status.BandForCorr"
 TEMP_CORR_ACTIVE: Final = "Pointing.Status.TempCorrActive"
 
 # Axis limits defined in ICD
@@ -843,9 +844,35 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_tilt_correction_meter_toggle.label_true = "TM2"
         self.button_tilt_correction_meter_toggle.change_color = False
         self.button_tilt_correction_meter_toggle.clicked.connect(
-            self.pointing_correction_setup_button_clicked
+            self.update_tilt_meter_calibration_parameters_values
         )
-        self.button_tilt_correction_meter_toggle.blockSignals(True)
+        self.button_tilt_meter_cal_apply: QtWidgets.QPushButton
+        self.button_tilt_meter_cal_apply.clicked.connect(
+            self.apply_tilt_meter_calibration_parameters
+        )
+        self.tilt_meter_cal_values: list[QtWidgets.QLabel] = [
+            self.opcua_x_filt_dt,  # type: ignore
+            self.opcua_y_filt_dt,  # type: ignore
+        ]
+        self.tilt_meter_cal_spinboxes: list[QtWidgets.QDoubleSpinBox | float] = [
+            0.0,  # tilt_temp_scale
+            self.spinbox_x_filt_dt,  # type: ignore
+            0.0,  # x_off
+            0.0,  # x_offTC
+            0.0,  # x_scale
+            0.0,  # x_scaleTC
+            0.0,  # x_zero
+            0.0,  # x_zeroTC
+            self.spinbox_y_filt_dt,  # type: ignore
+            0.0,  # y_off
+            0.0,  # y_offTC
+            0.0,  # y_scale
+            0.0,  # y_scaleTC
+            0.0,  # y_zero
+            0.0,  # y_zeroTC
+        ]
+        self.spinbox_x_filt_dt.setDecimals(self._DECIMAL_PLACES)  # type: ignore
+        self.spinbox_y_filt_dt.setDecimals(self._DECIMAL_PLACES)  # type: ignore
         # Point tab ambient temperature correction widgets
         self.button_temp_correction_toggle: ToggleSwitch
         self.button_temp_correction_toggle.clicked.connect(
@@ -1268,6 +1295,12 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                     opcua_type,
                 )
 
+        # Populate input boxes with current read values after connecting to server
+        if event["name"] == BAND_FOR_CORR:
+            if self._update_static_pointing_inputs_text:
+                self._update_static_pointing_inputs_text = False
+                self._set_static_pointing_inputs_text()
+
     def _update_opcua_boolean_toggle_switch_widget(
         self, buttons: list[QtWidgets.QPushButton], event: dict
     ) -> None:
@@ -1283,20 +1316,31 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         if event["value"] is None:
             return
 
-        button.setChecked(event["value"])
-
-        # Block or unblock tilt meter selection signal whether function is active
+        # Block or unblock tilt meter selection signal whether function is active and
+        # populate input boxes with current read values after connecting to server
+        if event["name"] == TILT_METER_TWO_ON:
+            # The tilt meter button is only toggled when tilt correction is active
+            if self.model.opcua_attributes[TILT_CORR_ACTIVE].value:
+                button.setChecked(event["value"])
+            self.update_tilt_meter_calibration_parameters_values()
+            return
         if event["name"] == TILT_CORR_ACTIVE:
-            self.button_tilt_correction_meter_toggle.blockSignals(not event["value"])
-        # Populate input boxes with current read values after connecting to server
-        elif event["name"] == STATIC_CORR_ACTIVE:
-            if self._update_static_pointing_inputs_text:
-                self._update_static_pointing_inputs_text = False
-                self._set_static_pointing_inputs_text()
+            if event["value"]:
+                self.button_tilt_correction_meter_toggle.clicked.connect(
+                    self.pointing_correction_setup_button_clicked
+                )
+            else:
+                try:
+                    self.button_tilt_correction_meter_toggle.clicked.disconnect(
+                        self.pointing_correction_setup_button_clicked
+                    )
+                except TypeError:
+                    pass
         elif event["name"] == TEMP_CORR_ACTIVE:
             if self._update_temp_correction_inputs_text:
                 self._update_temp_correction_inputs_text = False
                 self._set_temp_correction_inputs_text()
+        button.setChecked(event["value"])
 
     def _update_opcua_boolean_text_widget(
         self, widgets: list[QtWidgets.QLineEdit], event: dict
@@ -1349,6 +1393,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         This function is called when the server is successfully connected.
         """
         logger.debug("server connected event")
+        self._update_static_pointing_inputs_text = True
+        self._update_temp_correction_inputs_text = True
         self.label_conn_status.setText("Status: Subscribing to OPC-UA updates...")
         self.controller.subscribe_opcua_updates(list(self.opcua_widgets.keys()))
         self.label_conn_status.setText(
@@ -1366,14 +1412,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self._init_opcua_combo_widgets()
         if self._track_table_file_exist():
             self.button_load_track_table.setEnabled(True)
-        self._update_static_pointing_inputs_text = True
-        self._update_temp_correction_inputs_text = True
         self._initialise_error_warning_widgets()
         self.warning_status_show_only_warnings.setEnabled(True)
         self.error_status_show_only_errors.setEnabled(True)
         self.spinbox_file_track_additional_offset.setEnabled(
             not self.button_file_track_absolute_times.isChecked()
         )
+        self.update_tilt_meter_calibration_parameters_values()
 
     def server_disconnected_event(self):
         """Handle the server disconnected event."""
@@ -1701,6 +1746,21 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         elev = self.spinbox_offset_elev.value()
         self.controller.command_set_static_pointing_offsets(xelev, elev)
 
+    def apply_tilt_meter_calibration_parameters(self):
+        """Apply tilt meter calibration parameters slot function."""
+        tilt_meter = (
+            "TiltmeterOne"
+            if not self.button_tilt_correction_meter_toggle.isChecked()
+            else "TiltmeterTwo"
+        )
+        params = []
+        for spinbox in self.tilt_meter_cal_spinboxes:
+            params.append(spinbox if isinstance(spinbox, float) else spinbox.value())
+        self.controller.command_set_tilt_meter_calibration_parameters(
+            tilt_meter, params
+        )
+        self.update_tilt_meter_calibration_parameters_values()
+
     def apply_ambtemp_correction_parameters(self):
         """Apply ambient temperature correction parameters slot function."""
         params = []
@@ -1762,6 +1822,28 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 )
                 label.setToolTip(tooltip)
 
+    def update_tilt_meter_calibration_parameters_values(self) -> None:
+        """Update displayed tilt meter's calibration parameters values from server."""
+        meter = "Two" if self.button_tilt_correction_meter_toggle.isChecked() else "One"
+        for label in self.tilt_meter_cal_values:
+            attr_name = (
+                re.sub(r"\[[0-9,A-Z,a-z]+\]", f"{meter}", label.property("opcua_array"))
+                if label.property("opcua_array") is not None
+                else None
+            )
+            if attr_name in self.model.opcua_attributes:
+                attr_value = self.model.opcua_attributes[attr_name].value
+                label.setText(
+                    f"{attr_value:.{self._DECIMAL_PLACES}f}"
+                    if isinstance(attr_value, float)
+                    else str(attr_value)
+                )
+                tooltip = (
+                    f"<b>OPCUA param:</b> {attr_name}<br>"
+                    f"<b>Value:</b> {str(attr_value)}"
+                )
+                label.setToolTip(tooltip)
+
     def pointing_correction_setup_button_clicked(self):
         """Any pointing model toggle button clicked slot function."""
         tilt_correction = (
@@ -1791,11 +1873,10 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         # Static pointing band
         current_band = self.static_point_model_band.text()
         if current_band != "not read":
-            self.combo_static_point_model_band_input.setCurrentIndex(
-                self.model._scu.convert_enum_to_int(  # pylint: disable=protected-access
-                    "BandType", current_band
-                )
-            )
+            # pylint: disable=protected-access
+            band_index = self.model._scu.convert_enum_to_int("BandType", current_band)
+            self.combo_static_point_model_band_input.setCurrentIndex(band_index)
+            self.combo_static_point_model_band_display.setCurrentIndex(band_index)
         # Static pointing offsets
         try:
             self.spinbox_offset_xelev.setValue(float(self.opcua_offset_xelev.text()))
@@ -1804,13 +1885,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.spinbox_offset_xelev.setValue(0)
             self.spinbox_offset_elev.setValue(0)
         # Static pointing parameters
-        for spinbox, value in zip(
-            self.static_pointing_spinboxes, self.static_pointing_values
-        ):
-            try:
-                spinbox.setValue(float(value.text()))
-            except ValueError:
-                spinbox.setValue(0)
 
     def _set_temp_correction_inputs_text(self) -> None:
         """Set ambient temperature correction inputs' text to current read values."""
