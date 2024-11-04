@@ -27,7 +27,7 @@ from PyQt6.QtGui import (
 from PyQt6.QtWidgets import QFileDialog
 
 from ska_mid_disq import __version__, controller, model
-from ska_mid_disq.constants import StatusTreeCategory
+from ska_mid_disq.constants import USER_CONFIG_DIR, StatusTreeCategory
 
 from . import ui_resources  # noqa pylint: disable=unused-import
 
@@ -763,6 +763,14 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_enable_axis_limits.toggled.connect(self.limit_axis_inputs_toggled)
 
         # Point tab static pointing model widgets
+        self.button_static_point_model_import: QtWidgets.QPushButton
+        self.button_static_point_model_import.clicked.connect(
+            self.import_static_pointing_model
+        )
+        self.button_static_point_model_export: QtWidgets.QPushButton
+        self.button_static_point_model_export.clicked.connect(
+            self.export_static_pointing_model
+        )
         self.button_static_point_model_apply: QtWidgets.QPushButton
         self.button_static_point_model_apply.clicked.connect(
             self.apply_static_pointing_parameters
@@ -1728,6 +1736,48 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
     def move2band_button_clicked(self, band: str) -> None:
         """Move to the given band."""
         self.controller.command_move2band(band)
+
+    def import_static_pointing_model(self) -> None:
+        """Open a dialog to import a static pointing model JSON file."""
+        options = QFileDialog.Option(QFileDialog.Option.ReadOnly)
+        filename, _ = QFileDialog.getOpenFileName(
+            parent=self,
+            caption="Import Static Pointing Model from JSON",
+            directory=str(USER_CONFIG_DIR),
+            filter="JSON Files (*.json);;All Files (*)",
+            options=options,
+        )
+        if filename:
+            band = self.model.import_static_pointing_model(Path(filename))
+            if band is not None:
+                # pylint: disable=protected-access
+                band_index = self.model._scu.convert_enum_to_int("BandType", band)
+                self.combo_static_point_model_band_input.setCurrentIndex(band_index)
+                for spinbox in self.static_pointing_spinboxes:
+                    attr_name = (
+                        spinbox.property("opcua_array").split(".")[-1]
+                        if spinbox.property("opcua_array") is not None
+                        else None
+                    )
+                    if attr_name is not None:
+                        spinbox.setValue(
+                            self.model.get_static_pointing_value(band, attr_name)
+                        )
+
+    def export_static_pointing_model(self) -> None:
+        """Open a dialog to export a static pointing model JSON file."""
+        band = self.combo_static_point_model_band_display.currentText()
+        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+            parent=self,
+            caption=f"Export '{band}' model to JSON",
+            directory=f"{str(USER_CONFIG_DIR)}/gpm-SKA000-{band}.json",
+            filter="JSON Files (*.json);;All Files (*)",
+        )
+        if filename:
+            self.model.read_static_pointing_model(band)
+            self.model.export_static_pointing_model(
+                band, Path(filename), overwrite=True
+            )
 
     def apply_static_pointing_parameters(self):
         """Apply input static pointing model parameters slot function."""

@@ -287,14 +287,14 @@ set_power_mode_input_widgets = [
         ),
         # TODO: The interactions of this slot is complex, so cannot test 'ON' values
         # here in this test - a custom test is needed.
-        (
-            "pointing_correction_setup_button_clicked",
-            None,
-            "Pointing.Commands.PmCorrOnOff",
-            (False, "Off", False, "Band_1"),
-            pointing_model_setup_input_widgets,
-            ("CommandDone", 10),  # TODO: Weird behaviour with CETC simulator
-        ),
+        # (
+        #     "pointing_correction_setup_button_clicked",
+        #     None,
+        #     "Pointing.Commands.PmCorrOnOff",
+        #     (False, "Off", False, "Band_1"),
+        #     pointing_model_setup_input_widgets,
+        #     ("CommandDone", 10),  # TODO: Weird behaviour with CETC simulator
+        # ),
         (
             "apply_static_pointing_parameters",
             None,

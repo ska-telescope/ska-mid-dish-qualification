@@ -238,7 +238,7 @@ class StatusTreeHierarchy(QueuePollThread):
         return group, attr_name
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class Model(QObject):
     """
     A class representing a Model.
@@ -702,3 +702,64 @@ class Model(QObject):
             + self._get_attributes_startswith(MANAGEMENT_ERROR_STATUS_PREFIX)
         )
         return warning_attributes
+
+    # ---------------------
+    # Static pointing model
+    # ---------------------
+    def import_static_pointing_model(self, file_path: Path) -> str | None:
+        """
+        Import static pointing model parameters from a JSON file.
+
+        The static pointing model is only imported to a variable of the SCU instance,
+        and not written to a (possibly) connected DSC.
+
+        :param file_path: Path to the JSON file to load.
+        :return: The specified band the model is for, or `None` if the import failed.
+        """
+        return self._scu.import_static_pointing_model(file_path)
+
+    def export_static_pointing_model(
+        self,
+        band: str,
+        file_path: Path | None = None,
+        antenna: str | None = None,
+        overwrite: bool = False,
+    ) -> None:
+        """
+        Export current static pointing model parameters of specified band to JSON file.
+
+        :param band: Band name to export.
+        :param file_path: Optional path and name of JSON file to write.
+        :param antenna: Optional antenna name to store in static pointing model JSON.
+        :param overwrite: Whether to overwrite an existing file. Default is False.
+        """
+        self._scu.export_static_pointing_model(band, file_path, antenna, overwrite)
+
+    def get_static_pointing_value(self, band: str, name: str) -> float | None:
+        """
+        Get the named static pointing parameters value in the band's model.
+
+        :param band: Band name.
+        :param name: Name of the parameter to set.
+        :returns:
+            - Value of parameter if set.
+            - Default 0.0 if not set.
+            - NaN if invalid parameter name given.
+            - None if band's model is not setup.
+        """
+        return self._scu.get_static_pointing_value(band, name)
+
+    def read_static_pointing_model(
+        self, band: str, antenna: str = "SKAxxx"
+    ) -> dict[str, float]:
+        """
+        Read static pointing model parameters for a specified band from connected DSC.
+
+        The read parameters is stored in SCU's static pointing model dict so changes can
+        be made and setup and/or exported again.
+
+        :param band: Band's parameters to read from DSC.
+        :param antenna: Target antenna name to store in static pointing model JSON dict.
+        :return: A dict of the read static pointing parameters.
+        """
+        return self._scu.read_static_pointing_model(band, antenna)

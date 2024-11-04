@@ -4,10 +4,11 @@ from enum import Enum, IntEnum
 from pathlib import Path
 from typing import Final
 
-from platformdirs import user_cache_dir
+from platformdirs import user_cache_dir, user_config_dir
 
 # Constants
 USER_CACHE_DIR: Final = Path(user_cache_dir(appauthor="SKAO", appname="disq"))
+USER_CONFIG_DIR: Final = Path(user_config_dir(appauthor="SKAO", appname="disq"))
 SUBSCRIPTION_RATE_MS: Final = 100
 CURRENT_POINTING_NODE = "Pointing.Status.CurrentPointing"
 
