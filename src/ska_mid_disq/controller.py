@@ -340,7 +340,7 @@ class Controller(QObject):
         :param params: list of parameter values to apply
         :return: A tuple containing the result code and result message
         """
-        # TODO: Serial number of tilt meter (2nd arg?
+        # TODO: Serial number of tilt meter (2nd arg?)
         return self._issue_command(Command.TILT_CAL_SETUP, tilt_meter, "", *params)
 
     def command_set_ambtemp_correction_parameters(

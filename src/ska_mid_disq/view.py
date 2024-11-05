@@ -862,7 +862,11 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.opcua_x_filt_dt,  # type: ignore
             self.opcua_y_filt_dt,  # type: ignore
         ]
-        self.tilt_meter_cal_spinboxes: list[QtWidgets.QDoubleSpinBox | float] = [
+        self.tilt_meter_cal_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
+            self.spinbox_x_filt_dt,  # type: ignore
+            self.spinbox_y_filt_dt,  # type: ignore
+        ]
+        self.tilt_meter_cal_inputs: list[QtWidgets.QDoubleSpinBox | float] = [
             0.0,  # tilt_temp_scale
             self.spinbox_x_filt_dt,  # type: ignore
             0.0,  # x_off
@@ -1763,6 +1767,11 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                         spinbox.setValue(
                             self.model.get_static_pointing_value(band, attr_name)
                         )
+                self.controller.emit_ui_status_message(
+                    "INFO",
+                    f"Successfully imported static pointing model for '{band}' from "
+                    f"'{filename}'",
+                )
 
     def export_static_pointing_model(self) -> None:
         """Open a dialog to export a static pointing model JSON file."""
@@ -1774,10 +1783,21 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             filter="JSON Files (*.json);;All Files (*)",
         )
         if filename:
-            self.model.read_static_pointing_model(band)
-            self.model.export_static_pointing_model(
-                band, Path(filename), overwrite=True
-            )
+            try:
+                self.model.read_static_pointing_model(band)
+                self.model.export_static_pointing_model(
+                    band, Path(filename), overwrite=True
+                )
+                self.controller.emit_ui_status_message(
+                    "INFO",
+                    f"Successfully exported static pointing model for '{band}' to "
+                    f"'{filename}'",
+                )
+            except TypeError as e:
+                self.controller.emit_ui_status_message(
+                    "ERROR",
+                    f"Export of static pointing model for '{band}' failed: {e}",
+                )
 
     def apply_static_pointing_parameters(self):
         """Apply input static pointing model parameters slot function."""
@@ -1804,8 +1824,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             else "TiltmeterTwo"
         )
         params = []
-        for spinbox in self.tilt_meter_cal_spinboxes:
-            params.append(spinbox if isinstance(spinbox, float) else spinbox.value())
+        for var in self.tilt_meter_cal_inputs:
+            params.append(var if isinstance(var, float) else var.value())
         self.controller.command_set_tilt_meter_calibration_parameters(
             tilt_meter, params
         )
@@ -1875,7 +1895,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
     def update_tilt_meter_calibration_parameters_values(self) -> None:
         """Update displayed tilt meter's calibration parameters values from server."""
         meter = "Two" if self.button_tilt_correction_meter_toggle.isChecked() else "One"
-        for label in self.tilt_meter_cal_values:
+        for i, label in enumerate(self.tilt_meter_cal_values):
             attr_name = (
                 re.sub(r"\[[0-9,A-Z,a-z]+\]", f"{meter}", label.property("opcua_array"))
                 if label.property("opcua_array") is not None
@@ -1893,6 +1913,14 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                     f"<b>Value:</b> {str(attr_value)}"
                 )
                 label.setToolTip(tooltip)
+                spinbox = self.tilt_meter_cal_spinboxes[i]
+                if attr_value is not None:
+                    spinbox.setValue(attr_value)
+                spinbox.setToolTip(
+                    f"<b>OPCUA param:</b> {attr_name}<br>"
+                    f"<b>Maximum:</b> {spinbox.maximum()}<br>"
+                    f"<b>Minimum:</b> {spinbox.minimum()}"
+                )
 
     def pointing_correction_setup_button_clicked(self):
         """Any pointing model toggle button clicked slot function."""
@@ -2104,11 +2132,11 @@ class ToggleSwitch(QtWidgets.QPushButton):
         center = self.rect().center()
         painter = QPainter(self)
         palette = super().palette()
-        background_color = palette.color(QPalette.ColorRole.Window)
+        button_color = palette.color(QPalette.ColorRole.Window)
         if self.isEnabled() and self.change_color:
-            button_color = QColor("green") if self.isChecked() else QColor("red")
+            background_color = QColor("green") if self.isChecked() else QColor("red")
         else:
-            button_color = background_color
+            background_color = button_color
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         painter.translate(center)
         painter.setBrush(background_color)
