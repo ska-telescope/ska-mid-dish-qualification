@@ -40,6 +40,7 @@ WOM-510:
     - WOM-445: Completely reworked and fixed the point tab's functionality.
     - WOM-474: Moved server connection into pop-up window. Added 'Control' and 'Help' menus with 'About' window, and various GUI display/layout improvements.
     - WOM-476: Add track status tr_TimeRemaining and OnSourceDev to track tab
+    - WOM-424 Update dependencies. Limit Python version to 3.10 and 3.11. Replace mock test server wait with event.
 - Bug fixes:
     - WOM-235: Fixed track table get details string list index out of range.
     - WOM-428: Various small bugs in GUI and other GUI improvements.

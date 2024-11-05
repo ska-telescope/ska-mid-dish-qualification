@@ -2258,8 +2258,7 @@ astroid = ">=3.3.4,<=3.4.0-dev0"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
 dill = [
     {version = ">=0.2", markers = "python_version < \"3.11\""},
-    {version = ">=0.3.7", markers = "python_version >= \"3.12\""},
-    {version = ">=0.3.6", markers = "python_version >= \"3.11\" and python_version < \"3.12\""},
+    {version = ">=0.3.6", markers = "python_version >= \"3.11\""},
 ]
 isort = ">=4.2.5,<5.13.0 || >5.13.0,<6"
 mccabe = ">=0.6,<0.8"
@@ -3439,5 +3438,5 @@ reference = "ska"
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.10"
-content-hash = "b2c1b3bb5e540c94c40dd49f4b542a520b7253f4f7af460bc19a7ae27959c510"
+python-versions = ">=3.10, <3.12"
+content-hash = "3e8f3ddd19209a5c6b5c08fa6b5a0393cdf93dce51afad752e1955ca5e20cf29"

@@ -28,7 +28,6 @@ readme = "README.md"
 [project.optional-dependencies]
 dev = [
     "pyqt6-tools",
-    "PySide6",
     "pytest",
     "pytest-qt",
     "pytest-cov",
@@ -116,7 +115,6 @@ ska-mid-dish-steering-control = "^0.1.1"
 # ska-mid-dish-steering-control = { git = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git", branch = "main" }
 
 [tool.poetry.group.dev.dependencies]
-PySide6 = "^6.8.0"
 pyqt6-tools = "^6.4.2"
 pytest = "^8.1.1"
 pytest-qt = "^4.4.0"

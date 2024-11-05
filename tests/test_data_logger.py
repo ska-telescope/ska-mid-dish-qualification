@@ -14,7 +14,6 @@ import multiprocessing
 import os
 import random
 import subprocess
-import sys
 import time
 from datetime import datetime, timedelta, timezone
 from queue import Queue
