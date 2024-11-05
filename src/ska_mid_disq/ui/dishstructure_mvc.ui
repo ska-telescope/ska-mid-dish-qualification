@@ -3461,7 +3461,7 @@
             </widget>
            </item>
            <item row="2" column="3">
-            <widget class="QDoubleSpinBox" name="spinbox_slew_only_azimuth_position">
+            <widget class="LimitedDisplaySpinBox" name="spinbox_slew_only_azimuth_position">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3472,7 +3472,7 @@
               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <property name="decimals">
-              <number>3</number>
+              <number>9</number>
              </property>
              <property name="minimum">
               <double>-271.000000000000000</double>
@@ -3492,7 +3492,7 @@
             </widget>
            </item>
            <item row="3" column="3">
-            <widget class="QDoubleSpinBox" name="spinbox_slew_only_azimuth_velocity">
+            <widget class="LimitedDisplaySpinBox" name="spinbox_slew_only_azimuth_velocity">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3503,7 +3503,7 @@
               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <property name="decimals">
-              <number>3</number>
+              <number>9</number>
              </property>
              <property name="minimum">
               <double>0.000000000000000</double>
@@ -3647,7 +3647,7 @@
             </widget>
            </item>
            <item row="1" column="3">
-            <widget class="QDoubleSpinBox" name="spinbox_slew_only_elevation_position">
+            <widget class="LimitedDisplaySpinBox" name="spinbox_slew_only_elevation_position">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3658,7 +3658,7 @@
               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <property name="decimals">
-              <number>3</number>
+              <number>9</number>
              </property>
              <property name="minimum">
               <double>14.800000000000001</double>
@@ -3678,7 +3678,7 @@
             </widget>
            </item>
            <item row="2" column="3">
-            <widget class="QDoubleSpinBox" name="spinbox_slew_only_elevation_velocity">
+            <widget class="LimitedDisplaySpinBox" name="spinbox_slew_only_elevation_velocity">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3689,7 +3689,7 @@
               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <property name="decimals">
-              <number>3</number>
+              <number>9</number>
              </property>
              <property name="minimum">
               <double>0.000000000000000</double>
@@ -3833,7 +3833,7 @@
             </widget>
            </item>
            <item row="1" column="3">
-            <widget class="QDoubleSpinBox" name="spinbox_slew_only_indexer_position">
+            <widget class="LimitedDisplaySpinBox" name="spinbox_slew_only_indexer_position">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3844,7 +3844,7 @@
               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <property name="decimals">
-              <number>3</number>
+              <number>9</number>
              </property>
              <property name="minimum">
               <double>-106.000000000000000</double>
@@ -3864,7 +3864,7 @@
             </widget>
            </item>
            <item row="2" column="3">
-            <widget class="QDoubleSpinBox" name="spinbox_slew_only_indexer_velocity">
+            <widget class="LimitedDisplaySpinBox" name="spinbox_slew_only_indexer_velocity">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3875,7 +3875,7 @@
               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <property name="decimals">
-              <number>3</number>
+              <number>9</number>
              </property>
              <property name="minimum">
               <double>0.000000000000000</double>
@@ -4129,12 +4129,12 @@
               </widget>
              </item>
              <item row="19" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_hece4">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_hece4">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4154,12 +4154,12 @@
               </widget>
              </item>
              <item row="5" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ia">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_ia">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4180,6 +4180,18 @@
              </item>
              <item row="5" column="1">
               <widget class="QLabel" name="opcua_ia">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::Shape::Panel</enum>
                </property>
@@ -4264,12 +4276,12 @@
               </widget>
              </item>
              <item row="9" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_an0">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_an0">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4289,12 +4301,12 @@
               </widget>
              </item>
              <item row="10" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_aw">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_aw">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4324,12 +4336,12 @@
               </widget>
              </item>
              <item row="11" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_aw0">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_aw0">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4349,12 +4361,12 @@
               </widget>
              </item>
              <item row="20" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_hese4">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_hese4">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4425,12 +4437,12 @@
               </widget>
              </item>
              <item row="21" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_hece8">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_hece8">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4475,12 +4487,12 @@
               </widget>
              </item>
              <item row="22" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_hese8">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_hese8">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4575,12 +4587,12 @@
               </widget>
              </item>
              <item row="6" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ca">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_ca">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4602,14 +4614,14 @@
              <item row="25" column="0">
               <widget class="QPushButton" name="button_static_point_model_import">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>60</width>
                  <height>22</height>
                 </size>
                </property>
@@ -4625,12 +4637,12 @@
               </widget>
              </item>
              <item row="13" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_aces">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_aces">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4669,12 +4681,12 @@
               </widget>
              </item>
              <item row="16" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ie">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_ie">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4704,12 +4716,12 @@
               </widget>
              </item>
              <item row="14" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_aba">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_aba">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4764,12 +4776,12 @@
               </widget>
              </item>
              <item row="17" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ecec">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_ecec">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -4849,12 +4861,12 @@
               </widget>
              </item>
              <item row="12" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_acec">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_acec">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -5078,12 +5090,12 @@
               </widget>
              </item>
              <item row="8" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_an">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_an">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -5103,12 +5115,12 @@
               </widget>
              </item>
              <item row="15" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_abphi">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_abphi">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>0.000000000000000</double>
@@ -5243,12 +5255,12 @@
               </widget>
              </item>
              <item row="7" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_npae">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_npae">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -5325,12 +5337,12 @@
               </widget>
              </item>
              <item row="18" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_eces">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_eces">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -5443,10 +5455,16 @@
              <item row="0" column="0">
               <widget class="QLabel" name="label_42">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
                </property>
                <property name="text">
                 <string>Elev [&quot;]:</string>
@@ -5459,10 +5477,16 @@
              <item row="0" column="1">
               <widget class="QLabel" name="opcua_offset_elev">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
                </property>
                <property name="frameShape">
                 <enum>QFrame::Shape::Panel</enum>
@@ -5523,7 +5547,7 @@
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_offset_xelev">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_offset_xelev">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
@@ -5540,7 +5564,7 @@
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -5557,7 +5581,7 @@
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_offset_elev">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_offset_elev">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
@@ -5574,7 +5598,7 @@
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-2000.000000000000000</double>
@@ -5866,6 +5890,18 @@
              </item>
              <item row="10" column="0">
               <widget class="QLabel" name="label_121">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="text">
                 <string>X-filt dt [s]:</string>
                </property>
@@ -6039,7 +6075,7 @@
               </widget>
              </item>
              <item row="10" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_x_filt_dt">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_x_filt_dt">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
@@ -6056,7 +6092,7 @@
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-1000.000000000000000</double>
@@ -6076,7 +6112,7 @@
               </widget>
              </item>
              <item row="11" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_y_filt_dt">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_y_filt_dt">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
@@ -6093,7 +6129,7 @@
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-1000.000000000000000</double>
@@ -6114,6 +6150,18 @@
              </item>
              <item row="10" column="1">
               <widget class="QLabel" name="opcua_x_filt_dt">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::Shape::Panel</enum>
                </property>
@@ -6187,12 +6235,12 @@
               <number>2</number>
              </property>
              <item row="9" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam3">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_ambtempparam3">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-1000.000000000000000</double>
@@ -6229,12 +6277,12 @@
               </widget>
              </item>
              <item row="10" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam4">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_ambtempparam4">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-1000.000000000000000</double>
@@ -6280,12 +6328,12 @@
               </widget>
              </item>
              <item row="8" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam2">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_ambtempparam2">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-1000.000000000000000</double>
@@ -6326,6 +6374,18 @@
              </item>
              <item row="6" column="1">
               <widget class="QLabel" name="opcua_ambtempfiltdt">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::Shape::Panel</enum>
                </property>
@@ -6424,8 +6484,20 @@
              </item>
              <item row="6" column="0">
               <widget class="QLabel" name="label_85">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="text">
-                <string>Filter dt [s]:</string>
+                <string>Filt dt [s]:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -6528,12 +6600,12 @@
               </widget>
              </item>
              <item row="13" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam6">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_ambtempparam6">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-1000.000000000000000</double>
@@ -6550,12 +6622,12 @@
               </widget>
              </item>
              <item row="6" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ambtempfiltdt">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_ambtempfiltdt">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-1000.000000000000000</double>
@@ -6620,12 +6692,12 @@
               </widget>
              </item>
              <item row="7" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam1">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_ambtempparam1">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-1000.000000000000000</double>
@@ -6709,12 +6781,12 @@
               </widget>
              </item>
              <item row="12" column="2">
-              <widget class="QDoubleSpinBox" name="spinbox_ambtempparam5">
+              <widget class="LimitedDisplaySpinBox" name="spinbox_ambtempparam5">
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
                <property name="decimals">
-                <number>1</number>
+                <number>9</number>
                </property>
                <property name="minimum">
                 <double>-1000.000000000000000</double>
@@ -6940,7 +7012,7 @@
               </size>
              </property>
              <property name="decimals">
-              <number>1</number>
+              <number>6</number>
              </property>
              <property name="value">
               <double>5.000000000000000</double>
@@ -9552,6 +9624,11 @@
   <customwidget>
    <class>ToggleSwitch</class>
    <extends>QPushButton</extends>
+   <header>ska_mid_disq.view</header>
+  </customwidget>
+  <customwidget>
+   <class>LimitedDisplaySpinBox</class>
+   <extends>QDoubleSpinBox</extends>
    <header>ska_mid_disq.view</header>
   </customwidget>
  </customwidgets>

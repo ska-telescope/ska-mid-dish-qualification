@@ -51,6 +51,7 @@ FI_POS_MIN: Final = -106.0
 FI_VEL_MAX: Final = 12.0
 
 SKAO_ICON_PATH: Final = ":/icons/skao.ico"
+DISPLAY_DECIMAL_PLACES: Final = 5
 
 
 # pylint: disable=too-many-instance-attributes
@@ -532,7 +533,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
     :param disq_controller: The controller instance for the MainView.
     """
 
-    _DECIMAL_PLACES: Final = 4
     _LED_COLOURS: Final[dict[str, dict[bool | str, str]]] = {
         "red": {True: "rgb(255, 0, 0)", False: "rgb(60, 0, 0)"},
         "green": {True: "rgb(10, 250, 25)", False: "rgb(10, 60, 0)"},
@@ -696,8 +696,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
         self.spinbox_slew_only_elevation_position: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_elevation_velocity: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_elevation_position.setDecimals(self._DECIMAL_PLACES)
-        self.spinbox_slew_only_elevation_velocity.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_elevation_velocity.setToolTip(
             f"<b>Maximum:</b> {self.spinbox_slew_only_elevation_velocity.maximum()}"
         )
@@ -720,8 +718,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
         self.spinbox_slew_only_azimuth_position: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_azimuth_velocity: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_azimuth_position.setDecimals(self._DECIMAL_PLACES)
-        self.spinbox_slew_only_azimuth_velocity.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_azimuth_velocity.setToolTip(
             f"<b>Maximum:</b> {self.spinbox_slew_only_azimuth_velocity.maximum()}"
         )
@@ -744,8 +740,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
         self.spinbox_slew_only_indexer_position: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_indexer_velocity: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_indexer_position.setDecimals(self._DECIMAL_PLACES)
-        self.spinbox_slew_only_indexer_velocity.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_indexer_velocity.setToolTip(
             f"<b>Maximum:</b> {self.spinbox_slew_only_indexer_velocity.maximum()}"
         )
@@ -831,8 +825,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.spinbox_hece8,  # type: ignore
             self.spinbox_hese8,  # type: ignore
         ]
-        for spinbox in self.static_pointing_spinboxes:
-            spinbox.setDecimals(self._DECIMAL_PLACES)
         self.opcua_offset_xelev: QtWidgets.QLabel
         self.opcua_offset_elev: QtWidgets.QLabel
         self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
@@ -884,8 +876,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             "Pointing.TiltmeterParameters.[OneTwo].y_zero",
             "Pointing.TiltmeterParameters.[OneTwo].y_zeroTC",
         ]
-        self.spinbox_x_filt_dt.setDecimals(self._DECIMAL_PLACES)  # type: ignore
-        self.spinbox_y_filt_dt.setDecimals(self._DECIMAL_PLACES)  # type: ignore
         # Point tab ambient temperature correction widgets
         self.button_temp_correction_toggle: ToggleSwitch
         self.button_temp_correction_toggle.clicked.connect(
@@ -913,8 +903,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.spinbox_ambtempparam5,  # type: ignore
             self.spinbox_ambtempparam6,  # type: ignore
         ]
-        for spinbox in self.ambtemp_correction_spinboxes:
-            spinbox.setDecimals(self._DECIMAL_PLACES)
         self._update_temp_correction_inputs_text = False
         # Bands group widgets
         self.button_band1: QtWidgets.QPushButton
@@ -1239,7 +1227,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         """
         val = event["value"]
         if isinstance(val, float):
-            str_val = f"{val:.{self._DECIMAL_PLACES}f}"
+            str_val = f"{val:.{DISPLAY_DECIMAL_PLACES}f}"
         else:
             str_val = str(val)
         for widget in widgets:
@@ -1903,7 +1891,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             if attr_name in self.model.opcua_attributes:
                 attr_value = self.model.opcua_attributes[attr_name].value
                 label.setText(
-                    f"{attr_value:.{self._DECIMAL_PLACES}f}"
+                    f"{attr_value:.{DISPLAY_DECIMAL_PLACES}f}"
                     if isinstance(attr_value, float)
                     else str(attr_value)
                 )
@@ -1925,7 +1913,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             if attr_name in self.model.opcua_attributes:
                 attr_value = self.model.opcua_attributes[attr_name].value
                 label.setText(
-                    f"{attr_value:.{self._DECIMAL_PLACES}f}"
+                    f"{attr_value:.{DISPLAY_DECIMAL_PLACES}f}"
                     if isinstance(attr_value, float)
                     else str(attr_value)
                 )
@@ -2124,6 +2112,28 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         QDesktopServices.openUrl(
             QtCore.QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
         )
+
+
+class LimitedDisplaySpinBox(QtWidgets.QDoubleSpinBox):
+    """Custom double (float) spin box that only limits the displayed decimal points."""
+
+    def __init__(self, *args, decimals_to_display=DISPLAY_DECIMAL_PLACES, **kwargs):
+        """Init LimitedDisplaySpinBox."""
+        super().__init__(*args, **kwargs)
+        self.decimals_to_display = decimals_to_display
+        self.setSingleStep(10**-decimals_to_display)  # Set step to displayed precision
+
+    # pylint: disable=invalid-name,
+    def textFromValue(self, value):  # noqa: N802
+        """Display the value with limited decimal points."""
+        return f"{value:.{self.decimals_to_display}f}"
+
+    # pylint: disable=invalid-name,
+    def stepBy(self, steps):  # noqa: N802
+        """Override stepBy to round the step value to the displayed decimals."""
+        new_value = self.value() + steps * self.singleStep()
+        rounded_value = round(new_value, self.decimals_to_display)
+        self.setValue(rounded_value)
 
 
 class ToggleSwitch(QtWidgets.QPushButton):
