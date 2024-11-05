@@ -36,15 +36,6 @@ def wrap_sim(start_event):
 @pytest.fixture(scope="module", autouse=True)
 def ds_simulator_opcua_server_mock_fixture():
     """Start DSSimulatorOPCUAServer as separate process."""
-    if sys.version_info[0] == 3 and sys.version_info[1] == 12:
-        print(
-            "The ds_opcua_server_mock is failing within pytest for Python version "
-            "3.12. To run the tests in this file on 3.12 you must start the sim "
-            "separately with python3.12 /path/to/ds_opcua_server_mock.py. Hopefully "
-            "when the CI/CD pipelines use 3.12 a fix/workaround can be found."
-        )
-        yield
-        return
     start_event = multiprocessing.Event()
     simulator_process = multiprocessing.Process(target=wrap_sim, args=[start_event])
     simulator_process.start()
