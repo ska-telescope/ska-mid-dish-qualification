@@ -866,22 +866,23 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.spinbox_x_filt_dt,  # type: ignore
             self.spinbox_y_filt_dt,  # type: ignore
         ]
-        self.tilt_meter_cal_inputs: list[QtWidgets.QDoubleSpinBox | float] = [
-            0.0,  # tilt_temp_scale
+        self.tilt_meter_cal_inputs: list[QtWidgets.QDoubleSpinBox | str] = [
+            "Pointing.TiltmeterParameters.[OneTwo].Tiltmeter_serial_no",
+            "Pointing.TiltmeterParameters.[OneTwo].tilt_temp_scale",
             self.spinbox_x_filt_dt,  # type: ignore
-            0.0,  # x_off
-            0.0,  # x_offTC
-            0.0,  # x_scale
-            0.0,  # x_scaleTC
-            0.0,  # x_zero
-            0.0,  # x_zeroTC
+            "Pointing.TiltmeterParameters.[OneTwo].x_off",
+            "Pointing.TiltmeterParameters.[OneTwo].x_offTC",
+            "Pointing.TiltmeterParameters.[OneTwo].x_scale",
+            "Pointing.TiltmeterParameters.[OneTwo].x_scaleTC",
+            "Pointing.TiltmeterParameters.[OneTwo].x_zero",
+            "Pointing.TiltmeterParameters.[OneTwo].x_zeroTC",
             self.spinbox_y_filt_dt,  # type: ignore
-            0.0,  # y_off
-            0.0,  # y_offTC
-            0.0,  # y_scale
-            0.0,  # y_scaleTC
-            0.0,  # y_zero
-            0.0,  # y_zeroTC
+            "Pointing.TiltmeterParameters.[OneTwo].y_off",
+            "Pointing.TiltmeterParameters.[OneTwo].y_offTC",
+            "Pointing.TiltmeterParameters.[OneTwo].y_scale",
+            "Pointing.TiltmeterParameters.[OneTwo].y_scaleTC",
+            "Pointing.TiltmeterParameters.[OneTwo].y_zero",
+            "Pointing.TiltmeterParameters.[OneTwo].y_zeroTC",
         ]
         self.spinbox_x_filt_dt.setDecimals(self._DECIMAL_PLACES)  # type: ignore
         self.spinbox_y_filt_dt.setDecimals(self._DECIMAL_PLACES)  # type: ignore
@@ -1818,14 +1819,34 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
     def apply_tilt_meter_calibration_parameters(self):
         """Apply tilt meter calibration parameters slot function."""
+        params = []
+        for var in self.tilt_meter_cal_inputs:
+            if isinstance(var, str):
+                attr_name = re.sub(
+                    r"\[[0-9,A-Z,a-z]+\]",
+                    (
+                        "One"
+                        if not self.button_tilt_correction_meter_toggle.isChecked()
+                        else "Two"
+                    ),
+                    var,
+                )
+                if attr_name in self.model.opcua_attributes:
+                    params.append(self.model.opcua_attributes[attr_name].value)
+                else:
+                    self.controller.emit_ui_status_message(
+                        "ERROR",
+                        f"Cannot set tilt meter x/y-filter constants, as '{attr_name}' "
+                        "attribute not found on DSC!",
+                    )
+                    return
+            else:
+                params.append(var.value())
         tilt_meter = (
             "TiltmeterOne"
             if not self.button_tilt_correction_meter_toggle.isChecked()
             else "TiltmeterTwo"
         )
-        params = []
-        for var in self.tilt_meter_cal_inputs:
-            params.append(var if isinstance(var, float) else var.value())
         self.controller.command_set_tilt_meter_calibration_parameters(
             tilt_meter, params
         )
@@ -1953,8 +1974,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         if current_band != "not read":
             # pylint: disable=protected-access
             band_index = self.model._scu.convert_enum_to_int("BandType", current_band)
-            self.combo_static_point_model_band_input.setCurrentIndex(band_index)
-            self.combo_static_point_model_band_display.setCurrentIndex(band_index)
+            if band_index is not None:
+                self.combo_static_point_model_band_input.setCurrentIndex(band_index)
+                self.combo_static_point_model_band_display.setCurrentIndex(band_index)
         # Static pointing offsets
         try:
             self.spinbox_offset_xelev.setValue(float(self.opcua_offset_xelev.text()))

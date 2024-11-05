@@ -4918,7 +4918,7 @@
                 </size>
                </property>
                <property name="toolTip">
-                <string>Apply the input static pointing parameters for the selected band (write it to the DSC).</string>
+                <string>Apply the input static pointing parameters for the selected band (write it to the DSC).&lt;br&gt;Also updates the band for correction if it is not already set to the selected band.</string>
                </property>
                <property name="text">
                 <string>Apply</string>
