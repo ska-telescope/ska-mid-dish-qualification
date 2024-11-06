@@ -8,6 +8,7 @@ import sys
 from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QApplication
 
+from ska_mid_disq import __version__
 from ska_mid_disq.configuration import configure_logging
 from ska_mid_disq.controller import Controller
 from ska_mid_disq.model import Model
@@ -63,6 +64,7 @@ def main():
     timer.timeout.connect(lambda: None)
 
     main_view.show()
+    logger.info(f"Successfully initialised DiSQ GUI v{__version__}")
     sys.exit(app.exec())
 
 

@@ -1232,7 +1232,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         for widget in widgets:
             if isinstance(widget, (QtWidgets.QLineEdit, QtWidgets.QLabel)):
                 widget.setText(str_val)
-            elif isinstance(widget, QtWidgets.QDoubleSpinBox):
+            elif isinstance(widget, QtWidgets.QDoubleSpinBox) and val is not None:
                 widget.setValue(val)
 
     def _update_opcua_enum_widget(
