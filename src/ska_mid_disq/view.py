@@ -1226,7 +1226,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         """
         val = event["value"]
         if isinstance(val, float):
-            str_val = f"{val:.{DISPLAY_DECIMAL_PLACES}f}"
+            str_val = QtCore.QLocale().toString(val, "f", DISPLAY_DECIMAL_PLACES)
         else:
             str_val = str(val)
         for widget in widgets:
@@ -1885,7 +1885,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             if attr_name in self.model.opcua_attributes:
                 attr_value = self.model.opcua_attributes[attr_name].value
                 label.setText(
-                    f"{attr_value:.{DISPLAY_DECIMAL_PLACES}f}"
+                    QtCore.QLocale().toString(attr_value, "f", DISPLAY_DECIMAL_PLACES)
                     if isinstance(attr_value, float)
                     else str(attr_value)
                 )
@@ -1907,7 +1907,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             if attr_name in self.model.opcua_attributes:
                 attr_value = self.model.opcua_attributes[attr_name].value
                 label.setText(
-                    f"{attr_value:.{DISPLAY_DECIMAL_PLACES}f}"
+                    QtCore.QLocale().toString(attr_value, "f", DISPLAY_DECIMAL_PLACES)
                     if isinstance(attr_value, float)
                     else str(attr_value)
                 )
@@ -2120,7 +2120,7 @@ class LimitedDisplaySpinBox(QtWidgets.QDoubleSpinBox):
     # pylint: disable=invalid-name,
     def textFromValue(self, value):  # noqa: N802
         """Display the value with limited decimal points."""
-        return f"{value:.{self.decimals_to_display}f}"
+        return QtCore.QLocale().toString(value, "f", self.decimals_to_display)
 
     # pylint: disable=invalid-name,
     def stepBy(self, steps):  # noqa: N802
