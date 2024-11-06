@@ -3,7 +3,6 @@
 
 import json
 import logging
-import re
 from datetime import datetime, timezone
 from enum import Enum
 from functools import cached_property
@@ -11,7 +10,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Final
 
-import platformdirs
+from platformdirs import user_documents_dir
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import (
     QAction,
@@ -26,8 +25,8 @@ from PyQt6.QtGui import (
 )
 from PyQt6.QtWidgets import QFileDialog
 
-from ska_mid_disq import __version__, controller, model
-from ska_mid_disq.constants import USER_CONFIG_DIR, StatusTreeCategory
+from ska_mid_disq import ResultCode, __version__, controller, model
+from ska_mid_disq.constants import StatusTreeCategory
 
 from . import ui_resources  # noqa pylint: disable=unused-import
 
@@ -396,7 +395,7 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
         _fname, _ = QFileDialog.getSaveFileName(
             parent=self,
             caption="Save Recording Config File",
-            directory=platformdirs.user_documents_dir(),
+            directory=user_documents_dir(),
             filter="Recording Config Files (*.json);;All Files (*)",
         )
         if _fname:
@@ -414,7 +413,7 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(
             parent=self,
             caption="Load Recording Config File",
-            directory=platformdirs.user_documents_dir(),
+            directory=user_documents_dir(),
             filter="Recording Config Files (*.json);;All Files (*)",
         )
         if filename:
@@ -1484,7 +1483,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         filename, _ = QFileDialog.getOpenFileName(
             parent=self,
             caption="Open Track Table File",
-            directory=platformdirs.user_documents_dir(),
+            directory=user_documents_dir(),
             filter="Track Table Files (*.csv);;All Files (*)",
             options=options,
         )
@@ -1555,7 +1554,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         fname, _ = QtWidgets.QFileDialog.getSaveFileName(
             parent=self,
             caption="Select Recording File",
-            directory=platformdirs.user_documents_dir(),
+            directory=user_documents_dir(),
             filter="DataLogger File (*.hdf5 *.h5);;All Files (*)",
         )
         if fname:
@@ -1736,7 +1735,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         filename, _ = QFileDialog.getOpenFileName(
             parent=self,
             caption="Import Static Pointing Model from JSON",
-            directory=str(USER_CONFIG_DIR),
+            directory=user_documents_dir(),
             filter="JSON Files (*.json);;All Files (*)",
             options=options,
         )
@@ -1768,7 +1767,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
             parent=self,
             caption=f"Export '{band}' model to JSON",
-            directory=f"{str(USER_CONFIG_DIR)}/gpm-SKA000-{band}.json",
+            directory=f"{user_documents_dir()}/gpm-SKA000-{band}.json",
             filter="JSON Files (*.json);;All Files (*)",
         )
         if filename:
@@ -1810,14 +1809,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         params = []
         for var in self.tilt_meter_cal_inputs:
             if isinstance(var, str):
-                attr_name = re.sub(
-                    r"\[[0-9,A-Z,a-z]+\]",
+                attr_name = var.replace(
+                    "[OneTwo]",
                     (
                         "One"
                         if not self.button_tilt_correction_meter_toggle.isChecked()
                         else "Two"
                     ),
-                    var,
                 )
                 if attr_name in self.model.opcua_attributes:
                     params.append(self.model.opcua_attributes[attr_name].value)
@@ -1861,9 +1859,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         band = self.combo_static_point_model_band_input.currentIndex()
         for spinbox in self.static_pointing_spinboxes:
             attr_name = (
-                re.sub(
-                    r"\[[0-9,A-Z,a-z]+\]", f"[{band}]", spinbox.property("opcua_array")
-                )
+                spinbox.property("opcua_array").replace("[x]", f"[{band}]")
                 if spinbox.property("opcua_array") is not None
                 else None
             )
@@ -1882,9 +1878,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         band = self.combo_static_point_model_band_display.currentIndex()
         for label in self.static_pointing_values:
             attr_name = (
-                re.sub(
-                    r"\[[0-9,A-Z,a-z]+\]", f"[{band}]", label.property("opcua_array")
-                )
+                label.property("opcua_array").replace("[x]", f"[{band}]")
                 if label.property("opcua_array") is not None
                 else None
             )
@@ -1906,7 +1900,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         meter = "Two" if self.button_tilt_correction_meter_toggle.isChecked() else "One"
         for i, label in enumerate(self.tilt_meter_cal_values):
             attr_name = (
-                re.sub(r"\[[0-9,A-Z,a-z]+\]", f"{meter}", label.property("opcua_array"))
+                label.property("opcua_array").replace("[x]", f"{meter}")
                 if label.property("opcua_array") is not None
                 else None
             )
@@ -1943,14 +1937,14 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             )
         )
         # Send command and check result
-        _, result_msg = self.controller.command_config_pointing_model_corrections(
+        result_code, _ = self.controller.command_config_pointing_model_corrections(
             self.button_static_point_model_toggle.isChecked(),
             tilt_correction,
             self.button_temp_correction_toggle.isChecked(),
             self.combo_static_point_model_band_input.currentText(),
         )
         # If command did not succeed, toggle triggering button back to prev state
-        if result_msg != "CommandDone":
+        if result_code not in [ResultCode.COMMAND_ACTIVATED, ResultCode.COMMAND_DONE]:
             sender = self.sender()
             if isinstance(sender, ToggleSwitch):
                 sender.toggle()

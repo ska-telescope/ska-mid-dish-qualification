@@ -4629,7 +4629,7 @@
                 <string>Import static pointing model parameters for a band from a JSON file.&lt;br&gt;The parameters are NOT applied. Only the input boxes are populated from the file.</string>
                </property>
                <property name="text">
-                <string>Import</string>
+                <string>Import...</string>
                </property>
                <property name="opcua" stdset="0">
                 <string/>
@@ -5202,7 +5202,7 @@
                 <string>Export the currently displayed band's static pointing model to a validated JSON file.</string>
                </property>
                <property name="text">
-                <string>Export</string>
+                <string>Export...</string>
                </property>
                <property name="opcua" stdset="0">
                 <string/>
