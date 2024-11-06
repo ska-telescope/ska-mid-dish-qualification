@@ -10,7 +10,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Final
 
-import platformdirs
+from platformdirs import user_documents_dir
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import (
     QAction,
@@ -18,12 +18,14 @@ from PyQt6.QtGui import (
     QColor,
     QDesktopServices,
     QIcon,
+    QPainter,
     QPalette,
+    QPen,
     QPixmap,
 )
 from PyQt6.QtWidgets import QFileDialog
 
-from ska_mid_disq import __version__, controller, model
+from ska_mid_disq import ResultCode, __version__, controller, model
 from ska_mid_disq.constants import StatusTreeCategory
 
 from . import ui_resources  # noqa pylint: disable=unused-import
@@ -32,7 +34,8 @@ logger = logging.getLogger("gui.view")
 
 # Constant definitions of attribute names on the OPC-UA server
 TILT_CORR_ACTIVE: Final = "Pointing.Status.TiltCorrActive"
-STATIC_CORR_ACTIVE: Final = "Pointing.Status.StaticCorrActive"
+TILT_METER_TWO_ON: Final = "Pointing.Status.TiltTwo_On"
+BAND_FOR_CORR: Final = "Pointing.Status.BandForCorr"
 TEMP_CORR_ACTIVE: Final = "Pointing.Status.TempCorrActive"
 
 # Axis limits defined in ICD
@@ -47,6 +50,7 @@ FI_POS_MIN: Final = -106.0
 FI_VEL_MAX: Final = 12.0
 
 SKAO_ICON_PATH: Final = ":/icons/skao.ico"
+DISPLAY_DECIMAL_PLACES: Final = 5
 
 
 # pylint: disable=too-many-instance-attributes
@@ -391,7 +395,7 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
         _fname, _ = QFileDialog.getSaveFileName(
             parent=self,
             caption="Save Recording Config File",
-            directory=platformdirs.user_documents_dir(),
+            directory=user_documents_dir(),
             filter="Recording Config Files (*.json);;All Files (*)",
         )
         if _fname:
@@ -409,7 +413,7 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(
             parent=self,
             caption="Load Recording Config File",
-            directory=platformdirs.user_documents_dir(),
+            directory=user_documents_dir(),
             filter="Recording Config Files (*.json);;All Files (*)",
         )
         if filename:
@@ -528,7 +532,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
     :param disq_controller: The controller instance for the MainView.
     """
 
-    _DECIMAL_PLACES: Final = 5
     _LED_COLOURS: Final[dict[str, dict[bool | str, str]]] = {
         "red": {True: "rgb(255, 0, 0)", False: "rgb(60, 0, 0)"},
         "green": {True: "rgb(10, 250, 25)", False: "rgb(10, 60, 0)"},
@@ -692,8 +695,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
         self.spinbox_slew_only_elevation_position: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_elevation_velocity: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_elevation_position.setDecimals(self._DECIMAL_PLACES)
-        self.spinbox_slew_only_elevation_velocity.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_elevation_velocity.setToolTip(
             f"<b>Maximum:</b> {self.spinbox_slew_only_elevation_velocity.maximum()}"
         )
@@ -716,8 +717,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
         self.spinbox_slew_only_azimuth_position: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_azimuth_velocity: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_azimuth_position.setDecimals(self._DECIMAL_PLACES)
-        self.spinbox_slew_only_azimuth_velocity.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_azimuth_velocity.setToolTip(
             f"<b>Maximum:</b> {self.spinbox_slew_only_azimuth_velocity.maximum()}"
         )
@@ -740,8 +739,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
         self.spinbox_slew_only_indexer_position: QtWidgets.QDoubleSpinBox
         self.spinbox_slew_only_indexer_velocity: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_indexer_position.setDecimals(self._DECIMAL_PLACES)
-        self.spinbox_slew_only_indexer_velocity.setDecimals(self._DECIMAL_PLACES)
         self.spinbox_slew_only_indexer_velocity.setToolTip(
             f"<b>Maximum:</b> {self.spinbox_slew_only_indexer_velocity.maximum()}"
         )
@@ -759,25 +756,31 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_enable_axis_limits.toggled.connect(self.limit_axis_inputs_toggled)
 
         # Point tab static pointing model widgets
-        self.button_static_point_model_off: QtWidgets.QRadioButton
-        self.button_static_point_model_off.setChecked(True)
-        self.button_static_point_model_on: QtWidgets.QRadioButton
-        self.button_group_static_point_model = QtWidgets.QButtonGroup()
-        self.button_group_static_point_model.buttonClicked.connect(
-            self.pointing_model_button_clicked
+        self.button_static_point_model_import: QtWidgets.QPushButton
+        self.button_static_point_model_import.clicked.connect(
+            self.import_static_pointing_model
         )
-        self.static_point_model_checked_prev: int = 0
-        self.button_group_static_point_model.addButton(
-            self.button_static_point_model_off, 0
+        self.button_static_point_model_export: QtWidgets.QPushButton
+        self.button_static_point_model_export.clicked.connect(
+            self.export_static_pointing_model
         )
-        self.button_group_static_point_model.addButton(
-            self.button_static_point_model_on, 1
+        self.button_static_point_model_apply: QtWidgets.QPushButton
+        self.button_static_point_model_apply.clicked.connect(
+            self.apply_static_pointing_parameters
+        )
+        self.button_static_point_model_toggle: ToggleSwitch
+        self.button_static_point_model_toggle.clicked.connect(
+            self.pointing_correction_setup_button_clicked
         )
         self.static_point_model_band: QtWidgets.QLabel
-        self.combo_static_point_model_band: QtWidgets.QComboBox
         self.static_point_model_band_index_prev: int = 0
-        self.combo_static_point_model_band.currentTextChanged.connect(
-            self.pointing_model_band_selected
+        self.combo_static_point_model_band_input: QtWidgets.QComboBox
+        self.combo_static_point_model_band_input.currentTextChanged.connect(
+            self.pointing_model_band_selected_for_input
+        )
+        self.combo_static_point_model_band_display: QtWidgets.QComboBox
+        self.combo_static_point_model_band_display.currentTextChanged.connect(
+            self.update_static_pointing_parameters_values
         )
         # NB: The order of the following two lists MUST match the order of the
         # Pointing.StaticPmSetup command's arguments
@@ -821,59 +824,66 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.spinbox_hece8,  # type: ignore
             self.spinbox_hese8,  # type: ignore
         ]
-        for spinbox in self.static_pointing_spinboxes:
-            spinbox.editingFinished.connect(self.static_pointing_parameter_changed)
-            spinbox.blockSignals(True)
         self.opcua_offset_xelev: QtWidgets.QLabel
         self.opcua_offset_elev: QtWidgets.QLabel
         self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
         self.spinbox_offset_elev: QtWidgets.QDoubleSpinBox
-        self.spinbox_offset_xelev.editingFinished.connect(
-            self.static_pointing_offset_changed
+        self.button_static_offset_apply: QtWidgets.QPushButton
+        self.button_static_offset_apply.clicked.connect(
+            self.apply_static_pointing_offsets
         )
-        self.spinbox_offset_elev.editingFinished.connect(
-            self.static_pointing_offset_changed
-        )
-        self.spinbox_offset_xelev.blockSignals(True)
-        self.spinbox_offset_elev.blockSignals(True)
         self._update_static_pointing_inputs_text = False
         # Point tab tilt correction widgets
-        self.button_tilt_correction_off: QtWidgets.QRadioButton
-        self.button_tilt_correction_off.setChecked(True)
-        self.button_tilt_correction_on: QtWidgets.QRadioButton
-        self.button_tilt_correction_meter_1: QtWidgets.QRadioButton
-        self.button_tilt_correction_meter_1.setChecked(True)
-        self.button_tilt_correction_meter_2: QtWidgets.QRadioButton
-        self.button_group_tilt_correction = QtWidgets.QButtonGroup()
-        self.button_group_tilt_correction.buttonClicked.connect(
-            self.pointing_model_button_clicked
+        self.button_tilt_correction_toggle: ToggleSwitch
+        self.button_tilt_correction_toggle.clicked.connect(
+            self.pointing_correction_setup_button_clicked
         )
-        self.tilt_correction_checked_prev: int = 0
-        self.button_group_tilt_correction.addButton(self.button_tilt_correction_off, 0)
-        self.button_group_tilt_correction.addButton(self.button_tilt_correction_on, 1)
-        self.button_group_tilt_correction_meter = QtWidgets.QButtonGroup()
-        self.button_group_tilt_correction_meter.buttonClicked.connect(
-            self.pointing_model_button_clicked
+        self.button_tilt_correction_meter_toggle: ToggleSwitch
+        self.button_tilt_correction_meter_toggle.label_false = "TM1"
+        self.button_tilt_correction_meter_toggle.label_true = "TM2"
+        self.button_tilt_correction_meter_toggle.change_color = False
+        self.button_tilt_correction_meter_toggle.clicked.connect(
+            self.update_tilt_meter_calibration_parameters_values
         )
-        self.tilt_correction_meter_checked_prev: int = 1
-        self.button_group_tilt_correction_meter.blockSignals(True)
-        self.button_group_tilt_correction_meter.addButton(
-            self.button_tilt_correction_meter_1, 1
+        self.button_tilt_meter_cal_apply: QtWidgets.QPushButton
+        self.button_tilt_meter_cal_apply.clicked.connect(
+            self.apply_tilt_meter_calibration_parameters
         )
-        self.button_group_tilt_correction_meter.addButton(
-            self.button_tilt_correction_meter_2, 2
-        )
+        self.tilt_meter_cal_values: list[QtWidgets.QLabel] = [
+            self.opcua_x_filt_dt,  # type: ignore
+            self.opcua_y_filt_dt,  # type: ignore
+        ]
+        self.tilt_meter_cal_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
+            self.spinbox_x_filt_dt,  # type: ignore
+            self.spinbox_y_filt_dt,  # type: ignore
+        ]
+        self.tilt_meter_cal_inputs: list[QtWidgets.QDoubleSpinBox | str] = [
+            "Pointing.TiltmeterParameters.[OneTwo].Tiltmeter_serial_no",
+            "Pointing.TiltmeterParameters.[OneTwo].tilt_temp_scale",
+            self.spinbox_x_filt_dt,  # type: ignore
+            "Pointing.TiltmeterParameters.[OneTwo].x_off",
+            "Pointing.TiltmeterParameters.[OneTwo].x_offTC",
+            "Pointing.TiltmeterParameters.[OneTwo].x_scale",
+            "Pointing.TiltmeterParameters.[OneTwo].x_scaleTC",
+            "Pointing.TiltmeterParameters.[OneTwo].x_zero",
+            "Pointing.TiltmeterParameters.[OneTwo].x_zeroTC",
+            self.spinbox_y_filt_dt,  # type: ignore
+            "Pointing.TiltmeterParameters.[OneTwo].y_off",
+            "Pointing.TiltmeterParameters.[OneTwo].y_offTC",
+            "Pointing.TiltmeterParameters.[OneTwo].y_scale",
+            "Pointing.TiltmeterParameters.[OneTwo].y_scaleTC",
+            "Pointing.TiltmeterParameters.[OneTwo].y_zero",
+            "Pointing.TiltmeterParameters.[OneTwo].y_zeroTC",
+        ]
         # Point tab ambient temperature correction widgets
-        self.button_temp_correction_off: QtWidgets.QRadioButton
-        self.button_temp_correction_off.setChecked(True)
-        self.button_temp_correction_on: QtWidgets.QRadioButton
-        self.button_group_temp_correction = QtWidgets.QButtonGroup()
-        self.button_group_temp_correction.buttonClicked.connect(
-            self.pointing_model_button_clicked
+        self.button_temp_correction_toggle: ToggleSwitch
+        self.button_temp_correction_toggle.clicked.connect(
+            self.pointing_correction_setup_button_clicked
         )
-        self.temp_correction_checked_prev: int = 0
-        self.button_group_temp_correction.addButton(self.button_temp_correction_off, 0)
-        self.button_group_temp_correction.addButton(self.button_temp_correction_on, 1)
+        self.button_temp_correction_apply: QtWidgets.QPushButton
+        self.button_temp_correction_apply.clicked.connect(
+            self.apply_ambtemp_correction_parameters
+        )
         self.ambtemp_correction_values: list[QtWidgets.QLabel] = [
             self.opcua_ambtempfiltdt,  # type: ignore
             self.opcua_ambtempparam1,  # type: ignore
@@ -892,9 +902,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.spinbox_ambtempparam5,  # type: ignore
             self.spinbox_ambtempparam6,  # type: ignore
         ]
-        for spinbox in self.ambtemp_correction_spinboxes:
-            spinbox.editingFinished.connect(self.ambtemp_correction_parameter_changed)
-            spinbox.blockSignals(True)
         self._update_temp_correction_inputs_text = False
         # Bands group widgets
         self.button_band1: QtWidgets.QPushButton
@@ -1030,13 +1037,15 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         all_widgets = (
             self.findChildren(QtWidgets.QLineEdit)
             + self.findChildren(QtWidgets.QLabel)
-            + self.findChildren(QtWidgets.QRadioButton)
+            + self.findChildren(ToggleSwitch)
             + self.findChildren(QtWidgets.QDoubleSpinBox)
         )
         opcua_widget_updates: dict[str, tuple[list[QtWidgets.QWidget], Callable]] = {}
         for wgt in all_widgets:
             if "opcua" not in wgt.dynamicPropertyNames():
                 # Skip all the non-opcua widgets
+                continue
+            if "opcua_array" in wgt.dynamicPropertyNames():
                 continue
 
             opcua_parameter_name: str = wgt.property("opcua")
@@ -1047,9 +1056,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             if "opcua_type" in wgt.dynamicPropertyNames():
                 opcua_type = wgt.property("opcua_type")
                 if opcua_type == "Boolean":
-                    if isinstance(wgt, QtWidgets.QRadioButton):
+                    if isinstance(wgt, ToggleSwitch):
                         opcua_widget_update_func = (
-                            self._update_opcua_boolean_radio_button_widget
+                            self._update_opcua_boolean_toggle_switch_widget
                         )
                     else:
                         opcua_widget_update_func = (
@@ -1058,7 +1067,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 else:
                     opcua_widget_update_func = self._update_opcua_enum_widget
                 logger.debug("OPCUA widget type: %s", opcua_type)
-            # Return the list from the tuple or an empty list as default
+
+            # Return the list from the tuple or an empty list as default. This is for
+            # updating multiple widgets with the same opcua attribute's value
             widgets: list = opcua_widget_updates.get(opcua_parameter_name, [[]])[0]
             widgets.append(wgt)
             opcua_widget_updates.update(
@@ -1070,12 +1081,11 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         return opcua_widget_updates
 
     @cached_property
-    def all_opcua_widgets(self) -> list:
+    def all_opcua_widgets(self) -> list[QtWidgets.QWidget]:
         """
         Return a list of all OPC UA widgets.
 
-        This function finds all widgets that are subclasses of QtWidgets.QLineEdit,
-        QtWidgets.QPushButton, or QtWidgets.QComboBox and have a dynamic property that
+        This function finds all interactive widgets that have a dynamic property that
         starts with 'opcua'.
 
         This is a cached property, meaning the function will only run once and
@@ -1083,7 +1093,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
         :return: List of OPC UA widgets.
         """
-        all_widgets: list[QtCore.QObject] = self.findChildren(
+        all_widgets = self.findChildren(
             (
                 QtWidgets.QLineEdit,
                 QtWidgets.QPushButton,
@@ -1093,14 +1103,14 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 QtWidgets.QLabel,
             )
         )
-        opcua_widgets: list[QtCore.QObject] = []
+        all_opcua_widgets: list[QtWidgets.QWidget] = []
         for wgt in all_widgets:
             property_names: list[QtCore.QByteArray] = wgt.dynamicPropertyNames()
             for property_name in property_names:
                 if property_name.startsWith(QtCore.QByteArray("opcua".encode())):
-                    opcua_widgets.append(wgt)
+                    all_opcua_widgets.append(wgt)  # type: ignore
                     break
-        return opcua_widgets
+        return all_opcua_widgets
 
     def _enable_opcua_widgets(self):
         """
@@ -1201,7 +1211,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
     def _update_opcua_text_widget(
         self,
-        widgets: list[QtWidgets.QLineEdit | QtWidgets.QDoubleSpinBox],
+        widgets: list[
+            QtWidgets.QLineEdit | QtWidgets.QDoubleSpinBox | QtWidgets.QLabel
+        ],
         event: dict,
     ) -> None:
         """
@@ -1214,13 +1226,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         """
         val = event["value"]
         if isinstance(val, float):
-            str_val = f"{val:.{self._DECIMAL_PLACES}f}"
+            str_val = QtCore.QLocale().toString(val, "f", DISPLAY_DECIMAL_PLACES)
         else:
             str_val = str(val)
         for widget in widgets:
-            if isinstance(widget, QtWidgets.QLineEdit):
+            if isinstance(widget, (QtWidgets.QLineEdit, QtWidgets.QLabel)):
                 widget.setText(str_val)
-            elif isinstance(widget, QtWidgets.QDoubleSpinBox):
+            elif isinstance(widget, QtWidgets.QDoubleSpinBox) and val is not None:
                 widget.setValue(val)
 
     def _update_opcua_enum_widget(
@@ -1265,7 +1277,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             str_val = val.name
         finally:
             for widget in widgets:
-                widget.setText(str_val.replace("_", " "))  # For BandType
+                widget.setText(str_val)
 
         if opcua_type in self._LED_COLOURS:
             try:
@@ -1283,16 +1295,17 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                     opcua_type,
                 )
 
-    def _update_opcua_boolean_radio_button_widget(
-        self, buttons: list[QtWidgets.QRadioButton], event: dict
-    ) -> None:
-        """
-        Set radio button in exclusive group based on its boolean OPC-UA parameter.
+        # Populate input boxes with current read values after connecting to server
+        if event["name"] == BAND_FOR_CORR:
+            if self._update_static_pointing_inputs_text:
+                self._update_static_pointing_inputs_text = False
+                self._set_static_pointing_inputs_text()
 
-        :param button: Button that signal came from.
-        :param event: A dictionary containing event data.
-        """
-        # There should only be one radio button connected to an OPC-UA parameter.
+    def _update_opcua_boolean_toggle_switch_widget(
+        self, buttons: list[QtWidgets.QPushButton], event: dict
+    ) -> None:
+        """Set toggle switch based on its boolean OPC-UA parameter."""
+        # There should only be one toggle button connected to an OPC-UA parameter.
         button = buttons[0]
         logger.debug(
             "Widget: %s. Boolean OPCUA update: %s value=%s",
@@ -1300,32 +1313,34 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             event["name"],
             event["value"],
         )
-
         if event["value"] is None:
             return
 
-        # Update can come from either OFF or ON radio button, but need to explicitly
-        # set one of the two in a group with setChecked(True)
-        if event["value"]:
-            button = getattr(self, button.objectName().replace("_off", "_on"))
-        else:
-            button = getattr(self, button.objectName().replace("_on", "_off"))
-        button.setChecked(True)
-        # Block or unblock tilt meter selection signal whether function is active
+        # Block or unblock tilt meter selection signal whether function is active and
+        # populate input boxes with current read values after connecting to server
+        if event["name"] == TILT_METER_TWO_ON:
+            # The tilt meter button is only toggled when tilt correction is active
+            if self.model.opcua_attributes[TILT_CORR_ACTIVE].value:
+                button.setChecked(event["value"])
+            self.update_tilt_meter_calibration_parameters_values()
+            return
         if event["name"] == TILT_CORR_ACTIVE:
-            self.button_group_tilt_correction_meter.blockSignals(not event["value"])
-            self.tilt_correction_checked_prev = int(event["value"])
-        # Populate input boxes with current read values after connecting to server
-        elif event["name"] == STATIC_CORR_ACTIVE:
-            if self._update_static_pointing_inputs_text:
-                self._update_static_pointing_inputs_text = False
-                self._set_static_pointing_inputs_text(not event["value"])
-                self.static_point_model_checked_prev = int(event["value"])
+            if event["value"]:
+                self.button_tilt_correction_meter_toggle.clicked.connect(
+                    self.pointing_correction_setup_button_clicked
+                )
+            else:
+                try:
+                    self.button_tilt_correction_meter_toggle.clicked.disconnect(
+                        self.pointing_correction_setup_button_clicked
+                    )
+                except TypeError:
+                    pass
         elif event["name"] == TEMP_CORR_ACTIVE:
             if self._update_temp_correction_inputs_text:
                 self._update_temp_correction_inputs_text = False
-                self._set_temp_correction_inputs_text(not event["value"])
-                self.temp_correction_checked_prev = int(event["value"])
+                self._set_temp_correction_inputs_text()
+        button.setChecked(event["value"])
 
     def _update_opcua_boolean_text_widget(
         self, widgets: list[QtWidgets.QLineEdit], event: dict
@@ -1378,6 +1393,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         This function is called when the server is successfully connected.
         """
         logger.debug("server connected event")
+        self._update_static_pointing_inputs_text = True
+        self._update_temp_correction_inputs_text = True
         self.label_conn_status.setText("Status: Subscribing to OPC-UA updates...")
         self.controller.subscribe_opcua_updates(list(self.opcua_widgets.keys()))
         self.label_conn_status.setText(
@@ -1395,14 +1412,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self._init_opcua_combo_widgets()
         if self._track_table_file_exist():
             self.button_load_track_table.setEnabled(True)
-        self._update_static_pointing_inputs_text = True
-        self._update_temp_correction_inputs_text = True
         self._initialise_error_warning_widgets()
         self.warning_status_show_only_warnings.setEnabled(True)
         self.error_status_show_only_errors.setEnabled(True)
         self.spinbox_file_track_additional_offset.setEnabled(
             not self.button_file_track_absolute_times.isChecked()
         )
+        self.update_tilt_meter_calibration_parameters_values()
 
     def server_disconnected_event(self):
         """Handle the server disconnected event."""
@@ -1467,7 +1483,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         filename, _ = QFileDialog.getOpenFileName(
             parent=self,
             caption="Open Track Table File",
-            directory=platformdirs.user_documents_dir(),
+            directory=user_documents_dir(),
             filter="Track Table Files (*.csv);;All Files (*)",
             options=options,
         )
@@ -1538,7 +1554,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         fname, _ = QtWidgets.QFileDialog.getSaveFileName(
             parent=self,
             caption="Select Recording File",
-            directory=platformdirs.user_documents_dir(),
+            directory=user_documents_dir(),
             filter="DataLogger File (*.hdf5 *.h5);;All Files (*)",
         )
         if fname:
@@ -1713,25 +1729,120 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         """Move to the given band."""
         self.controller.command_move2band(band)
 
-    def static_pointing_parameter_changed(self):
-        """Static pointing model parameter changed slot function."""
-        band = self.combo_static_point_model_band.currentText().replace(" ", "_")
+    def import_static_pointing_model(self) -> None:
+        """Open a dialog to import a static pointing model JSON file."""
+        options = QFileDialog.Option(QFileDialog.Option.ReadOnly)
+        filename, _ = QFileDialog.getOpenFileName(
+            parent=self,
+            caption="Import Static Pointing Model from JSON",
+            directory=user_documents_dir(),
+            filter="JSON Files (*.json);;All Files (*)",
+            options=options,
+        )
+        if filename:
+            band = self.model.import_static_pointing_model(Path(filename))
+            if band is not None:
+                # pylint: disable=protected-access
+                band_index = self.model._scu.convert_enum_to_int("BandType", band)
+                self.combo_static_point_model_band_input.setCurrentIndex(band_index)
+                for spinbox in self.static_pointing_spinboxes:
+                    attr_name = (
+                        spinbox.property("opcua_array").split(".")[-1]
+                        if spinbox.property("opcua_array") is not None
+                        else None
+                    )
+                    if attr_name is not None:
+                        spinbox.setValue(
+                            self.model.get_static_pointing_value(band, attr_name)
+                        )
+                self.controller.emit_ui_status_message(
+                    "INFO",
+                    f"Successfully imported static pointing model for '{band}' from "
+                    f"'{filename}'",
+                )
+
+    def export_static_pointing_model(self) -> None:
+        """Open a dialog to export a static pointing model JSON file."""
+        band = self.combo_static_point_model_band_display.currentText()
+        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+            parent=self,
+            caption=f"Export '{band}' model to JSON",
+            directory=f"{user_documents_dir()}/gpm-SKA000-{band}.json",
+            filter="JSON Files (*.json);;All Files (*)",
+        )
+        if filename:
+            try:
+                self.model.read_static_pointing_model(band)
+                self.model.export_static_pointing_model(
+                    band, Path(filename), overwrite=True
+                )
+                self.controller.emit_ui_status_message(
+                    "INFO",
+                    f"Successfully exported static pointing model for '{band}' to "
+                    f"'{filename}'",
+                )
+            except TypeError as e:
+                self.controller.emit_ui_status_message(
+                    "ERROR",
+                    f"Export of static pointing model for '{band}' failed: {e}",
+                )
+
+    def apply_static_pointing_parameters(self):
+        """Apply input static pointing model parameters slot function."""
+        input_band = self.combo_static_point_model_band_input.currentText()
         params = []
         for spinbox in self.static_pointing_spinboxes:
-            params.append(round(spinbox.value(), self._DECIMAL_PLACES))
-        self.controller.command_set_static_pointing_parameters(band, params)
+            params.append(spinbox.value())
+        if self.static_point_model_band.text() != input_band:
+            self.pointing_correction_setup_button_clicked()
+        self.controller.command_set_static_pointing_parameters(input_band, params)
+        self.update_static_pointing_parameters_values()
 
-    def static_pointing_offset_changed(self):
-        """Static pointing offset changed slot function."""
-        xelev = round(self.spinbox_offset_xelev.value(), self._DECIMAL_PLACES)
-        elev = round(self.spinbox_offset_elev.value(), self._DECIMAL_PLACES)
+    def apply_static_pointing_offsets(self):
+        """Apply static pointing offsets slot function."""
+        xelev = self.spinbox_offset_xelev.value()
+        elev = self.spinbox_offset_elev.value()
         self.controller.command_set_static_pointing_offsets(xelev, elev)
 
-    def ambtemp_correction_parameter_changed(self):
-        """Ambient temperature correction parameter changed slot function."""
+    def apply_tilt_meter_calibration_parameters(self):
+        """Apply tilt meter calibration parameters slot function."""
+        params = []
+        for var in self.tilt_meter_cal_inputs:
+            if isinstance(var, str):
+                attr_name = var.replace(
+                    "[OneTwo]",
+                    (
+                        "One"
+                        if not self.button_tilt_correction_meter_toggle.isChecked()
+                        else "Two"
+                    ),
+                )
+                if attr_name in self.model.opcua_attributes:
+                    params.append(self.model.opcua_attributes[attr_name].value)
+                else:
+                    self.controller.emit_ui_status_message(
+                        "ERROR",
+                        f"Cannot set tilt meter x/y-filter constants, as '{attr_name}' "
+                        "attribute not found on DSC!",
+                    )
+                    return
+            else:
+                params.append(var.value())
+        tilt_meter = (
+            "TiltmeterOne"
+            if not self.button_tilt_correction_meter_toggle.isChecked()
+            else "TiltmeterTwo"
+        )
+        self.controller.command_set_tilt_meter_calibration_parameters(
+            tilt_meter, params
+        )
+        self.update_tilt_meter_calibration_parameters_values()
+
+    def apply_ambtemp_correction_parameters(self):
+        """Apply ambient temperature correction parameters slot function."""
         params = []
         for spinbox in self.ambtemp_correction_spinboxes:
-            params.append(round(spinbox.value(), self._DECIMAL_PLACES))
+            params.append(spinbox.value())
         self.controller.command_set_ambtemp_correction_parameters(params)
 
     def set_power_mode_clicked(self):
@@ -1743,128 +1854,129 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         logger.debug("set_power_mode args: %s", args)
         self.controller.command_set_power_mode(*args)
 
-    def pointing_model_band_selected(self):
-        """Static pointing model band changed slot function."""
-        if self.button_group_static_point_model.checkedId() != 0:  # Not OFF
-            self.pointing_model_button_clicked()
+    def pointing_model_band_selected_for_input(self):
+        """Static pointing model band selected for input of parameters slot function."""
+        band = self.combo_static_point_model_band_input.currentIndex()
+        for spinbox in self.static_pointing_spinboxes:
+            attr_name = (
+                spinbox.property("opcua_array").replace("[x]", f"[{band}]")
+                if spinbox.property("opcua_array") is not None
+                else None
+            )
+            if attr_name in self.model.opcua_attributes:
+                attr_value = self.model.opcua_attributes[attr_name].value
+                if attr_value is not None:
+                    spinbox.setValue(attr_value)
+                spinbox.setToolTip(
+                    f"<b>OPCUA param:</b> {attr_name}<br>"
+                    f"<b>Maximum:</b> {spinbox.maximum()}<br>"
+                    f"<b>Minimum:</b> {spinbox.minimum()}"
+                )
 
-    def pointing_model_button_clicked(self):
+    def update_static_pointing_parameters_values(self) -> None:
+        """Update displayed static pointing parameters values from server."""
+        band = self.combo_static_point_model_band_display.currentIndex()
+        for label in self.static_pointing_values:
+            attr_name = (
+                label.property("opcua_array").replace("[x]", f"[{band}]")
+                if label.property("opcua_array") is not None
+                else None
+            )
+            if attr_name in self.model.opcua_attributes:
+                attr_value = self.model.opcua_attributes[attr_name].value
+                label.setText(
+                    QtCore.QLocale().toString(attr_value, "f", DISPLAY_DECIMAL_PLACES)
+                    if isinstance(attr_value, float)
+                    else str(attr_value)
+                )
+                tooltip = (
+                    f"<b>OPCUA param:</b> {attr_name}<br>"
+                    f"<b>Value:</b> {str(attr_value)}"
+                )
+                label.setToolTip(tooltip)
+
+    def update_tilt_meter_calibration_parameters_values(self) -> None:
+        """Update displayed tilt meter's calibration parameters values from server."""
+        meter = "Two" if self.button_tilt_correction_meter_toggle.isChecked() else "One"
+        for i, label in enumerate(self.tilt_meter_cal_values):
+            attr_name = (
+                label.property("opcua_array").replace("[x]", f"{meter}")
+                if label.property("opcua_array") is not None
+                else None
+            )
+            if attr_name in self.model.opcua_attributes:
+                attr_value = self.model.opcua_attributes[attr_name].value
+                label.setText(
+                    QtCore.QLocale().toString(attr_value, "f", DISPLAY_DECIMAL_PLACES)
+                    if isinstance(attr_value, float)
+                    else str(attr_value)
+                )
+                tooltip = (
+                    f"<b>OPCUA param:</b> {attr_name}<br>"
+                    f"<b>Value:</b> {str(attr_value)}"
+                )
+                label.setToolTip(tooltip)
+                spinbox = self.tilt_meter_cal_spinboxes[i]
+                if attr_value is not None:
+                    spinbox.setValue(attr_value)
+                spinbox.setToolTip(
+                    f"<b>OPCUA param:</b> {attr_name}<br>"
+                    f"<b>Maximum:</b> {spinbox.maximum()}<br>"
+                    f"<b>Minimum:</b> {spinbox.minimum()}"
+                )
+
+    def pointing_correction_setup_button_clicked(self):
         """Any pointing model toggle button clicked slot function."""
-        static_point_model_checked_id = self.button_group_static_point_model.checkedId()
-        temp_correction_checked_id = self.button_group_temp_correction.checkedId()
-        tilt_correction_checked_id = self.button_group_tilt_correction.checkedId()
-        tilt_corr_meter_checked_id = self.button_group_tilt_correction_meter.checkedId()
         tilt_correction = (
-            tilt_corr_meter_checked_id
-            if self.button_tilt_correction_on.isChecked()
-            else 0
+            "Off"
+            if not self.button_tilt_correction_toggle.isChecked()
+            else (
+                "TiltmeterOne"
+                if not self.button_tilt_correction_meter_toggle.isChecked()
+                else "TiltmeterTwo"
+            )
         )
-        # Validate command parameters
-        try:
-            stat = {0: False, 1: True}[static_point_model_checked_id]
-            tilt = {0: "Off", 1: "TiltmeterOne", 2: "TiltmeterTwo"}[tilt_correction]
-            ambtemp = {0: False, 1: True}[temp_correction_checked_id]
-        except KeyError:
-            logger.exception("Invalid button ID.")
-            return
-        band = self.combo_static_point_model_band.currentText().replace(" ", "_")
         # Send command and check result
-        _, result_msg = self.controller.command_config_pointing_model_corrections(
-            stat, tilt, ambtemp, band
+        result_code, _ = self.controller.command_config_pointing_model_corrections(
+            self.button_static_point_model_toggle.isChecked(),
+            tilt_correction,
+            self.button_temp_correction_toggle.isChecked(),
+            self.combo_static_point_model_band_input.currentText(),
         )
-        if result_msg == "CommandDone":
-            if stat:
-                self.static_pointing_parameter_changed()
-                self.static_pointing_offset_changed()
-                self.spinbox_offset_xelev.blockSignals(False)
-                self.spinbox_offset_elev.blockSignals(False)
-                for spinbox in self.static_pointing_spinboxes:
-                    spinbox.blockSignals(False)
-            else:
-                self.spinbox_offset_xelev.blockSignals(True)
-                self.spinbox_offset_elev.blockSignals(True)
-                for spinbox in self.static_pointing_spinboxes:
-                    spinbox.blockSignals(True)
-            if ambtemp:
-                self.ambtemp_correction_parameter_changed()
-                for spinbox in self.ambtemp_correction_spinboxes:
-                    spinbox.blockSignals(False)
-            else:
-                for spinbox in self.ambtemp_correction_spinboxes:
-                    spinbox.blockSignals(True)
-            # Keep track of radio buttons' previous states
-            self.static_point_model_checked_prev = static_point_model_checked_id
-            self.tilt_correction_checked_prev = tilt_correction_checked_id
-            self.tilt_correction_meter_checked_prev = tilt_corr_meter_checked_id
-            self.temp_correction_checked_prev = temp_correction_checked_id
-        else:
-            # If command did not execute for any reason, restore buttons to prev states
-            self.button_group_static_point_model.button(
-                self.static_point_model_checked_prev
-            ).setChecked(True)
-            self.button_group_tilt_correction.button(
-                self.tilt_correction_checked_prev
-            ).setChecked(True)
-            self.button_group_tilt_correction_meter.button(
-                self.tilt_correction_meter_checked_prev
-            ).setChecked(True)
-            self.button_group_temp_correction.button(
-                self.temp_correction_checked_prev
-            ).setChecked(True)
+        # If command did not succeed, toggle triggering button back to prev state
+        if result_code not in [ResultCode.COMMAND_ACTIVATED, ResultCode.COMMAND_DONE]:
+            sender = self.sender()
+            if isinstance(sender, ToggleSwitch):
+                sender.toggle()
 
-    def _set_static_pointing_inputs_text(self, block_signals: bool) -> None:
-        """
-        Set static pointing inputs' text to current read values.
-
-        :param block_signals: Block or unblock the widgets' signals.
-        """
+    def _set_static_pointing_inputs_text(self) -> None:
+        """Set static pointing inputs' text to current read values."""
         # Static pointing band
-        self.combo_static_point_model_band.blockSignals(True)
         current_band = self.static_point_model_band.text()
         if current_band != "not read":
-            self.combo_static_point_model_band.setCurrentIndex(
-                self.model._scu.convert_enum_to_int(  # pylint: disable=protected-access
-                    "BandType", current_band.replace(" ", "_")
-                )
-            )
-        self.combo_static_point_model_band.blockSignals(block_signals)
+            # pylint: disable=protected-access
+            band_index = self.model._scu.convert_enum_to_int("BandType", current_band)
+            if band_index is not None:
+                self.combo_static_point_model_band_input.setCurrentIndex(band_index)
+                self.combo_static_point_model_band_display.setCurrentIndex(band_index)
         # Static pointing offsets
-        self.spinbox_offset_xelev.blockSignals(True)
-        self.spinbox_offset_elev.blockSignals(True)
         try:
             self.spinbox_offset_xelev.setValue(float(self.opcua_offset_xelev.text()))
             self.spinbox_offset_elev.setValue(float(self.opcua_offset_elev.text()))
         except ValueError:
             self.spinbox_offset_xelev.setValue(0)
             self.spinbox_offset_elev.setValue(0)
-        self.spinbox_offset_xelev.blockSignals(block_signals)
-        self.spinbox_offset_elev.blockSignals(block_signals)
         # Static pointing parameters
-        for spinbox, value in zip(
-            self.static_pointing_spinboxes, self.static_pointing_values
-        ):
-            spinbox.blockSignals(True)
-            try:
-                spinbox.setValue(float(value.text()))
-            except ValueError:
-                spinbox.setValue(0)
-            spinbox.blockSignals(block_signals)
 
-    def _set_temp_correction_inputs_text(self, block_signals: bool) -> None:
-        """
-        Set ambient temperature correction inputs' text to current read values.
-
-        :param block_signals: Block or unblock the widgets' signals.
-        """
+    def _set_temp_correction_inputs_text(self) -> None:
+        """Set ambient temperature correction inputs' text to current read values."""
         for spinbox, value in zip(
             self.ambtemp_correction_spinboxes, self.ambtemp_correction_values
         ):
-            spinbox.blockSignals(True)
             try:
                 spinbox.setValue(float(value.text()))
             except ValueError:
                 spinbox.setValue(0)
-            spinbox.blockSignals(block_signals)
 
     def _configure_status_tree_widget(
         self,
@@ -1994,3 +2106,74 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         QDesktopServices.openUrl(
             QtCore.QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
         )
+
+
+class LimitedDisplaySpinBox(QtWidgets.QDoubleSpinBox):
+    """Custom double (float) spin box that only limits the displayed decimal points."""
+
+    def __init__(self, *args, decimals_to_display=DISPLAY_DECIMAL_PLACES, **kwargs):
+        """Init LimitedDisplaySpinBox."""
+        super().__init__(*args, **kwargs)
+        self.decimals_to_display = decimals_to_display
+        self.setSingleStep(10**-decimals_to_display)  # Set step to displayed precision
+
+    # pylint: disable=invalid-name,
+    def textFromValue(self, value):  # noqa: N802
+        """Display the value with limited decimal points."""
+        return QtCore.QLocale().toString(value, "f", self.decimals_to_display)
+
+    # pylint: disable=invalid-name,
+    def stepBy(self, steps):  # noqa: N802
+        """Override stepBy to round the step value to the displayed decimals."""
+        new_value = self.value() + steps * self.singleStep()
+        rounded_value = round(new_value, self.decimals_to_display)
+        self.setValue(rounded_value)
+
+
+class ToggleSwitch(QtWidgets.QPushButton):
+    """Custom sliding style toggle push button."""
+
+    def __init__(self, parent: Any = None) -> None:
+        """Init ToggleSwitch."""
+        super().__init__(parent)
+        self.setCheckable(True)
+        self.setMinimumWidth(70)
+        self.setMinimumHeight(22)
+        self.label_true = "ON"
+        self.label_false = "OFF"
+        self.change_color = True
+
+    # pylint: disable=invalid-name,unused-argument
+    def mouseReleaseEvent(self, event: Any) -> None:  # noqa: N802
+        """Override mouseReleaseEvent to disable visual state change on click."""
+        self.setChecked(not self.isChecked())  # Toggle state manually
+        self.clicked.emit()  # Emit clicked signal for external logic
+
+    # pylint: disable=invalid-name,unused-argument
+    def paintEvent(self, event: Any) -> None:  # noqa: N802
+        """Paint event."""
+        label = self.label_true if self.isChecked() else self.label_false
+        radius = 9
+        width = 34
+        center = self.rect().center()
+        painter = QPainter(self)
+        palette = super().palette()
+        button_color = palette.color(QPalette.ColorRole.Window)
+        if self.isEnabled() and self.change_color:
+            background_color = QColor("green") if self.isChecked() else QColor("red")
+        else:
+            background_color = button_color
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        painter.translate(center)
+        painter.setBrush(background_color)
+        painter.setPen(QPen(palette.color(QPalette.ColorRole.Shadow), 1))
+        painter.drawRoundedRect(
+            QtCore.QRect(-width, -radius, 2 * width, 2 * radius), radius, radius
+        )
+        painter.setBrush(QBrush(button_color))
+        sw_rect = QtCore.QRect(-radius, -radius, width + radius, 2 * radius)
+        if not self.isChecked():
+            sw_rect.moveLeft(-width)
+        painter.drawRoundedRect(sw_rect, radius, radius)
+        painter.setPen(QPen(palette.color(QPalette.ColorRole.WindowText), 1))
+        painter.drawText(sw_rect, QtCore.Qt.AlignmentFlag.AlignCenter, label)

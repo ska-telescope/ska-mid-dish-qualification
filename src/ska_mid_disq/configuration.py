@@ -19,8 +19,9 @@ from configparser import ConfigParser
 from importlib import resources
 from pathlib import Path
 
-import platformdirs
 import yaml  # type: ignore
+
+from .constants import USER_CONFIG_DIR
 
 # The default configuration file name to search for
 _DEFAULT_CONFIG_FILENAME = "disq.ini"
@@ -64,10 +65,7 @@ def find_config_file(config_filename: str | None = None) -> Path:
             return fname_env_var_path
 
     # Locate the user data directory
-    fname_user_dir = Path(
-        platformdirs.user_config_dir(appauthor="SKAO", appname="disq")
-    )
-    fname_user_file = fname_user_dir / _DEFAULT_CONFIG_FILENAME
+    fname_user_file = USER_CONFIG_DIR / _DEFAULT_CONFIG_FILENAME
     logging.debug("Checking user data directory: %s", {fname_user_file})
     if fname_user_file.exists():
         return fname_user_file
