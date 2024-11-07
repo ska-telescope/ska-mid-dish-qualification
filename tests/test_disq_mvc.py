@@ -25,7 +25,7 @@ def disq_app_fixture(qtbot, request: pytest.FixtureRequest) -> MainView:  # type
     # Setup simulator/PLC before running test
     if with_cetc_simulator or with_plc:
         # ALWAYS NEEDED:
-        disq_fixture.controller.command_take_authority("EGUI")
+        disq_fixture.controller.command_take_authority("LMC")
         # The following setup is only needed if running tests individually for debugging
         # disq_fixture.controller.command_stow(False)
         # disq_fixture.controller.command_activate("AzEl")
@@ -36,8 +36,6 @@ def disq_app_fixture(qtbot, request: pytest.FixtureRequest) -> MainView:  # type
         # The following setup is only needed if running tests individually for debugging
         # disq_fixture.controller.command_stop("AzEl")
         # disq_fixture.controller.command_stop("Fi")
-        # ALWAYS NEEDED:
-        disq_fixture.controller.command_release_authority()
         sleep(0.5)
 
 
@@ -52,10 +50,10 @@ def set_combobox_to_string(combo_box: QtWidgets.QComboBox, string: str) -> bool:
 
 
 slew2abs_input_widgets = [
-    "line_edit_slew_simul_azim_position",
-    "line_edit_slew_simul_elev_position",
-    "line_edit_slew_simul_azim_velocity",
-    "line_edit_slew_simul_elev_velocity",
+    "spinbox_slew_simul_azim_position",
+    "spinbox_slew_simul_elev_position",
+    "spinbox_slew_simul_azim_velocity",
+    "spinbox_slew_simul_elev_velocity",
 ]
 slew_azimuth_input_widgets = [
     "spinbox_slew_only_azimuth_position",
@@ -281,7 +279,7 @@ set_power_mode_input_widgets = [
             "take_authority_button_clicked",
             None,
             "CommandArbiter.Commands.TakeAuth",
-            ("LMC",),
+            ("EGUI",),
             ["combobox_authority"],
             ("SCU already has command authority with user EGUI", -1),
         ),

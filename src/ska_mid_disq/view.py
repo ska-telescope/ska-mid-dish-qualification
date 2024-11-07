@@ -646,10 +646,10 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_interlock_ack: QtWidgets.QPushButton
         self.button_interlock_ack.clicked.connect(self.controller.command_interlock_ack)
         # Slew group widgets
-        self.line_edit_slew_simul_azim_position: QtWidgets.QLineEdit
-        self.line_edit_slew_simul_elev_position: QtWidgets.QLineEdit
-        self.line_edit_slew_simul_azim_velocity: QtWidgets.QLineEdit
-        self.line_edit_slew_simul_elev_velocity: QtWidgets.QLineEdit
+        self.spinbox_slew_simul_azim_position: LimitedDisplaySpinBox
+        self.spinbox_slew_simul_elev_position: LimitedDisplaySpinBox
+        self.spinbox_slew_simul_azim_velocity: LimitedDisplaySpinBox
+        self.spinbox_slew_simul_elev_velocity: LimitedDisplaySpinBox
         self.button_slew2abs: QtWidgets.QPushButton
         self.button_slew2abs.clicked.connect(self.slew2abs_button_clicked)
         # Commands group widgets
@@ -693,11 +693,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_elevation_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("El")
         )
-        self.spinbox_slew_only_elevation_position: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_elevation_velocity: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_elevation_velocity.setToolTip(
-            f"<b>Maximum:</b> {self.spinbox_slew_only_elevation_velocity.maximum()}"
-        )
+        self.spinbox_slew_only_elevation_position: LimitedDisplaySpinBox
+        self.spinbox_slew_only_elevation_velocity: LimitedDisplaySpinBox
         self.button_elevation_reset: QtWidgets.QPushButton
         self.button_elevation_reset.clicked.connect(
             lambda: self.reset_button_clicked("El")
@@ -715,11 +712,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_azimuth_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Az")
         )
-        self.spinbox_slew_only_azimuth_position: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_azimuth_velocity: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_azimuth_velocity.setToolTip(
-            f"<b>Maximum:</b> {self.spinbox_slew_only_azimuth_velocity.maximum()}"
-        )
+        self.spinbox_slew_only_azimuth_position: LimitedDisplaySpinBox
+        self.spinbox_slew_only_azimuth_velocity: LimitedDisplaySpinBox
         self.button_azimuth_reset: QtWidgets.QPushButton
         self.button_azimuth_reset.clicked.connect(
             lambda: self.reset_button_clicked("Az")
@@ -737,11 +731,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_indexer_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Fi")
         )
-        self.spinbox_slew_only_indexer_position: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_indexer_velocity: QtWidgets.QDoubleSpinBox
-        self.spinbox_slew_only_indexer_velocity.setToolTip(
-            f"<b>Maximum:</b> {self.spinbox_slew_only_indexer_velocity.maximum()}"
-        )
+        self.spinbox_slew_only_indexer_position: LimitedDisplaySpinBox
+        self.spinbox_slew_only_indexer_velocity: LimitedDisplaySpinBox
         self.button_indexer_reset: QtWidgets.QPushButton
         self.button_indexer_reset.clicked.connect(
             lambda: self.reset_button_clicked("Fi")
@@ -804,7 +795,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.opcua_hece8,  # type: ignore
             self.opcua_hese8,  # type: ignore
         ]
-        self.static_pointing_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
+        self.static_pointing_spinboxes: list[LimitedDisplaySpinBox] = [
             self.spinbox_ia,  # type: ignore
             self.spinbox_ca,  # type: ignore
             self.spinbox_npae,  # type: ignore
@@ -826,8 +817,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         ]
         self.opcua_offset_xelev: QtWidgets.QLabel
         self.opcua_offset_elev: QtWidgets.QLabel
-        self.spinbox_offset_xelev: QtWidgets.QDoubleSpinBox
-        self.spinbox_offset_elev: QtWidgets.QDoubleSpinBox
+        self.spinbox_offset_xelev: LimitedDisplaySpinBox
+        self.spinbox_offset_elev: LimitedDisplaySpinBox
         self.button_static_offset_apply: QtWidgets.QPushButton
         self.button_static_offset_apply.clicked.connect(
             self.apply_static_pointing_offsets
@@ -853,11 +844,11 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.opcua_x_filt_dt,  # type: ignore
             self.opcua_y_filt_dt,  # type: ignore
         ]
-        self.tilt_meter_cal_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
+        self.tilt_meter_cal_spinboxes: list[LimitedDisplaySpinBox] = [
             self.spinbox_x_filt_dt,  # type: ignore
             self.spinbox_y_filt_dt,  # type: ignore
         ]
-        self.tilt_meter_cal_inputs: list[QtWidgets.QDoubleSpinBox | str] = [
+        self.tilt_meter_cal_inputs: list[LimitedDisplaySpinBox | str] = [
             "Pointing.TiltmeterParameters.[OneTwo].Tiltmeter_serial_no",
             "Pointing.TiltmeterParameters.[OneTwo].tilt_temp_scale",
             self.spinbox_x_filt_dt,  # type: ignore
@@ -893,7 +884,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.opcua_ambtempparam5,  # type: ignore
             self.opcua_ambtempparam6,  # type: ignore
         ]
-        self.ambtemp_correction_spinboxes: list[QtWidgets.QDoubleSpinBox] = [
+        self.ambtemp_correction_spinboxes: list[LimitedDisplaySpinBox] = [
             self.spinbox_ambtempfiltdt,  # type: ignore
             self.spinbox_ambtempparam1,  # type: ignore
             self.spinbox_ambtempparam2,  # type: ignore
@@ -1575,23 +1566,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
         :raises ValueError: If the input arguments cannot be converted to float.
         """
-        text_widget_args = [
-            self.line_edit_slew_simul_azim_position.text(),
-            self.line_edit_slew_simul_elev_position.text(),
-            self.line_edit_slew_simul_azim_velocity.text(),
-            self.line_edit_slew_simul_elev_velocity.text(),
+        args = [
+            self.spinbox_slew_simul_azim_position.value(),
+            self.spinbox_slew_simul_elev_position.value(),
+            self.spinbox_slew_simul_azim_velocity.value(),
+            self.spinbox_slew_simul_elev_velocity.value(),
         ]
-        try:
-            args = [float(str_input) for str_input in text_widget_args]
-        except ValueError as e:
-            logger.error("Error converting slew2abs args to float: %s", e)
-            self.controller.emit_ui_status_message(
-                "ERROR",
-                f"Slew2Abs invalid arguments. Could not convert to number: "
-                f"{text_widget_args}",
-            )
-            return
-        logger.debug("args: %s", args)
+        logger.debug("slew2abs args: %s", args)
         self.controller.command_slew2abs_azim_elev(*args)
 
     def slew_button_clicked(self, axis: str) -> None:
@@ -1637,31 +1618,37 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.spinbox_slew_only_elevation_velocity.setSingleStep(step_size)
         self.spinbox_slew_only_indexer_position.setSingleStep(step_size)
         self.spinbox_slew_only_indexer_velocity.setSingleStep(step_size)
+        self.spinbox_slew_simul_azim_position.setSingleStep(step_size)
+        self.spinbox_slew_simul_azim_velocity.setSingleStep(step_size)
+        self.spinbox_slew_simul_elev_position.setSingleStep(step_size)
+        self.spinbox_slew_simul_elev_velocity.setSingleStep(step_size)
 
     def limit_axis_inputs_toggled(self) -> None:
         """Limit the input ranges of the axis slew commands as specified in the ICD."""
         if self.button_enable_axis_limits.isChecked():
-            self.spinbox_slew_only_azimuth_position.setMaximum(AZ_POS_MAX)
-            self.spinbox_slew_only_azimuth_position.setMinimum(AZ_POS_MIN)
+            self.spinbox_slew_only_azimuth_position.setRange(AZ_POS_MIN, AZ_POS_MAX)
             self.spinbox_slew_only_azimuth_velocity.setMaximum(AZ_VEL_MAX)
-            self.spinbox_slew_only_elevation_position.setMaximum(EL_POS_MAX)
-            self.spinbox_slew_only_elevation_position.setMinimum(EL_POS_MIN)
+            self.spinbox_slew_only_elevation_position.setRange(EL_POS_MIN, EL_POS_MAX)
             self.spinbox_slew_only_elevation_velocity.setMaximum(EL_VEL_MAX)
-            self.spinbox_slew_only_indexer_position.setMaximum(FI_POS_MAX)
-            self.spinbox_slew_only_indexer_position.setMinimum(FI_POS_MIN)
+            self.spinbox_slew_only_indexer_position.setRange(FI_POS_MIN, FI_POS_MAX)
             self.spinbox_slew_only_indexer_velocity.setMaximum(FI_VEL_MAX)
+            self.spinbox_slew_simul_azim_position.setRange(AZ_POS_MIN, AZ_POS_MAX)
+            self.spinbox_slew_simul_azim_velocity.setMaximum(AZ_VEL_MAX)
+            self.spinbox_slew_simul_elev_position.setRange(EL_POS_MIN, EL_POS_MAX)
+            self.spinbox_slew_simul_elev_velocity.setMaximum(EL_VEL_MAX)
         else:
             default_max = 1000.0
             default_min = -1000.0
-            self.spinbox_slew_only_azimuth_position.setMaximum(default_max)
-            self.spinbox_slew_only_azimuth_position.setMinimum(default_min)
+            self.spinbox_slew_only_azimuth_position.setRange(default_min, default_max)
             self.spinbox_slew_only_azimuth_velocity.setMaximum(default_max)
-            self.spinbox_slew_only_elevation_position.setMaximum(default_max)
-            self.spinbox_slew_only_elevation_position.setMinimum(default_min)
+            self.spinbox_slew_only_elevation_position.setRange(default_min, default_max)
             self.spinbox_slew_only_elevation_velocity.setMaximum(default_max)
-            self.spinbox_slew_only_indexer_position.setMaximum(default_max)
-            self.spinbox_slew_only_indexer_position.setMinimum(default_min)
+            self.spinbox_slew_only_indexer_position.setRange(default_min, default_max)
             self.spinbox_slew_only_indexer_velocity.setMaximum(default_max)
+            self.spinbox_slew_simul_azim_position.setRange(default_min, default_max)
+            self.spinbox_slew_simul_azim_velocity.setMaximum(default_max)
+            self.spinbox_slew_simul_elev_position.setRange(default_min, default_max)
+            self.spinbox_slew_simul_elev_velocity.setMaximum(default_max)
 
     def stop_button_clicked(self, axis: str) -> None:
         """
