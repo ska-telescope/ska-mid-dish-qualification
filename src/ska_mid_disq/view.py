@@ -1753,6 +1753,12 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                     f"Successfully imported static pointing model for '{band}' from "
                     f"'{filename}'",
                 )
+            else:
+                self.controller.emit_ui_status_message(
+                    "ERROR",
+                    f"Import of static pointing model from '{filename}' failed! "
+                    "Check log for reason.",
+                )
 
     def export_static_pointing_model(self) -> None:
         """Open a dialog to export a static pointing model JSON file."""
