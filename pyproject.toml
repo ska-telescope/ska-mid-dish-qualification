@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ska-mid-disq"
-version = "0.4.0"
+version = "0.5.0"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: BSD 3-Clause License",
@@ -81,7 +81,7 @@ name = "Jarrett Engelbrecht"
 [tool.poetry]
 include = ["MANIFEST.skao.int"]
 name = "ska-mid-disq"
-version = "0.4.0"
+version = "0.5.0"
 description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
 authors = [
     "Oliver Skivington <oliver.skivington@criticalsoftware.com>",
@@ -114,8 +114,9 @@ pyyaml = "^6.0.0"
 h5py = "^3.11.0"
 numpy = "^1.26.0"
 platformdirs = "^4.2.2"
+ska-mid-dish-steering-control = "^0.1.0"
 # ska-mid-dish-steering-control = { path = "../ska-mid-dish-steering-control", develop = true }
-ska-mid-dish-steering-control = { git = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git", branch = "main" }
+# ska-mid-dish-steering-control = { git = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git", branch = "main" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
