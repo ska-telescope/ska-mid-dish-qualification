@@ -1129,13 +1129,20 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.line_edit_recording_file.setEnabled(enable)
         self.line_edit_recording_status.setEnabled(enable)
         self.button_recording_config.setEnabled(enable)
+        if enable:
+            self.line_edit_recording_status.setStyleSheet(
+                "background-color: rgb(10, 60, 0);"
+            )
+        else:
+            self.line_edit_recording_status.setText("")
+            self.line_edit_recording_status.setStyleSheet("")
 
     def recording_status_update(self, status: bool) -> None:
         """Update the recording status."""
         if status:
             self.line_edit_recording_status.setText("Recording")
             self.line_edit_recording_status.setStyleSheet(
-                "background-color: rgb(10, 250, 0);"
+                "background-color: rgb(10, 250, 25); color: black;"
             )
             self.button_recording_start.setEnabled(False)
             self.button_recording_stop.setEnabled(True)
@@ -1143,7 +1150,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         else:
             self.line_edit_recording_status.setText("Stopped")
             self.line_edit_recording_status.setStyleSheet(
-                "background-color: rgb(10, 80, 0);"
+                "background-color: rgb(10, 60, 0); color: white;"
             )
             self.button_recording_start.setEnabled(True)
             self.button_recording_stop.setEnabled(False)
@@ -1536,8 +1543,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.line_edit_recording_file.text(),
             not self.button_recording_overwrite_no.isChecked(),
         )
-
-        if self.line_edit_recording_file.text() == "":
+        if self.line_edit_recording_file.text() == "" and output_filename is not None:
             self.line_edit_recording_file.setText(output_filename.rsplit(".")[0])
 
     def recording_file_button_clicked(self) -> None:
