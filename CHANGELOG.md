@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.1
+
+WOM-510: 
+- Fixed crash when clicking 'Start' recording before configurating `DataLogger`.
+- Fixed 'InterlockClearable' LED indicator in 'Commands' group.
+- Correctly renamed azimuth 'CCS2' LED to 'CCW2'.
+- Changed 'Slew2Abs' inputs to spin boxes as used in 'Axis' tab.
+- Various minor UI tweaks for consistency.
+
 ## 0.5.0
 
 - API changes:
