@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Bug fixes:
+    - WOM-518: Rectify static tracking offsets input range limits. 
+
 ## 0.5.1
 
 WOM-510: 

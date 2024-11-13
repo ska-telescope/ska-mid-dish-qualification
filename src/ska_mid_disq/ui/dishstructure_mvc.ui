@@ -5521,7 +5521,7 @@
              </sizepolicy>
             </property>
             <property name="title">
-             <string>Static Pointing Offset</string>
+             <string>Static Tracking Offset</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_19">
              <property name="leftMargin">
@@ -5654,10 +5654,10 @@
                 <number>9</number>
                </property>
                <property name="minimum">
-                <double>-2000.000000000000000</double>
+                <double>-36000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>2000.000000000000000</double>
+                <double>36000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -5688,10 +5688,10 @@
                 <number>9</number>
                </property>
                <property name="minimum">
-                <double>-2000.000000000000000</double>
+                <double>-36000.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>2000.000000000000000</double>
+                <double>36000.000000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
