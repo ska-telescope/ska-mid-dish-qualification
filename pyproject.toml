@@ -114,7 +114,7 @@ pyyaml = "^6.0.0"
 h5py = "^3.11.0"
 numpy = "^1.26.0"
 platformdirs = "^4.2.2"
-ska-mid-dish-steering-control = "^0.1.0"
+ska-mid-dish-steering-control = "^0.1.1"
 # ska-mid-dish-steering-control = { path = "../ska-mid-dish-steering-control", develop = true }
 # ska-mid-dish-steering-control = { git = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git", branch = "main" }
 
