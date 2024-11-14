@@ -22,20 +22,8 @@ def disq_app_fixture(qtbot, request: pytest.FixtureRequest) -> MainView:  # type
     else:
         disq_fixture = request.getfixturevalue("disq_mock_model")
     qtbot.addWidget(disq_fixture)
-    # Setup simulator/PLC before running test
-    # if with_cetc_simulator or with_plc:
-    # ALWAYS NEEDED:
-    # disq_fixture.controller.command_take_authority("LMC")
-    # The following setup is only needed if running tests individually for debugging
-    # disq_fixture.controller.command_stow(False)
-    # disq_fixture.controller.command_activate("AzEl")
-    # disq_fixture.controller.command_activate("Fi")
     yield disq_fixture
-    # Stop any running slews and release authority after test (also done if test failed)
     if with_cetc_simulator or with_plc:
-        # The following setup is only needed if running tests individually for debugging
-        # disq_fixture.controller.command_stop("AzEl")
-        # disq_fixture.controller.command_stop("Fi")
         sleep(0.5)
 
 
