@@ -5,7 +5,6 @@ from time import sleep
 import pytest
 from PyQt6 import QtWidgets
 
-from ska_mid_disq import Command
 from ska_mid_disq.view import MainView
 
 
@@ -13,18 +12,14 @@ from ska_mid_disq.view import MainView
 def disq_app_fixture(qtbot, request: pytest.FixtureRequest) -> MainView:  # type: ignore
     """Fixture to setup the qtbot with the DiSQ application."""
     # Switch the MainView between two fixtures defined in conftest.py
-    with_cetc_simulator = request.config.getoption("--with-cetc-sim")
     with_plc = request.config.getoption("--with-plc")
-    if with_cetc_simulator:
-        disq_fixture: MainView = request.getfixturevalue("disq_cetc_simulator")
-    elif with_plc:
-        disq_fixture = request.getfixturevalue("disq_mid_itf_plc")
+    if with_plc:
+        disq_fixture: MainView = request.getfixturevalue("disq_mid_itf_plc")
     else:
-        disq_fixture = request.getfixturevalue("disq_mock_model")
+        disq_fixture = request.getfixturevalue("disq_cetc_simulator")
     qtbot.addWidget(disq_fixture)
     yield disq_fixture
-    if with_cetc_simulator or with_plc:
-        sleep(0.5)
+    sleep(0.5)
 
 
 def set_combobox_to_string(combo_box: QtWidgets.QComboBox, string: str) -> bool:
@@ -331,7 +326,7 @@ set_power_mode_input_widgets = [
         ),
         (
             "move2band_button_clicked",
-            "Band_2",
+            "Optical",
             "Management.Commands.Move2Band",
             None,
             None,
@@ -339,7 +334,7 @@ set_power_mode_input_widgets = [
         ),
         (
             "move2band_button_clicked",
-            "Optical",
+            "Band_1",
             "Management.Commands.Move2Band",
             None,
             None,
@@ -351,7 +346,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            (("CommandDone", 10), ("CommandRejected", 2)),
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "stow_button_clicked",
@@ -382,12 +377,6 @@ def test_opcua_command_slot_function(
     request: pytest.FixtureRequest,
 ) -> None:
     """Test the successful sending and response of OPC UA commands."""
-    # Check whether test fixture is connected to an OPC UA server
-    opcua_server: bool = disq_app.controller.is_server_connected()
-
-    with_cetc_simulator = request.config.getoption("--with-cetc-sim")
-    with_plc = request.config.getoption("--with-plc")
-
     if input_values is not None:
         # Setup the input widgets with valid values
         if input_widgets is not None:
@@ -398,8 +387,6 @@ def test_opcua_command_slot_function(
                 elif isinstance(widget, QtWidgets.QDoubleSpinBox):
                     widget.setValue(value)
                 elif isinstance(widget, QtWidgets.QComboBox):
-                    if not opcua_server:
-                        widget.addItem(value)
                     assert set_combobox_to_string(widget, value)
                 elif isinstance(widget, QtWidgets.QButtonGroup) and isinstance(
                     value, bool
@@ -420,30 +407,24 @@ def test_opcua_command_slot_function(
     # Verify the command status bar was updated
     assert f"Command: {command}{tuple(cmd_args)}" in disq_app.cmd_status_label.text()
 
-    if opcua_server:
-        # Check for expected response from the OPC UA server
-        response = expected_response[0] if with_cetc_simulator else expected_response[1]
-        assert (
-            f"Response: {response[0]} [{response[1]}]"
-            in disq_app.cmd_status_label.text()
-        )
-        if with_plc and command == "Management.Commands.Stow":
-            attr_name = "Safety.Status.StowPinStatus"
-            # For Unstow, wait for Retracted(1); for Stow, wait for Deployed(3)
-            expected = 1 if input_values == (False,) else 3
-            count = 0
-            # pylint: disable=protected-access
-            while disq_app.model._scu.attributes[attr_name].value != (  # type: ignore
-                expected
-            ):
-                assert count != 90, (
-                    "Stow/Unstow timeout - command potentially failed? StowPinStatus = "
-                    f"{disq_app.model._scu.attributes[attr_name].value}"  # type: ignore
-                )
-                count += 1
-                sleep(1)
-    else:
-        # Verify the mock command method was called with the correct arguments
-        disq_app.model.run_opcua_command.assert_called_with(  # type: ignore
-            Command(command), *cmd_args
-        )
+    # Check for expected response from the OPC UA server
+    with_plc = request.config.getoption("--with-plc")
+    response = expected_response[1] if with_plc else expected_response[0]
+    assert (
+        f"Response: {response[0]} [{response[1]}]" in disq_app.cmd_status_label.text()
+    )
+    if with_plc and command == "Management.Commands.Stow":
+        attr_name = "Safety.Status.StowPinStatus"
+        # For Unstow, wait for Retracted(1); for Stow, wait for Deployed(3)
+        expected = 1 if input_values == (False,) else 3
+        count = 0
+        # pylint: disable=protected-access
+        while disq_app.model._scu.attributes[attr_name].value != (  # type: ignore
+            expected
+        ):
+            assert count != 60, (
+                "Stow/Unstow timeout - command potentially failed? StowPinStatus = "
+                f"{disq_app.model._scu.attributes[attr_name].value}"  # type: ignore
+            )
+            count += 1
+            sleep(1)
