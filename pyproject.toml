@@ -1,81 +1,3 @@
-[build-system]
-requires = ["setuptools>=70", "setuptools_scm[toml]>=8.1", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "ska-mid-disq"
-version = "0.5.1"
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: BSD 3-Clause License",
-    "Programming Language :: Python :: 3.10",
-]
-description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
-requires-python = ">=3.10,<3.12"
-dependencies = [
-    "asyncua>=1.1.5",
-    "PyQt6>=6.4.2",
-    "matplotlib>=3.9.2",
-    "pyyaml>=6.0.2",
-    "h5py>=3.12.1",
-    "numpy>=2.1.2",
-    "platformdirs>=4.2.6",
-    "ska-mid-dish-steering-control @ git+https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git@main",
-]
-license.file = "LICENSE"
-readme = "README.md"
-
-[project.optional-dependencies]
-dev = [
-    "pyqt6-tools",
-    "pytest",
-    "pytest-qt",
-    "pytest-cov",
-    "assertpy",
-    "isort",
-    "black",
-    "pylint",
-    "pylint-junit",
-    "flake8",
-    "flake8-isort",
-    "flake8-formatter-junit-xml",
-    "flake8-builtins",
-    "flake8-docstrings",
-    "flake8-use-fstring",
-    "flake8-rst-docstrings",
-    "mypy",
-    "pep8-naming",
-    "build",
-    "Sphinx",
-    "sphinx-argparse",
-    "ska-ser-sphinx-theme @ git+https://gitlab.com/ska-telescope/ska-ser-sphinx-theme.git@0.1.2",
-    "sphinx-autodoc-typehints",
-    "sphinxcontrib-mermaid",
-    "recommonmark",
-    "nbqa",
-]
-
-[project.scripts]
-disq-gui = "ska_mid_disq.mvcmain:main"
-disq-validate-server = "ska_mid_disq.server_validator:main"
-
-[project.urls]
-GitLab = "https://gitlab.com/ska-telescope/ska-mid-disq"
-source = "https://gitlab.com/ska-telescope/ska-mid-disq"
-
-[[project.authors]] # Further authors may be added by duplicating this section
-email = "Thomas.Juerges@skao.int"
-name = "Thomas Juerges"
-[[project.authors]]
-email = "oliver.skivington@criticalsoftware.com"
-name = "Oliver Skivington"
-[[project.authors]]
-email = "ukp@observatorysciences.co.uk"
-name = "Ulrik Pedersen"
-[[project.authors]]
-email = "jarrett@vivosa.co.za"
-name = "Jarrett Engelbrecht"
-
 [tool.poetry]
 include = ["MANIFEST.skao.int"]
 name = "ska-mid-disq"
@@ -172,3 +94,7 @@ omit = ["__init__.py"]
 [tool.coverage.paths]
 # Tests are run from installed location, map back to the src directory
 source = ["src", "**/site-packages/"]
+
+[build-system]
+requires = ["poetry-core>=1.8.0"]
+build-backend = "poetry.core.masonry.api"
