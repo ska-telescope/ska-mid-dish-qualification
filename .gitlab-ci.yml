@@ -44,7 +44,7 @@ python-test:
     - name: registry.gitlab.com/ska-telescope/ska-te-dish-structure-simulator/ska-te-ds-web-sim:0.11.0
       alias: cetc-simulator
   script:
-    - make python-test PYTHON_VARS_BEFORE_PYTEST=xvfb-run PYTHON_VARS_AFTER_PYTEST=--with-cetc-sim
+    - make python-test PYTHON_VARS_BEFORE_PYTEST=xvfb-run
 
 python-publish-to-gitlab:
   rules: # Only automatically publish package to Gitlab registry for main branch and tags

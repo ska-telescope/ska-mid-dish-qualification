@@ -1,7 +1,6 @@
 {
     "python.testing.pytestEnabled": true,
     "python.testing.pytestArgs": [
-        // "--with-cetc-sim"
         // "--with-plc"
     ],
     "editor.formatOnSave": true,

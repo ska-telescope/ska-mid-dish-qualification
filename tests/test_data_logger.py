@@ -20,7 +20,7 @@ from typing import Callable
 import h5py
 import pytest
 
-from ska_mid_disq import DataLogger, SteeringControlUnit
+from ska_mid_disq import SCU, DataLogger, SteeringControlUnit
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -147,17 +147,24 @@ def put_hdf5_file_in_queue(
     # print(f"Test put {total_count} data points in queue")
 
 
-@pytest.fixture(scope="module", name="high_level_library")
-def high_level_library_fixture() -> StubScu:
+@pytest.fixture(scope="module", name="scu_mock_simulator")
+def scu_mock_simulator_fixture() -> SteeringControlUnit:
     """SCU library with active connection fixture."""
-    high_level_library = StubScu()
-    return high_level_library
+    scu = StubScu()
+    return scu
 
 
-@pytest.mark.skipif(
-    os.getenv("CI") is not None, reason="Skipping test in GitLab CI pipeline"
-)
-def test_build_hdf5_structure(high_level_library: StubScu) -> None:
+@pytest.fixture(scope="module", name="scu_cetc_simulator")
+def scu_cetc_simulator_fixture() -> SteeringControlUnit:
+    """SCU library with active connection fixture."""
+    scu = SCU(
+        endpoint="/OPCUA/SimpleServer",
+        namespace="CETC54",
+    )
+    return scu
+
+
+def test_build_hdf5_structure(scu_cetc_simulator: SteeringControlUnit) -> None:
     """
     Test the _build_hdf5_structure() method.
 
@@ -165,10 +172,14 @@ def test_build_hdf5_structure(high_level_library: StubScu) -> None:
     SWMR mode.
     """
     output_file = "tests/resources/output_files/_build_hdf5_structure.hdf5"
-    logger = DataLogger(file_name=output_file, high_level_library=high_level_library)
-    nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
-    logger.add_nodes(nodes, 100)
+    logger = DataLogger(scu_cetc_simulator, output_file)
+    nodes = [
+        "Elevation.Status.AxisMoving",
+        "Elevation.Status.AxisState",
+        "Elevation.Status.p_Act",
+    ]
     logger.file_object = h5py.File(output_file, "w", libver="latest")
+    logger.add_nodes(nodes, 100)
     logger._build_hdf5_structure()
     expected_node_list = nodes
     assert list(logger.file_object.keys()) == expected_node_list
@@ -176,10 +187,8 @@ def test_build_hdf5_structure(high_level_library: StubScu) -> None:
     logger.file_object.close()
 
 
-# TODO: Fix test
-@pytest.mark.skip(reason="Test currently fails!")
 def test_add_nodes(
-    caplog: pytest.LogCaptureFixture, high_level_library: StubScu
+    caplog: pytest.LogCaptureFixture, scu_cetc_simulator: SteeringControlUnit
 ) -> None:
     """
     Test the add_nodes method.
@@ -187,48 +196,38 @@ def test_add_nodes(
     Nodes are added correctly, logging matches expected, and nothing happens if
     _start_invoked is set.
     """
-    logger = DataLogger(file_name="n/a", high_level_library=high_level_library)
-    nodes = [
-        "MockData.increment",
-        "MockData.sine_value",
-        "MockData.cosine_value",
+    logger = DataLogger(scu_cetc_simulator, "n/a")
+    nodes1 = [
+        "Elevation.Status.AxisMoving",
+        "Elevation.Status.p_Act",
         "a",
     ]
-    nodes1 = [
-        "MockData.increment",
-        "MockData.bool",
-        "MockData.enum",
+    nodes2 = [
+        "Elevation.Status.AxisMoving",
+        "Elevation.Status.v_Act",
     ]
-    logger.add_nodes(nodes, 100)
-    logger.add_nodes(nodes1, 50)
+    logger.add_nodes(nodes1, 100)
+    logger.add_nodes(nodes2, 50)
     logger._start_invoked = True
-    logger.add_nodes(nodes, 50)
-    captured = caplog.messages
+    logger.add_nodes(nodes1, 50)
     expected_log = [
-        "renamed Locked&Stowed to Locked_Stowed due to Python syntax",
         '"a" not available as an attribute on the server, skipping.',
-        "Updating period for node MockData.increment from 100 to 50.",
+        "Updating period for node Elevation.Status.AxisMoving from 100 to 50.",
         "WARNING: nodes cannot be added after start() has been invoked.",
     ]
-    # Sometimes the first line above does not appear
-    expected_log2 = [
-        '"a" not available as an attribute on the server, skipping.',
-        "Updating period for node MockData.increment from 100 to 50.",
-        "WARNING: nodes cannot be added after start() has been invoked.",
-    ]
-    # pylint: disable=consider-using-in
-    assert captured == expected_log or captured == expected_log2
+    for message in expected_log:
+        assert message in caplog.messages
     expected_object_nodes = {
-        "MockData.increment": 50,
-        "MockData.sine_value": 100,
-        "MockData.cosine_value": 100,
-        "MockData.bool": 50,
-        "MockData.enum": 50,
+        "Elevation.Status.AxisMoving": {"Period": 50, "Type": "Boolean"},
+        "Elevation.Status.p_Act": {"Period": 100, "Type": "Double"},
+        "Elevation.Status.v_Act": {"Period": 50, "Type": "Double"},
     }
     assert logger._nodes == expected_object_nodes
 
 
-def test_start(caplog: pytest.LogCaptureFixture, high_level_library: StubScu) -> None:
+def test_start(
+    caplog: pytest.LogCaptureFixture, scu_cetc_simulator: SteeringControlUnit
+) -> None:
     """
     Test the start() method.
 
@@ -237,8 +236,12 @@ def test_start(caplog: pytest.LogCaptureFixture, high_level_library: StubScu) ->
     """
     caplog.set_level(logging.INFO)
     output_file = "tests/resources/output_files/start.hdf5"
-    logger = DataLogger(file_name=output_file, high_level_library=high_level_library)
-    nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
+    logger = DataLogger(scu_cetc_simulator, output_file)
+    nodes = [
+        "Elevation.Status.AxisMoving",
+        "Elevation.Status.AxisState",
+        "Elevation.Status.p_Act",
+    ]
     logger.add_nodes(nodes, 100)
     logger.start()
     logger.start()
@@ -255,30 +258,34 @@ def test_start(caplog: pytest.LogCaptureFixture, high_level_library: StubScu) ->
     logger.stop()
 
 
-def test_stop(high_level_library: StubScu) -> None:
+def test_stop(scu_cetc_simulator: SteeringControlUnit) -> None:
     """
     Test the stop() method.
 
     Check _stop_logging is being set.
     """
     output_file = "tests/resources/output_files/stop.hdf5"
-    logger = DataLogger(file_name=output_file, high_level_library=high_level_library)
-    nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
+    logger = DataLogger(scu_cetc_simulator, output_file)
+    nodes = [
+        "Elevation.Status.AxisMoving",
+        "Elevation.Status.AxisState",
+        "Elevation.Status.p_Act",
+    ]
     logger.add_nodes(nodes, 100)
     logger.start()
     logger.stop()
     assert logger._stop_logging.is_set() is True
 
 
-def test_write_cache_to_group(high_level_library: StubScu) -> None:
+def test_write_cache_to_group(scu_cetc_simulator: SteeringControlUnit) -> None:
     """
     Test the _write_cache_to_group() method.
 
     Check that values are written to the output file.
     """
     output_file = "tests/resources/output_files/_write_cache_to_group.hdf5"
-    logger = DataLogger(file_name=output_file, high_level_library=high_level_library)
-    nodes = ["MockData.increment"]
+    logger = DataLogger(scu_cetc_simulator, output_file)
+    nodes = ["Elevation.Status.p_Act"]
     logger.add_nodes(nodes, 100)
     logger.file_object = h5py.File(output_file, "w", libver="latest")
     logger._build_hdf5_structure()
@@ -308,7 +315,7 @@ def test_write_cache_to_group(high_level_library: StubScu) -> None:
     f_o.close()
 
 
-def test_log(high_level_library: StubScu) -> None:
+def test_log(scu_mock_simulator: SteeringControlUnit) -> None:
     """
     Test the log() method.
 
@@ -319,7 +326,7 @@ def test_log(high_level_library: StubScu) -> None:
     output_file = "tests/resources/output_files/_log.hdf5"
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
-    logger = DataLogger(file_name=output_file, high_level_library=high_level_library)
+    logger = DataLogger(scu_mock_simulator, output_file)
     logger.add_nodes(nodes, 50)
 
     logger.start()
@@ -341,7 +348,7 @@ def test_log(high_level_library: StubScu) -> None:
     output_f_o.close()
 
 
-def test_enum_attribute(high_level_library: StubScu) -> None:
+def test_enum_attribute(scu_cetc_simulator: SteeringControlUnit) -> None:
     """
     Enum attribute.
 
@@ -349,23 +356,28 @@ def test_enum_attribute(high_level_library: StubScu) -> None:
     states is added to enum type node value datasets.
     """
     output_file = "tests/resources/output_files/enum_attribute.hdf5"
-    logger = DataLogger(file_name=output_file, high_level_library=high_level_library)
-    nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
+    logger = DataLogger(scu_cetc_simulator, output_file)
+    nodes = [
+        "Elevation.Status.AxisMoving",
+        "Elevation.Status.AxisState",
+        "Elevation.Status.p_Act",
+    ]
     logger.add_nodes(nodes, 100)
     logger.start()
     logger.stop()
     output_f_o = h5py.File(output_file, "r", libver="latest")
     expected_attribute = (
-        "StartUp,Standby,Locked,Stowed,Locked_Stowed,Activating,Deactivating,"
-        "Standstill,Stopping,Slew,Jog,Track"
+        "StartUp,Standby,Locked,Locked_Stowed,Activating,Deactivating,"
+        "Standstill,Stopping,Slew,Jog,Track,Stowed"
     )
     assert (
-        output_f_o["MockData.enum"]["Value"].attrs["Enumerations"] == expected_attribute
+        output_f_o["Elevation.Status.AxisState"]["Value"].attrs["Enumerations"]
+        == expected_attribute
     )
     output_f_o.close()
 
 
-def test_performance(high_level_library: StubScu) -> None:
+def test_performance(scu_mock_simulator: SteeringControlUnit) -> None:
     """
     Test the performance of the logger class.
 
@@ -377,7 +389,7 @@ def test_performance(high_level_library: StubScu) -> None:
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
     start_time = datetime.now(timezone.utc)
-    logger = DataLogger(file_name=output_file, high_level_library=high_level_library)
+    logger = DataLogger(scu_mock_simulator, output_file)
     logger.add_nodes(nodes, 50)
 
     logger.start()
@@ -399,25 +411,23 @@ def test_performance(high_level_library: StubScu) -> None:
     # assert result.returncode == 0 # assert excluded because of tool bug
 
 
-def test_nameplate_attributes(high_level_library: StubScu) -> None:
+def test_nameplate_attributes(scu_cetc_simulator: SteeringControlUnit) -> None:
     """Test the nameplate nodes are added to the root hdf5 object."""
     output_file = "tests/resources/output_files/nameplate_attributes.hdf5"
-    logger = DataLogger(file_name=output_file, high_level_library=high_level_library)
-    nodes = ["MockData.bool", "MockData.enum", "MockData.increment"]
+    logger = DataLogger(scu_cetc_simulator, output_file)
+    nodes = [
+        "Elevation.Status.AxisMoving",
+        "Elevation.Status.AxisState",
+        "Elevation.Status.p_Act",
+    ]
     logger.add_nodes(nodes, 100)
     logger.start()
     logger.stop()
     output_f_o = h5py.File(output_file, "r", libver="latest")
-    assert output_f_o.attrs["Management.NamePlate.DishId"] == "Mock XML test server"
-    assert (
-        output_f_o.attrs["Management.NamePlate.DishStructureSerialNo"]
-        == "Mock serial number"
-    )
-    assert (
-        output_f_o.attrs["Management.NamePlate.DscSoftwareVersion"]
-        == "ds_icd_0.0.11_mock.xml"
-    )
-    assert output_f_o.attrs["Management.NamePlate.IcdVersion"] == "2"
+    assert output_f_o.attrs["Management.NamePlate.DishId"] == "0"
+    assert output_f_o.attrs["Management.NamePlate.DishStructureSerialNo"] == "0"
+    assert output_f_o.attrs["Management.NamePlate.DscSoftwareVersion"] == "4.4"
+    assert output_f_o.attrs["Management.NamePlate.IcdVersion"] == "Revision 02"
     assert output_f_o.attrs["Management.NamePlate.RunHours"] == 0.0
     assert output_f_o.attrs["Management.NamePlate.TotalDist_Az"] == 0.0
     assert output_f_o.attrs["Management.NamePlate.TotalDist_El_deg"] == 0.0
