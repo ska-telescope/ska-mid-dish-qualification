@@ -12,6 +12,7 @@ import logging
 import os
 import random
 import subprocess
+import tempfile
 import time
 from datetime import datetime, timedelta, timezone
 from queue import Queue
@@ -171,20 +172,21 @@ def test_build_hdf5_structure(scu_cetc_simulator: SteeringControlUnit) -> None:
     Checks the correct hierarchical structure is created and the file object is set to
     SWMR mode.
     """
-    output_file = "tests/resources/output_files/_build_hdf5_structure.hdf5"
-    logger = DataLogger(scu_cetc_simulator, output_file)
-    nodes = [
-        "Elevation.Status.AxisMoving",
-        "Elevation.Status.AxisState",
-        "Elevation.Status.p_Act",
-    ]
-    logger.file_object = h5py.File(output_file, "w", libver="latest")
-    logger.add_nodes(nodes, 100)
-    logger._build_hdf5_structure()
-    expected_node_list = nodes
-    assert list(logger.file_object.keys()) == expected_node_list
-    assert logger.file_object.swmr_mode is True
-    logger.file_object.close()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output_file = f"{temp_dir}/_build_hdf5_structure.hdf5"
+        logger = DataLogger(scu_cetc_simulator, output_file)
+        nodes = [
+            "Elevation.Status.AxisMoving",
+            "Elevation.Status.AxisState",
+            "Elevation.Status.p_Act",
+        ]
+        logger.add_nodes(nodes, 100)
+        logger.file_object = h5py.File(output_file, "w", libver="latest")
+        logger._build_hdf5_structure()
+        expected_node_list = nodes
+        assert list(logger.file_object.keys()) == expected_node_list
+        assert logger.file_object.swmr_mode is True
+        logger.file_object.close()
 
 
 def test_add_nodes(
@@ -377,6 +379,31 @@ def test_enum_attribute(scu_cetc_simulator: SteeringControlUnit) -> None:
     output_f_o.close()
 
 
+def test_nameplate_attributes(scu_cetc_simulator: SteeringControlUnit) -> None:
+    """Test the nameplate nodes are added to the root hdf5 object."""
+    output_file = "tests/resources/output_files/nameplate_attributes.hdf5"
+    logger = DataLogger(scu_cetc_simulator, output_file)
+    nodes = [
+        "Elevation.Status.AxisMoving",
+        "Elevation.Status.AxisState",
+        "Elevation.Status.p_Act",
+    ]
+    logger.add_nodes(nodes, 100)
+    logger.start()
+    logger.stop()
+    output_f_o = h5py.File(output_file, "r", libver="latest")
+    assert output_f_o.attrs["Management.NamePlate.DishId"] == "0"
+    assert output_f_o.attrs["Management.NamePlate.DishStructureSerialNo"] == "0"
+    assert output_f_o.attrs["Management.NamePlate.DscSoftwareVersion"] == "4.4"
+    assert output_f_o.attrs["Management.NamePlate.IcdVersion"] == "Revision 02"
+    assert output_f_o.attrs["Management.NamePlate.RunHours"] == 0.0
+    assert output_f_o.attrs["Management.NamePlate.TotalDist_Az"] == 0.0
+    assert output_f_o.attrs["Management.NamePlate.TotalDist_El_deg"] == 0.0
+    assert output_f_o.attrs["Management.NamePlate.TotalDist_El_m"] == 0.0
+    assert output_f_o.attrs["Management.NamePlate.TotalDist_Fi"] == 0.0
+    output_f_o.close()
+
+
 def test_performance(scu_mock_simulator: SteeringControlUnit) -> None:
     """
     Test the performance of the logger class.
@@ -409,28 +436,3 @@ def test_performance(scu_mock_simulator: SteeringControlUnit) -> None:
     # The h5diff linux tool is returning 2 (i.e. error code) for 0 differences
     # found on the MockData.bool dataset.
     # assert result.returncode == 0 # assert excluded because of tool bug
-
-
-def test_nameplate_attributes(scu_cetc_simulator: SteeringControlUnit) -> None:
-    """Test the nameplate nodes are added to the root hdf5 object."""
-    output_file = "tests/resources/output_files/nameplate_attributes.hdf5"
-    logger = DataLogger(scu_cetc_simulator, output_file)
-    nodes = [
-        "Elevation.Status.AxisMoving",
-        "Elevation.Status.AxisState",
-        "Elevation.Status.p_Act",
-    ]
-    logger.add_nodes(nodes, 100)
-    logger.start()
-    logger.stop()
-    output_f_o = h5py.File(output_file, "r", libver="latest")
-    assert output_f_o.attrs["Management.NamePlate.DishId"] == "0"
-    assert output_f_o.attrs["Management.NamePlate.DishStructureSerialNo"] == "0"
-    assert output_f_o.attrs["Management.NamePlate.DscSoftwareVersion"] == "4.4"
-    assert output_f_o.attrs["Management.NamePlate.IcdVersion"] == "Revision 02"
-    assert output_f_o.attrs["Management.NamePlate.RunHours"] == 0.0
-    assert output_f_o.attrs["Management.NamePlate.TotalDist_Az"] == 0.0
-    assert output_f_o.attrs["Management.NamePlate.TotalDist_El_deg"] == 0.0
-    assert output_f_o.attrs["Management.NamePlate.TotalDist_El_m"] == 0.0
-    assert output_f_o.attrs["Management.NamePlate.TotalDist_Fi"] == 0.0
-    output_f_o.close()
