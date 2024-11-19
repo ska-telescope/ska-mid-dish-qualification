@@ -5,7 +5,6 @@ from time import sleep
 import pytest
 from PyQt6 import QtWidgets
 
-from ska_mid_disq import Command
 from ska_mid_disq.view import MainView
 
 
@@ -13,30 +12,14 @@ from ska_mid_disq.view import MainView
 def disq_app_fixture(qtbot, request: pytest.FixtureRequest) -> MainView:  # type: ignore
     """Fixture to setup the qtbot with the DiSQ application."""
     # Switch the MainView between two fixtures defined in conftest.py
-    with_cetc_simulator = request.config.getoption("--with-cetc-sim")
     with_plc = request.config.getoption("--with-plc")
-    if with_cetc_simulator:
-        disq_fixture: MainView = request.getfixturevalue("disq_cetc_simulator")
-    elif with_plc:
-        disq_fixture = request.getfixturevalue("disq_mid_itf_plc")
+    if with_plc:
+        disq_fixture: MainView = request.getfixturevalue("disq_mid_itf_plc")
     else:
-        disq_fixture = request.getfixturevalue("disq_mock_model")
+        disq_fixture = request.getfixturevalue("disq_cetc_simulator")
     qtbot.addWidget(disq_fixture)
-    # Setup simulator/PLC before running test
-    if with_cetc_simulator or with_plc:
-        # ALWAYS NEEDED:
-        disq_fixture.controller.command_take_authority("LMC")
-        # The following setup is only needed if running tests individually for debugging
-        # disq_fixture.controller.command_stow(False)
-        # disq_fixture.controller.command_activate("AzEl")
-        # disq_fixture.controller.command_activate("Fi")
     yield disq_fixture
-    # Stop any running slews and release authority after test (also done if test failed)
-    if with_cetc_simulator or with_plc:
-        # The following setup is only needed if running tests individually for debugging
-        # disq_fixture.controller.command_stop("AzEl")
-        # disq_fixture.controller.command_stop("Fi")
-        sleep(0.5)
+    sleep(0.5)
 
 
 def set_combobox_to_string(combo_box: QtWidgets.QComboBox, string: str) -> bool:
@@ -118,7 +101,7 @@ set_power_mode_input_widgets = [
 ]
 
 
-# pylint: disable=too-many-arguments,too-many-branches
+# pylint: disable=too-many-arguments,too-many-branches,too-many-locals
 @pytest.mark.parametrize(
     (
         "slot_function",
@@ -127,6 +110,7 @@ set_power_mode_input_widgets = [
         "input_values",
         "input_widgets",
         "expected_response",  # Only checked if fixture is connected to an OPC UA server
+        # 1st tuple is expected response for CETC sim ^4.4 and 2nd tuple is for PLC
     ),
     [
         (
@@ -135,7 +119,7 @@ set_power_mode_input_widgets = [
             "Time_cds.Commands.SetTimeSource",
             ("NTP", "196.10.54.57"),
             set_time_source_input_widgets,
-            ("CommandActivated", 9),
+            (("CommandActivated", 9), ("CommandActivated", 9)),
         ),
         (
             "set_power_mode_clicked",
@@ -143,8 +127,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.SetPowerMode",
             (False, 20.0),
             set_power_mode_input_widgets,
-            ("CommandActivated", 9),
-            # ("CommandRejected", 2),  # CETC simulator v4.3
+            (("CommandRejected", 2), ("CommandActivated", 9)),  # TODO: CETC sim?
         ),
         (
             "unstow_button_clicked",
@@ -152,7 +135,8 @@ set_power_mode_input_widgets = [
             "Management.Commands.Stow",
             (False,),
             None,
-            ("CommandActivated", 9),
+            # CETC sim does not startup stowed, so unstow is rejected.
+            (("CommandRejected", 2), ("CommandActivated", 9)),
         ),
         (
             "activate_button_clicked",
@@ -160,8 +144,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Activate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandDone", 10),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "activate_button_clicked",
@@ -169,8 +152,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Activate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandDone", 10),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "activate_button_clicked",
@@ -178,8 +160,15 @@ set_power_mode_input_widgets = [
             "Management.Commands.Activate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandDone", 10),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandActivated", 9)),
+        ),
+        (
+            "deactivate_button_clicked",
+            "AzEl",
+            "Management.Commands.DeActivate",
+            None,
+            None,
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "activate_button_clicked",
@@ -187,8 +176,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Activate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandRejected", 2),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "slew2abs_button_clicked",
@@ -196,7 +184,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Slew2AbsAzEl",
             (10.0, 20.0, 0.5, 0.3),
             slew2abs_input_widgets,
-            ("CommandActivated", 9),
+            (("CommandActivated", 9), ("CommandActivated", 9)),
         ),
         (
             "stop_button_clicked",
@@ -204,8 +192,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandDone", 10),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "slew2abs_button_clicked",
@@ -213,7 +200,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Slew2AbsAzEl",
             (-10.0, 15.0, 0.5, 0.3),
             slew2abs_input_widgets,
-            ("CommandActivated", 9),
+            (("CommandActivated", 9), ("CommandActivated", 9)),
         ),
         (
             "stop_button_clicked",
@@ -221,8 +208,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandDone", 10),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "slew_button_clicked",
@@ -230,7 +216,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Slew2AbsSingleAx",
             (10.0, 1.0),
             slew_azimuth_input_widgets,
-            ("CommandActivated", 9),
+            (("CommandActivated", 9), ("CommandActivated", 9)),
         ),
         (
             "stop_button_clicked",
@@ -238,8 +224,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandDone", 10),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "slew_button_clicked",
@@ -247,7 +232,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Slew2AbsSingleAx",
             (20.0, 1.0),
             slew_elevation_input_widgets,
-            ("CommandActivated", 9),
+            (("CommandActivated", 9), ("CommandActivated", 9)),
         ),
         (
             "stop_button_clicked",
@@ -255,8 +240,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandDone", 10),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "slew_button_clicked",
@@ -264,7 +248,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Slew2AbsSingleAx",
             (10.0, 1.0),
             slew_indexer_input_widgets,
-            ("CommandActivated", 9),
+            (("CommandActivated", 9), ("CommandActivated", 9)),
         ),
         (
             "stop_button_clicked",
@@ -272,8 +256,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandDone", 10),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "take_authority_button_clicked",
@@ -281,26 +264,25 @@ set_power_mode_input_widgets = [
             "CommandArbiter.Commands.TakeAuth",
             ("EGUI",),
             ["combobox_authority"],
-            ("SCU already has command authority with user EGUI", -1),
+            (("CommandDone", 10), ("CommandDone", 10)),
         ),
         # TODO: The interactions of this slot is complex, so cannot test 'ON' values
         # here in this test - a custom test is needed.
-        # (
-        #     "pointing_correction_setup_button_clicked",
-        #     None,
-        #     "Pointing.Commands.PmCorrOnOff",
-        #     (False, "Off", False, "Band_1"),
-        #     pointing_model_setup_input_widgets,
-        #     ("CommandDone", 10),  # TODO: Weird behaviour with CETC simulator
-        # ),
+        (
+            "pointing_correction_setup_button_clicked",
+            None,
+            "Pointing.Commands.PmCorrOnOff",
+            (False, "Off", False, "Band_1"),
+            pointing_model_setup_input_widgets,
+            (("CommandRejected", 2), ("CommandDone", 10)),  # TODO: CETC sim?
+        ),
         (
             "apply_static_pointing_parameters",
             None,
             "Pointing.Commands.StaticPmSetup",
             ("Optical",) + (0.0,) * 18,
             static_pointing_params_input_widgets,
-            ("CommandDone", 10),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandActivated", 9),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandDone", 10)),
         ),
         (
             "apply_static_pointing_offsets",
@@ -308,7 +290,7 @@ set_power_mode_input_widgets = [
             "Tracking.Commands.TrackLoadStaticOff",
             (10.0, -10.0),
             static_pointing_offset_input_widgets,
-            ("CommandActivated", 9),
+            (("CommandActivated", 9), ("CommandActivated", 9)),
         ),
         (
             "apply_ambtemp_correction_parameters",
@@ -316,8 +298,7 @@ set_power_mode_input_widgets = [
             "Pointing.Commands.AmbTempCorrSetup",
             (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0),
             ambtemp_correction_input_widgets,
-            ("CommandDone", 10),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandActivated", 9),  # CETC simulator v4.1
+            (("CommandActivated", 9), ("CommandDone", 10)),
         ),
         (
             "deactivate_button_clicked",
@@ -325,8 +306,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.DeActivate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandDone", 10),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "deactivate_button_clicked",
@@ -334,8 +314,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.DeActivate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandDone", 10),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "deactivate_button_clicked",
@@ -343,25 +322,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.DeActivate",
             None,
             None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandDone", 10),  # CETC simulator v4.1
-        ),
-        (
-            "deactivate_button_clicked",
-            "AzEl",
-            "Management.Commands.DeActivate",
-            None,
-            None,
-            ("CommandActivated", 9),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandRejected", 2),  # CETC simulator v4.1 - already deactivated
-        ),
-        (
-            "move2band_button_clicked",
-            "Band_2",
-            "Management.Commands.Move2Band",
-            None,
-            None,
-            ("CommandActivated", 9),
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "move2band_button_clicked",
@@ -369,7 +330,15 @@ set_power_mode_input_widgets = [
             "Management.Commands.Move2Band",
             None,
             None,
-            ("CommandActivated", 9),
+            (("CommandActivated", 9), ("CommandActivated", 9)),
+        ),
+        (
+            "move2band_button_clicked",
+            "Band_1",
+            "Management.Commands.Move2Band",
+            None,
+            None,
+            (("CommandActivated", 9), ("CommandActivated", 9)),
         ),
         (
             "stop_button_clicked",
@@ -377,8 +346,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Stop",
             None,
             None,
-            ("CommandRejected", 2),  # PLC at MID-ITF response as of 9 Oct 2024
-            # ("CommandDone", 10),  # CETC simulator v4.1
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "stow_button_clicked",
@@ -386,7 +354,7 @@ set_power_mode_input_widgets = [
             "Management.Commands.Stow",
             (True,),
             None,
-            ("CommandActivated", 9),
+            (("CommandActivated", 9), ("CommandActivated", 9)),
         ),
         (
             "release_authority_button_clicked",
@@ -394,7 +362,7 @@ set_power_mode_input_widgets = [
             "CommandArbiter.Commands.ReleaseAuth",
             None,
             None,
-            ("CommandDone", 10),
+            (("CommandDone", 10), ("CommandDone", 10)),
         ),
     ],
 )
@@ -405,12 +373,10 @@ def test_opcua_command_slot_function(
     command: str,
     input_values: tuple | None,
     input_widgets: list[str] | None,
-    expected_response: tuple[str, int] | None,
+    expected_response: tuple[tuple[str, int], tuple[str, int]],
+    request: pytest.FixtureRequest,
 ) -> None:
     """Test the successful sending and response of OPC UA commands."""
-    # Check whether test fixture is connected to an OPC UA server
-    opcua_server: bool = disq_app.controller.is_server_connected()
-
     if input_values is not None:
         # Setup the input widgets with valid values
         if input_widgets is not None:
@@ -421,8 +387,6 @@ def test_opcua_command_slot_function(
                 elif isinstance(widget, QtWidgets.QDoubleSpinBox):
                     widget.setValue(value)
                 elif isinstance(widget, QtWidgets.QComboBox):
-                    if not opcua_server:
-                        widget.addItem(value)
                     assert set_combobox_to_string(widget, value)
                 elif isinstance(widget, QtWidgets.QButtonGroup) and isinstance(
                     value, bool
@@ -443,30 +407,24 @@ def test_opcua_command_slot_function(
     # Verify the command status bar was updated
     assert f"Command: {command}{tuple(cmd_args)}" in disq_app.cmd_status_label.text()
 
-    if opcua_server:
-        # Check for expected response from the OPC UA server
-        if expected_response is not None:
-            assert (
-                f"Response: {expected_response[0]} [{expected_response[1]}]"
-                in disq_app.cmd_status_label.text()
+    # Check for expected response from the OPC UA server
+    with_plc = request.config.getoption("--with-plc")
+    response = expected_response[1] if with_plc else expected_response[0]
+    assert (
+        f"Response: {response[0]} [{response[1]}]" in disq_app.cmd_status_label.text()
+    )
+    if with_plc and command == "Management.Commands.Stow":
+        attr_name = "Safety.Status.StowPinStatus"
+        # For Unstow, wait for Retracted(1); for Stow, wait for Deployed(3)
+        expected = 1 if input_values == (False,) else 3
+        count = 0
+        # pylint: disable=protected-access
+        while disq_app.model._scu.attributes[attr_name].value != (  # type: ignore
+            expected
+        ):
+            assert count != 60, (
+                "Stow/Unstow timeout - command potentially failed? StowPinStatus = "
+                f"{disq_app.model._scu.attributes[attr_name].value}"  # type: ignore
             )
-        if command == "Management.Commands.Stow":
-            attr_name = "Safety.Status.StowPinStatus"
-            # For Unstow, wait for Retracted(1); for Stow, wait for Deployed(3)
-            expected = 1 if input_values == (False,) else 3
-            count = 0
-            # pylint: disable=protected-access
-            while disq_app.model._scu.attributes[attr_name].value != (  # type: ignore
-                expected
-            ):
-                assert count != 90, (
-                    "Stow/Unstow timeout - command potentially failed? StowPinStatus = "
-                    f"{disq_app.model._scu.attributes[attr_name].value}"  # type: ignore
-                )
-                count += 1
-                sleep(1)
-    else:
-        # Verify the mock command method was called with the correct arguments
-        disq_app.model.run_opcua_command.assert_called_with(  # type: ignore
-            Command(command), *cmd_args
-        )
+            count += 1
+            sleep(1)

@@ -1,5 +1,6 @@
 """Tests configuration."""
 
+import logging
 from unittest.mock import MagicMock
 
 import pytest
@@ -9,13 +10,17 @@ from ska_mid_disq.model import Model
 from ska_mid_disq.view import MainView
 
 
+@pytest.fixture(autouse=True)
+def configure_logging():
+    """Configure default logging levels for modules."""
+    logging.getLogger("asyncua").setLevel(logging.ERROR)
+    logging.getLogger("ska-mid-ds-scu").setLevel(logging.INFO)
+    logging.getLogger("gui").setLevel(logging.INFO)
+    logging.getLogger("datalog").setLevel(logging.INFO)
+
+
 def pytest_addoption(parser: pytest.Parser) -> None:
     """Add custom pytest options for test setup."""
-    parser.addoption(
-        "--with-cetc-sim",
-        action="store_true",
-        help="A running CETC54 simulator is available to run the tests against.",
-    )
     parser.addoption(
         "--with-plc",
         action="store_true",
@@ -43,6 +48,7 @@ def disq_cetc_simulator_fixture(main_view: MainView) -> MainView:  # type: ignor
             "namespace": "CETC54",
         }
     )
+    main_view.controller.command_take_authority("LMC")
     yield main_view
     main_view.model.data_received.disconnect()
     main_view.controller.disconnect_server()
@@ -61,6 +67,7 @@ def disq_mid_itf_plc_fixture(main_view: MainView) -> MainView:  # type: ignore
             "use_nodes_cache": True,
         }
     )
+    main_view.controller.command_take_authority("EGUI")
     yield main_view
     main_view.model.data_received.disconnect()
     main_view.controller.disconnect_server()

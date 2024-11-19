@@ -142,16 +142,15 @@ At the time of writing, manual exploratory testing of the GUI application is don
 ### Regression tests
 Some regression tests with limited coverage are run as part of the CI/CD pipeline. If you have a development installation, these test should always be run locally with `make python-test` before pushing any commits.
 
-The GUI tests mock the `model.run_opcua_command` method, so no simulator is involved other than the basic `DSSimulatorOPCUAServer` for the Logger's tests. This is what is done in the CI job.
-
-Additionally, if you have the CETC simulator running on your local machine, the GUI tests can be run against it using:
+In order to run the GUI and `DataLogger` tests locally, you need the latest CETC simulator image (named 'simulator' and tagged with a version number) already built in your local docker image registry from [ska-te-dish-structure-simulator](https://gitlab.com/ska-telescope/ska-te-dish-structure-simulator). The ``make python-test`` target should always be used, as it executes a pre- and post-target to start and stop the container. If you want to run only some tests, you need to use:
 ```
-make python-test PYTHON_TEST_FILE=tests/test_disq_mvc.py PYTHON_VARS_AFTER_PYTEST=--with-cetc-sim
+make python-test PYTHON_TEST_FILE=tests/test_commands.py::test_opcua_command_slot_function
 ```
 
-Or even against the PLC at the Mid-ITF instead using `--with-plc`.
-
-`--with-cetc-sim` and `--with-plc` are custom pytest arguments. When using it, nothing is mocked, and the GUI and SCU library is more thoroughly tested against the simulator or device it's connecting to.
+To run the tests (only some will be) against the PLC at the Mid-ITF, use the defined custom pytest option:
+```
+make python-test PYTHON_VARS_AFTER_PYTEST=--with-plc
+```
 
 ## Authors and acknowledgment
 SKAO Team Wombat is developing this project:
