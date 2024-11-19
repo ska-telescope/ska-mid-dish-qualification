@@ -17,6 +17,7 @@ import logging
 import os
 from configparser import ConfigParser
 from importlib import resources
+from logging.config import dictConfig
 from pathlib import Path
 
 import yaml  # type: ignore
@@ -196,7 +197,7 @@ def configure_logging(default_log_level: int = logging.INFO) -> None:
     else:
         Path("logs").mkdir(parents=True, exist_ok=True)
         try:
-            logging.config.dictConfig(config)  # type: ignore
+            dictConfig(config)
         except ValueError as e:
             print(f"{type(e).__name__}: '{e}'")
             print(
