@@ -3010,7 +3010,7 @@ types-pyyaml = "^6.0.12.20240917"
 
 [package.source]
 type = "git"
-url = "git@gitlab.com:ska-telescope/ska-mid-wms.git"
+url = "https://gitlab.com/ska-telescope/ska-mid-wms.git"
 reference = "main"
 resolved_reference = "67a885a5e9e8e2c9189db2d99e97b9579f6255cc"
 

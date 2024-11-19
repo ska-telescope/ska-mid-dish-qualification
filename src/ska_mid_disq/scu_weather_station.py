@@ -91,7 +91,8 @@ class SCUWeatherStation(SteeringControlUnit):
             bad_shutdown_callback=bad_shutdown_callback,
         )
         sensors = []
-        for node in missing_nodes:
+        missing_nodes_copy = missing_nodes.copy()
+        for node in missing_nodes_copy:
             if node in self._weather_station_attributes:
                 sensors.append(node)
                 missing_nodes.remove(node)
