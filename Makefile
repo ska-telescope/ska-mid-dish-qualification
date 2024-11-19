@@ -25,7 +25,7 @@ python-post-lint: # TODO: fix issues with excluded files
 ifndef CI_JOB_TOKEN
 SIM_IMAGE=simulator:4.4.0
 SIM_PORT=4840
-CONTAINER_NAME=cetc54-simulator-for-scu-tests
+CONTAINER_NAME=cetc54-simulator-for-disq-tests
 
 python-pre-test:
 	@if ! docker image inspect $(SIM_IMAGE) > /dev/null 2>&1; then \
