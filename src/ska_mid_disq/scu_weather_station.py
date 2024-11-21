@@ -46,9 +46,7 @@ class SCUWeatherStation(SteeringControlUnit):
         super().disconnect_and_cleanup()
         self.disconnect_weather_station()
 
-    def get_attribute_data_type(
-        self, attribute: str | ua.uatypes.NodeId
-    ) -> list[str]:
+    def get_attribute_data_type(self, attribute: str | ua.uatypes.NodeId) -> list[str]:
         """
         Get the data type for the given node.
 
@@ -154,10 +152,7 @@ class SCUWeatherStation(SteeringControlUnit):
         :return: A list of sensors names.
         """
         if self._weather_station is not None:
-            return [
-                sensor.name
-                for sensor in self._weather_station.available_sensors
-            ]
+            return [sensor.name for sensor in self._weather_station.available_sensors]
 
         return []
 
@@ -242,8 +237,8 @@ class SCUWeatherStation(SteeringControlUnit):
         self._weather_station.configure_poll_sensors(
             [SensorEnum(sensor) for sensor in sensors]
         )
-        self._weather_station_subscription = (
-            self._weather_station.subscribe_data(weather_station_callback)
+        self._weather_station_subscription = self._weather_station.subscribe_data(
+            weather_station_callback
         )
 
     def _clear_weather_station_attributes(self):
@@ -269,9 +264,7 @@ class SCUWeatherStation(SteeringControlUnit):
         :param new_sensors: A list of the sensors to be used.
         """
         if self._weather_station is None:
-            logger.error(
-                "No weather station connected, cannot change sensors."
-            )
+            logger.error("No weather station connected, cannot change sensors.")
             return
 
         available_sensors = self.list_weather_station_sensors()
@@ -285,17 +278,13 @@ class SCUWeatherStation(SteeringControlUnit):
                 return
 
         if self._weather_station_subscription is not None:
-            self._weather_station.unsubscribe_data(
-                self._weather_station_subscription
-            )
+            self._weather_station.unsubscribe_data(self._weather_station_subscription)
             self._weather_station_subscription = None
         self._clear_weather_station_attributes()
         self._clear_weather_station_subscriptions()
         self._update_weather_station_sensors(new_sensors)
 
-    def connect_weather_station(
-        self, config: str, address: str, port: int
-    ) -> None:
+    def connect_weather_station(self, config: str, address: str, port: int) -> None:
         """
         Connect to a weather station and start polling.
 
@@ -317,9 +306,7 @@ class SCUWeatherStation(SteeringControlUnit):
             return
 
         self._scu_weather_station_subscriptions = {}
-        self._weather_station.unsubscribe_data(
-            self._weather_station_subscription
-        )
+        self._weather_station.unsubscribe_data(self._weather_station_subscription)
         self._weather_station_subscription = None
         self._clear_weather_station_attributes()
         self._clear_weather_station_subscriptions()

@@ -26,6 +26,8 @@ class Controller(QObject):
     server_connected = pyqtSignal()
     server_disconnected = pyqtSignal()
     recording_status = pyqtSignal(bool)
+    weather_station_connected = pyqtSignal()
+    weather_station_disconnected = pyqtSignal()
 
     def __init__(self, mvc_model: model.Model, parent: QObject | None = None) -> None:
         """
@@ -165,7 +167,7 @@ class Controller(QObject):
         :param registrations: A list containing events to subscribe to.
         """
         self._model.register_event_updates(
-            registrations, self._handle_closed_connection
+            "opcua", registrations, self._handle_closed_connection
         )
 
     def command_slew2abs_azim_elev(
@@ -532,3 +534,72 @@ class Controller(QObject):
     def get_error_attributes(self) -> dict[str, list[tuple[str, str, str]]]:
         """Get the error attributes from the model."""
         return self._model.status_error_tree.get_all_attributes()
+
+    # ---------------
+    # Weather Station
+    # ---------------
+    def connect_weather_station(self, station_details: dict) -> None:
+        """
+        Connect to a weather station using the provided connection details.
+
+        :param station_details: A dictionary containing weather station details.
+        :raises ValueError: If the port number provided is not a valid integer.
+        """
+        self.emit_ui_status_message("INFO", "Connecting to weather station...")
+        try:
+            station_details["port"] = int(station_details["port"].strip())
+        except ValueError:
+            self.emit_ui_status_message(
+                "ERROR",
+                f"Invalid port number, should be integer: {station_details['port']}",
+            )
+            return
+
+        self._model.weather_station_connect(station_details)  # TODO try block?
+        self.emit_ui_status_message(
+            "INFO", "Connected to weather station."
+        )  # TODO add WS info
+        self.weather_station_connected.emit()
+
+    def disconnect_weather_station(self):
+        """Disconnect from the weather station."""
+        self._model.weather_station_disconnect()
+        self.emit_ui_status_message("INFO", "Disconnected from weather station.")
+        self.weather_station_disconnected.emit()
+
+    def subscribe_weather_station_updates(self, sensors: list[str]) -> None:
+        """
+        Subscribe to the requested weather station sensors.
+
+        :param sensors: A list of weather station attributes.
+        """
+        self._model.register_event_updates("weather_station", sensors)
+
+    def is_weather_station_connected(self) -> bool:
+        """
+        Check if the SCU is connected to a weather station.
+
+        :return: True if the SCU has a weather station, False otherwise.
+        """
+        return self._model.is_weather_station_connected()
+
+    def weather_station_available_sensors(self) -> list[str]:
+        """Return the list of available weather station sensors as attributes names."""
+        return self._model.weather_station_available_sensors()
+
+    def weather_station_attributes(self) -> list[str]:
+        """Return the list of configured weather station attributes."""
+        return self._model.weather_station_attributes()
+
+    def update_polled_weather_station_sensors(self, scu_sensors: list[str]) -> None:
+        """
+        Update the weather station config based on the input.
+
+        :param sensor_details: A dict with weather station attributes as keys, and
+            bool values detailing whether the weather station sensor should be polled.
+        """
+        self._model.stop_event_q_poller("weather_station")
+        self._model.weather_station_polling_update(
+            [sensor.rsplit(".", 1)[-1] for sensor in scu_sensors]
+        )
+        self.subscribe_weather_station_updates(scu_sensors)

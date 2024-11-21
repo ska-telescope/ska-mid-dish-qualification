@@ -17,7 +17,7 @@ from ska_mid_disq import (
     Command,
     DataLogger,
     ResultCode,
-    SteeringControlUnit,
+    SCUWeatherStation,
     __version__,
 )
 from ska_mid_disq.constants import (
@@ -252,6 +252,7 @@ class Model(QObject):
     status_attribute_update = pyqtSignal(str, str, datetime)
     status_group_update = pyqtSignal(int, str, bool)
     status_global_update = pyqtSignal(int, bool)
+    weather_station_data_received = pyqtSignal(dict)
 
     def __init__(self, parent: QObject | None = None) -> None:
         """
@@ -260,12 +261,12 @@ class Model(QObject):
         :param parent: The parent object, if any.
         """
         super().__init__(parent)
-        self._scu: SteeringControlUnit | None = None
+        self._scu: SCUWeatherStation | None = None
         self._data_logger: DataLogger | None = None
         self._recording = False
         self._recording_config: dict[str, dict[str, bool | int]] = {}
         self.subscription_rate_ms = SUBSCRIPTION_RATE_MS
-        self._event_q_poller: QueuePollThread | None = None
+        self._event_q_pollers: dict[str, QueuePollThread] = {}
         self._nodes_status = NodesStatus.NOT_CONNECTED
         self.status_warning_tree: StatusTreeHierarchy | None = None
         self.status_error_tree: StatusTreeHierarchy | None = None
@@ -283,7 +284,7 @@ class Model(QObject):
         """
         logger.debug("Connecting to server: %s", connect_details)
         try:
-            self._scu = SteeringControlUnit(
+            self._scu = SCUWeatherStation(
                 **connect_details,
                 gui_app=True,
                 nodes_cache_dir=USER_CACHE_DIR,
@@ -349,11 +350,17 @@ class Model(QObject):
             return "not connected to server"
         return self._scu.plc_prg_nodes_timestamp
 
+    def stop_event_q_poller(self, origin: str) -> None:
+        """Stop a specific QueuePollThread."""
+        if origin in self._event_q_pollers:
+            self._event_q_pollers[origin].stop()
+            del self._event_q_pollers[origin]
+
     def _stop_polling_threads(self) -> None:
         """Stop any running queue polling threads."""
-        if self._event_q_poller is not None:
-            self._event_q_poller.stop()
-            self._event_q_poller = None
+        for event_q_poller in list(self._event_q_pollers.keys()):
+            self.stop_event_q_poller(event_q_poller)
+
         if self.status_warning_tree is not None:
             self.status_warning_tree.stop()
             self.status_warning_tree = None
@@ -394,6 +401,7 @@ class Model(QObject):
 
     def register_event_updates(
         self,
+        origin: str,
         registrations: list[str],
         bad_shutdown_callback: Callable[[str], None] | None = None,
     ) -> None:
@@ -404,24 +412,33 @@ class Model(QObject):
         :param bad_shutdown_callback: will be called if a BadShutdown subscription
             status notification is received, defaults to None.
         """
-        self._event_q_poller = QueuePollThread(self.data_received)
-        self._event_q_poller.start()
-
         if self._scu is not None:
+            if origin == "opcua":
+                event_q_poller = QueuePollThread(self.data_received)
+            elif origin == "weather_station":
+                event_q_poller = QueuePollThread(self.weather_station_data_received)
+            else:
+                logger.warning("Model: register_event_updates: Unknown origin")
+                return
+
+            event_q_poller.start()
+            self._event_q_pollers[origin] = event_q_poller
+
             _, missing_nodes, bad_nodes = self._scu.subscribe(
                 registrations,
                 period=self.subscription_rate_ms,
-                data_queue=self._event_q_poller.queue,
+                data_queue=event_q_poller.queue,
                 bad_shutdown_callback=bad_shutdown_callback,
             )
-            if missing_nodes and not bad_nodes:
-                self._nodes_status = NodesStatus.ATTR_NOT_FOUND
-            elif not missing_nodes and bad_nodes:
-                self._nodes_status = NodesStatus.NODE_INVALID
-            elif missing_nodes and bad_nodes:
-                self._nodes_status = NodesStatus.NOT_FOUND_INVALID
-            else:
-                self._nodes_status = NodesStatus.VALID
+            if origin == "opcua":
+                if missing_nodes and not bad_nodes:
+                    self._nodes_status = NodesStatus.ATTR_NOT_FOUND
+                elif not missing_nodes and bad_nodes:
+                    self._nodes_status = NodesStatus.NODE_INVALID
+                elif missing_nodes and bad_nodes:
+                    self._nodes_status = NodesStatus.NOT_FOUND_INVALID
+                else:
+                    self._nodes_status = NodesStatus.VALID
         else:
             logger.warning("Model: register_event_updates: SCU not initialised yet!")
 
@@ -763,3 +780,54 @@ class Model(QObject):
         :return: A dict of the read static pointing parameters.
         """
         return self._scu.read_static_pointing_model(band, antenna)
+
+    # ---------------
+    # Weather Station
+    # ---------------
+    def weather_station_connect(self, station_details: dict) -> None:
+        """Connect a weather station."""
+        self._scu.connect_weather_station(**station_details)
+
+    def weather_station_disconnect(self) -> None:
+        """Disconnect the weather station."""
+        self.stop_event_q_poller("weather_station")
+        self._scu.disconnect_weather_station()
+
+    def weather_station_sensors_update(self, sensors: list[str]) -> None:
+        """Update the polled sensors to the input list."""
+        if self._scu is not None:
+            self._scu.change_weather_station_sensors(sensors)
+
+    def is_weather_station_connected(self) -> bool:
+        """
+        Check if the `Model` instance object has a connection to a weather station.
+
+        :return: True if the object is connected, False otherwise.
+        """
+        if self._scu is not None:
+            return self._scu.is_weather_station_connected()
+        return False
+
+    def weather_station_available_sensors(self) -> list[str]:
+        """Return the list of available weather station sensors as attributes names."""
+        if self._scu is not None:
+            return [
+                f"weather.station.{sensor}"
+                for sensor in self._scu.list_weather_station_sensors()
+            ]
+        return []
+
+    def weather_station_attributes(self) -> list[str]:
+        """Return the list of configured weather station attributes."""
+        if self._scu is not None:
+            return self._scu.weather_station_attributes
+        return []
+
+    def weather_station_polling_update(self, sensors: list[str]) -> None:
+        """
+        Change which weather station sensors are polled.
+
+        :param sensors: A list of sensors to poll.
+        """
+        if self.is_weather_station_connected():
+            self._scu.change_weather_station_sensors(sensors)
