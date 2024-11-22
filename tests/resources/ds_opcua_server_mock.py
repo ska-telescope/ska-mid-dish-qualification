@@ -8,6 +8,7 @@
 import asyncio
 import enum
 import logging
+import multiprocessing
 import random
 import threading
 
@@ -1273,7 +1274,7 @@ class DSSimulatorOPCUAServer:
         await d_value_node.write_value(values_list[37])
 
 
-async def main():
+async def main(server_started: multiprocessing.Event = None):
     import numpy as np
 
     # list workaround for weird multiple parameter problem with File
@@ -1320,6 +1321,8 @@ async def main():
         0,
     ]
     async with DSSimulatorOPCUAServer() as server:
+        if server_started is not None:
+            server_started.set()
         await server.new_mock_data_values(values)
         count = 0
         while True:
