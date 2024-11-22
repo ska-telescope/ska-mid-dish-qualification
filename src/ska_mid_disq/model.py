@@ -109,7 +109,7 @@ class QueuePollThread(QThread):
 class StatusTreeHierarchy(QueuePollThread):
     """A class to represent a hierarchy of status attributes."""
 
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def __init__(
         self,
         category: StatusTreeCategory,
@@ -557,7 +557,7 @@ class Model(QObject):
         """Return a status message (Enum) of the OPC UA client's nodes."""
         return self._nodes_status
 
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def load_track_table(
         self,
         filename: Path,

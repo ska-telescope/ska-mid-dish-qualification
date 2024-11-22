@@ -255,7 +255,7 @@ class Converter:
         line.append("\n")
         return "".join(line)
 
-    # pylint: disable=too-many-arguments,too-many-locals
+    # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
     def make_csv(
         self,
         input_file: str,

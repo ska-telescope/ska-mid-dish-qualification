@@ -239,7 +239,7 @@ class OPCUAServerValidator:
 
         return node_dict
 
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def _scan_opcua_server(
         self,
         host: str,
@@ -425,6 +425,7 @@ class OPCUAServerValidator:
                 print(string, file=f)
 
     # pylint: disable=too-many-arguments,unnecessary-comprehension
+    # pylint: disable=too-many-positional-arguments
     def _print_method_args_mismatch_string(
         self,
         indent: str,
@@ -459,6 +460,7 @@ class OPCUAServerValidator:
     # TODO: Consider refactoring for more readable code, remove below disabled rules
     # pylint: disable=too-many-branches,unnecessary-comprehension
     # pylint: disable=too-many-arguments,too-many-locals, too-many-nested-blocks
+    # pylint: disable=too-many-positional-arguments
     def print_diff(
         self,
         actual: dict,

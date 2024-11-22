@@ -170,7 +170,7 @@ class Grapher:
 
         return (dts, data, categories)
 
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def _build_axis(
         self,
         node: str,
@@ -218,7 +218,7 @@ class Grapher:
             borderaxespad=0,
         )
 
-    # pylint: disable=too-many-arguments, too-many-locals
+    # pylint: disable=too-many-arguments, too-many-locals,too-many-positional-arguments
     def graph(
         self,
         file: str,
