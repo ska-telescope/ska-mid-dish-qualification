@@ -292,13 +292,19 @@ class SCUWeatherStation(SteeringControlUnit):
         :param port: The port of the weather station.
         :param config: The weather station config file.
         """
-        self._weather_station = WeatherStation(config, address, port, logger)
+        try:
+            self._weather_station = WeatherStation(config, address, port, logger)
+        except ValueError as e:
+            logger.error("Could not connect to weather station: %s", e)
+            return
+
         self._weather_station.connect()
         self._weather_station.start_polling()
 
-        # Default to all sensors in config file
-        sensors = self.list_weather_station_sensors()
-        self.change_weather_station_sensors(sensors)
+        if not self._gui_app:
+            # Default to all sensors in config file
+            sensors = self.list_weather_station_sensors()
+            self.change_weather_station_sensors(sensors)
 
     def disconnect_weather_station(self) -> None:
         """Disconnect from the weather station, if any."""

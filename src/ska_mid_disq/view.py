@@ -24,6 +24,7 @@ from PyQt6.QtGui import (
     QPixmap,
 )
 from PyQt6.QtWidgets import QFileDialog
+from ska_mid_wms.wms_interface import weather_station_configuration
 
 from ska_mid_disq import ResultCode, __version__, controller, model
 from ska_mid_disq.constants import StatusTreeCategory
@@ -191,7 +192,26 @@ class ServerConnectDialog(QtWidgets.QDialog):
         self.accept()
 
 
-class WeatherStationConnectDialog(QtWidgets.QDialog):
+class StatusBarMixin:
+    """A mixin class to provide a window with a status bar."""
+
+    def create_status_bar_widget(
+        self,
+        label: str = "",
+    ) -> QtWidgets.QStatusBar:
+        """Create the status bar widgets for the window."""
+        # Add a label widget to the status bar for command/response status
+        status_bar = QtWidgets.QStatusBar()
+        self.cmd_status_label = QtWidgets.QLabel(label)
+        status_bar.addWidget(self.cmd_status_label)
+        return status_bar
+
+    def status_bar_update(self, status: str) -> None:
+        """Update the status bar with a status update."""
+        self.cmd_status_label.setText(status[:200])
+
+
+class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
     # pylint: disable=too-few-public-methods
     """A dialog-window class for connecting to a weather station."""
 
@@ -240,6 +260,8 @@ class WeatherStationConnectDialog(QtWidgets.QDialog):
         self.vbox_layout.addWidget(QtWidgets.QLabel("Weather Station Port:"))
         self.vbox_layout.addWidget(self.weather_station_port)
         self.vbox_layout.addWidget(self.btn_box)
+        status_bar = self.create_status_bar_widget()
+        self.vbox_layout.addWidget(status_bar)
         self.setLayout(self.vbox_layout)
         self.weather_station_details: dict[str, str] = {}
 
@@ -255,37 +277,26 @@ class WeatherStationConnectDialog(QtWidgets.QDialog):
         )
         if filename:
             logger.info("Weather station config file name: %s", filename)
-            # TODO parse config
             self.weather_station_config_file.setText(filename)
 
     def confirm_connect(self):
         """Accepts the weather station details entered in the dialog."""
         logger.debug("Weather station dialog accepted")
+        config = self.weather_station_config_file.text()
+        try:
+            weather_station_configuration.load_configuration(config)
+        except ValueError:
+            msg = f"{config} does not contain a valid weather station configuration"
+            logger.error(msg)
+            self.status_bar_update(msg)
+            return
+
         self.server_details = {
-            "config": self.weather_station_config_file.text(),
+            "config": config,
             "address": self.weather_station_address.text(),
             "port": self.weather_station_port.text(),
         }
         self.accept()
-
-
-class StatusBarMixin:
-    """A mixin class to provide a window with a status bar."""
-
-    def create_status_bar_widget(
-        self,
-        label: str = "",
-    ) -> QtWidgets.QStatusBar:
-        """Create the status bar widgets for the window."""
-        # Add a label widget to the status bar for command/response status
-        status_bar = QtWidgets.QStatusBar()
-        self.cmd_status_label = QtWidgets.QLabel(label)
-        status_bar.addWidget(self.cmd_status_label)
-        return status_bar
-
-    def status_bar_update(self, status: str) -> None:
-        """Update the status bar with a status update."""
-        self.cmd_status_label.setText(status[:200])
 
 
 # pylint: disable=too-many-instance-attributes
@@ -1686,7 +1697,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         This function is called when a weather station is connected to.
         """
         logger.debug("Weather station connected event received.")
-        self.controller.subscribe_weather_station_updates(
+        self.controller.update_polled_weather_station_sensors(
             self.controller.weather_station_available_sensors()
         )
         self.action_connect_weather_station.setEnabled(False)

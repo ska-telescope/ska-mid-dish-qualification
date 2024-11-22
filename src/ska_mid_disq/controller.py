@@ -555,10 +555,11 @@ class Controller(QObject):
             )
             return
 
-        self._model.weather_station_connect(station_details)  # TODO try block?
+        self._model.weather_station_connect(station_details)
         self.emit_ui_status_message(
-            "INFO", "Connected to weather station."
-        )  # TODO add WS info
+            "INFO",
+            f"Connected to weather station at {station_details['address']}",
+        )
         self.weather_station_connected.emit()
 
     def disconnect_weather_station(self):
@@ -595,11 +596,14 @@ class Controller(QObject):
         """
         Update the weather station config based on the input.
 
-        :param sensor_details: A dict with weather station attributes as keys, and
-            bool values detailing whether the weather station sensor should be polled.
+        :param sensor_details: An exhaustive list of sensors to be polled.
         """
         self._model.stop_event_q_poller("weather_station")
         self._model.weather_station_polling_update(
             [sensor.rsplit(".", 1)[-1] for sensor in scu_sensors]
         )
         self.subscribe_weather_station_updates(scu_sensors)
+
+        # As this changes the attributes available in sculib, the recording config needs
+        # to be reset so that it is recreated with the new attributes.
+        self.recording_config = {}
