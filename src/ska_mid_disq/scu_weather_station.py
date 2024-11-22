@@ -114,6 +114,14 @@ class SCUWeatherStation(SteeringControlUnit):
                 "data_queue": data_queue,
             }
 
+        if missing_nodes:
+            msg = "The following attributes could not be found on the OPCUA server"
+            if self._weather_station:
+                msg += " or weather station"
+
+            msg += ": %s"
+            logger.info(msg, missing_nodes)
+
         return uid, missing_nodes, bad_nodes
 
     def unsubscribe(self, uid: int) -> None:
