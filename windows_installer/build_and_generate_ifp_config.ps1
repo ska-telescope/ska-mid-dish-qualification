@@ -13,7 +13,7 @@ if (-not $version) {
 
 # Define paths
 $installerDir = "windows_installer"
-$installerPath = "$projectRoot\$installerDir\DiSQ v$version Setup.exe"
+$installerPath = "$projectRoot\$installerDir\DiSQ-$version-windows-x64.exe"
 $wizardImgPath = "$projectRoot\src\ska_mid_disq\ui\images\installer.png"
 $headerImgPath = "$projectRoot\src\ska_mid_disq\ui\images\wombat_logo.png"
 $internalPath = "$projectRoot\dist\DiSQ\_internal"
