@@ -35,8 +35,7 @@ MANIFEST.skao.int
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 # *.spec
-*.ifp
-*Setup.exe
+*windows-x64.exe
 
 # Installer logs
 pip-log.txt
