@@ -16,15 +16,26 @@ $installerDir = "windows_installer"
 $installerPath = "$projectRoot\$installerDir\DiSQ-$version-windows-x64.exe"
 $wizardImgPath = "$projectRoot\src\ska_mid_disq\ui\images\installer.png"
 $headerImgPath = "$projectRoot\src\ska_mid_disq\ui\images\wombat_logo.png"
-$internalPath = "$projectRoot\dist\DiSQ\_internal"
-$exePath = "$projectRoot\dist\DiSQ\DiSQ.exe"
+$distName = "DiSQ-$version-win64"
+$internalPath = "$projectRoot\dist\$distName\_internal"
+$exePath = "$projectRoot\dist\$distName\$distName.exe"
 $scriptPath = "$projectRoot\$installerDir\post_install.ps1"
 $ifpPath = "$projectRoot\$installerDir\disq.ifp"
 
-# Run PyInstaller with the specified version
+# Define pyinstaller arguments as individual items in an array
+$arguments = @(
+    "--name", $distName, 
+    "--clean", "--noconfirm", "--windowed", 
+    "--add-data", "src/ska_mid_disq/ui/dishstructure_mvc.ui:ska_mid_disq/ui", 
+    "--add-data", "src/ska_mid_disq/default_logging_config.yaml:ska_mid_disq", 
+    "--add-data", "src/ska_mid_disq/ui/icons/skao.ico:.", 
+    "--icon", "src/ska_mid_disq/ui/icons/skao.ico", 
+    "src/ska_mid_disq/mvcmain.py"
+)
+
+# Call pyinstaller with the arguments
 Write-Host "Building DiSQ version $version with PyInstaller..."
-$pyInstallerCmd = "pyinstaller --clean --noconfirm disq.spec"
-$pyInstallerResult = Invoke-Expression $pyInstallerCmd
+& pyinstaller @arguments
 if ($LASTEXITCODE -ne 0) {
     Write-Error "ERROR: PyInstaller build failed."
     exit 1
@@ -51,9 +62,10 @@ $text = $text -replace "Program version = .+", "Program version = $version"
 $text = $text -replace "Wizard image = .+", "Wizard image = $wizardImgPath"
 $text = $text -replace "Header image = .+", "Header image = $headerImgPath"
 $text = $text -replace "File = .+", "File = $installerPath"
-$text = $text -replace "C:\\.*?_internal", $internalPath
-$text = $text -replace "C:\\.*?DiSQ.exe", $exePath
-$text = $text -replace "C:\\.*?post_install.ps1", $scriptPath
+$text = $text -replace "^C:\\.*?_internal", $internalPath
+$text = $text -replace "^C:\\.*?.exe", $exePath
+$text = $text -replace "^C:\\.*?post_install.ps1", $scriptPath
+$text = $text -replace "<InstallPath>\\.*?.exe", "<InstallPath>\$distName.exe"
 
 # Write the modified content back to the updated .ifp file
 [System.IO.File]::WriteAllBytes($ifpPath, [System.Text.Encoding]::Default.GetBytes($text))
