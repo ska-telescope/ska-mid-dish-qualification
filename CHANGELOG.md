@@ -3,7 +3,8 @@
 ## Unreleased
 
 - Bug fixes:
-    - WOM-518: Rectify static tracking offsets input range limits. 
+    - WOM-518: Rectify static tracking offsets input range limits.
+    - WOM-424: Simplified main dependencies and limited Python version to 3.10 and 3.11.
 
 ## 0.5.1
 
