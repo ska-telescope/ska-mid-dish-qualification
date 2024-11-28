@@ -1,17 +1,17 @@
 .. role:: ps1(code)
     :language: powershell
 
-=============================
-Connecting to an OPCUA Server
-=============================
+==================
+Using the DiSQ GUI
+==================
 
 .. note::
     To install DiSQ please follow the instructions :doc:`available here<readme>`.
 
 This page describes the process of connecting DiSQ to an OPCUA server. DiSQ uses a TCP connection to communicate with the server, and, once connected, recursively scans the server from the PLC_PRG node. Therefore, a server must be reachable over a network and have a node at :code:`/Logic/Application/PLC_PRG`.
 
-The DiSQ GUI
-------------
+Launch and Connect
+------------------
 
 The installation process of DiSQ for both users and developers will make a new command available in the Python virtual environment: :code:`disq-gui`. Running the :code:`disq-gui` command will launch the Graphical User Interface (GUI) included in the DiSQ package:
 
@@ -45,8 +45,8 @@ Upon successful connection, the GUI will automatically subscribe to the displaye
 
 .. image:: /img/Screenshot-connected_cetc.png
 
-Authority
----------
+Taking Authority
+----------------
 
 Once connected, the dish stucture controller PLCs will allow nodes to be subscribed to, so functionality such as the displayed values and using the :code:`Recording` section can be used immediately. However most buttons on the GUI are linked to OPCUA commands, which require the session to have "authority".
 
@@ -57,7 +57,7 @@ To take authority as the engineering GUI, select the :code:`EGUI` option from th
 
 .. image:: /img/Screenshot-take_authority.png
    
-The status bar at the bottom of the window will show the command and its response (the history of commands can be seen in the :code:`Logs` tab). If the command was successful (e.g. CommandDone, CommandActivated), the :code:`Curren Auth` box will update to show the current authority is the EGUI.
+The status bar at the bottom of the window will show the command and its response (the history of commands can be seen in the :code:`Logs` tab). If the command was successful (e.g. CommandDone, CommandActivated), the :code:`Current Auth` box will update to show the current authority is the EGUI.
    
 To change authority, first release any held authority with the :code:`Release Authority` button. The GUI will automatically release authority when closed.
 
