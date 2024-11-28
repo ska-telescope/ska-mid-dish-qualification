@@ -18,6 +18,7 @@ dependencies = [
     "platformdirs>=4.3.6",
     "ska-mid-dish-steering-control>=0.1.2",
     # "ska-mid-dish-steering-control @ git+https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git@main",
+    "ska-mid-wms>=0.1.0",
 ]
 license.file = "LICENSE"
 readme = "README.md"
@@ -111,7 +112,7 @@ platformdirs = "^4.3.6"
 ska-mid-dish-steering-control = "^0.1.2"
 # ska-mid-dish-steering-control = { path = "../ska-mid-dish-steering-control", develop = true }
 # ska-mid-dish-steering-control = { git = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git", branch = "main" }
-ska-mid-wms = {git = "https://gitlab.com/ska-telescope/ska-mid-wms.git", branch = "main"}
+ska-mid-wms = ">=0.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pyqt6-tools = "^6.4.2"
@@ -132,7 +133,7 @@ flake8-rst-docstrings = "^0.3.0"
 mypy = "^1.9.0"
 pep8-naming = "^0.13.3"
 build = "^1.1.1"
-numpy = "^2.1.3"
+numpy = "^1.26.4"
 matplotlib = "^3.9.2"                 # Used in the utility Reader class.
 plotly = "^5.24.1"                    # Used in the utility Reader class.
 
