@@ -283,6 +283,12 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
         """Accepts the weather station details entered in the dialog."""
         logger.debug("Weather station dialog accepted")
         config = self.weather_station_config_file.text()
+        address = self.weather_station_address.text()
+        port = self.weather_station_port.text()
+        if not config or not address or not port:
+            self.status_bar_update("Please fill in all weather station details.")
+            return
+
         try:
             weather_station_configuration.load_configuration(config)
         except ValueError:
@@ -291,11 +297,7 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
             self.status_bar_update(msg)
             return
 
-        self.server_details = {
-            "config": config,
-            "address": self.weather_station_address.text(),
-            "port": self.weather_station_port.text(),
-        }
+        self.server_details = {"config": config, "address": address, "port": port}
         self.accept()
 
 
