@@ -7,6 +7,7 @@ from typing import Any
 from PyQt6.QtCore import QCoreApplication, QObject, pyqtSignal
 
 from ska_mid_disq import Command, ResultCode, configuration, model
+from ska_mid_disq.constants import ServerType
 
 logger = logging.getLogger("gui.controller")
 
@@ -167,7 +168,7 @@ class Controller(QObject):
         :param registrations: A list containing events to subscribe to.
         """
         self._model.register_event_updates(
-            "opcua", registrations, self._handle_closed_connection
+            ServerType.OPCUA, registrations, self._handle_closed_connection
         )
 
     def command_slew2abs_azim_elev(
@@ -574,7 +575,7 @@ class Controller(QObject):
 
         :param sensors: A list of weather station attributes.
         """
-        self._model.register_event_updates("weather_station", sensors)
+        self._model.register_event_updates(ServerType.WMS, sensors)
 
     def is_weather_station_connected(self) -> bool:
         """
@@ -598,7 +599,7 @@ class Controller(QObject):
 
         :param sensor_details: An exhaustive list of sensors to be polled.
         """
-        self._model.stop_event_q_poller("weather_station")
+        self._model.stop_event_q_poller(ServerType.WMS)
         self._model.weather_station_polling_update(
             [sensor.rsplit(".", 1)[-1] for sensor in scu_sensors]
         )

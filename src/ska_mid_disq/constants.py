@@ -52,3 +52,10 @@ class StatusTreeCategory(IntEnum):
 
     ERROR = 0
     WARNING = 1
+
+
+class ServerType(Enum):
+    """Possible types of connected servers."""
+
+    OPCUA = "OPCUA"
+    WMS = "WMS"

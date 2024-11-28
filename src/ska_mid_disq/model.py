@@ -24,6 +24,7 @@ from ska_mid_disq.constants import (
     SUBSCRIPTION_RATE_MS,
     USER_CACHE_DIR,
     NodesStatus,
+    ServerType,
     StatusTreeCategory,
 )
 
@@ -266,7 +267,7 @@ class Model(QObject):
         self._recording = False
         self._recording_config: dict[str, dict[str, bool | int]] = {}
         self.subscription_rate_ms = SUBSCRIPTION_RATE_MS
-        self._event_q_pollers: dict[str, QueuePollThread] = {}
+        self._event_q_pollers: dict[ServerType, QueuePollThread] = {}
         self._nodes_status = NodesStatus.NOT_CONNECTED
         self.status_warning_tree: StatusTreeHierarchy | None = None
         self.status_error_tree: StatusTreeHierarchy | None = None
@@ -350,11 +351,11 @@ class Model(QObject):
             return "not connected to server"
         return self._scu.plc_prg_nodes_timestamp
 
-    def stop_event_q_poller(self, origin: str) -> None:
+    def stop_event_q_poller(self, server_type: ServerType) -> None:
         """Stop a specific QueuePollThread."""
-        if origin in self._event_q_pollers:
-            self._event_q_pollers[origin].stop()
-            del self._event_q_pollers[origin]
+        if server_type in self._event_q_pollers:
+            self._event_q_pollers[server_type].stop()
+            del self._event_q_pollers[server_type]
 
     def _stop_polling_threads(self) -> None:
         """Stop any running queue polling threads."""
@@ -401,7 +402,7 @@ class Model(QObject):
 
     def register_event_updates(
         self,
-        origin: str,
+        server_type: ServerType,
         registrations: list[str],
         bad_shutdown_callback: Callable[[str], None] | None = None,
     ) -> None:
@@ -413,16 +414,16 @@ class Model(QObject):
             status notification is received, defaults to None.
         """
         if self._scu is not None:
-            if origin == "opcua":
+            if server_type is ServerType.OPCUA:
                 event_q_poller = QueuePollThread(self.data_received)
-            elif origin == "weather_station":
+            elif server_type is ServerType.WMS:
                 event_q_poller = QueuePollThread(self.weather_station_data_received)
             else:
                 logger.warning("Model: register_event_updates: Unknown origin")
                 return
 
             event_q_poller.start()
-            self._event_q_pollers[origin] = event_q_poller
+            self._event_q_pollers[server_type] = event_q_poller
 
             _, missing_nodes, bad_nodes = self._scu.subscribe(
                 registrations,
@@ -430,7 +431,7 @@ class Model(QObject):
                 data_queue=event_q_poller.queue,
                 bad_shutdown_callback=bad_shutdown_callback,
             )
-            if origin == "opcua":
+            if server_type is ServerType.OPCUA:
                 if missing_nodes and not bad_nodes:
                     self._nodes_status = NodesStatus.ATTR_NOT_FOUND
                 elif not missing_nodes and bad_nodes:
@@ -790,7 +791,7 @@ class Model(QObject):
 
     def weather_station_disconnect(self) -> None:
         """Disconnect the weather station."""
-        self.stop_event_q_poller("weather_station")
+        self.stop_event_q_poller(ServerType.WMS)
         self._scu.disconnect_weather_station()
 
     def weather_station_sensors_update(self, sensors: list[str]) -> None:

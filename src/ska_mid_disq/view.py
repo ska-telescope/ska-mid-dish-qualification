@@ -272,7 +272,7 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
             parent=self,
             caption="Select Weather Station Config",
             directory=user_documents_dir(),
-            filter="Recording Config Files (*.yaml);;All Files (*)",
+            filter="Weather Station Config Files (*.yaml);;All Files (*)",
             options=options,
         )
         if filename:
