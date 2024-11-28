@@ -18,7 +18,7 @@ dependencies = [
     "platformdirs>=4.3.6",
     "ska-mid-dish-steering-control>=0.1.2",
     # "ska-mid-dish-steering-control @ git+https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git@main",
-    "ska-mid-wms>=0.1.0",
+    "ska-mid-wms @ git+https://gitlab.com/ska-telescope/ska-mid-wms.git@main",
 ]
 license.file = "LICENSE"
 readme = "README.md"
@@ -112,7 +112,7 @@ platformdirs = "^4.3.6"
 ska-mid-dish-steering-control = "^0.1.2"
 # ska-mid-dish-steering-control = { path = "../ska-mid-dish-steering-control", develop = true }
 # ska-mid-dish-steering-control = { git = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git", branch = "main" }
-ska-mid-wms = ">=0.1.0"
+ska-mid-wms = {git = "https://gitlab.com/ska-telescope/ska-mid-wms.git", branch = "main"}
 
 [tool.poetry.group.dev.dependencies]
 pyqt6-tools = "^6.4.2"
