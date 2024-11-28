@@ -24,6 +24,7 @@ from PyQt6.QtGui import (
     QPixmap,
 )
 from PyQt6.QtWidgets import QFileDialog
+from ska_mid_wms.wms_interface import weather_station_configuration
 
 from ska_mid_disq import ResultCode, __version__, controller, model
 from ska_mid_disq.constants import StatusTreeCategory
@@ -208,6 +209,96 @@ class StatusBarMixin:
     def status_bar_update(self, status: str) -> None:
         """Update the status bar with a status update."""
         self.cmd_status_label.setText(status[:200])
+
+
+class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
+    # pylint: disable=too-few-public-methods
+    """A dialog-window class for connecting to a weather station."""
+
+    def __init__(self, parent: QtWidgets.QWidget):
+        """
+        Initialize the weather station connect dialog.
+
+        :param parent: The parent widget for the dialog.
+        """
+        super().__init__(parent)
+        self.server_details: dict[str, str] = {}
+
+        self.setWindowTitle("Weather Station Connection")
+        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
+
+        button = (
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
+        )
+
+        self.btn_box = QtWidgets.QDialogButtonBox(button)
+        self.btn_box.accepted.connect(self.confirm_connect)
+        self.btn_box.rejected.connect(self.reject)
+
+        self.vbox_layout = QtWidgets.QVBoxLayout()
+        message = QtWidgets.QLabel(
+            "Enter or select the weather station details and click OK"
+        )
+        # Create widgets
+        self.select_weather_station_config_file = QtWidgets.QPushButton(
+            "Select configuration..."
+        )
+        self.select_weather_station_config_file.clicked.connect(
+            self._select_weather_station_config_file_clicked
+        )
+        self.weather_station_config_file = QtWidgets.QLineEdit()
+        self.weather_station_address = QtWidgets.QLineEdit()
+        self.weather_station_port = QtWidgets.QLineEdit()
+        # Create layout
+        self.vbox_layout.addWidget(message)
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Select configuration:"))
+        self.vbox_layout.addWidget(self.select_weather_station_config_file)
+        self.vbox_layout.addWidget(self.weather_station_config_file)
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Weather Station Address:"))
+        self.vbox_layout.addWidget(self.weather_station_address)
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Weather Station Port:"))
+        self.vbox_layout.addWidget(self.weather_station_port)
+        self.vbox_layout.addWidget(self.btn_box)
+        status_bar = self.create_status_bar_widget()
+        self.vbox_layout.addWidget(status_bar)
+        self.setLayout(self.vbox_layout)
+        self.weather_station_details: dict[str, str] = {}
+
+    def _select_weather_station_config_file_clicked(self):
+        """Load a weather station config from a yaml file."""
+        options = QFileDialog.Option(QFileDialog.Option.ReadOnly)
+        filename, _ = QFileDialog.getOpenFileName(
+            parent=self,
+            caption="Select Weather Station Config",
+            directory=user_documents_dir(),
+            filter="Weather Station Config Files (*.yaml);;All Files (*)",
+            options=options,
+        )
+        if filename:
+            logger.info("Weather station config file name: %s", filename)
+            self.weather_station_config_file.setText(filename)
+
+    def confirm_connect(self):
+        """Accepts the weather station details entered in the dialog."""
+        logger.debug("Weather station dialog accepted")
+        config = self.weather_station_config_file.text()
+        address = self.weather_station_address.text()
+        port = self.weather_station_port.text()
+        if not config or not address or not port:
+            self.status_bar_update("Please fill in all weather station details.")
+            return
+
+        try:
+            weather_station_configuration.load_configuration(config)
+        except ValueError:
+            msg = f"{config} does not contain a valid weather station configuration"
+            logger.error(msg)
+            self.status_bar_update(msg)
+            return
+
+        self.server_details = {"config": config, "address": address, "port": port}
+        self.accept()
 
 
 # pylint: disable=too-many-instance-attributes
@@ -433,7 +524,10 @@ class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
                     period = values["period"]
                 except Exception as e:  # pylint: disable=broad-except
                     logger.warning(
-                        "Could not load file %s: %s:%s", filename, type(e).__name__, e
+                        "Could not load file %s: %s:%s",
+                        filename,
+                        type(e).__name__,
+                        e,
                     )
                     self.status_bar_update(
                         f"Error: {e} value missing for node {node} in file {filename}"
@@ -601,6 +695,14 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.action_disconnect_opcua_server.triggered.connect(
             self.connect_button_clicked
         )
+        self.action_connect_weather_station: QAction
+        self.action_connect_weather_station.triggered.connect(
+            self.connect_weather_station_clicked
+        )
+        self.action_disconnect_weather_station: QAction
+        self.action_disconnect_weather_station.triggered.connect(
+            self.connect_weather_station_clicked
+        )
         self.action_about: QAction
         self.action_about.triggered.connect(self.about_button_clicked)
         self.action_docs: QAction
@@ -630,9 +732,18 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.controller.ui_status_message.connect(self.command_response_status_update)
         self.controller.server_connected.connect(self.server_connected_event)
         self.controller.server_disconnected.connect(self.server_disconnected_event)
+        self.controller.weather_station_connected.connect(
+            self.weather_station_connected_event
+        )
+        self.controller.weather_station_disconnected.connect(
+            self.weather_station_disconnected_event
+        )
 
         # Listen for Model event signals
         self.model.data_received.connect(self.event_update)
+        self.model.weather_station_data_received.connect(
+            self.weather_station_event_update
+        )
 
         # Status panel widgets
         self.line_edit_warning_general: QtWidgets.QLineEdit
@@ -1007,6 +1118,17 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
         self.error_status_show_only_errors.stateChanged.connect(
             self.warning_status_show_only_warnings_clicked
+        )
+
+        # Weather tab
+        self.weather_station: QtWidgets.QWidget
+        self.button_weather_station_configure_reset: QtWidgets.QPushButton
+        self.button_weather_station_configure_reset.clicked.connect(
+            self._reset_weather_tab_config
+        )
+        self.button_weather_station_configure_apply: QtWidgets.QPushButton
+        self.button_weather_station_configure_apply.clicked.connect(
+            self._apply_weather_tab_config
         )
 
     @cached_property
@@ -1405,6 +1527,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
         self.action_connect_opcua_server.setEnabled(False)
         self.action_disconnect_opcua_server.setEnabled(True)
+        self.action_connect_weather_station.setEnabled(True)
         self._enable_opcua_widgets()
         self._enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
@@ -1427,6 +1550,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.label_cache_status.setText("")
         self.action_connect_opcua_server.setEnabled(True)
         self.action_disconnect_opcua_server.setEnabled(False)
+        self.action_connect_weather_station.setEnabled(False)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
         self.warning_status_show_only_warnings.setEnabled(False)
@@ -1467,6 +1591,150 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         logger.debug("Connecting to server: %s", connect_details)
         self.label_conn_status.setText("Connecting... please wait")
         self.controller.connect_server(connect_details)
+
+    @cached_property
+    def weather_tab_widgets(self) -> list[QtWidgets.QWidget]:
+        """
+        Return a list of weather station widgets.
+
+        This function finds all interactive widgets that have a dynamic property that
+        starts with 'weather_station' under the weather tab.
+
+        This is a cached property, meaning the function will only run once and
+        subsequent calls will return the cached result.
+
+        :return: List of weather tab widgets.
+        """
+        weather_tab_widgets = self.weather_station.findChildren(
+            (
+                QtWidgets.QLineEdit,
+                QtWidgets.QRadioButton,
+                QtWidgets.QPushButton,
+            )
+        )
+        weather_station_widgets: list[QtWidgets.QWidget] = []
+        for wgt in weather_tab_widgets:
+            property_names: list[QtCore.QByteArray] = wgt.dynamicPropertyNames()
+            for property_name in property_names:
+                if property_name.startsWith(
+                    QtCore.QByteArray("weather_station".encode())
+                ):
+                    weather_station_widgets.append(wgt)  # type: ignore
+                    break
+
+        return weather_station_widgets
+
+    def _enable_weather_tab_widgets(self, enable: bool) -> None:
+        """Enable/disable weather tab widgets."""
+        for wgt in self.weather_tab_widgets:
+            if isinstance(wgt, QtWidgets.QPushButton):
+                wgt.setEnabled(enable)
+                continue
+
+            # Remaining widgets depend on weather station configuration
+            attribute_name = wgt.property("weather_station")
+            if attribute_name in self.controller.weather_station_available_sensors():
+                wgt.setEnabled(enable)
+                continue
+
+            wgt.setEnabled(False)
+
+    def _enable_weather_tab_value_widgets(self) -> None:
+        for wgt in self.weather_tab_widgets:
+            if isinstance(wgt, QtWidgets.QLineEdit):
+                wgt.setEnabled(
+                    wgt.property("weather_station")
+                    in self.controller.weather_station_attributes()
+                )
+
+    def _reset_weather_tab_config(self) -> None:
+        """Reset the sensor config radio buttons to match the current config."""
+        for wgt in self.weather_tab_widgets:
+            if isinstance(wgt, QtWidgets.QRadioButton):
+                if (
+                    wgt.property("weather_station")
+                    in self.controller.weather_station_attributes()
+                ):
+                    if "poll" in wgt.objectName():
+                        wgt.setChecked(True)
+                else:
+                    if "exclude" in wgt.objectName():
+                        wgt.setChecked(True)
+
+    def _apply_weather_tab_config(self) -> None:
+        config_details = []
+        for wgt in self.weather_tab_widgets:
+            if (
+                isinstance(wgt, QtWidgets.QRadioButton)
+                and "poll" in wgt.objectName()
+                and wgt.isChecked()
+            ):
+                config_details.append(wgt.property("weather_station"))
+
+        self.controller.update_polled_weather_station_sensors(config_details)
+        self._enable_weather_tab_value_widgets()
+
+    def weather_station_event_update(self, event: dict) -> None:
+        """
+        Update the weather tab with event data.
+
+        :param event: A dictionary containing event data.
+        """
+        logger.debug(
+            "View: weather data update: %s value=%s",
+            event["name"],
+            event["value"],
+        )
+        for wgt in self.weather_tab_widgets:
+            if (
+                isinstance(wgt, QtWidgets.QLineEdit)
+                and wgt.property("weather_station") == event["name"]
+            ):
+                self._update_opcua_text_widget([wgt], event)
+
+    def weather_station_connected_event(self):
+        """
+        Handle the weather station connected event.
+
+        This function is called when a weather station is connected to.
+        """
+        logger.debug("Weather station connected event received.")
+        self.controller.update_polled_weather_station_sensors(
+            self.controller.weather_station_available_sensors()
+        )
+        self.action_connect_weather_station.setEnabled(False)
+        self.action_disconnect_weather_station.setEnabled(True)
+        self._enable_weather_tab_widgets(True)
+        self._reset_weather_tab_config()
+        self._enable_weather_tab_value_widgets()
+
+    def weather_station_disconnected_event(self):
+        """
+        Handle the weather station disconnected event.
+
+        This function is called when a weather station is disconnected from.
+        """
+        logger.debug("Weather station disconnected event received.")
+        self.model.stop_event_q_poller("weather_station")
+        self.action_connect_weather_station.setEnabled(True)
+        self.action_disconnect_weather_station.setEnabled(False)
+        self._enable_weather_tab_widgets(False)
+
+    def connect_weather_station_clicked(self):
+        """Open the Connect To Weather Station configuration dialog."""
+        if self.controller.is_weather_station_connected():
+            logger.debug("Disconnecting from weather station")
+            self.controller.disconnect_weather_station()
+            return
+
+        if self.controller.is_server_connected():
+            dialog = WeatherStationConnectDialog(self)
+            if dialog.exec():
+                logger.debug("Connect weather station dialog accepted")
+                logger.debug("Selected: %s", dialog.server_details)
+                self.controller.connect_weather_station(dialog.server_details)
+            else:
+                logger.debug("Connect weather station dialog cancelled")
 
     def track_table_file_changed(self):
         """Update the track table file path in the model."""
@@ -1943,7 +2211,10 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.combo_static_point_model_band_input.currentText(),
         )
         # If command did not succeed, toggle triggering button back to prev state
-        if result_code not in [ResultCode.COMMAND_ACTIVATED, ResultCode.COMMAND_DONE]:
+        if result_code not in [
+            ResultCode.COMMAND_ACTIVATED,
+            ResultCode.COMMAND_DONE,
+        ]:
             sender = self.sender()
             if isinstance(sender, ToggleSwitch):
                 sender.toggle()
@@ -2167,7 +2438,9 @@ class ToggleSwitch(QtWidgets.QPushButton):
         painter.setBrush(background_color)
         painter.setPen(QPen(palette.color(QPalette.ColorRole.Shadow), 1))
         painter.drawRoundedRect(
-            QtCore.QRect(-width, -radius, 2 * width, 2 * radius), radius, radius
+            QtCore.QRect(-width, -radius, 2 * width, 2 * radius),
+            radius,
+            radius,
         )
         painter.setBrush(QBrush(button_color))
         sw_rect = QtCore.QRect(-radius, -radius, width + radius, 2 * radius)
