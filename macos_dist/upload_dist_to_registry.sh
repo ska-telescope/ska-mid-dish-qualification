@@ -2,7 +2,7 @@
 
 # Add your personal access token. DO NOT COMMIT IT TO THE REPO!
 token=""
-arch="universal2" # "x86_64" or "arm64" 
+arch="arm64" # "universal2", "x86_64" or "arm64" 
 
 # Check if token is set
 if [ -z "$token" ]; then
