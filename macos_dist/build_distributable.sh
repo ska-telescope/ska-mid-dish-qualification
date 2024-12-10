@@ -7,7 +7,10 @@ if [ ! -f .release ]; then
 fi
 
 version=$(grep "^release=" .release | cut -d'=' -f2 | tr -d '[:space:]')
-arch="universal2" # "x86_64" or "arm64" 
+# CPU architecture of host detected automatically.
+# Ideally we should build for "universal2" but often the Python binary is only available
+# for the native architecture (x86_64 or arm64).
+arch=$(uname -m)
 dist_name="DiSQ-$version-macos-$arch"
 
 # Check if version was extracted
