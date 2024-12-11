@@ -254,6 +254,7 @@ class Model(QObject):
     status_group_update = pyqtSignal(int, str, bool)
     status_global_update = pyqtSignal(int, bool)
     weather_station_data_received = pyqtSignal(dict)
+    single_attribute_data_received = pyqtSignal(dict)
 
     def __init__(self, parent: QObject | None = None) -> None:
         """
@@ -418,6 +419,8 @@ class Model(QObject):
                 event_q_poller = QueuePollThread(self.data_received)
             elif server_type is ServerType.WMS:
                 event_q_poller = QueuePollThread(self.weather_station_data_received)
+            elif server_type is ServerType.SINGLEATTRIBUTE:
+                event_q_poller = QueuePollThread(self.single_attribute_data_received)
             else:
                 logger.warning("Model: register_event_updates: Unknown origin")
                 return

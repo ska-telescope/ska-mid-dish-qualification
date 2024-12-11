@@ -3,13 +3,14 @@
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from functools import cached_property
 from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Final
 
+import pyqtgraph
 from platformdirs import user_documents_dir
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import (
@@ -298,6 +299,219 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
             return
 
         self.server_details = {"config": config, "address": address, "port": port}
+        self.accept()
+
+
+class SingleAttributeWindow(QtWidgets.QWidget):
+    """TODO Docstring"""
+
+    signal = QtCore.pyqtSignal(object)
+
+    def __init__(
+        self,
+        attribute: str,
+        period: int,
+    ):
+        super().__init__()
+        self.setWindowTitle(attribute)
+        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
+        self.resize(544, 400)
+
+        # Value
+        self.line_edit = QtWidgets.QLineEdit(parent=self)
+        self.line_edit.setReadOnly(True)
+        self.line_edit.setPlaceholderText(attribute)
+        self.line_edit.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+
+        # Graph
+        self.graph = pyqtgraph.PlotWidget()
+
+        self.grid_layout = QtWidgets.QGridLayout()
+        self.grid_layout.addWidget(self.line_edit)
+        self.grid_layout.addWidget(self.graph)
+        self.setLayout(self.grid_layout)
+        self.signal.connect(self.update_window)
+
+        base_date = datetime.now(timezone.utc)
+        timez = [base_date - timedelta(seconds=x + 1) for x in range(32)]
+        self.time = [datetime.timestamp(x) for x in timez]
+        self.attribute = list(0.0 for x in range(32))
+        # self.x_axis = pyqtgraph.DateAxisItem()
+        # self.graph.setAxisItems({"bottom": self.x_axis})
+        self.line = self.graph.plot(self.time, self.attribute)
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(100)
+        self.timer.timeout.connect(self.update_plot)
+        self.timer.start()
+
+    def update_window(self, data):
+        self.line_edit.setText(str(data["value"]))
+        self.time = self.time[1:]
+        self.time.append(datetime.timestamp(data["time"]))
+        self.attribute = self.attribute[1:]
+        self.attribute.append(float(data["value"]))
+
+    def update_plot(self):
+        self.line.setData(self.time, self.attribute)
+
+    def accept_selection(self):
+        pass
+
+
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-statements
+class AttributeSelectDialog(StatusBarMixin, QtWidgets.QDialog):
+    """
+    A dialog-window class for displaying attributes.
+
+    :param parent: The parent widget of the dialog.
+    :param attributes: A list of OPC-UA attributes to be displayed and selected.
+    """
+
+    def __init__(
+        self,
+        parent: QtWidgets.QWidget,
+        attributes: dict[str, dict[str, bool | int]],
+    ):
+        """
+        Initialize the Recording Configuration dialog.
+
+        :param parent: The parent widget for the dialog.
+        :param attributes: A list of strings representing OPC-UA attributes to choose
+            from.
+        """
+        super().__init__(parent)
+
+        self.setWindowTitle("Choose Attribute")
+        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
+        self.resize(544, 512)
+
+        self._node_table_widgets: dict[
+            str, dict[str, QtWidgets.QCheckBox | QtWidgets.QLineEdit]
+        ] = {}
+
+        button = (
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
+        )
+
+        self.btn_box = QtWidgets.QDialogButtonBox(button)
+        self.btn_box.accepted.connect(self.accept_selection)
+        self.btn_box.rejected.connect(self.reject)
+
+        self.grid_layout = QtWidgets.QGridLayout()
+        table_options_layout = QtWidgets.QGridLayout()
+        self.record_column_label = QtWidgets.QLabel("ONLY SELECT ONE")
+        self.record_column_label.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.period_column_label = QtWidgets.QLabel("Period column:")
+        self.period_column_label.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.period_column_value = QtWidgets.QSpinBox()
+        # Remove step buttons and prevent mouse wheel interaction
+        self.period_column_value.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
+        )
+        self.period_column_value.wheelEvent = lambda e: None  # type: ignore[assignment]
+        self.period_column_value.setRange(50, 60000)
+        self.period_column_value.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+        table_options_layout.addWidget(self.record_column_label, 1, 0)
+        table_options_layout.addWidget(self.period_column_label, 2, 0)
+        table_options_layout.addWidget(self.period_column_value, 2, 1)
+        self.grid_layout.addLayout(table_options_layout, 0, 0)
+
+        message = QtWidgets.QLabel(
+            "Select all the OPC-UA attributes to record from the list and click OK"
+        )
+        message.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.grid_layout.addWidget(message)
+
+        self.node_table = QtWidgets.QTableWidget(len(attributes), 3, self)
+        self._create_node_table(attributes, self.node_table)
+        self.grid_layout.addWidget(self.node_table)
+
+        self.grid_layout.addWidget(self.btn_box)
+        status_bar = self.create_status_bar_widget()
+        self.grid_layout.addWidget(status_bar)
+        self.setLayout(self.grid_layout)
+        self.config_parameters: dict[str, dict[str, bool | int]] = {}
+
+    def _create_node_table(self, attributes, node_table):
+        """Create the attribute node table."""
+        node_table.setStyleSheet(
+            "QCheckBox {margin-left: 28px;} "
+            "QCheckBox::indicator {width: 24px; height: 24px}"
+        )
+        node_table.setHorizontalHeaderLabels(
+            ["Attribute Name", "Record", "Period (ms)"]
+        )
+        horizontal_header = node_table.horizontalHeader()
+        horizontal_header.setDefaultSectionSize(80)
+        horizontal_header.setSectionResizeMode(
+            0, QtWidgets.QHeaderView.ResizeMode.Stretch
+        )
+
+        vertical_header = QtWidgets.QHeaderView(QtCore.Qt.Orientation.Vertical)
+        vertical_header.hide()
+        node_table.setVerticalHeader(vertical_header)
+        node_table.setSelectionMode(
+            QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
+        )
+        for i, (attr, value) in enumerate(attributes.items()):
+            # Add node name in first column and turn off table interactions
+            node_name = QtWidgets.QTableWidgetItem(attr)
+            node_name.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
+            node_table.setItem(i, 0, node_name)
+            # Ensure "Record" and "Period" columns are also not interactable
+            add_background = QtWidgets.QTableWidgetItem()
+            period_background = QtWidgets.QTableWidgetItem()
+            add_background.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
+            period_background.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
+            node_table.setItem(i, 1, add_background)
+            node_table.setItem(i, 2, period_background)
+            # Add "Record" checkbox
+            record_node = QtWidgets.QCheckBox()
+            record_node.setChecked(value["record"])
+            node_table.setCellWidget(i, 1, record_node)
+            # Add "Period" line edit
+            node_period = QtWidgets.QSpinBox()
+            # Remove step buttons and prevent mouse wheel interaction
+            node_period.setButtonSymbols(
+                QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
+            )
+            node_period.wheelEvent = node_table.wheelEvent
+            node_period.setRange(50, 60000)
+            node_period.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+            node_period.setValue(value["period"])
+            node_table.setCellWidget(i, 2, node_period)
+            self._node_table_widgets[attr] = {
+                "record_check_box": record_node,
+                "period_spin_box": node_period,
+            }
+
+    def _get_current_config(self) -> dict[str, dict[str, bool | int]]:
+        """Get the current attribute record and period values."""
+        config_parameters = {}
+        for node, widgets in self._node_table_widgets.items():
+            config_parameters[node] = {
+                "record": widgets[
+                    "record_check_box"
+                ].isChecked(),  # type: ignore[union-attr]
+                "period": widgets[
+                    "period_spin_box"
+                ].value(),  # type: ignore[union-attr]
+            }
+
+        return config_parameters
+
+    def accept_selection(self):
+        """Accepts the selection made in the configuration dialog."""
+        logger.debug("Recording config dialog accepted")
+        self.config_parameters = self._get_current_config()
         self.accept()
 
 
@@ -703,6 +917,11 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.action_disconnect_weather_station.triggered.connect(
             self.connect_weather_station_clicked
         )
+        self.action_single_attribute_display: QAction
+        self.action_single_attribute_display.triggered.connect(
+            self.select_attribute_display
+        )
+        self._single_attribute_signals = {}
         self.action_about: QAction
         self.action_about.triggered.connect(self.about_button_clicked)
         self.action_docs: QAction
@@ -744,6 +963,12 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.model.weather_station_data_received.connect(
             self.weather_station_event_update
         )
+        self.model.single_attribute_data_received.connect(
+            self.single_attribute_event_update
+        )
+
+        # Attribute dialogs
+        self.attribute_dialogs = {}
 
         # Status panel widgets
         self.line_edit_warning_general: QtWidgets.QLineEdit
@@ -1692,6 +1917,18 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             ):
                 self._update_opcua_text_widget([wgt], event)
 
+    def single_attribute_event_update(self, event: dict) -> None:
+        """Update attribute dialog."""
+        for attribute, signal in self._single_attribute_signals.items():
+            logger.info(
+                "single_attribute_event_update called, checking attribute: %s",
+                attribute,
+            )
+            if event["name"] == attribute:
+                signal.emit(
+                    {"time": event["source_timestamp"], "value": event["value"]}
+                )
+
     def weather_station_connected_event(self):
         """
         Handle the weather station connected event.
@@ -1735,6 +1972,39 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 self.controller.connect_weather_station(dialog.server_details)
             else:
                 logger.debug("Connect weather station dialog cancelled")
+
+    def select_attribute_display(self):
+        """Open the attribute seleciton dialog."""
+        if not self.controller.recording_config:  # TODO make own selection dialog
+            for node in self.model.opcua_attributes:
+                self.controller.recording_config[node] = {
+                    "record": False,
+                    "period": 100,
+                }
+
+        dialog = AttributeSelectDialog(self, self.controller.recording_config)
+        if dialog.exec():
+            logger.debug("Attribute config dialog accepted")
+            logger.debug("Selected: %s", dialog.config_parameters)
+            attribute: Any  # TODO do you need forward declare in Python?
+            details: Any
+            for attribute, details in dialog.config_parameters.items():
+                if details["record"] and attribute not in self.attribute_dialogs:
+                    logger.info("Attribute selected: %s", attribute)
+                    logger.info("Attribute details: %s", details)
+
+                    logger.info("Creating window...")
+                    attribute_dialog = SingleAttributeWindow(
+                        attribute, details["period"]
+                    )
+                    logger.info("Created window")
+                    self._single_attribute_signals[attribute] = attribute_dialog.signal
+                    self.controller.subscribe_single_attribute_updates(attribute)
+                    attribute_dialog.show()
+                    self.attribute_dialogs[attribute] = attribute_dialog
+                    # TODO delete attribute subscription??
+        else:
+            logger.debug("Single attribute select dialog cancelled")
 
     def track_table_file_changed(self):
         """Update the track table file path in the model."""

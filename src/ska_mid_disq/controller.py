@@ -608,3 +608,9 @@ class Controller(QObject):
         # As this changes the attributes available in sculib, the recording config needs
         # to be reset so that it is recreated with the new attributes.
         self.recording_config = {}
+
+    def create_single_attribute_signal(self, attribute):
+        self._model.add_single_attribute_signal(attribute)
+
+    def subscribe_single_attribute_updates(self, attribute):
+        self._model.register_event_updates(ServerType.SINGLEATTRIBUTE, [attribute])

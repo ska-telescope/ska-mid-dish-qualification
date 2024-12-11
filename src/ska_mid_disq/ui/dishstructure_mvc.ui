@@ -10255,6 +10255,7 @@
     <addaction name="action_disconnect_opcua_server"/>
     <addaction name="action_connect_weather_station"/>
     <addaction name="action_disconnect_weather_station"/>
+    <addaction name="action_single_attribute_display"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -10304,6 +10305,11 @@
   <action name="action_docs">
    <property name="text">
     <string>Documentation</string>
+   </property>
+  </action>
+  <action name="action_single_attribute_display">
+   <property name="text">
+    <string>Single attribute display</string>
    </property>
   </action>
  </widget>
@@ -10442,11 +10448,11 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="button_group_wind_direction"/>
   <buttongroup name="button_group_temperature"/>
   <buttongroup name="button_group_humidity"/>
-  <buttongroup name="button_group_wind_speed"/>
-  <buttongroup name="button_group_rainfall"/>
   <buttongroup name="button_group_pressure"/>
+  <buttongroup name="button_group_wind_direction"/>
+  <buttongroup name="button_group_rainfall"/>
+  <buttongroup name="button_group_wind_speed"/>
  </buttongroups>
 </ui>
