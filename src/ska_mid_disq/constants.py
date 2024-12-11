@@ -59,3 +59,4 @@ class ServerType(Enum):
 
     OPCUA = "OPCUA"
     WMS = "WMS"
+    SINGLEATTRIBUTE = "SINGLEATTRIBUTE"

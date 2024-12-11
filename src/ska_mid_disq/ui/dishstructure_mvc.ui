@@ -10414,6 +10414,7 @@
     <addaction name="action_disconnect_opcua_server"/>
     <addaction name="action_connect_weather_station"/>
     <addaction name="action_disconnect_weather_station"/>
+    <addaction name="action_single_attribute_display"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -10484,6 +10485,11 @@
    </property>
    <property name="text">
     <string>Enable all input limits</string>
+   </property>
+  </action>
+  <action name="action_single_attribute_display">
+   <property name="text">
+    <string>Single attribute display</string>
    </property>
   </action>
  </widget>
