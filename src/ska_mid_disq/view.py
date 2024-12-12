@@ -1,6 +1,7 @@
 # pylint: disable=too-many-lines
 """DiSQ GUI View."""
 
+import ipaddress
 import json
 import logging
 from datetime import datetime, timezone
@@ -76,6 +77,7 @@ class ServerConnectDialog(QtWidgets.QDialog):
         self.setWindowIcon(QIcon(SKAO_ICON_PATH))
 
         self.save_button = QtWidgets.QPushButton("Save", self)
+        self.save_button.clicked.connect(self.save_config)
         self.delete_button = QtWidgets.QPushButton("Delete", self)
         self.delete_button.clicked.connect(self.confirm_delete_dialog)
         connect_buttons = (
@@ -146,7 +148,6 @@ class ServerConnectDialog(QtWidgets.QDialog):
             self.input_server_port.setText(str(server_config["port"]))
             self.input_server_endpoint.setText(server_config["endpoint"])
             self.input_server_namespace.setText(server_config["namespace"])
-            self.input_server_namespace.setText(server_config["namespace"])
             self.cache_checkbox.setChecked(bool(server_config["use_nodes_cache"]))
         self.dropdown_server_config_select.setFocus()
 
@@ -179,6 +180,15 @@ class ServerConnectDialog(QtWidgets.QDialog):
             self.cache_checkbox.setChecked(
                 bool(server_config.get("use_nodes_cache", False))
             )
+            if "use_nodes_cache" in server_config:
+                self.cache_checkbox.setChecked(
+                    False
+                    if server_config["use_nodes_cache"]
+                    in ["False", "false", "No", "no"]
+                    else bool(server_config["use_nodes_cache"])
+                )
+            else:
+                self.cache_checkbox.setChecked(False)
 
     def confirm_connect(self) -> None:
         """Accepts the server connection details entered in the dialog."""
@@ -192,13 +202,72 @@ class ServerConnectDialog(QtWidgets.QDialog):
         }
         self.accept()
 
+    def save_config(self) -> None:
+        """Save a server config."""
+        # Input validation
+        try:
+            ipaddress.ip_address(self.input_server_address.text())
+        except ValueError:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Invalid input",
+                f"'{self.input_server_address.text()}' is not a valid IP address!",
+                QtWidgets.QMessageBox.StandardButton.Ok,
+            )
+            return
+        server_details = {"host": self.input_server_address.text()}
+        port = self.input_server_port.text()
+        if port:
+            if not port.isdigit() or not 0 <= int(port) <= 65535:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    "Invalid input",
+                    f"'{port}' is not a valid port!\n"
+                    "Please enter a port between 0 and 65535.",
+                    QtWidgets.QMessageBox.StandardButton.Ok,
+                )
+                return
+            server_details["port"] = port
+        if self.input_server_endpoint.text():
+            server_details["endpoint"] = self.input_server_endpoint.text()
+        if self.input_server_namespace.text():
+            server_details["namespace"] = self.input_server_namespace.text()
+        if self.cache_checkbox.isChecked():
+            server_details["use_nodes_cache"] = "True"
+        if self.server_config_selected in self._controller.get_config_servers():
+            # Create a confirmation dialog
+            reply = QtWidgets.QMessageBox.warning(
+                self,
+                "Overwrite",
+                "Are you sure you want to overwrite the existing config for "
+                f"'{self.server_config_selected}'?",
+                QtWidgets.QMessageBox.StandardButton.Yes
+                | QtWidgets.QMessageBox.StandardButton.No,
+            )
+        else:
+            reply = QtWidgets.QMessageBox.StandardButton.Yes
+            self.dropdown_server_config_select.addItem(self.server_config_selected)
+        # Handle user response
+        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+            if self._controller.save_server_config(
+                self.server_config_selected, server_details
+            ):
+                logger.info("Saved '%s' server config", self.server_config_selected)
+                QtWidgets.QMessageBox.information(
+                    self,
+                    "Success",
+                    f"Saved config for '{self.server_config_selected}'.",
+                    QtWidgets.QMessageBox.StandardButton.Ok,
+                )
+
     def confirm_delete_dialog(self) -> None:
         """Confirm a user wants to delete a server config."""
         # Create a confirmation dialog
-        reply = QtWidgets.QMessageBox.question(
+        reply = QtWidgets.QMessageBox.warning(
             self,
             "Delete",
-            "Are you sure you want to delete the selected server config?",
+            "Are you sure you want to delete the config for "
+            f"'{self.server_config_selected}'?",
             QtWidgets.QMessageBox.StandardButton.Yes
             | QtWidgets.QMessageBox.StandardButton.No,
         )
