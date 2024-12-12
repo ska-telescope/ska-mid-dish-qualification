@@ -34,6 +34,7 @@ dev = [
     "black",
     "pylint",
     "pylint-junit",
+    "pyinstaller",
     "flake8",
     "flake8-isort",
     "flake8-formatter-junit-xml",
@@ -124,6 +125,7 @@ isort = "^5.13.2"
 black = "^24.2.0"
 pylint = "^3.2.4"
 pylint-junit = "^0.3.2"
+pyinstaller = "^6.11.1"
 flake8 = "^7.0.0"
 flake8-formatter-junit-xml = "^0.0.6"
 flake8-builtins = "^2.1.0"
