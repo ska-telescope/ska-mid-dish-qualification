@@ -136,7 +136,7 @@ def get_config_sculib_args(
     }
     # The remaining args are optional so we add them if defined in config
     # (PLC controller does not have these defined)
-    optional_args = ["endpoint", "namespace", "username", "password"]
+    optional_args = ["endpoint", "namespace", "username", "password", "use_nodes_cache"]
     for arg in optional_args:
         if arg in server_config:
             sculib_args[arg] = server_config[arg]

@@ -53,7 +53,7 @@ SKAO_ICON_PATH: Final = ":/icons/skao.ico"
 DISPLAY_DECIMAL_PLACES: Final = 5
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes,too-many-statements
 class ServerConnectDialog(QtWidgets.QDialog):
     """
     A dialog-window class for connecting to the OPC-UA server.
@@ -94,8 +94,8 @@ class ServerConnectDialog(QtWidgets.QDialog):
         # configuration file
         server_list = self._controller.get_config_servers()
         self.dropdown_server_config_select = QtWidgets.QComboBox()
+        self.dropdown_server_config_select.setEditable(True)
         self.dropdown_server_config_select.addItems([""] + server_list)
-        self.dropdown_server_config_select.setFocus()
         self.dropdown_server_config_select.currentTextChanged.connect(
             self.server_config_select_changed
         )
@@ -129,7 +129,17 @@ class ServerConnectDialog(QtWidgets.QDialog):
 
         self.vbox_layout.addWidget(self.btn_box)
         self.setLayout(self.vbox_layout)
-        self.server_details: dict[str, str] = {}
+        self.server_details: dict[str, str | bool] = {}
+
+        if self._controller.last_server_details is not None:
+            server_config = self._controller.last_server_details
+            self.input_server_address.setText(server_config["host"])
+            self.input_server_port.setText(str(server_config["port"]))
+            self.input_server_endpoint.setText(server_config["endpoint"])
+            self.input_server_namespace.setText(server_config["namespace"])
+            self.input_server_namespace.setText(server_config["namespace"])
+            self.cache_checkbox.setChecked(bool(server_config["use_nodes_cache"]))
+        self.dropdown_server_config_select.setFocus()
 
     @property
     def server_config_selected(self) -> str:
@@ -143,42 +153,25 @@ class ServerConnectDialog(QtWidgets.QDialog):
         Enable/disable relevant widgets.
         """
         logger.debug("server config select changed: %s", server_name)
-        if server_name is None or server_name == "":
-            self._enable_server_widgets(True)
-        else:
-            # Clear the input boxes first
+        # Get the server config args from configfile
+        server_config = self._controller.get_config_server_args(server_name)
+        # Populate the widgets with the server config args
+        if server_config is None:
             self.input_server_address.clear()
             self.input_server_port.clear()
             self.input_server_endpoint.clear()
             self.input_server_namespace.clear()
-            # Get the server config args from configfile
-            server_config = self._controller.get_config_server_args(server_name)
-            # Populate the widgets with the server config args
-            if "endpoint" in server_config and "namespace" in server_config:
-                self.input_server_address.setText(server_config["host"])
-                self.input_server_port.setText(server_config["port"])
-                self.input_server_endpoint.setText(server_config["endpoint"])
-                self.input_server_namespace.setText(server_config["namespace"])
-            else:
-                # First physical controller does not have an endpoint or namespace
-                self.input_server_address.setText(server_config["host"])
-                self.input_server_port.setText(server_config["port"])
-            # Disable editing of the widgets
-            self._enable_server_widgets(False)
+            self.cache_checkbox.setChecked(False)
+        else:
+            self.input_server_address.setText(server_config["host"])
+            self.input_server_port.setText(str(server_config["port"]))
+            self.input_server_endpoint.setText(server_config.get("endpoint", ""))
+            self.input_server_namespace.setText(server_config.get("namespace", ""))
+            self.cache_checkbox.setChecked(
+                bool(server_config.get("use_nodes_cache", False))
+            )
 
-    def _enable_server_widgets(self, enable: bool = True) -> None:
-        """
-        Enable or disable server widgets and optionally update the connect button text.
-
-        :param enable: Enable or disable server widgets (default True).
-        :param connect_button: Update the connect button text (default False).
-        """
-        self.input_server_address.setEnabled(enable)
-        self.input_server_port.setEnabled(enable)
-        self.input_server_endpoint.setEnabled(enable)
-        self.input_server_namespace.setEnabled(enable)
-
-    def confirm_connect(self):
+    def confirm_connect(self) -> None:
         """Accepts the server connection details entered in the dialog."""
         logger.debug("Server connect dialog accepted")
         self.server_details = {
