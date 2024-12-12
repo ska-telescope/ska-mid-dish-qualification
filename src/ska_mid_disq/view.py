@@ -75,14 +75,19 @@ class ServerConnectDialog(QtWidgets.QDialog):
         self.setWindowTitle("Server Connection")
         self.setWindowIcon(QIcon(SKAO_ICON_PATH))
 
-        button = (
+        self.save_button = QtWidgets.QPushButton("Save", self)
+        self.delete_button = QtWidgets.QPushButton("Delete", self)
+        self.delete_button.clicked.connect(self.confirm_delete_dialog)
+        connect_buttons = (
             QtWidgets.QDialogButtonBox.StandardButton.Ok
-            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
+            | QtWidgets.QDialogButtonBox.StandardButton.Close
         )
-
-        self.btn_box = QtWidgets.QDialogButtonBox(button)
-        self.btn_box.accepted.connect(self.confirm_connect)
-        self.btn_box.rejected.connect(self.reject)
+        self.connect_box = QtWidgets.QDialogButtonBox(connect_buttons)
+        self.connect_box.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setText(
+            "Connect"
+        )
+        self.connect_box.accepted.connect(self.confirm_connect)
+        self.connect_box.rejected.connect(self.reject)
 
         self.vbox_layout = QtWidgets.QVBoxLayout()
         message = QtWidgets.QLabel(
@@ -127,7 +132,11 @@ class ServerConnectDialog(QtWidgets.QDialog):
         self.cache_checkbox.setChecked(False)
         self.vbox_layout.addWidget(self.cache_checkbox)
 
-        self.vbox_layout.addWidget(self.btn_box)
+        self.hbox_layout = QtWidgets.QHBoxLayout()
+        self.hbox_layout.addWidget(self.connect_box)
+        self.hbox_layout.addWidget(self.save_button)
+        self.hbox_layout.addWidget(self.delete_button)
+        self.vbox_layout.addLayout(self.hbox_layout)
         self.setLayout(self.vbox_layout)
         self.server_details: dict[str, str | bool] = {}
 
