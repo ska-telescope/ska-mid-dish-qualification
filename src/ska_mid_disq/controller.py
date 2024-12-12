@@ -39,6 +39,7 @@ class Controller(QObject):
         """
         super().__init__(parent)
         self._model = mvc_model
+        self.last_server_details: dict | None = None
 
     def _command_response_str(
         self, command: str, result_code: int, result_msg: str
@@ -148,6 +149,7 @@ class Controller(QObject):
         self.emit_ui_status_message(
             "INFO", f"Connected to server: {self._model.get_server_uri()}"
         )
+        self.last_server_details = connection_details
         self.server_connected.emit()
 
     def disconnect_server(self):
