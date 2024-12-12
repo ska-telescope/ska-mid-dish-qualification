@@ -157,6 +157,27 @@ def get_config_server_list(config_filename: str | None = None) -> list[str]:
     return server_list
 
 
+def delete_server_config(config_filename: str, server_name: str) -> bool:
+    """
+    Reads the configuration file and returns a dictionary of SCU library arguments.
+
+    :param config_filename: (str, optional) The name of the configuration file. If None,
+        the default configuration file is used.
+    :param server_name: (str, optional) The name of the server to read from the
+        configuration file. Defaults to "DEFAULT" which just picks the first server
+        listed in the .ini file.
+    """
+    config = get_configurations(config_filename)
+    section_to_delete = "opcua_server." + server_name
+    if config.has_section(section_to_delete):
+        config.remove_section(section_to_delete)
+        config_file_path = find_config_file(config_filename)
+        with open(config_file_path, "w", encoding="utf-8") as file:
+            config.write(file)
+        return True
+    return False
+
+
 def configure_logging(default_log_level: int = logging.INFO) -> None:
     """
     Configure logging settings based on a YAML configuration file.

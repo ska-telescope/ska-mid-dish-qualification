@@ -192,6 +192,27 @@ class ServerConnectDialog(QtWidgets.QDialog):
         }
         self.accept()
 
+    def confirm_delete_dialog(self) -> None:
+        """Confirm a user wants to delete a server config."""
+        # Create a confirmation dialog
+        reply = QtWidgets.QMessageBox.question(
+            self,
+            "Delete",
+            "Are you sure you want to delete the selected server config?",
+            QtWidgets.QMessageBox.StandardButton.Yes
+            | QtWidgets.QMessageBox.StandardButton.No,
+        )
+        # Handle user response
+        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+            if self._controller.delete_server_config(self.server_config_selected):
+                logger.info("Deleted '%s' server config", self.server_config_selected)
+                self.dropdown_server_config_select.removeItem(
+                    self.dropdown_server_config_select.findText(
+                        self.server_config_selected
+                    )
+                )
+                self.dropdown_server_config_select.setCurrentIndex(0)
+
 
 class StatusBarMixin:
     """A mixin class to provide a window with a status bar."""
