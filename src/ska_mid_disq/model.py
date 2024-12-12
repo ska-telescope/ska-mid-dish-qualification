@@ -284,6 +284,8 @@ class Model(QObject):
             (after which the connection is cleaned up and the SCU object is set to None)
         """
         logger.debug("Connecting to server: %s", connect_details)
+        if self.is_connected():
+            self.disconnect()
         try:
             self._scu = SCUWeatherStation(
                 **connect_details,

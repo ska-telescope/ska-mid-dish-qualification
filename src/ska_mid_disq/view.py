@@ -693,7 +693,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.action_connect_opcua_server.triggered.connect(self.connect_button_clicked)
         self.action_disconnect_opcua_server: QAction
         self.action_disconnect_opcua_server.triggered.connect(
-            self.connect_button_clicked
+            self.disconnect_button_clicked
         )
         self.action_connect_weather_station: QAction
         self.action_connect_weather_station.triggered.connect(
@@ -1525,7 +1525,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             f"{self.model.opcua_nodes_status.value} - "
             f"Nodes generated {self.model.plc_prg_nodes_timestamp}"
         )
-        self.action_connect_opcua_server.setEnabled(False)
         self.action_disconnect_opcua_server.setEnabled(True)
         self.action_connect_weather_station.setEnabled(True)
         self._enable_opcua_widgets()
@@ -1548,7 +1547,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self._enable_data_logger_widgets(False)
         self.label_conn_status.setText("Disconnected")
         self.label_cache_status.setText("")
-        self.action_connect_opcua_server.setEnabled(True)
         self.action_disconnect_opcua_server.setEnabled(False)
         self.action_connect_weather_station.setEnabled(False)
         self.button_load_track_table.setEnabled(False)
@@ -1560,17 +1558,17 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
     def connect_button_clicked(self):
         """Open the Connect To Server configuration dialog."""
-        if not self.controller.is_server_connected():
-            dialog = ServerConnectDialog(self, self.controller)
-            if dialog.exec():
-                logger.debug("Connection configuration dialog accepted")
-                logger.debug("Selected: %s", dialog.server_details)
-                self.server_connect(
-                    dialog.server_details, dialog.server_config_selected
-                )
-            else:
-                logger.debug("Connection config dialog cancelled")
+        dialog = ServerConnectDialog(self, self.controller)
+        if dialog.exec():
+            logger.debug("Connection configuration dialog accepted")
+            logger.debug("Selected: %s", dialog.server_details)
+            self.server_connect(dialog.server_details, dialog.server_config_selected)
         else:
+            logger.debug("Connection config dialog cancelled")
+
+    def disconnect_button_clicked(self):
+        """Disconnect from the current server."""
+        if self.controller.is_server_connected():
             logger.debug("disconnecting from server")
             self.controller.disconnect_server()
 
