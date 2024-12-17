@@ -19,7 +19,7 @@ $headerImgPath = "$projectRoot\src\ska_mid_disq\ui\images\wombat_logo.png"
 $distName = "DiSQ-$version-win64"
 $internalPath = "$projectRoot\dist\$distName\_internal"
 $exePath = "$projectRoot\dist\$distName\$distName.exe"
-$scriptPath = "$projectRoot\$installerDir\post_install.ps1"
+$scriptPath = "$projectRoot\$installerDir\post_install.bat"
 $ifpPath = "$projectRoot\$installerDir\disq.ifp"
 
 # Define pyinstaller arguments as individual items in an array
@@ -62,10 +62,10 @@ $text = $text -replace "Program version = .+", "Program version = $version"
 $text = $text -replace "Wizard image = .+", "Wizard image = $wizardImgPath"
 $text = $text -replace "Header image = .+", "Header image = $headerImgPath"
 $text = $text -replace "File = .+", "File = $installerPath"
-$text = $text -replace "^C:\\.*?_internal", $internalPath
-$text = $text -replace "^C:\\.*?.exe", $exePath
-$text = $text -replace "^C:\\.*?post_install.ps1", $scriptPath
-$text = $text -replace "<InstallPath>\\.*?.exe", "<InstallPath>\$distName.exe"
+$text = $text -replace ".+\\dist\\DiSQ.*?\\_internal", $internalPath
+$text = $text -replace ".+\\dist\\DiSQ.*?\\DiSQ.*?\.exe", $exePath
+$text = $text -replace ".+\\$installerDir\\post_install.bat", $scriptPath
+$text = $text -replace "<InstallPath>\\DiSQ.*?\.exe", "<InstallPath>\$distName.exe"
 
 # Write the modified content back to the updated .ifp file
 [System.IO.File]::WriteAllBytes($ifpPath, [System.Text.Encoding]::Default.GetBytes($text))
