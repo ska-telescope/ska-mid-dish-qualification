@@ -3867,6 +3867,9 @@
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
+             <property name="decimals">
+              <number>5</number>
+             </property>
              <property name="minimum">
               <double>10.000000000000000</double>
              </property>
@@ -3948,9 +3951,12 @@
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>40</width>
+               <width>180</width>
                <height>20</height>
               </size>
              </property>
@@ -10251,7 +10257,8 @@
     <property name="title">
      <string>Options</string>
     </property>
-    <addaction name="action_remove_input_limits"/>
+    <addaction name="action_disable_input_limits"/>
+    <addaction name="action_enable_input_limits"/>
    </widget>
    <addaction name="menuControl"/>
    <addaction name="menuOptions"/>
@@ -10297,12 +10304,17 @@
     <string>Documentation</string>
    </property>
   </action>
-  <action name="action_remove_input_limits">
+  <action name="action_disable_input_limits">
+   <property name="text">
+    <string>Disable all input limits</string>
+   </property>
+  </action>
+  <action name="action_enable_input_limits">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Remove all input limits</string>
+    <string>Enable all input limits</string>
    </property>
   </action>
  </widget>
@@ -10459,11 +10471,11 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="button_group_wind_direction"/>
-  <buttongroup name="button_group_humidity"/>
-  <buttongroup name="button_group_temperature"/>
-  <buttongroup name="button_group_wind_speed"/>
   <buttongroup name="button_group_rainfall"/>
   <buttongroup name="button_group_pressure"/>
+  <buttongroup name="button_group_wind_direction"/>
+  <buttongroup name="button_group_humidity"/>
+  <buttongroup name="button_group_wind_speed"/>
+  <buttongroup name="button_group_temperature"/>
  </buttongroups>
 </ui>

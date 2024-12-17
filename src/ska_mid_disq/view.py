@@ -788,11 +788,15 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.action_about.triggered.connect(self.about_button_clicked)
         self.action_docs: QAction
         self.action_docs.triggered.connect(self.open_documentation)
-        self.action_remove_input_limits: QAction
-        self.action_remove_input_limits.triggered.connect(
-            self.remove_input_limits_clicked
+        self.action_disable_input_limits: QAction
+        self.action_disable_input_limits.triggered.connect(
+            self.disable_input_limits_clicked
         )
-        self.action_remove_input_limits.setEnabled(True)
+        self.action_enable_input_limits: QAction
+        self.action_enable_input_limits.triggered.connect(
+            self.enable_input_limits_clicked
+        )
+        self.spinbox_input_limits: list[tuple[float, float]] = []
 
         self.server_status_bar: QtWidgets.QWidget
         # Load a background image for the server connection QGroupBox
@@ -1978,20 +1982,30 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.spinbox_slew_simul_elev_position.setSingleStep(step_size)
         self.spinbox_slew_simul_elev_velocity.setSingleStep(step_size)
 
-    def remove_input_limits_clicked(self) -> None:
-        """Remove input limits from all spinboxes."""
+    def disable_input_limits_clicked(self) -> None:
+        """Disable input limits of all spinboxes."""
         reply = QtWidgets.QMessageBox.warning(
             self,
             "Expert user option",
-            "Are you sure you want to remove all input limits?\n"
-            "DiSQ will need to be restarted to restore the limits.",
+            "Are you sure you want to disable all input limits?",
             QtWidgets.QMessageBox.StandardButton.Yes
             | QtWidgets.QMessageBox.StandardButton.No,
         )
         if reply == QtWidgets.QMessageBox.StandardButton.Yes:
-            self.action_remove_input_limits.setEnabled(False)
+            self.action_disable_input_limits.setEnabled(False)
+            self.action_enable_input_limits.setEnabled(True)
             for spinbox in self.findChildren(LimitedDisplaySpinBox):
+                self.spinbox_input_limits.append(
+                    (spinbox.minimum(), spinbox.maximum())  # type: ignore
+                )
                 spinbox.setRange(-100000.0, 100000.0)  # type: ignore
+
+    def enable_input_limits_clicked(self) -> None:
+        """Enable input limits of all spinboxes."""
+        self.action_disable_input_limits.setEnabled(True)
+        self.action_enable_input_limits.setEnabled(False)
+        for i, spinbox in enumerate(self.findChildren(LimitedDisplaySpinBox)):
+            spinbox.setRange(*self.spinbox_input_limits[i])  # type: ignore
 
     def stop_button_clicked(self, axis: str) -> None:
         """
