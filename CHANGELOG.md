@@ -4,6 +4,7 @@
 
 - Non-breaking changes:
     - WOM-454: Integrate weather station into DiSQ.
+    - WOM-543: Added option to remove min/max limits on all inputs.
 
 ## 0.5.2
 
