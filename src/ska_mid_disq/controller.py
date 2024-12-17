@@ -39,6 +39,7 @@ class Controller(QObject):
         """
         super().__init__(parent)
         self._model = mvc_model
+        self.last_server_details: dict | None = None
 
     def _command_response_str(
         self, command: str, result_code: int, result_msg: str
@@ -109,6 +110,37 @@ class Controller(QObject):
             logger.warning("Specified server not found in the configuration file")
         return None
 
+    def save_server_config(
+        self, server_name: str, server_details: dict[str, str]
+    ) -> bool:
+        """
+        Save the entered server config in the configuration file.
+
+        :param server_name: The name of the server to delete.
+        """
+        try:
+            configuration.save_server_config(
+                _LOCAL_DIR_CONFIGFILE, server_name, server_details
+            )
+            return True
+        except FileNotFoundError:
+            logger.warning("Unable to find config file")
+            return False
+
+    def delete_server_config(self, server_name: str) -> bool:
+        """
+        Delete the server config from the configuration file.
+
+        :param server_name: The name of the server to delete.
+        """
+        try:
+            return configuration.delete_server_config(
+                _LOCAL_DIR_CONFIGFILE, server_name
+            )
+        except FileNotFoundError:
+            logger.warning("Unable to find config file")
+            return False
+
     def is_server_connected(self) -> bool:
         """
         Check if the server is connected.
@@ -148,6 +180,7 @@ class Controller(QObject):
         self.emit_ui_status_message(
             "INFO", f"Connected to server: {self._model.get_server_uri()}"
         )
+        self.last_server_details = connection_details
         self.server_connected.emit()
 
     def disconnect_server(self):

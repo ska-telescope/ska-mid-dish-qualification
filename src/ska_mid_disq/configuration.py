@@ -136,7 +136,7 @@ def get_config_sculib_args(
     }
     # The remaining args are optional so we add them if defined in config
     # (PLC controller does not have these defined)
-    optional_args = ["endpoint", "namespace", "username", "password"]
+    optional_args = ["endpoint", "namespace", "username", "password", "use_nodes_cache"]
     for arg in optional_args:
         if arg in server_config:
             sculib_args[arg] = server_config[arg]
@@ -155,6 +155,51 @@ def get_config_server_list(config_filename: str | None = None) -> list[str]:
     config = get_configurations(config_filename)
     server_list = [server.split(".")[1] for server in config.sections()]
     return server_list
+
+
+def save_server_config(
+    config_filename: str, server_name: str, server_details: dict[str, str]
+) -> None:
+    """
+    Reads the configuration file and returns a dictionary of SCU library arguments.
+
+    :param config_filename: (str, optional) The name of the configuration file. If None,
+        the default configuration file is used.
+    :param server_name: (str, optional) The name of the server to read from the
+        configuration file. Defaults to "DEFAULT" which just picks the first server
+        listed in the .ini file.
+    """
+    config = get_configurations(config_filename)
+    section_name = "opcua_server." + server_name
+    if config.has_section(section_name):
+        config.remove_section(section_name)
+    config.add_section(section_name)
+    for key in server_details:
+        config.set(section_name, key, str(server_details[key]))
+    config_file_path = find_config_file(config_filename)
+    with open(config_file_path, "w", encoding="utf-8") as file:
+        config.write(file)
+
+
+def delete_server_config(config_filename: str, server_name: str) -> bool:
+    """
+    Reads the configuration file and returns a dictionary of SCU library arguments.
+
+    :param config_filename: (str, optional) The name of the configuration file. If None,
+        the default configuration file is used.
+    :param server_name: (str, optional) The name of the server to read from the
+        configuration file. Defaults to "DEFAULT" which just picks the first server
+        listed in the .ini file.
+    """
+    config = get_configurations(config_filename)
+    section_name = "opcua_server." + server_name
+    if config.has_section(section_name):
+        config.remove_section(section_name)
+        config_file_path = find_config_file(config_filename)
+        with open(config_file_path, "w", encoding="utf-8") as file:
+            config.write(file)
+        return True
+    return False
 
 
 def configure_logging(default_log_level: int = logging.INFO) -> None:

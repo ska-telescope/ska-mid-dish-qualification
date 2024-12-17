@@ -1,6 +1,7 @@
 # pylint: disable=too-many-lines
 """DiSQ GUI View."""
 
+import ipaddress
 import json
 import logging
 from datetime import datetime, timezone
@@ -54,7 +55,7 @@ SKAO_ICON_PATH: Final = ":/icons/skao.ico"
 DISPLAY_DECIMAL_PLACES: Final = 5
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes,too-many-statements
 class ServerConnectDialog(QtWidgets.QDialog):
     """
     A dialog-window class for connecting to the OPC-UA server.
@@ -76,14 +77,20 @@ class ServerConnectDialog(QtWidgets.QDialog):
         self.setWindowTitle("Server Connection")
         self.setWindowIcon(QIcon(SKAO_ICON_PATH))
 
-        button = (
+        self.save_button = QtWidgets.QPushButton("Save", self)
+        self.save_button.clicked.connect(self.save_config)
+        self.delete_button = QtWidgets.QPushButton("Delete", self)
+        self.delete_button.clicked.connect(self.confirm_delete_dialog)
+        connect_buttons = (
             QtWidgets.QDialogButtonBox.StandardButton.Ok
-            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
+            | QtWidgets.QDialogButtonBox.StandardButton.Close
         )
-
-        self.btn_box = QtWidgets.QDialogButtonBox(button)
-        self.btn_box.accepted.connect(self.confirm_connect)
-        self.btn_box.rejected.connect(self.reject)
+        self.connect_box = QtWidgets.QDialogButtonBox(connect_buttons)
+        self.connect_box.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setText(
+            "Connect"
+        )
+        self.connect_box.accepted.connect(self.confirm_connect)
+        self.connect_box.rejected.connect(self.reject)
 
         self.vbox_layout = QtWidgets.QVBoxLayout()
         message = QtWidgets.QLabel(
@@ -95,8 +102,8 @@ class ServerConnectDialog(QtWidgets.QDialog):
         # configuration file
         server_list = self._controller.get_config_servers()
         self.dropdown_server_config_select = QtWidgets.QComboBox()
+        self.dropdown_server_config_select.setEditable(True)
         self.dropdown_server_config_select.addItems([""] + server_list)
-        self.dropdown_server_config_select.setFocus()
         self.dropdown_server_config_select.currentTextChanged.connect(
             self.server_config_select_changed
         )
@@ -128,9 +135,22 @@ class ServerConnectDialog(QtWidgets.QDialog):
         self.cache_checkbox.setChecked(False)
         self.vbox_layout.addWidget(self.cache_checkbox)
 
-        self.vbox_layout.addWidget(self.btn_box)
+        self.hbox_layout = QtWidgets.QHBoxLayout()
+        self.hbox_layout.addWidget(self.connect_box)
+        self.hbox_layout.addWidget(self.save_button)
+        self.hbox_layout.addWidget(self.delete_button)
+        self.vbox_layout.addLayout(self.hbox_layout)
         self.setLayout(self.vbox_layout)
-        self.server_details: dict[str, str] = {}
+        self.server_details: dict[str, str | bool] = {}
+
+        if self._controller.last_server_details is not None:
+            server_config = self._controller.last_server_details
+            self.input_server_address.setText(server_config["host"])
+            self.input_server_port.setText(str(server_config["port"]))
+            self.input_server_endpoint.setText(server_config["endpoint"])
+            self.input_server_namespace.setText(server_config["namespace"])
+            self.cache_checkbox.setChecked(bool(server_config["use_nodes_cache"]))
+        self.dropdown_server_config_select.setFocus()
 
     @property
     def server_config_selected(self) -> str:
@@ -144,42 +164,34 @@ class ServerConnectDialog(QtWidgets.QDialog):
         Enable/disable relevant widgets.
         """
         logger.debug("server config select changed: %s", server_name)
-        if server_name is None or server_name == "":
-            self._enable_server_widgets(True)
-        else:
-            # Clear the input boxes first
+        # Get the server config args from configfile
+        server_config = self._controller.get_config_server_args(server_name)
+        # Populate the widgets with the server config args
+        if server_config is None:
             self.input_server_address.clear()
             self.input_server_port.clear()
             self.input_server_endpoint.clear()
             self.input_server_namespace.clear()
-            # Get the server config args from configfile
-            server_config = self._controller.get_config_server_args(server_name)
-            # Populate the widgets with the server config args
-            if "endpoint" in server_config and "namespace" in server_config:
-                self.input_server_address.setText(server_config["host"])
-                self.input_server_port.setText(server_config["port"])
-                self.input_server_endpoint.setText(server_config["endpoint"])
-                self.input_server_namespace.setText(server_config["namespace"])
+            self.cache_checkbox.setChecked(False)
+        else:
+            self.input_server_address.setText(server_config["host"])
+            self.input_server_port.setText(str(server_config["port"]))
+            self.input_server_endpoint.setText(server_config.get("endpoint", ""))
+            self.input_server_namespace.setText(server_config.get("namespace", ""))
+            self.cache_checkbox.setChecked(
+                bool(server_config.get("use_nodes_cache", False))
+            )
+            if "use_nodes_cache" in server_config:
+                self.cache_checkbox.setChecked(
+                    False
+                    if server_config["use_nodes_cache"]
+                    in ["False", "false", "No", "no"]
+                    else bool(server_config["use_nodes_cache"])
+                )
             else:
-                # First physical controller does not have an endpoint or namespace
-                self.input_server_address.setText(server_config["host"])
-                self.input_server_port.setText(server_config["port"])
-            # Disable editing of the widgets
-            self._enable_server_widgets(False)
+                self.cache_checkbox.setChecked(False)
 
-    def _enable_server_widgets(self, enable: bool = True) -> None:
-        """
-        Enable or disable server widgets and optionally update the connect button text.
-
-        :param enable: Enable or disable server widgets (default True).
-        :param connect_button: Update the connect button text (default False).
-        """
-        self.input_server_address.setEnabled(enable)
-        self.input_server_port.setEnabled(enable)
-        self.input_server_endpoint.setEnabled(enable)
-        self.input_server_namespace.setEnabled(enable)
-
-    def confirm_connect(self):
+    def confirm_connect(self) -> None:
         """Accepts the server connection details entered in the dialog."""
         logger.debug("Server connect dialog accepted")
         self.server_details = {
@@ -190,6 +202,86 @@ class ServerConnectDialog(QtWidgets.QDialog):
             "use_nodes_cache": self.cache_checkbox.isChecked(),
         }
         self.accept()
+
+    def save_config(self) -> None:
+        """Save a server config."""
+        # Input validation
+        try:
+            ipaddress.ip_address(self.input_server_address.text())
+        except ValueError:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Invalid input",
+                f"'{self.input_server_address.text()}' is not a valid IP address!",
+                QtWidgets.QMessageBox.StandardButton.Ok,
+            )
+            return
+        server_details = {"host": self.input_server_address.text()}
+        port = self.input_server_port.text()
+        if port:
+            if not port.isdigit() or not 0 <= int(port) <= 65535:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    "Invalid input",
+                    f"'{port}' is not a valid port!\n"
+                    "Please enter a port between 0 and 65535.",
+                    QtWidgets.QMessageBox.StandardButton.Ok,
+                )
+                return
+            server_details["port"] = port
+        if self.input_server_endpoint.text():
+            server_details["endpoint"] = self.input_server_endpoint.text()
+        if self.input_server_namespace.text():
+            server_details["namespace"] = self.input_server_namespace.text()
+        if self.cache_checkbox.isChecked():
+            server_details["use_nodes_cache"] = "True"
+        if self.server_config_selected in self._controller.get_config_servers():
+            # Create a confirmation dialog
+            reply = QtWidgets.QMessageBox.warning(
+                self,
+                "Overwrite",
+                "Are you sure you want to overwrite the existing config for "
+                f"'{self.server_config_selected}'?",
+                QtWidgets.QMessageBox.StandardButton.Yes
+                | QtWidgets.QMessageBox.StandardButton.No,
+            )
+        else:
+            reply = QtWidgets.QMessageBox.StandardButton.Yes
+            self.dropdown_server_config_select.addItem(self.server_config_selected)
+        # Handle user response
+        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+            if self._controller.save_server_config(
+                self.server_config_selected, server_details
+            ):
+                logger.info("Saved '%s' server config", self.server_config_selected)
+                QtWidgets.QMessageBox.information(
+                    self,
+                    "Success",
+                    f"Saved config for '{self.server_config_selected}'.",
+                    QtWidgets.QMessageBox.StandardButton.Ok,
+                )
+
+    def confirm_delete_dialog(self) -> None:
+        """Confirm a user wants to delete a server config."""
+        # Create a confirmation dialog
+        reply = QtWidgets.QMessageBox.warning(
+            self,
+            "Delete",
+            "Are you sure you want to delete the config for "
+            f"'{self.server_config_selected}'?",
+            QtWidgets.QMessageBox.StandardButton.Yes
+            | QtWidgets.QMessageBox.StandardButton.No,
+        )
+        # Handle user response
+        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+            if self._controller.delete_server_config(self.server_config_selected):
+                logger.info("Deleted '%s' server config", self.server_config_selected)
+                self.dropdown_server_config_select.removeItem(
+                    self.dropdown_server_config_select.findText(
+                        self.server_config_selected
+                    )
+                )
+                self.dropdown_server_config_select.setCurrentIndex(0)
 
 
 class StatusBarMixin:
@@ -693,7 +785,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.action_connect_opcua_server.triggered.connect(self.connect_button_clicked)
         self.action_disconnect_opcua_server: QAction
         self.action_disconnect_opcua_server.triggered.connect(
-            self.connect_button_clicked
+            self.disconnect_button_clicked
         )
         self.action_connect_weather_station: QAction
         self.action_connect_weather_station.triggered.connect(
@@ -1525,7 +1617,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             f"{self.model.opcua_nodes_status.value} - "
             f"Nodes generated {self.model.plc_prg_nodes_timestamp}"
         )
-        self.action_connect_opcua_server.setEnabled(False)
         self.action_disconnect_opcua_server.setEnabled(True)
         self.action_connect_weather_station.setEnabled(True)
         self._enable_opcua_widgets()
@@ -1548,7 +1639,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self._enable_data_logger_widgets(False)
         self.label_conn_status.setText("Disconnected")
         self.label_cache_status.setText("")
-        self.action_connect_opcua_server.setEnabled(True)
         self.action_disconnect_opcua_server.setEnabled(False)
         self.action_connect_weather_station.setEnabled(False)
         self.button_load_track_table.setEnabled(False)
@@ -1560,17 +1650,17 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
     def connect_button_clicked(self):
         """Open the Connect To Server configuration dialog."""
-        if not self.controller.is_server_connected():
-            dialog = ServerConnectDialog(self, self.controller)
-            if dialog.exec():
-                logger.debug("Connection configuration dialog accepted")
-                logger.debug("Selected: %s", dialog.server_details)
-                self.server_connect(
-                    dialog.server_details, dialog.server_config_selected
-                )
-            else:
-                logger.debug("Connection config dialog cancelled")
+        dialog = ServerConnectDialog(self, self.controller)
+        if dialog.exec():
+            logger.debug("Connection configuration dialog accepted")
+            logger.debug("Selected: %s", dialog.server_details)
+            self.server_connect(dialog.server_details, dialog.server_config_selected)
         else:
+            logger.debug("Connection config dialog cancelled")
+
+    def disconnect_button_clicked(self):
+        """Disconnect from the current server."""
+        if self.controller.is_server_connected():
             logger.debug("disconnecting from server")
             self.controller.disconnect_server()
 

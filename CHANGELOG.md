@@ -4,6 +4,7 @@
 
 - Non-breaking changes:
     - WOM-454: Integrate weather station into DiSQ.
+    - WOM-542: Added buttons to server connection dialog window to save/delete configs.
 - Bug fixes:
     - WOM-518: Rectify static tracking offsets input range limits.
     - WOM-424: Simplified main dependencies and limited Python version to 3.10 and 3.11.
