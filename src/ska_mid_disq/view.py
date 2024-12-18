@@ -40,17 +40,6 @@ TILT_METER_TWO_ON: Final = "Pointing.Status.TiltTwo_On"
 BAND_FOR_CORR: Final = "Pointing.Status.BandForCorr"
 TEMP_CORR_ACTIVE: Final = "Pointing.Status.TempCorrActive"
 
-# Axis limits defined in ICD
-AZ_POS_MAX: Final = 271.0
-AZ_POS_MIN: Final = -271.0
-AZ_VEL_MAX: Final = 3.0
-EL_POS_MAX: Final = 90.2
-EL_POS_MIN: Final = 14.8
-EL_VEL_MAX: Final = 1.0
-FI_POS_MAX: Final = 106.0
-FI_POS_MIN: Final = -106.0
-FI_VEL_MAX: Final = 12.0
-
 SKAO_ICON_PATH: Final = ":/icons/skao.ico"
 DISPLAY_DECIMAL_PLACES: Final = 5
 
@@ -799,6 +788,15 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.action_about.triggered.connect(self.about_button_clicked)
         self.action_docs: QAction
         self.action_docs.triggered.connect(self.open_documentation)
+        self.action_disable_input_limits: QAction
+        self.action_disable_input_limits.triggered.connect(
+            self.disable_input_limits_clicked
+        )
+        self.action_enable_input_limits: QAction
+        self.action_enable_input_limits.triggered.connect(
+            self.enable_input_limits_clicked
+        )
+        self.spinbox_input_limits: list[tuple[float, float]] = []
 
         self.server_status_bar: QtWidgets.QWidget
         # Load a background image for the server connection QGroupBox
@@ -946,9 +944,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 float(self.combobox_axis_input_step.currentText())
             )
         )
-        self.button_enable_axis_limits: QtWidgets.QRadioButton
-        self.button_enable_axis_limits.toggled.connect(self.limit_axis_inputs_toggled)
-
         # Point tab static pointing model widgets
         self.button_static_point_model_import: QtWidgets.QPushButton
         self.button_static_point_model_import.clicked.connect(
@@ -1987,32 +1982,30 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.spinbox_slew_simul_elev_position.setSingleStep(step_size)
         self.spinbox_slew_simul_elev_velocity.setSingleStep(step_size)
 
-    def limit_axis_inputs_toggled(self) -> None:
-        """Limit the input ranges of the axis slew commands as specified in the ICD."""
-        if self.button_enable_axis_limits.isChecked():
-            self.spinbox_slew_only_azimuth_position.setRange(AZ_POS_MIN, AZ_POS_MAX)
-            self.spinbox_slew_only_azimuth_velocity.setMaximum(AZ_VEL_MAX)
-            self.spinbox_slew_only_elevation_position.setRange(EL_POS_MIN, EL_POS_MAX)
-            self.spinbox_slew_only_elevation_velocity.setMaximum(EL_VEL_MAX)
-            self.spinbox_slew_only_indexer_position.setRange(FI_POS_MIN, FI_POS_MAX)
-            self.spinbox_slew_only_indexer_velocity.setMaximum(FI_VEL_MAX)
-            self.spinbox_slew_simul_azim_position.setRange(AZ_POS_MIN, AZ_POS_MAX)
-            self.spinbox_slew_simul_azim_velocity.setMaximum(AZ_VEL_MAX)
-            self.spinbox_slew_simul_elev_position.setRange(EL_POS_MIN, EL_POS_MAX)
-            self.spinbox_slew_simul_elev_velocity.setMaximum(EL_VEL_MAX)
-        else:
-            default_max = 1000.0
-            default_min = -1000.0
-            self.spinbox_slew_only_azimuth_position.setRange(default_min, default_max)
-            self.spinbox_slew_only_azimuth_velocity.setMaximum(default_max)
-            self.spinbox_slew_only_elevation_position.setRange(default_min, default_max)
-            self.spinbox_slew_only_elevation_velocity.setMaximum(default_max)
-            self.spinbox_slew_only_indexer_position.setRange(default_min, default_max)
-            self.spinbox_slew_only_indexer_velocity.setMaximum(default_max)
-            self.spinbox_slew_simul_azim_position.setRange(default_min, default_max)
-            self.spinbox_slew_simul_azim_velocity.setMaximum(default_max)
-            self.spinbox_slew_simul_elev_position.setRange(default_min, default_max)
-            self.spinbox_slew_simul_elev_velocity.setMaximum(default_max)
+    def disable_input_limits_clicked(self) -> None:
+        """Disable input limits of all spinboxes."""
+        reply = QtWidgets.QMessageBox.warning(
+            self,
+            "Expert user option",
+            "Are you sure you want to disable all input limits?",
+            QtWidgets.QMessageBox.StandardButton.Yes
+            | QtWidgets.QMessageBox.StandardButton.No,
+        )
+        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+            self.action_disable_input_limits.setEnabled(False)
+            self.action_enable_input_limits.setEnabled(True)
+            for spinbox in self.findChildren(LimitedDisplaySpinBox):
+                self.spinbox_input_limits.append(
+                    (spinbox.minimum(), spinbox.maximum())  # type: ignore
+                )
+                spinbox.setRange(-100000.0, 100000.0)  # type: ignore
+
+    def enable_input_limits_clicked(self) -> None:
+        """Enable input limits of all spinboxes."""
+        self.action_disable_input_limits.setEnabled(True)
+        self.action_enable_input_limits.setEnabled(False)
+        for i, spinbox in enumerate(self.findChildren(LimitedDisplaySpinBox)):
+            spinbox.setRange(*self.spinbox_input_limits[i])  # type: ignore
 
     def stop_button_clicked(self, axis: str) -> None:
         """

@@ -3714,7 +3714,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>7</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="power">
        <attribute name="title">
@@ -3785,37 +3785,6 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="2" colspan="2">
-            <widget class="QDoubleSpinBox" name="spinbox_power_lim_kw">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="baseSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="singleStep">
-              <double>0.100000000000000</double>
-             </property>
-             <property name="value">
-              <double>20.000000000000000</double>
-             </property>
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="3">
             <widget class="QRadioButton" name="button_power_mode_low">
              <property name="sizePolicy">
@@ -3844,6 +3813,77 @@
              </property>
              <property name="opcua_type" stdset="0">
               <string>Boolean</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QLabel" name="label_91">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Normal power mode limit [kW]:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2" colspan="2">
+            <widget class="LimitedDisplaySpinBox" name="spinbox_power_lim_kw">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>&lt;b&gt;Maximum:&lt;/b&gt; 20.0&lt;br&gt;&lt;b&gt;Minimum:&lt;/b&gt; 10.0</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="decimals">
+              <number>5</number>
+             </property>
+             <property name="minimum">
+              <double>10.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>20.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="value">
+              <double>20.000000000000000</double>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
              </property>
             </widget>
            </item>
@@ -3906,30 +3946,21 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QLabel" name="label_91">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+           <item row="0" column="4">
+            <spacer name="horizontalSpacer_12">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
-             <property name="minimumSize">
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
               <size>
-               <width>0</width>
+               <width>180</width>
                <height>20</height>
               </size>
              </property>
-             <property name="baseSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Normal power mode limit [kW]:</string>
-             </property>
-            </widget>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -5894,68 +5925,6 @@
               <string>0.00001</string>
              </property>
             </item>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
-          <item>
-           <spacer name="horizontalSpacer_12">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_36">
-            <property name="text">
-             <string>Axis range limits:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="button_disable_axis_limits">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="layoutDirection">
-             <enum>Qt::LeftToRight</enum>
-            </property>
-            <property name="text">
-             <string>DISABLED</string>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-            <property name="opcua" stdset="0">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="button_enable_axis_limits">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="layoutDirection">
-             <enum>Qt::LeftToRight</enum>
-            </property>
-            <property name="text">
-             <string>ENABLED</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <property name="opcua" stdset="0">
-             <string/>
-            </property>
            </widget>
           </item>
          </layout>
@@ -10069,6 +10038,12 @@
              <property name="enabled">
               <bool>false</bool>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
              <property name="readOnly">
               <bool>true</bool>
              </property>
@@ -10094,6 +10069,9 @@
             <widget class="QLineEdit" name="weather_station_pressure">
              <property name="enabled">
               <bool>false</bool>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
              </property>
              <property name="readOnly">
               <bool>true</bool>
@@ -10121,6 +10099,9 @@
              <property name="enabled">
               <bool>false</bool>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
              <property name="readOnly">
               <bool>true</bool>
              </property>
@@ -10146,6 +10127,9 @@
             <widget class="QLineEdit" name="weather_station_humidity">
              <property name="enabled">
               <bool>false</bool>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
              </property>
              <property name="readOnly">
               <bool>true</bool>
@@ -10173,6 +10157,9 @@
              <property name="enabled">
               <bool>false</bool>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
              <property name="readOnly">
               <bool>true</bool>
              </property>
@@ -10198,6 +10185,9 @@
             <widget class="QLineEdit" name="weather_station_rainfall">
              <property name="enabled">
               <bool>false</bool>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
              </property>
              <property name="readOnly">
               <bool>true</bool>
@@ -10263,7 +10253,15 @@
     <addaction name="action_about"/>
     <addaction name="action_docs"/>
    </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="action_disable_input_limits"/>
+    <addaction name="action_enable_input_limits"/>
+   </widget>
    <addaction name="menuControl"/>
+   <addaction name="menuOptions"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -10304,6 +10302,19 @@
   <action name="action_docs">
    <property name="text">
     <string>Documentation</string>
+   </property>
+  </action>
+  <action name="action_disable_input_limits">
+   <property name="text">
+    <string>Disable all input limits</string>
+   </property>
+  </action>
+  <action name="action_enable_input_limits">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Enable all input limits</string>
    </property>
   </action>
  </widget>
@@ -10376,8 +10387,6 @@
   <tabstop>spinbox_slew_only_indexer_velocity</tabstop>
   <tabstop>button_indexer_slew</tabstop>
   <tabstop>combobox_axis_input_step</tabstop>
-  <tabstop>button_disable_axis_limits</tabstop>
-  <tabstop>button_enable_axis_limits</tabstop>
   <tabstop>button_static_point_model_toggle</tabstop>
   <tabstop>combo_static_point_model_band_display</tabstop>
   <tabstop>combo_static_point_model_band_input</tabstop>
@@ -10438,15 +10447,35 @@
   <tabstop>warning_status_show_only_warnings</tabstop>
   <tabstop>error_tree_view</tabstop>
   <tabstop>error_status_show_only_errors</tabstop>
+  <tabstop>button_wind_speed_poll</tabstop>
+  <tabstop>button_wind_speed_exclude</tabstop>
+  <tabstop>button_pressure_poll</tabstop>
+  <tabstop>button_pressure_exclude</tabstop>
+  <tabstop>button_wind_direction_poll</tabstop>
+  <tabstop>button_wind_direction_exclude</tabstop>
+  <tabstop>button_humidity_poll</tabstop>
+  <tabstop>button_humidity_exclude</tabstop>
+  <tabstop>button_temperature_poll</tabstop>
+  <tabstop>button_temperature_exclude</tabstop>
+  <tabstop>button_rainfall_poll</tabstop>
+  <tabstop>button_rainfall_exclude</tabstop>
+  <tabstop>button_weather_station_configure_reset</tabstop>
+  <tabstop>button_weather_station_configure_apply</tabstop>
+  <tabstop>weather_station_wind_speed</tabstop>
+  <tabstop>weather_station_pressure</tabstop>
+  <tabstop>weather_station_wind_direction</tabstop>
+  <tabstop>weather_station_humidity</tabstop>
+  <tabstop>weather_station_temperature</tabstop>
+  <tabstop>weather_station_rainfall</tabstop>
  </tabstops>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="button_group_wind_direction"/>
-  <buttongroup name="button_group_temperature"/>
-  <buttongroup name="button_group_humidity"/>
-  <buttongroup name="button_group_wind_speed"/>
   <buttongroup name="button_group_rainfall"/>
   <buttongroup name="button_group_pressure"/>
+  <buttongroup name="button_group_wind_direction"/>
+  <buttongroup name="button_group_humidity"/>
+  <buttongroup name="button_group_wind_speed"/>
+  <buttongroup name="button_group_temperature"/>
  </buttongroups>
 </ui>
