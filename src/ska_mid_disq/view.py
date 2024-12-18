@@ -1775,6 +1775,10 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 isinstance(wgt, QtWidgets.QLineEdit)
                 and wgt.property("weather_station") == event["name"]
             ):
+                wgt.setToolTip(
+                    f"<b>Sensor:</b> {event['name']}<br>"
+                    f"<b>Value:</b> {str(event['value'])}"
+                )
                 self._update_opcua_text_widget([wgt], event)
 
     def weather_station_connected_event(self):
