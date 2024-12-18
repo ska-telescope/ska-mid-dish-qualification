@@ -4,6 +4,10 @@
 
 - Non-breaking changes:
     - WOM-454: Integrate weather station into DiSQ.
+
+## 0.5.2
+
+- Non-breaking changes:
     - WOM-542: Added buttons to server connection dialog window to save/delete configs.
 - Bug fixes:
     - WOM-518: Rectify static tracking offsets input range limits.
