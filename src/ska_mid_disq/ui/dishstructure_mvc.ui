@@ -3714,7 +3714,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="power">
        <attribute name="title">
@@ -4042,6 +4042,12 @@
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
                </property>
+               <property name="text">
+                <string>Open</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4107,6 +4113,12 @@
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
                </property>
+               <property name="text">
+                <string>Open</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4144,6 +4156,12 @@
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
                </property>
+               <property name="text">
+                <string>Open</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4180,6 +4198,12 @@
                </property>
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="text">
+                <string>Open</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -4330,6 +4354,12 @@
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
                </property>
+               <property name="text">
+                <string>Open</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4366,6 +4396,12 @@
                </property>
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="text">
+                <string>Open</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -4449,6 +4485,12 @@
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
                </property>
+               <property name="text">
+                <string>Functional</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -4485,6 +4527,12 @@
                </property>
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="text">
+                <string>Functional</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -4630,6 +4678,9 @@
                <property name="readOnly">
                 <bool>true</bool>
                </property>
+               <property name="placeholderText">
+                <string>current</string>
+               </property>
                <property name="opcua" stdset="0">
                 <string>Management.PowerStatus.CurrentPh2</string>
                </property>
@@ -4720,6 +4771,9 @@
                <property name="readOnly">
                 <bool>true</bool>
                </property>
+               <property name="placeholderText">
+                <string>current</string>
+               </property>
                <property name="opcua" stdset="0">
                 <string>Management.PowerStatus.CurrentPh1</string>
                </property>
@@ -4753,6 +4807,9 @@
                </property>
                <property name="readOnly">
                 <bool>true</bool>
+               </property>
+               <property name="placeholderText">
+                <string>voltage</string>
                </property>
                <property name="opcua" stdset="0">
                 <string>Management.PowerStatus.VoltagePh2</string>
@@ -4788,6 +4845,9 @@
                <property name="readOnly">
                 <bool>true</bool>
                </property>
+               <property name="placeholderText">
+                <string>current</string>
+               </property>
                <property name="opcua" stdset="0">
                 <string>Management.PowerStatus.CurrentPh3</string>
                </property>
@@ -4821,6 +4881,9 @@
                </property>
                <property name="readOnly">
                 <bool>true</bool>
+               </property>
+               <property name="placeholderText">
+                <string>frequency</string>
                </property>
                <property name="opcua" stdset="0">
                 <string>Management.PowerStatus.FrequencyPh1</string>
@@ -4884,6 +4947,9 @@
                <property name="readOnly">
                 <bool>true</bool>
                </property>
+               <property name="placeholderText">
+                <string>voltage</string>
+               </property>
                <property name="opcua" stdset="0">
                 <string>Management.PowerStatus.VoltagePh3</string>
                </property>
@@ -4946,6 +5012,9 @@
                <property name="readOnly">
                 <bool>true</bool>
                </property>
+               <property name="placeholderText">
+                <string>frequency</string>
+               </property>
                <property name="opcua" stdset="0">
                 <string>Management.PowerStatus.FrequencyPh3</string>
                </property>
@@ -4979,6 +5048,9 @@
                </property>
                <property name="readOnly">
                 <bool>true</bool>
+               </property>
+               <property name="placeholderText">
+                <string>frequency</string>
                </property>
                <property name="opcua" stdset="0">
                 <string>Management.PowerStatus.FrequencyPh2</string>
@@ -5036,11 +5108,17 @@
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
                </property>
+               <property name="text">
+                <string/>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
+               </property>
+               <property name="placeholderText">
+                <string>voltage</string>
                </property>
                <property name="opcua" stdset="0">
                 <string>Management.PowerStatus.VoltagePh1</string>
@@ -5149,6 +5227,9 @@
                <property name="readOnly">
                 <bool>true</bool>
                </property>
+               <property name="placeholderText">
+                <string>factor</string>
+               </property>
                <property name="opcua" stdset="0">
                 <string>Management.PowerStatus.PowerFactor</string>
                </property>
@@ -5176,6 +5257,12 @@
                </property>
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="text">
+                <string>Active</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -5247,6 +5334,9 @@
                </property>
                <property name="readOnly">
                 <bool>true</bool>
+               </property>
+               <property name="placeholderText">
+                <string>power</string>
                </property>
                <property name="opcua" stdset="0">
                 <string>Management.PowerStatus.ActPwrCnsm</string>
@@ -8914,6 +9004,9 @@
                <height>22</height>
               </size>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
              <property name="decimals">
               <number>6</number>
              </property>
@@ -9181,8 +9274,14 @@
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
              <property name="readOnly">
               <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>ISO 8601</string>
              </property>
              <property name="opcua" stdset="0">
               <string>ServerStatus.CurrentTime</string>
@@ -9298,6 +9397,9 @@
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
              <property name="readOnly">
               <bool>true</bool>
              </property>
@@ -9405,10 +9507,13 @@
               <enum>Qt::NoFocus</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <property name="readOnly">
               <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>offset</string>
              </property>
              <property name="opcua" stdset="0">
               <string>Time_cds.Status.TAIoffset</string>
@@ -9492,6 +9597,9 @@
                <width>0</width>
                <height>22</height>
               </size>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
              <property name="placeholderText">
               <string>0.0.0.0</string>
@@ -10472,10 +10580,10 @@
  <connections/>
  <buttongroups>
   <buttongroup name="button_group_rainfall"/>
+  <buttongroup name="button_group_temperature"/>
   <buttongroup name="button_group_pressure"/>
   <buttongroup name="button_group_wind_direction"/>
   <buttongroup name="button_group_humidity"/>
   <buttongroup name="button_group_wind_speed"/>
-  <buttongroup name="button_group_temperature"/>
  </buttongroups>
 </ui>
