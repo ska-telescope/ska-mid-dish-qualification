@@ -293,7 +293,6 @@ class SCUWeatherStation(SteeringControlUnit):
         :param config: The weather station config file.
         """
         self._weather_station = WeatherStation(config, address, port, logger)
-        self._weather_station.connect()
         self._weather_station.start_polling()
 
         # Default to all sensors in config file

@@ -589,7 +589,14 @@ class Controller(QObject):
             )
             return
 
-        self._model.weather_station_connect(station_details)
+        try:
+            self._model.weather_station_connect(station_details)
+        except (ValueError, ConnectionError) as e:
+            self.emit_ui_status_message(
+                "ERROR", f"Unable to connect to weather station. Error: {e}"
+            )
+            self.weather_station_disconnected.emit()
+            return
         self.emit_ui_status_message(
             "INFO",
             f"Connected to weather station at {station_details['address']}",
