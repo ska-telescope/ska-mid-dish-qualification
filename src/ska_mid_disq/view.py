@@ -43,6 +43,8 @@ TEMP_CORR_ACTIVE: Final = "Pointing.Status.TempCorrActive"
 SKAO_ICON_PATH: Final = ":/icons/skao.ico"
 DISPLAY_DECIMAL_PLACES: Final = 5
 
+_WEATHER_STATION_YAML: Final = "weather_station_resources/weather_station.yaml"
+
 
 # pylint: disable=too-many-instance-attributes,too-many-statements
 class ServerConnectDialog(QtWidgets.QDialog):
@@ -296,13 +298,17 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
     # pylint: disable=too-few-public-methods
     """A dialog-window class for connecting to a weather station."""
 
-    def __init__(self, parent: QtWidgets.QWidget):
+    def __init__(
+        self, parent: QtWidgets.QWidget, mvc_controller: controller.Controller
+    ):
         """
         Initialize the weather station connect dialog.
 
         :param parent: The parent widget for the dialog.
         """
         super().__init__(parent)
+        self._controller = mvc_controller
+        weather_stations = list(self._controller.get_weather_station_configs())
         self.server_details: dict[str, str] = {}
 
         self.setWindowTitle("Weather Station Connection")
@@ -318,10 +324,13 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
         self.btn_box.rejected.connect(self.reject)
 
         self.vbox_layout = QtWidgets.QVBoxLayout()
-        message = QtWidgets.QLabel(
-            "Enter or select the weather station details and click OK"
-        )
         # Create widgets
+        self.dropdown_weather_station_config_select = QtWidgets.QComboBox()
+        self.dropdown_weather_station_config_select.setEditable(True)
+        self.dropdown_weather_station_config_select.addItems([""] + weather_stations)
+        self.dropdown_weather_station_config_select.currentTextChanged.connect(
+            self.weather_station_config_select_changed
+        )
         self.select_weather_station_config_file = QtWidgets.QPushButton(
             "Select configuration..."
         )
@@ -329,12 +338,25 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
             self._select_weather_station_config_file_clicked
         )
         self.weather_station_config_file = QtWidgets.QLineEdit()
+        self.default_weather_station_config_file = QtWidgets.QPushButton(
+            "Use Default Configuration"
+        )
+        self.default_weather_station_config_file.clicked.connect(
+            lambda: self.weather_station_config_file.setText("/DEFAULT/")
+        )
         self.weather_station_address = QtWidgets.QLineEdit()
         self.weather_station_port = QtWidgets.QLineEdit()
         # Create layout
-        self.vbox_layout.addWidget(message)
+        self.vbox_layout.addWidget(
+            QtWidgets.QLabel("Enter or select the weather station details and click OK")
+        )
+        self.vbox_layout.addWidget(
+            QtWidgets.QLabel("Select weather station from config file:")
+        )
+        self.vbox_layout.addWidget(self.dropdown_weather_station_config_select)
         self.vbox_layout.addWidget(QtWidgets.QLabel("Select configuration:"))
         self.vbox_layout.addWidget(self.select_weather_station_config_file)
+        self.vbox_layout.addWidget(self.default_weather_station_config_file)
         self.vbox_layout.addWidget(self.weather_station_config_file)
         self.vbox_layout.addWidget(QtWidgets.QLabel("Weather Station Address:"))
         self.vbox_layout.addWidget(self.weather_station_address)
@@ -345,6 +367,28 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
         self.vbox_layout.addWidget(status_bar)
         self.setLayout(self.vbox_layout)
         self.weather_station_details: dict[str, str] = {}
+
+    def weather_station_config_select_changed(self, weather_station: str) -> None:
+        """
+        User changed weather station selection in drop-down box.
+
+        Fill or clear the form.
+        """
+        logger.debug("Selected weather station config changed to %s", weather_station)
+        try:
+            weather_station_details = self._controller.get_weather_station_configs()[
+                weather_station
+            ]
+        except KeyError:
+            # Unknown config, clear form.
+            self.weather_station_config_file.clear()
+            self.weather_station_address.clear()
+            self.weather_station_port.clear()
+            return
+
+        self.weather_station_config_file.setText(weather_station_details["config_file"])
+        self.weather_station_address.setText(weather_station_details["address"])
+        self.weather_station_port.setText(weather_station_details["port"])
 
     def _select_weather_station_config_file_clicked(self):
         """Load a weather station config from a yaml file."""
@@ -364,6 +408,8 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
         """Accepts the weather station details entered in the dialog."""
         logger.debug("Weather station dialog accepted")
         config = self.weather_station_config_file.text()
+        if config == "/DEFAULT/":
+            config = resources.files(__package__).joinpath(_WEATHER_STATION_YAML)
         address = self.weather_station_address.text()
         port = self.weather_station_port.text()
         if not config or not address or not port:
@@ -1817,7 +1863,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             return
 
         if self.controller.is_server_connected():
-            dialog = WeatherStationConnectDialog(self)
+            dialog = WeatherStationConnectDialog(self, self.controller)
             if dialog.exec():
                 logger.debug("Connect weather station dialog accepted")
                 logger.debug("Selected: %s", dialog.server_details)

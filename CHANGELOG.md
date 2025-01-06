@@ -6,6 +6,7 @@
     - WOM-454: Integrate weather station into DiSQ.
     - WOM-543: Added option to remove min/max limits on all inputs.
     - WOM-579: Update the weather station integration to more gracefully handle a connection error.
+    - WOM-580: Added builtin weather station options.
 
 ## 0.5.2
 

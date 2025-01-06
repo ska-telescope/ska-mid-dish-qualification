@@ -1,6 +1,8 @@
 """DiSQ GUI controller."""
 
+import json
 import logging
+from importlib import resources
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +14,7 @@ from ska_mid_disq.constants import ServerType
 logger = logging.getLogger("gui.controller")
 
 _LOCAL_DIR_CONFIGFILE = "disq.ini"
+_WEATHER_STATION_CONFIGFILE = "weather_station_resources/weather_station_configs.json"
 
 
 # pylint: disable=too-many-public-methods
@@ -572,6 +575,15 @@ class Controller(QObject):
     # ---------------
     # Weather Station
     # ---------------
+    def get_weather_station_configs(self) -> dict[str, dict[str, str]]:
+        """Get the in-built weather station configs."""
+        with (
+            resources.files(__package__)
+            .joinpath(_WEATHER_STATION_CONFIGFILE)
+            .open("r", encoding="UTF-8") as file
+        ):
+            return json.load(file)
+
     def connect_weather_station(self, station_details: dict) -> None:
         """
         Connect to a weather station using the provided connection details.
