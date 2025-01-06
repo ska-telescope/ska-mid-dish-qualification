@@ -1,0 +1,44 @@
+# Copied from ska-mid-wms
+
+# YAML file to configure a Weather Station
+
+Weather_Station:
+  name: "Station 1"
+  slave_id: 0 # 961EN-4006 (6 Diff Current In w/Modbus)
+  sensors:
+    wind_speed:
+      address: 15
+      description: "Wind speed"
+      unit: m/s
+      scale_low: 0.0
+      scale_high: 70.0
+    wind_direction:
+      address: 16
+      description: "Wind direction"
+      unit: "degrees"
+      scale_low: 0
+      scale_high: 360
+    temperature:
+      address: 17
+      description: "Temperature"
+      unit: "Deg C"
+      scale_low: -10
+      scale_high: 50
+    pressure:
+      address: 18
+      description: "Pressure"
+      unit: mbar
+      scale_low: 600
+      scale_high: 1100
+    humidity:
+      address: 19
+      description: "Humidity"
+      unit: "%"
+      scale_low: 0
+      scale_high: 100
+    rainfall:
+      address: 20
+      description: "Rainfall"
+      unit: mm
+      scale_low: 0
+      scale_high: 500
