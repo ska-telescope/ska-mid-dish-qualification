@@ -350,9 +350,7 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
         self.vbox_layout.addWidget(
             QtWidgets.QLabel("Enter or select the weather station details and click OK")
         )
-        self.vbox_layout.addWidget(
-            QtWidgets.QLabel("Select weather station from config file:")
-        )
+        self.vbox_layout.addWidget(QtWidgets.QLabel("Select built-in weather station:"))
         self.vbox_layout.addWidget(self.dropdown_weather_station_config_select)
         self.vbox_layout.addWidget(QtWidgets.QLabel("Select configuration:"))
         self.vbox_layout.addWidget(self.select_weather_station_config_file)
