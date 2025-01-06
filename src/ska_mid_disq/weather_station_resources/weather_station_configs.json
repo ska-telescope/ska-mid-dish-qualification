@@ -1,0 +1,7 @@
+{
+    "simulator": {
+        "config_file" : "/DEFAULT/",
+        "address" : "127.0.0.1",
+        "port" : "502"
+    }
+}
