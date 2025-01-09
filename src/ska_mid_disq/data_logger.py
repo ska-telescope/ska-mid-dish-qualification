@@ -293,7 +293,6 @@ class DataLogger:
 
         app_logger.info("Writing data to file: %s", self.file)
         self.file_object = h5py.File(self.file, "w", libver="latest")
-        self._build_hdf5_structure()
 
         self._subscribe_to_nodes()
 
@@ -402,6 +401,7 @@ class DataLogger:
         This method does not have any parameters or return values.
 
         """
+        self._build_hdf5_structure()
         next_flush_interval = datetime.now(timezone.utc) + timedelta(
             milliseconds=self._FLUSH_PERIOD_MSECS
         )
