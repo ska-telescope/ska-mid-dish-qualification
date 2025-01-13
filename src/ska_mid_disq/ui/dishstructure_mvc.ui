@@ -3714,7 +3714,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="power">
        <attribute name="title">
@@ -9075,25 +9075,6 @@
            <string>Track</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_29">
-           <item row="2" column="3">
-            <widget class="QPushButton" name="button_start_track_table">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Start Tracking</string>
-             </property>
-             <property name="opcua_cmd" stdset="0">
-              <string>Tracking.Commands.TrackStart</string>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="1">
             <widget class="QRadioButton" name="button_start_track_now">
              <property name="enabled">
@@ -9116,10 +9097,13 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="3">
-            <widget class="QLineEdit" name="opcua_TrackStatus_tr_TimeRemaining">
+           <item row="3" column="4">
+            <widget class="QLineEdit" name="opcua_TrackStatus_tr_TimeRemaining_2">
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="text">
+              <string/>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -9128,22 +9112,61 @@
               <bool>true</bool>
              </property>
              <property name="placeholderText">
-              <string>time remaining</string>
+              <string>index</string>
              </property>
              <property name="opcua" stdset="0">
-              <string>Tracking.Status.tr_TimeRemaining</string>
+              <string>Tracking.TableStatus.act_pt_act_index</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_95">
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_31">
              <property name="text">
-              <string>Start time (since SKAO epoch):</string>
+              <string>On source deviation [arcsec]:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="1" column="2">
-            <widget class="QRadioButton" name="button_start_track_at">
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_30">
+             <property name="text">
+              <string>Time remaining [s]:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" colspan="2">
+            <widget class="QComboBox" name="combobox_track_start_interpol_type">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>InterpolType</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_94">
+             <property name="text">
+              <string>Interpolation type:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3" colspan="2">
+            <widget class="QPushButton" name="button_start_track_table">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -9154,14 +9177,40 @@
               </size>
              </property>
              <property name="text">
-              <string>At:</string>
+              <string>Start Tracking</string>
              </property>
-             <property name="opcua" stdset="0">
-              <string/>
+             <property name="opcua_cmd" stdset="0">
+              <string>Tracking.Commands.TrackStart</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="3">
+           <item row="4" column="1" colspan="2">
+            <widget class="QLineEdit" name="opcua_TrackStatus_OnSourceDev">
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>angle</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Tracking.Status.OnSourceDev</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_95">
+             <property name="text">
+              <string>Start time (since SKAO epoch):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3" colspan="2">
             <widget class="QLineEdit" name="line_edit_start_track_at">
              <property name="enabled">
               <bool>true</bool>
@@ -9189,44 +9238,18 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_94">
+           <item row="3" column="3">
+            <widget class="QLabel" name="label_136">
              <property name="text">
-              <string>Interpolation type:</string>
+              <string>Current table index:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="3">
-            <widget class="QLabel" name="label_30">
-             <property name="text">
-              <string>Time remaining [s]:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1" colspan="2">
-            <widget class="QComboBox" name="combobox_track_start_interpol_type">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
-             <property name="opcua_type" stdset="0">
-              <string>InterpolType</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="3">
-            <widget class="QLineEdit" name="opcua_TrackStatus_OnSourceDev">
+           <item row="3" column="1" colspan="2">
+            <widget class="QLineEdit" name="opcua_TrackStatus_tr_TimeRemaining">
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>
@@ -9237,20 +9260,58 @@
               <bool>true</bool>
              </property>
              <property name="placeholderText">
-              <string>on source deviation</string>
+              <string>time</string>
              </property>
              <property name="opcua" stdset="0">
-              <string>Tracking.Status.OnSourceDev</string>
+              <string>Tracking.Status.tr_TimeRemaining</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="0" colspan="3">
-            <widget class="QLabel" name="label_31">
+           <item row="1" column="2">
+            <widget class="QRadioButton" name="button_start_track_at">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="text">
-              <string>On source deviation [arcsec]:</string>
+              <string>At:</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="3">
+            <widget class="QLabel" name="label_137">
+             <property name="text">
+              <string>End table index:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="4">
+            <widget class="QLineEdit" name="opcua_TrackStatus_tr_TimeRemaining_3">
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>index</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Tracking.TableStatus.act_pt_end_index</string>
              </property>
             </widget>
            </item>
@@ -9263,6 +9324,41 @@
            <string>Time Status</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_27">
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEdit_10">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>offset</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Time_cds.Status.TAIoffset</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_119">
+             <property name="text">
+              <string>DSC system time:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
            <item row="3" column="1" colspan="3">
             <widget class="QLineEdit" name="lineEdit_14">
              <property name="minimumSize">
@@ -9288,6 +9384,26 @@
              </property>
             </widget>
            </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_114">
+             <property name="text">
+              <string>TAI offset [s]:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="label_117">
+             <property name="text">
+              <string>UTC to SKA Epoch [s]:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
            <item row="2" column="2">
             <widget class="QLabel" name="label_115">
              <property name="text">
@@ -9298,56 +9414,13 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="lineEdit_9">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_116">
+             <property name="text">
+              <string>Time synced:</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>PTP</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string>Time_cds.Status.DscTimeSyncSource</string>
-             </property>
-             <property name="opcua_type" stdset="0">
-              <string>DscTimeSyncSourceType</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QLineEdit" name="lineEdit_13">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>32</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string>Time_cds.Status.UTCtoSkaEpochSec</string>
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -9376,10 +9449,10 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="2">
-            <widget class="QLabel" name="label_117">
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_113">
              <property name="text">
-              <string>UTC to SKA Epoch [s]:</string>
+              <string>Leap seconds:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -9408,16 +9481,6 @@
              </property>
              <property name="opcua" stdset="0">
               <string>Time_cds.Status.TimeSourceAddrNTP</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_113">
-             <property name="text">
-              <string>Leap seconds:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -9455,48 +9518,8 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_111">
-             <property name="text">
-              <string>Time sync source:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_114">
-             <property name="text">
-              <string>TAI offset [s]:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLabel" name="label_116">
-             <property name="text">
-              <string>Time synced:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_119">
-             <property name="text">
-              <string>DSC system time:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEdit_10">
+           <item row="1" column="3">
+            <widget class="QLineEdit" name="lineEdit_13">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -9513,10 +9536,48 @@
               <bool>true</bool>
              </property>
              <property name="placeholderText">
-              <string>offset</string>
+              <string>32</string>
              </property>
              <property name="opcua" stdset="0">
-              <string>Time_cds.Status.TAIoffset</string>
+              <string>Time_cds.Status.UTCtoSkaEpochSec</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_111">
+             <property name="text">
+              <string>Time sync source:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEdit_9">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>PTP</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Time_cds.Status.DscTimeSyncSource</string>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>DscTimeSyncSourceType</string>
              </property>
             </widget>
            </item>
