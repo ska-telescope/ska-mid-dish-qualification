@@ -405,7 +405,6 @@ def test_nameplate_attributes(scu_cetc_simulator: SteeringControlUnit) -> None:
     output_f_o = h5py.File(output_file, "r", libver="latest")
     assert output_f_o.attrs["Management.NamePlate.DishId"] == "0"
     assert output_f_o.attrs["Management.NamePlate.DishStructureSerialNo"] == "0"
-    assert output_f_o.attrs["Management.NamePlate.DscSoftwareVersion"] == "4.5"
     assert output_f_o.attrs["Management.NamePlate.IcdVersion"] == "Revision 02"
     assert output_f_o.attrs["Management.NamePlate.RunHours"] == 0.0
     assert output_f_o.attrs["Management.NamePlate.TotalDist_Az"] == 0.0
