@@ -2,15 +2,14 @@
 
 ## Unreleased
 
-- Non-breaking changes:
-    - WOM-454: Integrate weather station into DiSQ.
-    - WOM-543: Added option to remove min/max limits on all inputs.
-    - WOM-579: Update the weather station integration to more gracefully handle a connection error.
-    - WOM-580: Added builtin weather station options.
+- New functionality:
+    - WOM-454, WOM-579, WOM-580: Integrated the Weather Monitoring System into DiSQ on the 'Weather' tab.
+    - WOM-543: Added a global option to enable or disable min/max limits on all inputs.
+    - WOM-591: Display the current and end index of the loaded track table in the 'Track' tab.
 
 ## 0.5.2
 
-- Non-breaking changes:
+- New functionality:
     - WOM-542: Added buttons to server connection dialog window to save/delete configs.
 - Bug fixes:
     - WOM-518: Rectify static tracking offsets input range limits.
