@@ -116,6 +116,7 @@ ska-mid-dish-steering-control = "^0.2.0"
 ska-mid-wms-interface = "^0.1.0"
 # ska-mid-wms-interface = { git = "https://gitlab.com/ska-telescope/ska-mid-wms-interface.git", branch = "main" }
 # ska-mid-wms-interface = { path = "../ska-mid-wms-interface", develop = true }
+pyqtgraph = "^0.13.7"
 
 [tool.poetry.group.dev.dependencies]
 pyqt6-tools = "^6.4.2"
