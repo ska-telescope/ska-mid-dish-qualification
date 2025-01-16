@@ -23,7 +23,7 @@ python-post-lint: # TODO: fix issues with excluded files
 	$(PYTHON_RUNNER) mypy --exclude "ds_opcua_server_mock.py" src/ tests/
 
 ifndef CI_JOB_TOKEN
-SIM_IMAGE=simulator:4.4.0
+SIM_IMAGE=simulator:4.6.0
 SIM_PORT=4840
 CONTAINER_NAME=cetc54-simulator-for-disq-tests
 
