@@ -11,7 +11,7 @@ import threading
 from typing import Any, Callable
 
 from asyncua import ua
-from ska_mid_wms.wms_interface import SensorEnum, WeatherStation
+from ska_mid_wms_interface import SensorEnum, WeatherStation
 
 from ska_mid_disq import SteeringControlUnit
 
