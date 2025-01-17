@@ -95,6 +95,7 @@ documentation = "https://developer.skatelescope.org/projects/ska-mid-disq"
 
 [tool.poetry.scripts]
 disq-gui = "ska_mid_disq.mvcmain:main"
+disq-gui2 = "ska_mid_disq.mvcmain:main2"
 disq-validate-server = "ska_mid_disq.server_validator:main"
 
 [[tool.poetry.source]]

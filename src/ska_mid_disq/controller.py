@@ -9,7 +9,7 @@ from typing import Any
 from PyQt6.QtCore import QCoreApplication, QObject, pyqtSignal
 
 from ska_mid_disq import Command, ResultCode, configuration, model
-from ska_mid_disq.constants import ServerType
+from ska_mid_disq.constants import PollerType
 
 logger = logging.getLogger("gui.controller")
 
@@ -204,8 +204,25 @@ class Controller(QObject):
         :param registrations: A list containing events to subscribe to.
         """
         self._model.register_event_updates(
-            ServerType.OPCUA, registrations, self._handle_closed_connection
+            PollerType.OPCUA, registrations, self._handle_closed_connection
         )
+
+    def event_q_poller_stop(self, poller_type: PollerType) -> None:
+        """
+        Stop one of the event queue pollers.
+
+        :param poller_type: Queue poller type.
+        """
+        self._model.stop_event_q_poller(poller_type)
+
+    def attribute_type_get(self, attribute: str) -> list[str]:
+        """
+        Get the attribute data type.
+
+        If the type is "Enumeration", the list also contains the associated string
+        values.
+        """
+        return self._model.get_attribute_type(attribute)
 
     def command_slew2abs_azim_elev(
         self,
@@ -627,7 +644,7 @@ class Controller(QObject):
 
         :param sensors: A list of weather station attributes.
         """
-        self._model.register_event_updates(ServerType.WMS, sensors)
+        self._model.register_event_updates(PollerType.WMS, sensors)
 
     def is_weather_station_connected(self) -> bool:
         """
@@ -651,7 +668,7 @@ class Controller(QObject):
 
         :param sensor_details: An exhaustive list of sensors to be polled.
         """
-        self._model.stop_event_q_poller(ServerType.WMS)
+        self.event_q_poller_stop(PollerType.WMS)
         self._model.weather_station_polling_update(
             [sensor.rsplit(".", 1)[-1] for sensor in scu_sensors]
         )
@@ -661,8 +678,26 @@ class Controller(QObject):
         # to be reset so that it is recreated with the new attributes.
         self.recording_config = {}
 
-    def create_single_attribute_signal(self, attribute):
-        self._model.add_single_attribute_signal(attribute)
+    # ----------------
+    # Attribute Graphs
+    # ----------------
+    @property
+    def graph_config(self) -> dict[str, dict[str, bool | int]]:
+        """
+        Get the stored graph selection configuration.
 
-    def subscribe_single_attribute_updates(self, attribute):
-        self._model.register_event_updates(ServerType.SINGLEATTRIBUTE, [attribute])
+        :return: A list of strings representing the graph configuration.
+        """
+        return self._model.graph_config
+
+    @graph_config.setter
+    def graph_config(self, config: dict[str, dict[str, bool | int]]) -> None:
+        """
+        Store the graph selection configuration.
+
+        :param config: A list of strings representing the graph configuration.
+        """
+        self._model.graph_config = config
+
+    def subscribe_graph_attribute_updates(self, attribute):
+        self._model.register_event_updates(PollerType.GRAPH, [attribute])

@@ -1,5 +1,6 @@
 """DiSQ GUI main."""
 
+import argparse
 import logging
 import platform
 import signal
@@ -24,12 +25,21 @@ def main():
     Configures logging, creates the application and necessary components, displays the
     main view, and starts the event loop.
     """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--server", help="Server from config file to connect to.")
+    parser.add_argument(
+        "-c",
+        "--cache",
+        action="store_true",
+        help="Include this flag to use the node cache.",
+    )
+    args = parser.parse_args()
     configure_logging(default_log_level=logging.DEBUG)
     app = QApplication([])
     # Create our M, V and C...
     model = Model()
     controller = Controller(model)
-    main_view = MainView(model, controller)
+    main_view = MainView(model, controller, server=args.server, cache=args.cache)
 
     # Connect the aboutToQuit signal to the model's disconnect method
     app.instance().aboutToQuit.connect(model.disconnect)

@@ -54,9 +54,9 @@ class StatusTreeCategory(IntEnum):
     WARNING = 1
 
 
-class ServerType(Enum):
+class PollerType(Enum):
     """Possible types of connected servers."""
 
     OPCUA = "OPCUA"
     WMS = "WMS"
-    SINGLEATTRIBUTE = "SINGLEATTRIBUTE"
+    GRAPH = "GRAPH"
