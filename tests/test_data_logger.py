@@ -70,26 +70,28 @@ class StubScu(SteeringControlUnit):
         )
         super().connect_and_setup()
 
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def subscribe(
         self,
         attributes: str | list[str] | None = None,
         period: int | None = None,
         data_queue: Queue | None = None,
         bad_shutdown_callback: Callable[[str], None] | None = None,
+        subscription_handler: object | None = None,
     ) -> tuple[int, list, list]:
         """
         Subscribe to a data source.
 
         :param attributes: Optional. Attributes related to the subscription.
-        :type attributes: dict
         :param period: Optional. Period of the subscription.
-        :type period: int
         :param data_queue: Optional. Queue to store incoming data.
-        :type data_queue: list
         :param bad_shutdown_callback: will be called if a BadShutdown subscription
             status notification is received, defaults to None.
+        :param subscription_handler: Allows for a SubscriptionHandler instance to be
+            reused, rather than creating a new instance every time.
+            There is a limit on the number of handlers a server can have.
+            Defaults to None.
         :return: unique identifier for the subscription and lists of missing/bad nodes.
-        :rtype: tuple[int, list, list]
         """
         uid = time.monotonic_ns()
         self.subscriptions[uid] = {}
