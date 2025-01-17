@@ -2,24 +2,28 @@
 
 ## Unreleased
 
-- New functionality:
-    - WOM-454, WOM-579, WOM-580, WOM-609: Integrated the Weather Monitoring System into DiSQ on the 'Weather' tab.
-    - WOM-543: Added a global option to enable or disable min/max limits on all inputs.
-    - WOM-591: Display the current and end index of the loaded track table in the 'Track' tab.
-- Bug fixes:
-    - WOM-597: Check that the path in the track table file input field is a real file and not a directory to prevent an error message when pressing 'Load Track Table File'.
-    - WOM-576: Add an "Attribute" menu to display all attributes as graphs or logs in their own window.
+### Added
+- WOM-454, WOM-579, WOM-580, WOM-609: Integrated the Weather Monitoring System into DiSQ on the 'Weather' tab.
+- WOM-543: Added a global option to enable or disable min/max limits on all inputs.
+- WOM-591: Display the current and end index of the loaded track table in the 'Track' tab.
+- WOM-576: Add an "Attribute" menu to display all attributes as graphs or logs in their own window.
+
+### Fixed
+- WOM-597: Check that the path in the track table file input field is a real file and not a directory to prevent an error message when pressing 'Load Track Table File'.
+- WOM-611: An axis' position input spinbox only updates to the current actual value once after the axis has stopped moving.
 
 ## 0.5.2
 
-- New functionality:
-    - WOM-542: Added buttons to server connection dialog window to save/delete configs.
-- Bug fixes:
-    - WOM-518: Rectify static tracking offsets input range limits.
-    - WOM-424: Simplified main dependencies and limited Python version to 3.10 and 3.11.
+### Added
+- WOM-542: Added buttons to server connection dialog window to save/delete configs.
+
+### Fixed
+- WOM-518: Rectify static tracking offsets input range limits.
+- WOM-424: Simplified main dependencies and limited Python version to 3.10 and 3.11.
 
 ## 0.5.1
 
+### Fixed
 WOM-510: 
 - Fixed crash when clicking 'Start' recording before configurating `DataLogger`.
 - Fixed 'InterlockClearable' LED indicator in 'Commands' group.
