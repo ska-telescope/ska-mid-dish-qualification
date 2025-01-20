@@ -1052,7 +1052,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_power_mode_normal: QtWidgets.QRadioButton
         self.button_power_mode_normal.setChecked(True)
         self.button_power_mode_low: QtWidgets.QRadioButton
-        self.button_power_mode_low.setChecked(False)
+        self.button_power_mode_group = QtWidgets.QButtonGroup()
+        self.button_power_mode_group.addButton(self.button_power_mode_normal, 0)
+        self.button_power_mode_group.addButton(self.button_power_mode_low, 1)
         self.spinbox_power_lim_kw: QtWidgets.QDoubleSpinBox
         self.button_set_power_mode: QtWidgets.QPushButton
         self.button_set_power_mode.clicked.connect(self.set_power_mode_clicked)
@@ -1355,7 +1357,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_start_track_now.setChecked(True)
         self.button_start_track_at: QtWidgets.QRadioButton
         self.button_start_track_at.toggled.connect(self.button_start_track_at_toggled)
-        self.button_start_track_at.setChecked(False)
+        self.button_start_track_group = QtWidgets.QButtonGroup()
+        self.button_start_track_group.addButton(self.button_start_track_at, 0)
+        self.button_start_track_group.addButton(self.button_start_track_now, 1)
         self.line_edit_start_track_at: QtWidgets.QLineEdit
         self.line_edit_start_track_at.setEnabled(False)
         self.button_start_track_table: QtWidgets.QPushButton
