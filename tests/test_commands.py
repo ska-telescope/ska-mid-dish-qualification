@@ -114,6 +114,14 @@ set_power_mode_input_widgets = [
     ),
     [
         (
+            "stow_button_clicked",
+            None,
+            "Management.Commands.Stow",
+            (True,),
+            None,
+            (("CommandActivated", 9), ("CommandActivated", 9)),
+        ),
+        (
             "set_time_source_clicked",
             None,
             "Time_cds.Commands.SetTimeSource",
@@ -136,7 +144,7 @@ set_power_mode_input_widgets = [
             (False,),
             None,
             # CETC sim does not startup stowed, so unstow is rejected.
-            (("CommandRejected", 2), ("CommandActivated", 9)),
+            (("CommandActivated", 9), ("CommandActivated", 9)),
         ),
         (
             "activate_button_clicked",
@@ -349,14 +357,6 @@ set_power_mode_input_widgets = [
             (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
-            "stow_button_clicked",
-            None,
-            "Management.Commands.Stow",
-            (True,),
-            None,
-            (("CommandActivated", 9), ("CommandActivated", 9)),
-        ),
-        (
             "release_authority_button_clicked",
             None,
             "CommandArbiter.Commands.ReleaseAuth",
@@ -414,7 +414,7 @@ def test_opcua_command_slot_function(
     assert (
         f"Response: {response[0]} [{response[1]}]" in disq_app.cmd_status_label.text()
     )
-    if with_plc and command == "Management.Commands.Stow":
+    if command == "Management.Commands.Stow":
         attr_name = "Safety.Status.StowPinStatus"
         # For Unstow, wait for Retracted(1); for Stow, wait for Deployed(3)
         expected = 1 if input_values == (False,) else 3

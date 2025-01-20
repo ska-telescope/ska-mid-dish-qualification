@@ -25,7 +25,7 @@ from PyQt6.QtGui import (
     QPixmap,
 )
 from PyQt6.QtWidgets import QFileDialog
-from ska_mid_wms.wms_interface import weather_station_configuration
+from ska_mid_wms_interface import load_weather_station_configuration
 
 from ska_mid_disq import ResultCode, __version__, controller, model
 from ska_mid_disq.constants import StatusTreeCategory
@@ -415,7 +415,7 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
             return
 
         try:
-            weather_station_configuration.load_configuration(config)
+            load_weather_station_configuration(config)
         except ValueError:
             msg = f"{config} does not contain a valid weather station configuration"
             logger.error(msg)

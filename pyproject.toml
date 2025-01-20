@@ -11,14 +11,14 @@ requires-python = ">=3.10, <3.12"
 dependencies = [
     "asyncua>=1.1.5",
     # Fix PyQt6 version to match pyqt6-tools Designer version
-    "PyQt6=6.4.2",
-    "PyQt6-Qt6=6.4.3",
+    "PyQt6==6.4.2",
+    "PyQt6-Qt6==6.4.3",
     "pyyaml>=6.0.2",
     "h5py>=3.12.1",
     "platformdirs>=4.3.6",
-    "ska-mid-dish-steering-control>=0.1.2",
+    "ska-mid-dish-steering-control>=0.2.0",
     # "ska-mid-dish-steering-control @ git+https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git@main",
-    "ska-mid-wms @ git+https://gitlab.com/ska-telescope/ska-mid-wms.git@main",
+    "ska-mid-wms-interface>=0.1.0",
 ]
 license.file = "LICENSE"
 readme = "README.md"
@@ -110,11 +110,12 @@ PyQt6-Qt6 = "6.4.3"
 pyyaml = "^6.0.2"
 h5py = "^3.12.1"
 platformdirs = "^4.3.6"
-ska-mid-dish-steering-control = "^0.1.2"
+ska-mid-dish-steering-control = "^0.2.0"
 # ska-mid-dish-steering-control = { path = "../ska-mid-dish-steering-control", develop = true }
 # ska-mid-dish-steering-control = { git = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git", branch = "main" }
-ska-mid-wms = {git = "https://gitlab.com/ska-telescope/ska-mid-wms.git", branch = "main"}
-# ska-mid-wms = { path = "../ska-mid-wms", develop = true }
+ska-mid-wms-interface = "^0.1.0"
+# ska-mid-wms-interface = { git = "https://gitlab.com/ska-telescope/ska-mid-wms-interface.git", branch = "main" }
+# ska-mid-wms-interface = { path = "../ska-mid-wms-interface", develop = true }
 
 [tool.poetry.group.dev.dependencies]
 pyqt6-tools = "^6.4.2"

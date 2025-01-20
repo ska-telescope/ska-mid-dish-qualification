@@ -873,46 +873,6 @@ url = "https://artefact.skao.int/repository/pypi-all/simple"
 reference = "ska"
 
 [[package]]
-name = "debugpy"
-version = "1.8.9"
-description = "An implementation of the Debug Adapter Protocol for Python"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "debugpy-1.8.9-cp310-cp310-macosx_14_0_x86_64.whl", hash = "sha256:cfe1e6c6ad7178265f74981edf1154ffce97b69005212fbc90ca22ddfe3d017e"},
-    {file = "debugpy-1.8.9-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ada7fb65102a4d2c9ab62e8908e9e9f12aed9d76ef44880367bc9308ebe49a0f"},
-    {file = "debugpy-1.8.9-cp310-cp310-win32.whl", hash = "sha256:c36856343cbaa448171cba62a721531e10e7ffb0abff838004701454149bc037"},
-    {file = "debugpy-1.8.9-cp310-cp310-win_amd64.whl", hash = "sha256:17c5e0297678442511cf00a745c9709e928ea4ca263d764e90d233208889a19e"},
-    {file = "debugpy-1.8.9-cp311-cp311-macosx_14_0_universal2.whl", hash = "sha256:b74a49753e21e33e7cf030883a92fa607bddc4ede1aa4145172debc637780040"},
-    {file = "debugpy-1.8.9-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:62d22dacdb0e296966d7d74a7141aaab4bec123fa43d1a35ddcb39bf9fd29d70"},
-    {file = "debugpy-1.8.9-cp311-cp311-win32.whl", hash = "sha256:8138efff315cd09b8dcd14226a21afda4ca582284bf4215126d87342bba1cc66"},
-    {file = "debugpy-1.8.9-cp311-cp311-win_amd64.whl", hash = "sha256:ff54ef77ad9f5c425398efb150239f6fe8e20c53ae2f68367eba7ece1e96226d"},
-    {file = "debugpy-1.8.9-cp312-cp312-macosx_14_0_universal2.whl", hash = "sha256:957363d9a7a6612a37458d9a15e72d03a635047f946e5fceee74b50d52a9c8e2"},
-    {file = "debugpy-1.8.9-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5e565fc54b680292b418bb809f1386f17081d1346dca9a871bf69a8ac4071afe"},
-    {file = "debugpy-1.8.9-cp312-cp312-win32.whl", hash = "sha256:3e59842d6c4569c65ceb3751075ff8d7e6a6ada209ceca6308c9bde932bcef11"},
-    {file = "debugpy-1.8.9-cp312-cp312-win_amd64.whl", hash = "sha256:66eeae42f3137eb428ea3a86d4a55f28da9bd5a4a3d369ba95ecc3a92c1bba53"},
-    {file = "debugpy-1.8.9-cp313-cp313-macosx_14_0_universal2.whl", hash = "sha256:957ecffff80d47cafa9b6545de9e016ae8c9547c98a538ee96ab5947115fb3dd"},
-    {file = "debugpy-1.8.9-cp313-cp313-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1efbb3ff61487e2c16b3e033bc8595aea578222c08aaf3c4bf0f93fadbd662ee"},
-    {file = "debugpy-1.8.9-cp313-cp313-win32.whl", hash = "sha256:7c4d65d03bee875bcb211c76c1d8f10f600c305dbd734beaed4077e902606fee"},
-    {file = "debugpy-1.8.9-cp313-cp313-win_amd64.whl", hash = "sha256:e46b420dc1bea64e5bbedd678148be512442bc589b0111bd799367cde051e71a"},
-    {file = "debugpy-1.8.9-cp38-cp38-macosx_14_0_x86_64.whl", hash = "sha256:472a3994999fe6c0756945ffa359e9e7e2d690fb55d251639d07208dbc37caea"},
-    {file = "debugpy-1.8.9-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:365e556a4772d7d0d151d7eb0e77ec4db03bcd95f26b67b15742b88cacff88e9"},
-    {file = "debugpy-1.8.9-cp38-cp38-win32.whl", hash = "sha256:54a7e6d3014c408eb37b0b06021366ee985f1539e12fe49ca2ee0d392d9ceca5"},
-    {file = "debugpy-1.8.9-cp38-cp38-win_amd64.whl", hash = "sha256:8e99c0b1cc7bf86d83fb95d5ccdc4ad0586d4432d489d1f54e4055bcc795f693"},
-    {file = "debugpy-1.8.9-cp39-cp39-macosx_14_0_x86_64.whl", hash = "sha256:7e8b079323a56f719977fde9d8115590cb5e7a1cba2fcee0986ef8817116e7c1"},
-    {file = "debugpy-1.8.9-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6953b335b804a41f16a192fa2e7851bdcfd92173cbb2f9f777bb934f49baab65"},
-    {file = "debugpy-1.8.9-cp39-cp39-win32.whl", hash = "sha256:7e646e62d4602bb8956db88b1e72fe63172148c1e25c041e03b103a25f36673c"},
-    {file = "debugpy-1.8.9-cp39-cp39-win_amd64.whl", hash = "sha256:3d9755e77a2d680ce3d2c5394a444cf42be4a592caaf246dbfbdd100ffcf7ae5"},
-    {file = "debugpy-1.8.9-py2.py3-none-any.whl", hash = "sha256:cc37a6c9987ad743d9c3a14fa1b1a14b7e4e6041f9dd0c8abf8895fe7a97b899"},
-    {file = "debugpy-1.8.9.zip", hash = "sha256:1339e14c7d980407248f09824d1b25ff5c5616651689f1e0f0e51bdead3ea13e"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
 name = "dill"
 version = "0.3.9"
 description = "serialize all of Python"
@@ -2297,41 +2257,6 @@ url = "https://artefact.skao.int/repository/pypi-all/simple"
 reference = "ska"
 
 [[package]]
-name = "psutil"
-version = "6.1.0"
-description = "Cross-platform lib for process and system monitoring in Python."
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
-files = [
-    {file = "psutil-6.1.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:ff34df86226c0227c52f38b919213157588a678d049688eded74c76c8ba4a5d0"},
-    {file = "psutil-6.1.0-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:c0e0c00aa18ca2d3b2b991643b799a15fc8f0563d2ebb6040f64ce8dc027b942"},
-    {file = "psutil-6.1.0-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:000d1d1ebd634b4efb383f4034437384e44a6d455260aaee2eca1e9c1b55f047"},
-    {file = "psutil-6.1.0-cp27-cp27mu-manylinux2010_i686.whl", hash = "sha256:5cd2bcdc75b452ba2e10f0e8ecc0b57b827dd5d7aaffbc6821b2a9a242823a76"},
-    {file = "psutil-6.1.0-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:045f00a43c737f960d273a83973b2511430d61f283a44c96bf13a6e829ba8fdc"},
-    {file = "psutil-6.1.0-cp27-none-win32.whl", hash = "sha256:9118f27452b70bb1d9ab3198c1f626c2499384935aaf55388211ad982611407e"},
-    {file = "psutil-6.1.0-cp27-none-win_amd64.whl", hash = "sha256:a8506f6119cff7015678e2bce904a4da21025cc70ad283a53b099e7620061d85"},
-    {file = "psutil-6.1.0-cp36-abi3-macosx_10_9_x86_64.whl", hash = "sha256:6e2dcd475ce8b80522e51d923d10c7871e45f20918e027ab682f94f1c6351688"},
-    {file = "psutil-6.1.0-cp36-abi3-macosx_11_0_arm64.whl", hash = "sha256:0895b8414afafc526712c498bd9de2b063deaac4021a3b3c34566283464aff8e"},
-    {file = "psutil-6.1.0-cp36-abi3-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:9dcbfce5d89f1d1f2546a2090f4fcf87c7f669d1d90aacb7d7582addece9fb38"},
-    {file = "psutil-6.1.0-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:498c6979f9c6637ebc3a73b3f87f9eb1ec24e1ce53a7c5173b8508981614a90b"},
-    {file = "psutil-6.1.0-cp36-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d905186d647b16755a800e7263d43df08b790d709d575105d419f8b6ef65423a"},
-    {file = "psutil-6.1.0-cp36-cp36m-win32.whl", hash = "sha256:6d3fbbc8d23fcdcb500d2c9f94e07b1342df8ed71b948a2649b5cb060a7c94ca"},
-    {file = "psutil-6.1.0-cp36-cp36m-win_amd64.whl", hash = "sha256:1209036fbd0421afde505a4879dee3b2fd7b1e14fee81c0069807adcbbcca747"},
-    {file = "psutil-6.1.0-cp37-abi3-win32.whl", hash = "sha256:1ad45a1f5d0b608253b11508f80940985d1d0c8f6111b5cb637533a0e6ddc13e"},
-    {file = "psutil-6.1.0-cp37-abi3-win_amd64.whl", hash = "sha256:a8fb3752b491d246034fa4d279ff076501588ce8cbcdbb62c32fd7a377d996be"},
-    {file = "psutil-6.1.0.tar.gz", hash = "sha256:353815f59a7f64cdaca1c0307ee13558a0512f6db064e92fe833784f08539c7a"},
-]
-
-[package.extras]
-dev = ["black", "check-manifest", "coverage", "packaging", "pylint", "pyperf", "pypinfo", "pytest-cov", "requests", "rstcheck", "ruff", "sphinx", "sphinx-rtd-theme", "toml-sort", "twine", "virtualenv", "wheel"]
-test = ["enum34", "futures", "ipaddress", "mock (==1.0.1)", "pytest (==4.6.11)", "pytest-xdist", "setuptools", "unittest2"]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
 name = "pycodestyle"
 version = "2.12.1"
 description = "Python style guide checker"
@@ -2738,57 +2663,6 @@ click = "*"
 pyqt6 = "6.4.2"
 pyqt6-plugins = ">=6.4.2.2.2,<6.4.2.3"
 python-dotenv = "*"
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
-name = "pytango"
-version = "9.5.0"
-description = "Python bindings for the cppTango library; part of the Tango Distributed Control System toolkit"
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "pytango-9.5.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:3efaf8c81ada483b5be966ba2cecc25dcbbf2acd6964cabaf402f3d2740d4d14"},
-    {file = "pytango-9.5.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:2da78750ecb95ad8ffc179c11053de7c46c8c65f6f99ec24a69739e2f246bd52"},
-    {file = "pytango-9.5.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:69702be8512e51171aff8e6742427dfb016d6205864be9e2f3ec12e68993dca0"},
-    {file = "pytango-9.5.0-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:36b333387c376f3111dd677fe36369f4d53bffe1ff7653b3d9705d5ad772321b"},
-    {file = "pytango-9.5.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:42236b269280fffd10c20066ebd53c3839ed949568f8a30be30a2f865eed9f63"},
-    {file = "pytango-9.5.0-cp310-cp310-win32.whl", hash = "sha256:b69dc6d1544ea0d75e8edd901940f8fe1abc8d26b478564abb5a3527e6e06b14"},
-    {file = "pytango-9.5.0-cp310-cp310-win_amd64.whl", hash = "sha256:2ab01d02a132b5f1cdd9160758aacb433189c4fb7e14c65d83c7007a55489ce9"},
-    {file = "pytango-9.5.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:65d4788d3f67cc10404f5b8362be8327bd4a5062e80940c268ce637aa9ede101"},
-    {file = "pytango-9.5.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:ca3c4b00bfbd5d7eea24df13845ef84b16d068d4f1826dc9202aefdca86937f7"},
-    {file = "pytango-9.5.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:97776c86c3331c1b5c4628f5de9b4859ff1dee6c2e2958904b788e4a74941e74"},
-    {file = "pytango-9.5.0-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:cf79346bb81523f54f5b73426a8d480689bf4d2666750e10b45bcaf3aa8ed619"},
-    {file = "pytango-9.5.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c4d4cdda9748c756a61600b9742ce25e0e778f2df6b9d69d8ad4999c067287aa"},
-    {file = "pytango-9.5.0-cp311-cp311-win32.whl", hash = "sha256:052110dfe6d322506458474a75ee40b4368b97199b942516eec17bcee2642f2f"},
-    {file = "pytango-9.5.0-cp311-cp311-win_amd64.whl", hash = "sha256:0f314f2df81bd0ba988aa7d12654c96ba7d10ed2dcd3100974eab7692906441a"},
-    {file = "pytango-9.5.0-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:5e1c83c9e5feb81c6103fcc618d8766ace7eac9ac54b12c4c012cd40a026775c"},
-    {file = "pytango-9.5.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:ce42d7c4c6bfd9bdb37618257d8e7f19aea42b93924412f04b169b777d09a35b"},
-    {file = "pytango-9.5.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:52ff4fa2e1f7e2287ef7957c6cee977aa1887a31a31b326c40182acab1263d9d"},
-    {file = "pytango-9.5.0-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:7dcdb611c03c828478ec5ba0b35ac744c3462939364243fcdd906a2952a0ce20"},
-    {file = "pytango-9.5.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a57a90c6d3c223fab086ccbe5ba2784dde300a27ee780332f532a259300210e6"},
-    {file = "pytango-9.5.0-cp312-cp312-win32.whl", hash = "sha256:0884824bb4edbd475e7ae32fc15937695ae966fec7ab0997db872041155928cc"},
-    {file = "pytango-9.5.0-cp312-cp312-win_amd64.whl", hash = "sha256:9c6acaee3ae444261a563b39ce212519f2e9f357a2f7321ec703ab4b26b399a1"},
-    {file = "pytango-9.5.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:177c8dc30bde34e6642cf90a1ad71eaaf14dd68466b4f5ff9dead77d0bcc88cb"},
-    {file = "pytango-9.5.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:d5f4ac6d25ead1be4ddc60e8a8c9cca65a5f7182e99cc78a21cc283fcac21cb9"},
-    {file = "pytango-9.5.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9bcabb28e00c00e8b3e46f826c42026f444840554b68a91af1283616b71f730d"},
-    {file = "pytango-9.5.0-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:7f78903947babab56c1f686142358ff4851c945149227db1f6bb51707a1e5e90"},
-    {file = "pytango-9.5.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:131e8376822ee30133c9f77ab45f7936bba9c6480e5a4d5ac352bc0a07161051"},
-    {file = "pytango-9.5.0-cp39-cp39-win32.whl", hash = "sha256:e3824e1daaecd2909f11a141ae4b033404f7347f02ad7144b8619d69f3dd735b"},
-    {file = "pytango-9.5.0-cp39-cp39-win_amd64.whl", hash = "sha256:31d0a11dd8399a75ba6f4d05c27ab3b569974b81a98c3c963e70d0593b961df0"},
-    {file = "pytango-9.5.0.tar.gz", hash = "sha256:559cb367c8f336c382cfcc3fb86a523a599c6f01d00bc9ad89ca7a363793182c"},
-]
-
-[package.dependencies]
-numpy = ">=1.13.3"
-packaging = "*"
-psutil = "*"
-
-[package.extras]
-tests = ["gevent (>=20.0)", "pytest", "pytest-asyncio", "pytest-cov", "pytest-forked"]
 
 [package.source]
 type = "legacy"
@@ -3296,34 +3170,14 @@ url = "https://artefact.skao.int/repository/pypi-all/simple"
 reference = "ska"
 
 [[package]]
-name = "ska-control-model"
-version = "1.1.1"
-description = "The SKA control model"
-optional = false
-python-versions = ">=3.10,<4.0"
-files = [
-    {file = "ska_control_model-1.1.1-py3-none-any.whl", hash = "sha256:2ce1934e0c99fff52eebd33598781fd2e177a430ae37c1532060dfd02ccd7e12"},
-    {file = "ska_control_model-1.1.1.tar.gz", hash = "sha256:568f98979132d5ccf1258ec71ee6756dcc8ef40f4ea2a8f96cffa33c88ce0ebe"},
-]
-
-[package.dependencies]
-pytango = ">=9.4.2,<11.0.0"
-transitions = ">=0.9.0,<0.10.0"
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
 name = "ska-mid-dish-steering-control"
-version = "0.1.2"
+version = "0.2.0"
 description = "Python module that interfaces with the OPCUA protocol of the dish structure controller"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "ska_mid_dish_steering_control-0.1.2-py3-none-any.whl", hash = "sha256:41071a223897c1116ae3db7b432250d451f6c2546de651926b80fc0fbb64eef4"},
-    {file = "ska_mid_dish_steering_control-0.1.2.tar.gz", hash = "sha256:95e12b82ad987ad8be756a716f0cd589f12018f019b4ceea15f720d21b149620"},
+    {file = "ska_mid_dish_steering_control-0.2.0-py3-none-any.whl", hash = "sha256:918df0d5dc009bfef99a1bb0a41aa4f7c1d04fc3cdc42338c82209f0841dfa66"},
+    {file = "ska_mid_dish_steering_control-0.2.0.tar.gz", hash = "sha256:9f7475b43806a9bada9c33e5a674a10ce72c03c5dd7c608bf830efdbff2a0d13"},
 ]
 
 [package.dependencies]
@@ -3343,7 +3197,7 @@ url = "https://artefact.skao.int/repository/pypi-all/simple"
 reference = "ska"
 
 [[package]]
-name = "ska-mid-wms"
+name = "ska-mid-wms-interface"
 version = "0.1.0"
 description = "Interface for the SKA-Mid Weather Monitoring System"
 optional = false
@@ -3356,34 +3210,15 @@ aiohttp = "<3.8.0"
 cerberus = "^1.3.5"
 numpy = "^1.26.4"
 pymodbus = "^3.7.0"
-pytango = "^9.5.0,!=9.5.1"
 pytest-asyncio = "^0.24.0"
 pyyaml = "^6.0.2"
-ska-tango-base = "^1.2.0"
-ska-tango-testing = "^0.7.2"
 types-pyyaml = "^6.0.12.20240917"
 
 [package.source]
 type = "git"
-url = "https://gitlab.com/ska-telescope/ska-mid-wms.git"
-reference = "main"
-resolved_reference = "b6205ca9178c20e626648d86849d902048bf78ec"
-
-[[package]]
-name = "ska-ser-logging"
-version = "0.4.3"
-description = "Square Kilometre Array logging configuration library"
-optional = false
-python-versions = ">=3.10,<4.0"
-files = [
-    {file = "ska_ser_logging-0.4.3-py3-none-any.whl", hash = "sha256:06a337e4e726f36d24b86087ec106fbb9e65be4566fe328eb56f56f2310322f8"},
-    {file = "ska_ser_logging-0.4.3.tar.gz", hash = "sha256:a94aa51db54ad2a88af4c320c850c766c1733d9f8534381dd67f993e8e4f5d11"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
+url = "https://gitlab.com/ska-telescope/ska-mid-wms-interface.git"
+reference = "wom-608-refactor-out-tango"
+resolved_reference = "cbcf4920f1c601c05602465d75ea71d08ae1f1cb"
 
 [[package]]
 name = "ska-ser-sphinx-theme"
@@ -3399,55 +3234,6 @@ files = [
 [package.dependencies]
 sphinx = ">4"
 sphinx-rtd-theme = ">=1.2.2,<2.0.0"
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
-name = "ska-tango-base"
-version = "1.2.3"
-description = "SKA Tango base classes"
-optional = false
-python-versions = ">=3.10,<4.0"
-files = [
-    {file = "ska_tango_base-1.2.3-py3-none-any.whl", hash = "sha256:3cc75194f92a225d4423fb25314baa6104dcfb2b82bb4ccac7a7d073a3b6f2c5"},
-    {file = "ska_tango_base-1.2.3.tar.gz", hash = "sha256:ed8fa5bcde3c992f159222ae2cb74514f347f9b7a789972e33e9535021e88795"},
-]
-
-[package.dependencies]
-debugpy = ">=1.6.2,<2.0.0"
-jsonschema = ">=4.17.3,<5.0.0"
-numpy = [
-    {version = ">=1.21.6", markers = "python_version == \"3.10\""},
-    {version = ">=1.23.2", markers = "python_version == \"3.11\""},
-]
-pytango = ">=9.4.2,<11.0.0"
-ska-control-model = ">=1.0.0,<2.0.0"
-ska-ser-logging = ">=0.4.3,<0.5.0"
-transitions = ">=0.9.0,<0.10.0"
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
-name = "ska-tango-testing"
-version = "0.7.3"
-description = "Test harness for testing SKA Tango devices"
-optional = false
-python-versions = ">=3.10,<4.0"
-files = [
-    {file = "ska_tango_testing-0.7.3-py3-none-any.whl", hash = "sha256:666516b90281b8cfda8e692b237c4c6703f966754fc12f4f0b2c98a31b831e57"},
-    {file = "ska_tango_testing-0.7.3.tar.gz", hash = "sha256:7547be05bf700c985ca0ae549b034c85556cc40079a67b91e37922964b86c3a4"},
-]
-
-[package.dependencies]
-assertpy = ">=1.1,<2.0"
-numpy = ">=1.23.2,<2.0.0"
-pytango = ">=9.4.2,<11.0.0"
 
 [package.source]
 type = "legacy"
@@ -3808,29 +3594,6 @@ url = "https://artefact.skao.int/repository/pypi-all/simple"
 reference = "ska"
 
 [[package]]
-name = "transitions"
-version = "0.9.2"
-description = "A lightweight, object-oriented Python state machine implementation with many extensions."
-optional = false
-python-versions = "*"
-files = [
-    {file = "transitions-0.9.2-py2.py3-none-any.whl", hash = "sha256:f7b40c9b4a93869f36c4d1c33809aeb18cdeeb065fd1adba018ee39c3db216f3"},
-    {file = "transitions-0.9.2.tar.gz", hash = "sha256:2f8490dbdbd419366cef1516032ab06d07ccb5839ef54905e842a472692d4204"},
-]
-
-[package.dependencies]
-six = "*"
-
-[package.extras]
-diagrams = ["pygraphviz"]
-test = ["pytest"]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
 name = "types-pyyaml"
 version = "6.0.12.20240917"
 description = "Typing stubs for PyYAML"
@@ -4012,4 +3775,4 @@ reference = "ska"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <3.12"
-content-hash = "3755904714a960afd8268e5c05da9b1258cad2bfc45bbc8bc6d3144c489071bc"
+content-hash = "5408b55f55eceb5ffed0820ba4de595fa015dedc7f38f17afa61efd82ff64d1d"
