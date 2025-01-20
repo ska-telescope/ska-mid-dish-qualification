@@ -4,6 +4,7 @@
 
 - New functionality:
     - WOM-454, WOM-579, WOM-580, WOM-609: Integrated the Weather Monitoring System into DiSQ on the 'Weather' tab.
+    - WOM-607: Add 'Set On Source Threshold' command to 'Track' tab.
     - WOM-543: Added a global option to enable or disable min/max limits on all inputs.
     - WOM-591: Display the current and end index of the loaded track table in the 'Track' tab.
 - Bug fixes:

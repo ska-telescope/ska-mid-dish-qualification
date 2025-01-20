@@ -92,7 +92,7 @@ authors = [
 license = "BSD-3-Clause"
 readme = "README.md"
 repository = "https://gitlab.com/ska-telescope/ska-mid-disq"
-documentation = "https://developer.skatelescope.org/projects/ska-mid-disq"
+documentation = "https://developer.skao.int/projects/ska-mid-disq"
 
 [tool.poetry.scripts]
 disq-gui = "ska_mid_disq.mvcmain:main"
