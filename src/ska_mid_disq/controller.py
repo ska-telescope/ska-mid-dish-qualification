@@ -634,6 +634,7 @@ class Controller(QObject):
 
     def disconnect_weather_station(self):
         """Disconnect from the weather station."""
+        self.update_polled_weather_station_sensors([])
         self._model.weather_station_disconnect()
         self.emit_ui_status_message("INFO", "Disconnected from weather station.")
         self.weather_station_disconnected.emit()
@@ -674,9 +675,11 @@ class Controller(QObject):
         )
         self.subscribe_weather_station_updates(scu_sensors)
 
-        # As this changes the attributes available in sculib, the recording config needs
-        # to be reset so that it is recreated with the new attributes.
+        # As this changes the attributes available in sculib, the recording config and
+        # live display graph config need to be reset so that they are recreated with the
+        # new attributes.
         self.recording_config = {}
+        self.graph_config = {}
 
     # ----------------
     # Attribute Graphs
@@ -700,4 +703,5 @@ class Controller(QObject):
         self._model.graph_config = config
 
     def subscribe_graph_attribute_updates(self, attribute):
+        """Register event updates for graph type."""
         self._model.register_event_updates(PollerType.GRAPH, [attribute])

@@ -4,16 +4,13 @@
 import ipaddress
 import json
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from enum import Enum
 from functools import cached_property
 from importlib import resources
 from pathlib import Path
-from threading import Lock
-from time import sleep
 from typing import Any, Callable, Final
 
-import pyqtgraph
 from platformdirs import user_documents_dir
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import (
@@ -32,7 +29,12 @@ from PyQt6.QtWidgets import QFileDialog
 from ska_mid_wms_interface import load_weather_station_configuration
 
 from ska_mid_disq import ResultCode, __version__, controller, model
-from ska_mid_disq.constants import SUBSCRIPTION_RATE_MS, PollerType, StatusTreeCategory
+from ska_mid_disq.attribute_window import (
+    LiveAttributeWindow,
+    LiveGraphWindow,
+    LiveHistoryWindow,
+)
+from ska_mid_disq.constants import SKAO_ICON_PATH, PollerType, StatusTreeCategory
 
 from . import ui_resources  # noqa pylint: disable=unused-import
 
@@ -44,7 +46,6 @@ TILT_METER_TWO_ON: Final = "Pointing.Status.TiltTwo_On"
 BAND_FOR_CORR: Final = "Pointing.Status.BandForCorr"
 TEMP_CORR_ACTIVE: Final = "Pointing.Status.TempCorrActive"
 
-SKAO_ICON_PATH: Final = ":/icons/skao.ico"
 DISPLAY_DECIMAL_PLACES: Final = 5
 
 _WEATHER_STATION_YAML: Final = "weather_station_resources/weather_station.yaml"
@@ -430,124 +431,6 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
 
         self.server_details = {"config": config, "address": address, "port": port}
         self.accept()
-
-
-class LiveAttributeWindow(QtWidgets.QWidget):
-    """A window for displaying individual attribute values only."""
-
-    signal = QtCore.pyqtSignal(object)
-
-    def __init__(
-        self,
-        attribute: str,
-        close_signal: QtCore.pyqtBoundSignal,
-    ):
-        super().__init__()
-        self.attribute = attribute
-        self._close_signal = close_signal
-        self.setWindowTitle(self.attribute)
-        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
-        self.resize(580, 50)
-
-        # Value
-        self.line_edit = QtWidgets.QLineEdit(parent=self)
-        self.line_edit.setReadOnly(True)
-        self.line_edit.setPlaceholderText(self.attribute)
-        self.line_edit.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.grid_layout = QtWidgets.QGridLayout()
-        self.grid_layout.addWidget(self.line_edit)
-        self.setLayout(self.grid_layout)
-
-    def update_window(self, data):
-        self.line_edit.setText(str(data["value"]))
-
-    def closeEvent(self, event: QCloseEvent) -> None:
-        """Called when window is closed."""
-        self._close_signal.emit(self.attribute)
-        super().closeEvent(event)
-
-
-class LiveGraphWindow(LiveAttributeWindow):
-    """A LiveAttributeWindow subclass that also displays a graph."""
-
-    def __init__(
-        self,
-        attribute: str,
-        attribute_type: list[str],
-        close_signal: QtCore.pyqtBoundSignal,
-    ):
-        super().__init__(attribute, close_signal)
-        self._attribute_type = attribute_type.pop(0)
-        self.resize(580, 400)
-
-        # Graph
-        self.graph = pyqtgraph.PlotWidget()
-
-        self.grid_layout.addWidget(self.graph)
-        self.setLayout(self.grid_layout)
-        self.signal.connect(self.update_window)
-
-        base_date = datetime.now(timezone.utc)
-        init_times = [base_date - timedelta(seconds=x + 1) for x in range(32)]
-        self.time_axis_data = [datetime.timestamp(x) for x in init_times]
-        logger.info("Attribute: %s, type: %s", self.attribute, self._attribute_type)
-        if self._attribute_type == "Boolean":
-            attribute_axis = self.graph.getAxis("left")
-            major = [(0, "False"), (1, "True")]
-            attribute_axis.setTicks([major])
-        elif self._attribute_type == "Enumeration":
-            attribute_axis = self.graph.getAxis("left")
-            major = []
-            for i, enum_string in enumerate(attribute_type):
-                major.append((i, enum_string))
-
-            attribute_axis.setTicks([major])
-
-        self.attribute_axis_data = list(0.0 for x in range(32))
-        self._latest_data_time = base_date
-        self._data_lock = Lock()
-        # self.x_axis = pyqtgraph.DateAxisItem()
-        # self.graph.setAxisItems({"bottom": self.x_axis})
-        self.line = self.graph.plot(self.time_axis_data, self.attribute_axis_data)
-        self.timer = QtCore.QTimer()
-        self.timer.setInterval(SUBSCRIPTION_RATE_MS)
-        self.timer.timeout.connect(self._update_plot)
-        self.timer.start()
-
-    def _new_data_point(self, data_time: float, value: Any) -> None:
-        with self._data_lock:
-            _ = self.time_axis_data.pop(0)
-            self.time_axis_data.append(data_time)
-            _ = self.attribute_axis_data.pop(0)
-            self.attribute_axis_data.append(float(value))
-            self._latest_data_time = datetime.now(timezone.utc)
-
-    def _get_latest_data_time(self) -> datetime:
-        """Get the local time of the last datapoint."""
-        with self._data_lock:
-            return self._latest_data_time
-
-    def _get_latest_data_point(self):
-        with self._data_lock:
-            return (self.time_axis_data[-1], self.attribute_axis_data[-1])
-
-    def _get_all_data(self):
-        with self._data_lock:
-            return (self.time_axis_data, self.attribute_axis_data)
-
-    def update_window(self, data):
-        super().update_window(data)
-        self._new_data_point(data["time"].timestamp(), data["value"])
-
-    def _update_plot(self):
-        # Keep the plot moving if there is no data.
-        if self._get_latest_data_time() < datetime.now(timezone.utc) - timedelta(
-            milliseconds=SUBSCRIPTION_RATE_MS
-        ):
-            data_time, data_value = self._get_latest_data_point()
-            self._new_data_point(data_time + SUBSCRIPTION_RATE_MS / 1000, data_value)
-
-        self.line.setData(*self._get_all_data())
 
 
 # pylint: disable=too-many-instance-attributes
@@ -1516,8 +1399,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
 
         # Live graph windows
-        self.attribute_window_signals = {}
-        self.attribute_windows = {}
+        self.attribute_window_signals: dict[str, QtCore.pyqtBoundSignal] = {}
+        self.attribute_windows: dict[str, LiveAttributeWindow] = {}
 
         self.live_graph_close.connect(self.live_graph_window_closed)
         self.all_live_graphs_closed.connect(
@@ -2151,7 +2034,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         """Open the attribute seleciton dialog."""
         if not self.controller.graph_config:
             for node in self.model.opcua_attributes:
-                self.controller.graph_config[node] = {"display": False}
+                self.controller.graph_config[node] = {
+                    "display": node in self.attribute_windows
+                }
 
         dialog = AttributeGraphSelectDialog(self, self.controller.graph_config)
         if dialog.exec():
@@ -2165,7 +2050,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                             attribute, attribute_type, self.live_graph_close
                         )
                     else:
-                        attribute_window = LiveAttributeWindow(
+                        attribute_window = LiveHistoryWindow(
                             attribute, self.live_graph_close
                         )
 
@@ -2839,7 +2724,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             QtCore.QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
         )
 
-    def closeEvent(self, event: QCloseEvent) -> None:
+    # pylint: disable=invalid-name
+    def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
         """Called when window is closed."""
         self.close_all_graph_windows()
         super().closeEvent(event)
