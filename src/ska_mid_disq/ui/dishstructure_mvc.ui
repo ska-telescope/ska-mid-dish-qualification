@@ -99,18 +99,42 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label_14">
-           <property name="text">
-            <string>Deviation:</string>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_AxisState">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>status</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Azimuth.Status.AxisState</string>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>AxisStateType</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
-          <widget class="QLineEdit" name="opcua_Azimuth_p_Dev">
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_p_Act">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -136,7 +160,7 @@
             <string>position</string>
            </property>
            <property name="opcua" stdset="0">
-            <string>Azimuth.Status.p_Dev</string>
+            <string>Azimuth.Status.p_Act</string>
            </property>
           </widget>
          </item>
@@ -333,13 +357,42 @@
            </item>
           </layout>
          </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_13">
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_12">
            <property name="text">
-            <string>Actual:</string>
+            <string>Set:</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <spacer name="verticalSpacer_13">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>10</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="label_10">
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Position [deg]</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -374,182 +427,13 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="QLabel" name="label_10">
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_13">
            <property name="text">
-            <string>Position [deg]</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QLineEdit" name="opcua_Azimuth_p_Act">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <string>Actual:</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>position</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Azimuth.Status.p_Act</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>Set:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QLineEdit" name="opcua_Azimuth_p_Set">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>position</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Azimuth.Status.p_Set</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="opcua_Azimuth_AxisState">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>status</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Azimuth.Status.AxisState</string>
-           </property>
-           <property name="opcua_type" stdset="0">
-            <string>AxisStateType</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_16">
-           <property name="text">
-            <string>Status:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QLabel" name="label_11">
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Velocity [deg/s]</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="2">
-          <widget class="QLineEdit" name="opcua_Azimuth_v_Shape">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>velocity</string>
-           </property>
-           <property name="opcua" stdset="0">
-            <string>Azimuth.Status.v_Shape</string>
            </property>
           </widget>
          </item>
@@ -590,18 +474,134 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <spacer name="verticalSpacer_13">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string>Status:</string>
            </property>
-           <property name="sizeHint" stdset="0">
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="label_11">
+           <property name="maximumSize">
             <size>
-             <width>20</width>
-             <height>10</height>
+             <width>120</width>
+             <height>16777215</height>
             </size>
            </property>
-          </spacer>
+           <property name="text">
+            <string>Velocity [deg/s]</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_p_Set">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Azimuth.Status.p_Set</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="2">
+          <widget class="QLineEdit" name="opcua_Azimuth_v_Shape">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>velocity</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Azimuth.Status.v_Shape</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>Deviation:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="opcua_Azimuth_p_Dev">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>position</string>
+           </property>
+           <property name="opcua" stdset="0">
+            <string>Azimuth.Status.p_Dev</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -3721,6 +3721,21 @@
         <string>Power</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="leftMargin">
+         <number>4</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>4</number>
+        </property>
+        <property name="bottomMargin">
+         <number>4</number>
+        </property>
         <item>
          <widget class="QGroupBox" name="groupBox_set_power_mode">
           <property name="sizePolicy">
@@ -3746,18 +3761,18 @@
           </property>
           <layout class="QGridLayout" name="gridLayout_20">
            <property name="leftMargin">
-            <number>4</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>4</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>4</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>4</number>
+            <number>6</number>
            </property>
-           <property name="spacing">
+           <property name="horizontalSpacing">
             <number>2</number>
            </property>
            <item row="0" column="0">
@@ -3918,14 +3933,24 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0" colspan="4">
-            <widget class="QPushButton" name="button_set_power_mode">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+           <item row="0" column="4">
+            <spacer name="horizontalSpacer_12">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>180</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="1" column="4">
+            <widget class="QPushButton" name="button_set_power_mode">
              <property name="minimumSize">
               <size>
                <width>150</width>
@@ -3945,22 +3970,6 @@
               <string>Management.Commands.SetPowerMode</string>
              </property>
             </widget>
-           </item>
-           <item row="0" column="4">
-            <spacer name="horizontalSpacer_12">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>180</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
            </item>
           </layout>
          </widget>
@@ -3990,16 +3999,16 @@
           </property>
           <layout class="QGridLayout" name="gridLayout_26">
            <property name="leftMargin">
-            <number>2</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>2</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>2</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>2</number>
+            <number>6</number>
            </property>
            <property name="spacing">
             <number>2</number>
@@ -5397,6 +5406,21 @@
         <string>Axis</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_1">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="leftMargin">
+         <number>4</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>4</number>
+        </property>
+        <property name="bottomMargin">
+         <number>4</number>
+        </property>
         <item>
          <widget class="QGroupBox" name="groupBox_azimuth_ctrl">
           <property name="title">
@@ -8840,19 +8864,19 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_8">
         <property name="spacing">
-         <number>2</number>
+         <number>4</number>
         </property>
         <property name="leftMargin">
-         <number>2</number>
+         <number>4</number>
         </property>
         <property name="topMargin">
-         <number>2</number>
+         <number>6</number>
         </property>
         <property name="rightMargin">
-         <number>2</number>
+         <number>4</number>
         </property>
         <property name="bottomMargin">
-         <number>2</number>
+         <number>4</number>
         </property>
         <item>
          <widget class="QGroupBox" name="groupBox_track_table">
@@ -8866,10 +8890,89 @@
            <string>Track Table</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_12">
+           <property name="leftMargin">
+            <number>6</number>
+           </property>
+           <property name="topMargin">
+            <number>6</number>
+           </property>
+           <property name="rightMargin">
+            <number>6</number>
+           </property>
+           <property name="bottomMargin">
+            <number>6</number>
+           </property>
+           <property name="spacing">
+            <number>4</number>
+           </property>
            <item row="0" column="0" colspan="2">
             <widget class="QLabel" name="label_34">
              <property name="text">
               <string>Select track table file:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="5">
+            <widget class="QComboBox" name="combobox_file_track_mode">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>LoadModeType</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QRadioButton" name="button_file_track_absolute_times">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>45</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Yes</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>Boolean</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLabel" name="label_88">
+             <property name="text">
+              <string>Load mode:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QLabel" name="label_87">
+             <property name="text">
+              <string>Additional time offset [s]:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -8892,101 +8995,10 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0" colspan="4">
-            <widget class="QLineEdit" name="line_edit_track_table_file">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>200</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>false</bool>
-             </property>
-             <property name="placeholderText">
-              <string>file</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
-             <property name="opcua_type" stdset="0">
-              <string>String</string>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="0" colspan="2">
             <widget class="QLabel" name="label_82">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>24</height>
-              </size>
-             </property>
-             <property name="baseSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
              <property name="text">
-              <string>File contains absolute times:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QRadioButton" name="button_file_track_absolute_times">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Yes</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
-             <property name="opcua_type" stdset="0">
-              <string>Boolean</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="3">
-            <widget class="QRadioButton" name="button_file_track_relative_times">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
-             <property name="opcua_type" stdset="0">
-              <string>Boolean</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QLabel" name="label_87">
-             <property name="text">
-              <string>Additional offset to file times [s]:</string>
+              <string>Contains absolute times:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -9021,33 +9033,60 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_88">
-             <property name="text">
-              <string>Load mode:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QComboBox" name="combobox_file_track_mode">
+           <item row="2" column="3">
+            <widget class="QRadioButton" name="button_file_track_relative_times">
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>22</height>
+               <height>20</height>
               </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>45</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>No</string>
              </property>
              <property name="opcua" stdset="0">
               <string/>
              </property>
              <property name="opcua_type" stdset="0">
-              <string>LoadModeType</string>
+              <string>Boolean</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="2" colspan="2">
+           <item row="0" column="4" colspan="2">
+            <widget class="QLineEdit" name="line_edit_track_table_file">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>230</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+             <property name="placeholderText">
+              <string>file</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
+             </property>
+             <property name="opcua_type" stdset="0">
+              <string>String</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="4" colspan="2">
             <widget class="QPushButton" name="button_load_track_table">
              <property name="enabled">
               <bool>true</bool>
@@ -9072,9 +9111,270 @@
         <item>
          <widget class="QGroupBox" name="groupBox_track">
           <property name="title">
-           <string>Track</string>
+           <string>Tracking Control</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_29">
+           <property name="leftMargin">
+            <number>6</number>
+           </property>
+           <property name="topMargin">
+            <number>6</number>
+           </property>
+           <property name="rightMargin">
+            <number>6</number>
+           </property>
+           <property name="bottomMargin">
+            <number>6</number>
+           </property>
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <item row="5" column="1" colspan="2">
+            <widget class="LimitedDisplaySpinBox" name="spinbox_source_threshold_period">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="decimals">
+              <number>9</number>
+             </property>
+             <property name="minimum">
+              <double>0.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>10.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Tracking.Status.ThresholdTimePeriod</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="5">
+            <widget class="QLineEdit" name="opcua_TrackStatus_tr_TimeRemaining_2">
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>index</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Tracking.TableStatus.act_pt_act_index</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="3">
+            <widget class="QLabel" name="label_137">
+             <property name="text">
+              <string>End table index:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1" colspan="2">
+            <widget class="LimitedDisplaySpinBox" name="spinbox_source_threshold_radius">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="decimals">
+              <number>9</number>
+             </property>
+             <property name="minimum">
+              <double>0.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>20.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Tracking.Status.OnSourceThreshold</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0" colspan="6">
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1" colspan="2">
+            <widget class="QLineEdit" name="opcua_TrackStatus_OnSourceDev">
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>angle</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Tracking.Status.OnSourceDev</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_30">
+             <property name="text">
+              <string>Time remaining [s]:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="3">
+            <widget class="QLabel" name="label_136">
+             <property name="text">
+              <string>Current table index:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="3" colspan="3">
+            <widget class="QPushButton" name="button_set_on_source_threshold">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Set On Source Threshold</string>
+             </property>
+             <property name="opcua_cmd" stdset="0">
+              <string>Management.Commands.SetOnSourceThreshold</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QRadioButton" name="button_start_track_at">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>At:</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="5">
+            <widget class="QLineEdit" name="opcua_TrackStatus_tr_TimeRemaining_3">
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>index</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Tracking.TableStatus.act_pt_end_index</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_139">
+             <property name="text">
+              <string>Time period [s]:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1" colspan="2">
+            <widget class="QLineEdit" name="opcua_TrackStatus_tr_TimeRemaining">
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>time</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Tracking.Status.tr_TimeRemaining</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_94">
+             <property name="text">
+              <string>Interpolation type:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3" colspan="3">
+            <widget class="QPushButton" name="button_start_track_table">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Start Tracking</string>
+             </property>
+             <property name="opcua_cmd" stdset="0">
+              <string>Tracking.Commands.TrackStart</string>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="1">
             <widget class="QRadioButton" name="button_start_track_now">
              <property name="enabled">
@@ -9097,120 +9397,37 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="4">
-            <widget class="QLineEdit" name="opcua_TrackStatus_tr_TimeRemaining_2">
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_95">
              <property name="text">
-              <string/>
+              <string>Start time:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>index</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string>Tracking.TableStatus.act_pt_act_index</string>
              </property>
             </widget>
            </item>
            <item row="4" column="0">
+            <widget class="QLabel" name="label_138">
+             <property name="text">
+              <string>Threshold radius [&quot;]:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
             <widget class="QLabel" name="label_31">
              <property name="text">
-              <string>On source deviation [arcsec]:</string>
+              <string>On source dev [&quot;]:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_30">
-             <property name="text">
-              <string>Time remaining [s]:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1" colspan="2">
-            <widget class="QComboBox" name="combobox_track_start_interpol_type">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
-             <property name="opcua_type" stdset="0">
-              <string>InterpolType</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_94">
-             <property name="text">
-              <string>Interpolation type:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="3" colspan="2">
-            <widget class="QPushButton" name="button_start_track_table">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Start Tracking</string>
-             </property>
-             <property name="opcua_cmd" stdset="0">
-              <string>Tracking.Commands.TrackStart</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1" colspan="2">
-            <widget class="QLineEdit" name="opcua_TrackStatus_OnSourceDev">
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>angle</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string>Tracking.Status.OnSourceDev</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_95">
-             <property name="text">
-              <string>Start time (since SKAO epoch):</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3" colspan="2">
+           <item row="1" column="3" colspan="3">
             <widget class="QLineEdit" name="line_edit_start_track_at">
              <property name="enabled">
               <bool>true</bool>
@@ -9238,80 +9455,26 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="3">
-            <widget class="QLabel" name="label_136">
-             <property name="text">
-              <string>Current table index:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1" colspan="2">
-            <widget class="QLineEdit" name="opcua_TrackStatus_tr_TimeRemaining">
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>time</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string>Tracking.Status.tr_TimeRemaining</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QRadioButton" name="button_start_track_at">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
+           <item row="2" column="1" colspan="2">
+            <widget class="QComboBox" name="combobox_track_start_interpol_type">
              <property name="minimumSize">
               <size>
                <width>0</width>
                <height>22</height>
               </size>
              </property>
-             <property name="text">
-              <string>At:</string>
-             </property>
              <property name="opcua" stdset="0">
               <string/>
              </property>
-            </widget>
-           </item>
-           <item row="4" column="3">
-            <widget class="QLabel" name="label_137">
-             <property name="text">
-              <string>End table index:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <property name="opcua_type" stdset="0">
+              <string>InterpolType</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="4">
-            <widget class="QLineEdit" name="opcua_TrackStatus_tr_TimeRemaining_3">
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>index</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string>Tracking.TableStatus.act_pt_end_index</string>
+           <item row="3" column="0" colspan="6">
+            <widget class="Line" name="line_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
@@ -9321,45 +9484,71 @@
         <item>
          <widget class="QGroupBox" name="groupBox_time_status">
           <property name="title">
-           <string>Time Status</string>
+           <string>Time Source</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_27">
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEdit_10">
+           <property name="leftMargin">
+            <number>6</number>
+           </property>
+           <property name="topMargin">
+            <number>6</number>
+           </property>
+           <property name="rightMargin">
+            <number>6</number>
+           </property>
+           <property name="bottomMargin">
+            <number>6</number>
+           </property>
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="combobox_time_source">
              <property name="minimumSize">
               <size>
                <width>0</width>
                <height>22</height>
               </size>
              </property>
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>offset</string>
+             <property name="opcua_type" stdset="0">
+              <string>DscTimeSyncSourceType</string>
              </property>
              <property name="opcua" stdset="0">
-              <string>Time_cds.Status.TAIoffset</string>
+              <string/>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_119">
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_118">
              <property name="text">
-              <string>DSC system time:</string>
+              <string>Enter NTP IP:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="3" column="1" colspan="3">
+           <item row="4" column="2" colspan="2">
+            <widget class="QLabel" name="label_117">
+             <property name="text">
+              <string>UTC to SKA Epoch [s]:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_112">
+             <property name="text">
+              <string>Select source:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1" colspan="3">
             <widget class="QLineEdit" name="lineEdit_14">
              <property name="minimumSize">
               <size>
@@ -9371,7 +9560,7 @@
               <enum>Qt::NoFocus</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="readOnly">
               <bool>true</bool>
@@ -9384,107 +9573,17 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_114">
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_111">
              <property name="text">
-              <string>TAI offset [s]:</string>
+              <string>Sync source:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="1" column="2">
-            <widget class="QLabel" name="label_117">
-             <property name="text">
-              <string>UTC to SKA Epoch [s]:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QLabel" name="label_115">
-             <property name="text">
-              <string>NTP source IP addr:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLabel" name="label_116">
-             <property name="text">
-              <string>Time synced:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEdit_8">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>37</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string>Time_cds.Status.LeapSecPTP</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_113">
-             <property name="text">
-              <string>Leap seconds:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="3">
-            <widget class="QLineEdit" name="lineEdit_11">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>0.0.0.0</string>
-             </property>
-             <property name="opcua" stdset="0">
-              <string>Time_cds.Status.TimeSourceAddrNTP</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
+           <item row="3" column="4">
             <widget class="QLineEdit" name="lineEdit_12">
              <property name="minimumSize">
               <size>
@@ -9518,7 +9617,27 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="3">
+           <item row="5" column="3">
+            <widget class="QLabel" name="label_115">
+             <property name="text">
+              <string>NTP source IP:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_114">
+             <property name="text">
+              <string>TAI offset [s]:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="4">
             <widget class="QLineEdit" name="lineEdit_13">
              <property name="minimumSize">
               <size>
@@ -9530,7 +9649,7 @@
               <enum>Qt::NoFocus</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="readOnly">
               <bool>true</bool>
@@ -9543,57 +9662,29 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_111">
-             <property name="text">
-              <string>Time sync source:</string>
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="line_edit_ntp_source_addr">
+             <property name="enabled">
+              <bool>true</bool>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="lineEdit_9">
              <property name="minimumSize">
               <size>
                <width>0</width>
                <height>22</height>
               </size>
              </property>
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="placeholderText">
-              <string>PTP</string>
+              <string>0.0.0.0</string>
              </property>
              <property name="opcua" stdset="0">
-              <string>Time_cds.Status.DscTimeSyncSource</string>
-             </property>
-             <property name="opcua_type" stdset="0">
-              <string>DscTimeSyncSourceType</string>
+              <string/>
              </property>
             </widget>
            </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_time_source">
-          <property name="title">
-           <string>Set Time Source</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_28">
-           <property name="leftMargin">
-            <number>9</number>
-           </property>
-           <item row="1" column="2">
+           <item row="0" column="4">
             <widget class="QPushButton" name="button_set_time_source">
              <property name="enabled">
               <bool>true</bool>
@@ -9612,89 +9703,145 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_118">
+           <item row="1" column="0" colspan="5">
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_113">
              <property name="text">
-              <string>NTP source IP address:</string>
+              <string>Leap seconds:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_112">
-             <property name="text">
-              <string>Time sync source:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="combobox_time_source">
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="lineEdit_9">
              <property name="minimumSize">
               <size>
                <width>0</width>
                <height>22</height>
               </size>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>PTP</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Time_cds.Status.DscTimeSyncSource</string>
              </property>
              <property name="opcua_type" stdset="0">
               <string>DscTimeSyncSourceType</string>
              </property>
-             <property name="opcua" stdset="0">
-              <string/>
-             </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="line_edit_ntp_source_addr">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
+           <item row="5" column="4">
+            <widget class="QLineEdit" name="lineEdit_11">
              <property name="minimumSize">
               <size>
                <width>0</width>
                <height>22</height>
               </size>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
              <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
              <property name="placeholderText">
               <string>0.0.0.0</string>
              </property>
              <property name="opcua" stdset="0">
-              <string/>
+              <string>Time_cds.Status.TimeSourceAddrNTP</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="3">
-            <spacer name="horizontalSpacer_7">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+           <item row="3" column="2" colspan="2">
+            <widget class="QLabel" name="label_116">
+             <property name="text">
+              <string>Time synced:</string>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
-            </spacer>
+            </widget>
            </item>
-           <item row="0" column="2">
-            <spacer name="horizontalSpacer_9">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_119">
+             <property name="text">
+              <string>DSC time:</string>
              </property>
-             <property name="sizeHint" stdset="0">
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="lineEdit_8">
+             <property name="minimumSize">
               <size>
-               <width>40</width>
-               <height>20</height>
+               <width>0</width>
+               <height>22</height>
               </size>
              </property>
-            </spacer>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>37</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Time_cds.Status.LeapSecPTP</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1" colspan="2">
+            <widget class="QLineEdit" name="lineEdit_10">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>offset</string>
+             </property>
+             <property name="opcua" stdset="0">
+              <string>Time_cds.Status.TAIoffset</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -9714,162 +9861,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="warning">
-       <attribute name="title">
-        <string>Warning</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_5">
-        <property name="spacing">
-         <number>2</number>
-        </property>
-        <property name="leftMargin">
-         <number>2</number>
-        </property>
-        <property name="topMargin">
-         <number>2</number>
-        </property>
-        <property name="rightMargin">
-         <number>2</number>
-        </property>
-        <property name="bottomMargin">
-         <number>2</number>
-        </property>
-        <item>
-         <widget class="QTreeWidget" name="warning_tree_view">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAsNeeded</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAsNeeded</enum>
-          </property>
-          <property name="columnCount">
-           <number>3</number>
-          </property>
-          <column>
-           <property name="text">
-            <string notr="true">1</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string notr="true">2</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string notr="true">3</string>
-           </property>
-          </column>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="warning_status_show_only_warnings">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Show only warnings</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="error">
-       <attribute name="title">
-        <string>Error</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_6">
-        <property name="spacing">
-         <number>2</number>
-        </property>
-        <property name="leftMargin">
-         <number>2</number>
-        </property>
-        <property name="topMargin">
-         <number>2</number>
-        </property>
-        <property name="rightMargin">
-         <number>2</number>
-        </property>
-        <property name="bottomMargin">
-         <number>2</number>
-        </property>
-        <item>
-         <widget class="QTreeWidget" name="error_tree_view">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="columnCount">
-           <number>3</number>
-          </property>
-          <column>
-           <property name="text">
-            <string notr="true">1</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string notr="true">2</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string notr="true">3</string>
-           </property>
-          </column>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="error_status_show_only_errors">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Show only errors</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="logs">
-       <attribute name="title">
-        <string>Logs</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <property name="spacing">
-         <number>2</number>
-        </property>
-        <property name="leftMargin">
-         <number>2</number>
-        </property>
-        <property name="topMargin">
-         <number>2</number>
-        </property>
-        <property name="rightMargin">
-         <number>2</number>
-        </property>
-        <property name="bottomMargin">
-         <number>2</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="label_63">
-          <property name="text">
-           <string>OPC-UA command history:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QListWidget" name="list_cmd_history">
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="weather_station">
        <property name="minimumSize">
         <size>
@@ -9881,12 +9872,30 @@
         <string>Weather</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="leftMargin">
+         <number>4</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>4</number>
+        </property>
+        <property name="bottomMargin">
+         <number>4</number>
+        </property>
         <item>
          <widget class="QGroupBox" name="groupBox_2">
           <property name="title">
            <string>Configure Sensors</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_11">
+           <property name="spacing">
+            <number>4</number>
+           </property>
            <item row="0" column="0">
             <widget class="QLabel" name="label_124">
              <property name="text">
@@ -10192,6 +10201,9 @@
            <string>Sensor Values</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_25">
+           <property name="spacing">
+            <number>4</number>
+           </property>
            <item row="0" column="0">
             <widget class="QLabel" name="label_135">
              <property name="text">
@@ -10390,6 +10402,162 @@
        <zorder>groupBox_2</zorder>
        <zorder>verticalSpacer_17</zorder>
       </widget>
+      <widget class="QWidget" name="warning">
+       <attribute name="title">
+        <string>Warning</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>2</number>
+        </property>
+        <property name="topMargin">
+         <number>4</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
+        <item>
+         <widget class="QTreeWidget" name="warning_tree_view">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="columnCount">
+           <number>3</number>
+          </property>
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string notr="true">2</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string notr="true">3</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="warning_status_show_only_warnings">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Show only warnings</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="error">
+       <attribute name="title">
+        <string>Error</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>2</number>
+        </property>
+        <property name="topMargin">
+         <number>4</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
+        <item>
+         <widget class="QTreeWidget" name="error_tree_view">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="columnCount">
+           <number>3</number>
+          </property>
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string notr="true">2</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string notr="true">3</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="error_status_show_only_errors">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Show only errors</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="logs">
+       <attribute name="title">
+        <string>Logs</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>2</number>
+        </property>
+        <property name="topMargin">
+         <number>4</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_63">
+          <property name="text">
+           <string>OPC-UA command history:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListWidget" name="list_cmd_history">
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -10557,7 +10725,6 @@
   <tabstop>button_power_mode_normal</tabstop>
   <tabstop>button_power_mode_low</tabstop>
   <tabstop>spinbox_power_lim_kw</tabstop>
-  <tabstop>button_set_power_mode</tabstop>
   <tabstop>button_azimuth_activate</tabstop>
   <tabstop>button_azimuth_deactivate</tabstop>
   <tabstop>button_azimuth_stop</tabstop>
@@ -10622,20 +10789,11 @@
   <tabstop>spinbox_ambtempparam6</tabstop>
   <tabstop>button_temp_correction_apply</tabstop>
   <tabstop>button_select_track_table_file</tabstop>
-  <tabstop>line_edit_track_table_file</tabstop>
   <tabstop>button_file_track_absolute_times</tabstop>
-  <tabstop>button_file_track_relative_times</tabstop>
   <tabstop>spinbox_file_track_additional_offset</tabstop>
-  <tabstop>combobox_file_track_mode</tabstop>
-  <tabstop>button_load_track_table</tabstop>
   <tabstop>button_start_track_now</tabstop>
   <tabstop>button_start_track_at</tabstop>
-  <tabstop>line_edit_start_track_at</tabstop>
   <tabstop>combobox_track_start_interpol_type</tabstop>
-  <tabstop>button_start_track_table</tabstop>
-  <tabstop>combobox_time_source</tabstop>
-  <tabstop>line_edit_ntp_source_addr</tabstop>
-  <tabstop>button_set_time_source</tabstop>
   <tabstop>warning_tree_view</tabstop>
   <tabstop>warning_status_show_only_warnings</tabstop>
   <tabstop>error_tree_view</tabstop>
@@ -10669,6 +10827,6 @@
   <buttongroup name="button_group_rainfall"/>
   <buttongroup name="button_group_pressure"/>
   <buttongroup name="button_group_humidity"/>
-  <buttongroup name="button_group_wind_speed"/>
+  <buttongroup name="button_group_wind_direction"/>
  </buttongroups>
 </ui>
