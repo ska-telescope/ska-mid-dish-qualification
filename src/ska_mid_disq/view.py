@@ -1632,10 +1632,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                     "border-color: black;} "
                 )
 
-    def _track_table_file_exist(self) -> bool:
+    def _track_table_file_exists(self) -> bool:
         """Check if the track table file exists."""
-        tt_filename = Path(self.line_edit_track_table_file.text())
-        return tt_filename.exists()
+        return Path(self.line_edit_track_table_file.text()).is_file()
 
     def server_connected_event(self):
         """
@@ -1661,8 +1660,8 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self._enable_opcua_widgets()
         self._enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
-        if self._track_table_file_exist():
-            self.button_load_track_table.setEnabled(True)
+        if not self._track_table_file_exists():
+            self.button_load_track_table.setEnabled(False)
         self._initialise_error_warning_widgets()
         self.warning_status_show_only_warnings.setEnabled(True)
         self.error_status_show_only_errors.setEnabled(True)
@@ -1871,7 +1870,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
 
     def track_table_file_changed(self):
         """Update the track table file path in the model."""
-        if self._track_table_file_exist() and self.controller.is_server_connected():
+        if self._track_table_file_exists() and self.controller.is_server_connected():
             self.button_load_track_table.setEnabled(True)
         else:
             self.button_load_track_table.setEnabled(False)
