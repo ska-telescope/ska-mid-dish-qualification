@@ -409,6 +409,15 @@ class Controller(QObject):
         """
         return self._issue_command(Command.AMBTEMP_CORR_SETUP, *params)
 
+    def command_set_on_source_threshold(self, radius: float, period: float) -> None:
+        """
+        Issue command to set the threshold level of the RMS on-sky vector error.
+
+        :param radius: RMS threshold radius on-sky for being 'On Source'.
+        :param period: Time period for the RMS calculation.
+        """
+        self._issue_command(Command.SET_ON_SOURCE_THRESHOLD, radius, period)
+
     def _issue_command(self, command: Command, *args: Any) -> tuple[ResultCode, str]:
         """
         Issue a command to the OPCUA server.
