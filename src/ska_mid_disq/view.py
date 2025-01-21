@@ -434,7 +434,7 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
 
 
 # pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-statements
+# pylint: disable=too-many-statements,too-few-public-methods
 class AttributeGraphSelectDialog(QtWidgets.QDialog):
     """
     A dialog-window class for displaying attributes.
