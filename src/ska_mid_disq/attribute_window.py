@@ -7,7 +7,7 @@ from typing import Any
 
 import pyqtgraph
 from PyQt6 import QtCore, QtWidgets
-from PyQt6.QtGui import QCloseEvent, QIcon
+from PyQt6.QtGui import QCloseEvent, QIcon, QKeySequence
 
 from ska_mid_disq.constants import SKAO_ICON_PATH, SUBSCRIPTION_RATE_MS
 
@@ -49,10 +49,14 @@ class LiveAttributeWindow(QtWidgets.QWidget):
         self.attribute_time.setPlaceholderText(self.attribute)
         self.attribute_time.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.attribute_time.resize(12, 290)
+        self.label_layout = QtWidgets.QHBoxLayout()
+        self.label_layout.addWidget(QtWidgets.QLabel("Value"))
+        self.label_layout.addWidget(QtWidgets.QLabel("Timestamp"))
         self.data_point_layout = QtWidgets.QHBoxLayout()
         self.data_point_layout.addWidget(self.attribute_value)
         self.data_point_layout.addWidget(self.attribute_time)
         self.window_layout = QtWidgets.QVBoxLayout()
+        self.window_layout.addLayout(self.label_layout)
         self.window_layout.addLayout(self.data_point_layout)
         self.setLayout(self.window_layout)
 
@@ -183,14 +187,37 @@ class LiveHistoryWindow(LiveAttributeWindow):
         self.resize(580, 400)
 
         # History
-        self.historic_values = QtWidgets.QListWidget()
+        # pylint: disable=too-few-public-methods
+        class CopyMultipleLines(QtWidgets.QListWidget):
+            """Subclass QListWidget to be able to copy multiple lines."""
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.setSelectionMode(
+                    QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
+                )
+
+            # pylint: disable=invalid-name
+            def keyPressEvent(self, e):  # noqa: N802
+                """Override keyPressEvent to copy multiple lines to clipboard."""
+                if e.matches(QKeySequence.StandardKey.Copy):
+                    text = ""
+                    for item in self.selectedItems():
+                        text += f"{item.text()}\n"
+
+                    clipboard = QtWidgets.QApplication.clipboard()
+                    clipboard.setText(text)
+                    return None
+
+                return super().keyPressEvent(e)
+
+        self.historic_values = CopyMultipleLines()
         self.window_layout.addWidget(self.historic_values)
 
     def data_event(self, data):
         """Receive the attribute data event."""
         super().data_event(data)
-        self.historic_values.addItem(
-            f"Received value {data['value']} at time {data['time']}"
-        )
+        # Value, timestamp to match parent class window labels.
+        self.historic_values.addItem(f"{data['value']},{data['time']}")
         if self.historic_values.count() > self.HISTORY_LENGTH:
             _ = self.historic_values.takeItem(0)

@@ -19,6 +19,7 @@ dependencies = [
     "ska-mid-dish-steering-control>=0.2.0",
     # "ska-mid-dish-steering-control @ git+https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git@main",
     "ska-mid-wms-interface>=0.1.0",
+    "pyqtgraph>=0.13.7",
 ]
 license.file = "LICENSE"
 readme = "README.md"
@@ -95,7 +96,6 @@ documentation = "https://developer.skatelescope.org/projects/ska-mid-disq"
 
 [tool.poetry.scripts]
 disq-gui = "ska_mid_disq.mvcmain:main"
-disq-gui2 = "ska_mid_disq.mvcmain:main2"
 disq-validate-server = "ska_mid_disq.server_validator:main"
 
 [[tool.poetry.source]]
