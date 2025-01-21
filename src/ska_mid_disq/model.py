@@ -24,7 +24,7 @@ from ska_mid_disq.constants import (
     SUBSCRIPTION_RATE_MS,
     USER_CACHE_DIR,
     NodesStatus,
-    ServerType,
+    PollerType,
     StatusTreeCategory,
 )
 
@@ -254,6 +254,7 @@ class Model(QObject):
     status_group_update = pyqtSignal(int, str, bool)
     status_global_update = pyqtSignal(int, bool)
     weather_station_data_received = pyqtSignal(dict)
+    attribute_graph_data_received = pyqtSignal(dict)
 
     def __init__(self, parent: QObject | None = None) -> None:
         """
@@ -266,8 +267,9 @@ class Model(QObject):
         self._data_logger: DataLogger | None = None
         self._recording = False
         self._recording_config: dict[str, dict[str, bool | int]] = {}
+        self._graph_config: dict[str, dict[str, bool | int]] = {}
         self.subscription_rate_ms = SUBSCRIPTION_RATE_MS
-        self._event_q_pollers: dict[ServerType, QueuePollThread] = {}
+        self._event_q_pollers: dict[PollerType, QueuePollThread] = {}
         self._nodes_status = NodesStatus.NOT_CONNECTED
         self.status_warning_tree: StatusTreeHierarchy | None = None
         self.status_error_tree: StatusTreeHierarchy | None = None
@@ -353,7 +355,7 @@ class Model(QObject):
             return "not connected to server"
         return self._scu.plc_prg_nodes_timestamp
 
-    def stop_event_q_poller(self, server_type: ServerType) -> None:
+    def stop_event_q_poller(self, server_type: PollerType) -> None:
         """Stop a specific QueuePollThread."""
         if server_type in self._event_q_pollers:
             self._event_q_pollers[server_type].stop()
@@ -404,7 +406,7 @@ class Model(QObject):
 
     def register_event_updates(
         self,
-        server_type: ServerType,
+        server_type: PollerType,
         registrations: list[str],
         bad_shutdown_callback: Callable[[str], None] | None = None,
     ) -> None:
@@ -416,10 +418,14 @@ class Model(QObject):
             status notification is received, defaults to None.
         """
         if self._scu is not None:
-            if server_type is ServerType.OPCUA:
+            if server_type is PollerType.OPCUA:
                 event_q_poller = QueuePollThread(self.data_received)
-            elif server_type is ServerType.WMS:
+            elif server_type is PollerType.WMS:
                 event_q_poller = QueuePollThread(self.weather_station_data_received)
+            elif server_type is PollerType.GRAPH:
+                event_q_poller = self._event_q_pollers.get(
+                    server_type, QueuePollThread(self.attribute_graph_data_received)
+                )
             else:
                 logger.warning("Model: register_event_updates: Unknown origin")
                 return
@@ -433,7 +439,7 @@ class Model(QObject):
                 data_queue=event_q_poller.queue,
                 bad_shutdown_callback=bad_shutdown_callback,
             )
-            if server_type is ServerType.OPCUA:
+            if server_type is PollerType.OPCUA:
                 if missing_nodes and not bad_nodes:
                     self._nodes_status = NodesStatus.ATTR_NOT_FOUND
                 elif not missing_nodes and bad_nodes:
@@ -572,6 +578,17 @@ class Model(QObject):
             return []
         return self._scu.attributes
 
+    def get_attribute_type(self, attribute: str) -> list[str]:
+        """
+        Get the attribute data type.
+
+        If the type is "Enumeration", the list also contains the associated string
+        values.
+        """
+        if self._scu is None:
+            return ["Unknown"]
+        return self._scu.get_attribute_data_type(attribute)
+
     @property
     def opcua_nodes_status(self) -> NodesStatus:
         """Return a status message (Enum) of the OPC UA client's nodes."""
@@ -684,6 +701,24 @@ class Model(QObject):
         """
         self._recording_config = config
 
+    @property
+    def graph_config(self) -> dict[str, dict[str, bool | int]]:
+        """
+        Get the graph configuration.
+
+        :return: The stored graph configuration.
+        """
+        return self._graph_config
+
+    @graph_config.setter
+    def graph_config(self, config: dict[str, dict[str, bool | int]]) -> None:
+        """
+        Set the graph configuration.
+
+        :param config: A graph configuration to store.
+        """
+        self._graph_config = config
+
     def _get_attributes_startswith(self, prefix: str) -> list[str]:
         """
         Get a list of OPC-UA nodes that start with the given prefix.
@@ -793,7 +828,7 @@ class Model(QObject):
 
     def weather_station_disconnect(self) -> None:
         """Disconnect the weather station."""
-        self.stop_event_q_poller(ServerType.WMS)
+        self.stop_event_q_poller(PollerType.WMS)
         self._scu.disconnect_weather_station()
 
     def weather_station_sensors_update(self, sensors: list[str]) -> None:

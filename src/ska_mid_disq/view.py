@@ -16,6 +16,7 @@ from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import (
     QAction,
     QBrush,
+    QCloseEvent,
     QColor,
     QDesktopServices,
     QIcon,
@@ -28,7 +29,12 @@ from PyQt6.QtWidgets import QFileDialog
 from ska_mid_wms_interface import load_weather_station_configuration
 
 from ska_mid_disq import ResultCode, __version__, controller, model
-from ska_mid_disq.constants import StatusTreeCategory
+from ska_mid_disq.attribute_window import (
+    LiveAttributeWindow,
+    LiveGraphWindow,
+    LiveHistoryWindow,
+)
+from ska_mid_disq.constants import SKAO_ICON_PATH, PollerType, StatusTreeCategory
 
 from . import ui_resources  # noqa pylint: disable=unused-import
 
@@ -40,10 +46,11 @@ TILT_METER_TWO_ON: Final = "Pointing.Status.TiltTwo_On"
 BAND_FOR_CORR: Final = "Pointing.Status.BandForCorr"
 TEMP_CORR_ACTIVE: Final = "Pointing.Status.TempCorrActive"
 
-SKAO_ICON_PATH: Final = ":/icons/skao.ico"
 DISPLAY_DECIMAL_PLACES: Final = 5
 
 _WEATHER_STATION_YAML: Final = "weather_station_resources/weather_station.yaml"
+
+ALLOWED_GRAPH_TYPES = ["Boolean", "Double", "Enumeration"]
 
 
 # pylint: disable=too-many-instance-attributes,too-many-statements
@@ -427,6 +434,122 @@ class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
 
 
 # pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-statements,too-few-public-methods
+class AttributeGraphSelectDialog(QtWidgets.QDialog):
+    """
+    A dialog-window class for displaying attributes.
+
+    :param parent: The parent widget of the dialog.
+    :param attributes: A list of OPC-UA attributes to be displayed and selected.
+    """
+
+    def __init__(
+        self,
+        parent: QtWidgets.QWidget,
+        attributes: dict[str, dict[str, bool | int]],
+    ):
+        """
+        Initialize the Recording Configuration dialog.
+
+        :param parent: The parent widget for the dialog.
+        :param attributes: A list of strings representing OPC-UA attributes to choose
+            from.
+        """
+        super().__init__(parent)
+
+        self.setWindowTitle("Choose Attributes")
+        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
+        self.resize(544, 512)
+
+        self._node_table_widgets: dict[
+            str, dict[str, QtWidgets.QCheckBox | QtWidgets.QLineEdit]
+        ] = {}
+
+        button = (
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
+        )
+
+        self.btn_box = QtWidgets.QDialogButtonBox(button)
+        self.btn_box.accepted.connect(self.accept_selection)
+        self.btn_box.rejected.connect(self.reject)
+
+        self.grid_layout = QtWidgets.QGridLayout()
+        table_options_layout = QtWidgets.QGridLayout()
+        self.grid_layout.addLayout(table_options_layout, 0, 0)
+
+        message = QtWidgets.QLabel(
+            "Select all the OPC-UA attributes to display from the list and click OK"
+        )
+        message.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.grid_layout.addWidget(message)
+
+        self.node_table = QtWidgets.QTableWidget(len(attributes), 2, self)
+        self._create_node_table(attributes, self.node_table)
+        self.grid_layout.addWidget(self.node_table)
+
+        self.grid_layout.addWidget(self.btn_box)
+        self.setLayout(self.grid_layout)
+        self.config_parameters: dict[str, dict[str, bool | int]] = {}
+
+    def _create_node_table(self, attributes, node_table):
+        """Create the attribute node table."""
+        node_table.setStyleSheet(
+            "QCheckBox {margin-left: 28px;} "
+            "QCheckBox::indicator {width: 24px; height: 24px}"
+        )
+        node_table.setHorizontalHeaderLabels(["Attribute Name", "Display"])
+        horizontal_header = node_table.horizontalHeader()
+        horizontal_header.setDefaultSectionSize(80)
+        horizontal_header.setSectionResizeMode(
+            0, QtWidgets.QHeaderView.ResizeMode.Stretch
+        )
+
+        vertical_header = QtWidgets.QHeaderView(QtCore.Qt.Orientation.Vertical)
+        vertical_header.hide()
+        node_table.setVerticalHeader(vertical_header)
+        node_table.setSelectionMode(
+            QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
+        )
+        for i, (attr, value) in enumerate(attributes.items()):
+            # Add node name in first column and turn off table interactions
+            node_name = QtWidgets.QTableWidgetItem(attr)
+            node_name.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
+            node_table.setItem(i, 0, node_name)
+            # Ensure "Display" column is also not interactable
+            display_background = QtWidgets.QTableWidgetItem()
+            display_background.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
+            node_table.setItem(i, 1, display_background)
+            # Add "Display" checkbox
+            display_node = QtWidgets.QCheckBox()
+            display_node.setChecked(value["display"])
+            node_table.setCellWidget(i, 1, display_node)
+            self._node_table_widgets[attr] = {
+                "display_check_box": display_node,
+            }
+
+    def _get_current_config(self) -> dict[str, dict[str, bool | int]]:
+        """Get the current attribute display values."""
+        config_parameters = {}
+        for node, widgets in self._node_table_widgets.items():
+            config_parameters[node] = {
+                "display": widgets[
+                    "display_check_box"
+                ].isChecked(),  # type: ignore[union-attr]
+            }
+
+        return config_parameters
+
+    def accept_selection(self):
+        """Accepts the selection made in the configuration dialog."""
+        logger.debug("Recording config dialog accepted")
+        self.config_parameters = self._get_current_config()
+        self.accept()
+
+
+# pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-statements
 class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
     """
@@ -765,12 +888,16 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             "motiontimeout": "rgb(255, 0, 0)",
         },
     }
+    live_graph_close = QtCore.pyqtSignal(str)
+    all_live_graphs_closed = QtCore.pyqtSignal(bool)
 
     def __init__(
         self,
         disq_model: model.Model,
         disq_controller: controller.Controller,
         *args: Any,
+        server: str = None,
+        cache: bool = False,
         **kwargs: Any,
     ) -> None:
         """
@@ -828,6 +955,12 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.action_disconnect_weather_station.triggered.connect(
             self.connect_weather_station_clicked
         )
+        self.action_attribute_display: QAction
+        self.action_attribute_display.triggered.connect(self.select_attribute_graphs)
+        self.action_close_all_attribute_windows: QAction
+        self.action_close_all_attribute_windows.triggered.connect(
+            self.close_all_graph_windows
+        )
         self.action_about: QAction
         self.action_about.triggered.connect(self.about_button_clicked)
         self.action_docs: QAction
@@ -877,6 +1010,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.model.data_received.connect(self.event_update)
         self.model.weather_station_data_received.connect(
             self.weather_station_event_update
+        )
+        self.model.attribute_graph_data_received.connect(
+            self.attribute_graph_event_update
         )
 
         # Status panel widgets
@@ -1261,6 +1397,22 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_weather_station_configure_apply.clicked.connect(
             self._apply_weather_tab_config
         )
+
+        # Live graph windows
+        self.attribute_window_signals: dict[str, QtCore.pyqtBoundSignal] = {}
+        self.attribute_windows: dict[str, LiveAttributeWindow] = {}
+
+        self.live_graph_close.connect(self.live_graph_window_closed)
+        self.all_live_graphs_closed.connect(
+            self.action_close_all_attribute_windows.setEnabled
+        )
+
+        # Connect to command line supplied server.
+        if server is not None:
+            server_details = self.controller.get_config_server_args(server)
+            if server_details is not None:
+                server_details["use_nodes_cache"] = str(cache)
+                self.server_connect(server_details, server)
 
     @cached_property
     def opcua_widgets(
@@ -1657,6 +1809,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         )
         self.action_disconnect_opcua_server.setEnabled(True)
         self.action_connect_weather_station.setEnabled(True)
+        self.action_attribute_display.setEnabled(True)
         self._enable_opcua_widgets()
         self._enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
@@ -1679,6 +1832,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.label_cache_status.setText("")
         self.action_disconnect_opcua_server.setEnabled(False)
         self.action_connect_weather_station.setEnabled(False)
+        self.action_attribute_display.setEnabled(False)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
         self.warning_status_show_only_warnings.setEnabled(False)
@@ -1824,6 +1978,14 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 )
                 self._update_opcua_text_widget([wgt], event)
 
+    def attribute_graph_event_update(self, event: dict) -> None:
+        """Update attribute dialog."""
+        for attribute, signal in self.attribute_window_signals.items():
+            if event["name"] == attribute:
+                signal.emit(
+                    {"time": event["source_timestamp"], "value": event["value"]}
+                )
+
     def weather_station_connected_event(self):
         """
         Handle the weather station connected event.
@@ -1847,7 +2009,6 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         This function is called when a weather station is disconnected from.
         """
         logger.debug("Weather station disconnected event received.")
-        self.model.stop_event_q_poller("weather_station")
         self.action_connect_weather_station.setEnabled(True)
         self.action_disconnect_weather_station.setEnabled(False)
         self._enable_weather_tab_widgets(False)
@@ -1867,6 +2028,61 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
                 self.controller.connect_weather_station(dialog.server_details)
             else:
                 logger.debug("Connect weather station dialog cancelled")
+
+    def select_attribute_graphs(self):
+        """Open the attribute seleciton dialog."""
+        if not self.controller.graph_config:
+            for node in self.model.opcua_attributes:
+                self.controller.graph_config[node] = {
+                    "display": node in self.attribute_windows
+                }
+
+        dialog = AttributeGraphSelectDialog(self, self.controller.graph_config)
+        if dialog.exec():
+            self.controller.graph_config = dialog.config_parameters
+            for attribute, details in dialog.config_parameters.items():
+                if details["display"] and attribute not in self.attribute_windows:
+                    logger.debug("Opening graph window for: %s", attribute)
+                    attribute_type = self.controller.attribute_type_get(attribute)
+                    if attribute_type[0] in ALLOWED_GRAPH_TYPES:
+                        attribute_window = LiveGraphWindow(
+                            attribute, attribute_type, self.live_graph_close
+                        )
+                    else:
+                        attribute_window = LiveHistoryWindow(
+                            attribute, self.live_graph_close
+                        )
+
+                    self.attribute_window_signals[attribute] = attribute_window.signal
+                    self.controller.subscribe_graph_attribute_updates(attribute)
+                    self.attribute_windows[attribute] = attribute_window
+                    attribute_window.show()
+
+                if attribute in self.attribute_windows and not details["display"]:
+                    self.attribute_windows[attribute].close()
+
+            if self.attribute_windows:
+                self.all_live_graphs_closed.emit(True)
+        else:
+            logger.debug("Single attribute select dialog cancelled")
+
+    def close_all_graph_windows(self) -> None:
+        """Close all open graph windows."""
+        for window in self.attribute_windows.copy().values():
+            window.close()
+
+    def live_graph_window_closed(self, attribute: str) -> None:
+        """
+        Remove the window reference and associated signals.
+
+        :param attribute: The attribute the window was created for.
+        """
+        self.controller.graph_config[attribute] = {"display": False}
+        del self.attribute_window_signals[attribute]
+        del self.attribute_windows[attribute]
+        if not self.attribute_windows:
+            self.controller.event_q_poller_stop(PollerType.GRAPH)
+            self.all_live_graphs_closed.emit(False)
 
     def track_table_file_changed(self):
         """Update the track table file path in the model."""
@@ -2506,6 +2722,12 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         QDesktopServices.openUrl(
             QtCore.QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
         )
+
+    # pylint: disable=invalid-name
+    def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
+        """Called when window is closed."""
+        self.close_all_graph_windows()
+        super().closeEvent(event)
 
 
 class LimitedDisplaySpinBox(QtWidgets.QDoubleSpinBox):

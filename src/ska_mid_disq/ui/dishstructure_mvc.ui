@@ -10408,7 +10408,7 @@
    </property>
    <widget class="QMenu" name="menuControl">
     <property name="title">
-     <string>Control</string>
+     <string>Connection</string>
     </property>
     <addaction name="action_connect_opcua_server"/>
     <addaction name="action_disconnect_opcua_server"/>
@@ -10429,7 +10429,15 @@
     <addaction name="action_disable_input_limits"/>
     <addaction name="action_enable_input_limits"/>
    </widget>
+   <widget class="QMenu" name="menuAttributes">
+    <property name="title">
+     <string>Attributes</string>
+    </property>
+    <addaction name="action_attribute_display"/>
+    <addaction name="action_close_all_attribute_windows"/>
+   </widget>
    <addaction name="menuControl"/>
+   <addaction name="menuAttributes"/>
    <addaction name="menuOptions"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -10484,6 +10492,22 @@
    </property>
    <property name="text">
     <string>Enable all input limits</string>
+   </property>
+  </action>
+  <action name="action_attribute_display">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Display attribute values/graphs...</string>
+   </property>
+  </action>
+  <action name="action_close_all_attribute_windows">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Close all value/graph windows</string>
    </property>
   </action>
  </widget>
@@ -10640,10 +10664,10 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="button_group_rainfall"/>
-  <buttongroup name="button_group_temperature"/>
-  <buttongroup name="button_group_pressure"/>
   <buttongroup name="button_group_wind_direction"/>
+  <buttongroup name="button_group_temperature"/>
+  <buttongroup name="button_group_rainfall"/>
+  <buttongroup name="button_group_pressure"/>
   <buttongroup name="button_group_humidity"/>
   <buttongroup name="button_group_wind_speed"/>
  </buttongroups>

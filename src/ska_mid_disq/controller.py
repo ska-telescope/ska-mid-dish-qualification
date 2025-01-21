@@ -9,7 +9,7 @@ from typing import Any
 from PyQt6.QtCore import QCoreApplication, QObject, pyqtSignal
 
 from ska_mid_disq import Command, ResultCode, configuration, model
-from ska_mid_disq.constants import ServerType
+from ska_mid_disq.constants import PollerType
 
 logger = logging.getLogger("gui.controller")
 
@@ -204,8 +204,25 @@ class Controller(QObject):
         :param registrations: A list containing events to subscribe to.
         """
         self._model.register_event_updates(
-            ServerType.OPCUA, registrations, self._handle_closed_connection
+            PollerType.OPCUA, registrations, self._handle_closed_connection
         )
+
+    def event_q_poller_stop(self, poller_type: PollerType) -> None:
+        """
+        Stop one of the event queue pollers.
+
+        :param poller_type: Queue poller type.
+        """
+        self._model.stop_event_q_poller(poller_type)
+
+    def attribute_type_get(self, attribute: str) -> list[str]:
+        """
+        Get the attribute data type.
+
+        If the type is "Enumeration", the list also contains the associated string
+        values.
+        """
+        return self._model.get_attribute_type(attribute)
 
     def command_slew2abs_azim_elev(
         self,
@@ -617,6 +634,7 @@ class Controller(QObject):
 
     def disconnect_weather_station(self):
         """Disconnect from the weather station."""
+        self.update_polled_weather_station_sensors([])
         self._model.weather_station_disconnect()
         self.emit_ui_status_message("INFO", "Disconnected from weather station.")
         self.weather_station_disconnected.emit()
@@ -627,7 +645,7 @@ class Controller(QObject):
 
         :param sensors: A list of weather station attributes.
         """
-        self._model.register_event_updates(ServerType.WMS, sensors)
+        self._model.register_event_updates(PollerType.WMS, sensors)
 
     def is_weather_station_connected(self) -> bool:
         """
@@ -651,12 +669,39 @@ class Controller(QObject):
 
         :param sensor_details: An exhaustive list of sensors to be polled.
         """
-        self._model.stop_event_q_poller(ServerType.WMS)
+        self.event_q_poller_stop(PollerType.WMS)
         self._model.weather_station_polling_update(
             [sensor.rsplit(".", 1)[-1] for sensor in scu_sensors]
         )
         self.subscribe_weather_station_updates(scu_sensors)
 
-        # As this changes the attributes available in sculib, the recording config needs
-        # to be reset so that it is recreated with the new attributes.
+        # As this changes the attributes available in sculib, the recording config and
+        # live display graph config need to be reset so that they are recreated with the
+        # new attributes.
         self.recording_config = {}
+        self.graph_config = {}
+
+    # ----------------
+    # Attribute Graphs
+    # ----------------
+    @property
+    def graph_config(self) -> dict[str, dict[str, bool | int]]:
+        """
+        Get the stored graph selection configuration.
+
+        :return: A list of strings representing the graph configuration.
+        """
+        return self._model.graph_config
+
+    @graph_config.setter
+    def graph_config(self, config: dict[str, dict[str, bool | int]]) -> None:
+        """
+        Store the graph selection configuration.
+
+        :param config: A list of strings representing the graph configuration.
+        """
+        self._model.graph_config = config
+
+    def subscribe_graph_attribute_updates(self, attribute):
+        """Register event updates for graph type."""
+        self._model.register_event_updates(PollerType.GRAPH, [attribute])

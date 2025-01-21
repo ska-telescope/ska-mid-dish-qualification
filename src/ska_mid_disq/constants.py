@@ -10,6 +10,7 @@ USER_CACHE_DIR: Final = user_cache_path(appauthor="SKAO", appname="disq")
 USER_CONFIG_DIR: Final = user_config_path(appauthor="SKAO", appname="disq")
 SUBSCRIPTION_RATE_MS: Final = 100
 CURRENT_POINTING_NODE = "Pointing.Status.CurrentPointing"
+SKAO_ICON_PATH: Final = ":/icons/skao.ico"
 
 
 # Enumerations
@@ -54,8 +55,9 @@ class StatusTreeCategory(IntEnum):
     WARNING = 1
 
 
-class ServerType(Enum):
+class PollerType(Enum):
     """Possible types of connected servers."""
 
     OPCUA = "OPCUA"
     WMS = "WMS"
+    GRAPH = "GRAPH"
