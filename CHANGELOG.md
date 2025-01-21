@@ -6,6 +6,8 @@
     - WOM-454, WOM-579, WOM-580, WOM-609: Integrated the Weather Monitoring System into DiSQ on the 'Weather' tab.
     - WOM-543: Added a global option to enable or disable min/max limits on all inputs.
     - WOM-591: Display the current and end index of the loaded track table in the 'Track' tab.
+- Bug fixes:
+    - WOM-597: Check that the path in the track table file input field is a real file and not a directory to prevent an error message when pressing 'Load Track Table File'.
 
 ## 0.5.2
 
