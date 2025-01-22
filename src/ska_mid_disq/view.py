@@ -1643,9 +1643,17 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         else:
             str_val = str(val)
         for widget in widgets:
+            wgt_name = widget.objectName()
             if isinstance(widget, (QtWidgets.QLineEdit, QtWidgets.QLabel)):
                 widget.setText(str_val)
-            elif isinstance(widget, QtWidgets.QDoubleSpinBox) and val is not None:
+            elif (
+                isinstance(widget, QtWidgets.QDoubleSpinBox)  # always inputs
+                and val is not None
+                and not widget.hasFocus()  # user not busy editing
+                and not (  # block any axis input widgets from updating
+                    "azim" in wgt_name or "elev" in wgt_name or "index" in wgt_name
+                )
+            ):
                 widget.setValue(val)
 
     def _update_opcua_enum_widget(
