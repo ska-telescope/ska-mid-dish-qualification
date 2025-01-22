@@ -23,7 +23,7 @@ source .venv/bin/activate
 ### For users
 Users can easily install the latest development build directly from the project's package registry: 
 ```
-pip install ska-mid-disq --index-url https://gitlab.com/api/v4/projects/47618837/packages/pypi/simple
+pip install ska-mid-disq --index-url https://gitlab.com/api/v4/projects/47618837/packages/pypi/simple --extra-index-url https://artefact.skao.int/repository/pypi-all/simple
 ```
 
 In other words, users should not keep a git clone and pull from main anymore to get the latest changes,

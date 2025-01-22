@@ -1052,7 +1052,9 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_power_mode_normal: QtWidgets.QRadioButton
         self.button_power_mode_normal.setChecked(True)
         self.button_power_mode_low: QtWidgets.QRadioButton
-        self.button_power_mode_low.setChecked(False)
+        self.button_power_mode_group = QtWidgets.QButtonGroup()
+        self.button_power_mode_group.addButton(self.button_power_mode_normal, 0)
+        self.button_power_mode_group.addButton(self.button_power_mode_low, 1)
         self.spinbox_power_lim_kw: QtWidgets.QDoubleSpinBox
         self.button_set_power_mode: QtWidgets.QPushButton
         self.button_set_power_mode.clicked.connect(self.set_power_mode_clicked)
@@ -1327,7 +1329,7 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.controller.recording_status.connect(self.recording_status_update)
         self.recording_start_success = False
 
-        # Track tab load widgets
+        # Track tab load table widgets
         self.button_select_track_table_file: QtWidgets.QPushButton
         self.button_select_track_table_file.clicked.connect(
             self.track_table_file_button_clicked
@@ -1349,17 +1351,25 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
         self.button_load_track_table: QtWidgets.QPushButton
         self.button_load_track_table.clicked.connect(self.load_track_table_clicked)
 
-        # Track tab start widgets
+        # Track tab control widgets
         self.combobox_track_start_interpol_type: QtWidgets.QComboBox
         self.button_start_track_now: QtWidgets.QRadioButton
         self.button_start_track_now.setChecked(True)
         self.button_start_track_at: QtWidgets.QRadioButton
         self.button_start_track_at.toggled.connect(self.button_start_track_at_toggled)
-        self.button_start_track_at.setChecked(False)
+        self.button_start_track_group = QtWidgets.QButtonGroup()
+        self.button_start_track_group.addButton(self.button_start_track_at, 0)
+        self.button_start_track_group.addButton(self.button_start_track_now, 1)
         self.line_edit_start_track_at: QtWidgets.QLineEdit
         self.line_edit_start_track_at.setEnabled(False)
         self.button_start_track_table: QtWidgets.QPushButton
         self.button_start_track_table.clicked.connect(self.start_tracking_clicked)
+        self.spinbox_source_threshold_radius: LimitedDisplaySpinBox
+        self.spinbox_source_threshold_period: LimitedDisplaySpinBox
+        self.button_set_on_source_threshold: QtWidgets.QPushButton
+        self.button_set_on_source_threshold.clicked.connect(
+            self.set_on_source_threshold_clicked
+        )
 
         # Track tab time widgets
         self.button_set_time_source: QtWidgets.QPushButton
@@ -2127,6 +2137,13 @@ class MainView(StatusBarMixin, QtWidgets.QMainWindow):
             self.combobox_track_start_interpol_type.currentText(),
             self.button_start_track_now.isChecked(),
             self.line_edit_start_track_at.text(),
+        )
+
+    def set_on_source_threshold_clicked(self):
+        """Set the on source tracking threshold."""
+        self.controller.command_set_on_source_threshold(
+            self.spinbox_source_threshold_radius.value(),
+            self.spinbox_source_threshold_period.value(),
         )
 
     def set_time_source_clicked(self):

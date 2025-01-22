@@ -96,8 +96,17 @@ set_time_source_input_widgets = [
     "line_edit_ntp_source_addr",
 ]
 set_power_mode_input_widgets = [
-    "button_power_mode_low",
+    "button_power_mode_group",
     "spinbox_power_lim_kw",
+]
+start_tracking_input_widgets = [
+    "combobox_track_start_interpol_type",
+    "button_start_track_group",
+    "line_edit_start_track_at",
+]
+set_on_source_threshold_input_widgets = [
+    "spinbox_source_threshold_radius",
+    "spinbox_source_threshold_period",
 ]
 
 
@@ -133,9 +142,25 @@ set_power_mode_input_widgets = [
             "set_power_mode_clicked",
             None,
             "Management.Commands.SetPowerMode",
+            (True, 10.0),
+            set_power_mode_input_widgets,
+            (("CommandDone", 10), ("CommandActivated", 9)),
+        ),
+        (
+            "set_power_mode_clicked",
+            None,
+            "Management.Commands.SetPowerMode",
             (False, 20.0),
             set_power_mode_input_widgets,
-            (("CommandRejected", 2), ("CommandActivated", 9)),  # TODO: CETC sim?
+            (("CommandDone", 10), ("CommandActivated", 9)),
+        ),
+        (
+            "set_on_source_threshold_clicked",
+            None,
+            "Management.Commands.SetOnSourceThreshold",
+            (20.0, 10.0),
+            set_on_source_threshold_input_widgets,
+            (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
             "unstow_button_clicked",
@@ -185,6 +210,22 @@ set_power_mode_input_widgets = [
             None,
             None,
             (("CommandDone", 10), ("CommandActivated", 9)),
+        ),
+        (
+            "start_tracking_clicked",
+            None,
+            "Tracking.Commands.TrackStart",
+            ("Spline", True),
+            start_tracking_input_widgets,
+            (("CommandRejected", 2), ("CommandActivated", 9)),  # TODO: CETC sim?
+        ),
+        (
+            "start_tracking_clicked",
+            None,
+            "Tracking.Commands.TrackStart",
+            ("Newton", False, "5.0"),
+            start_tracking_input_widgets,
+            (("CommandRejected", 2), ("CommandActivated", 9)),  # TODO: CETC sim?
         ),
         (
             "slew2abs_button_clicked",
@@ -405,8 +446,10 @@ def test_opcua_command_slot_function(
         getattr(disq_app, slot_function)(slot_argument)
         cmd_args.insert(0, slot_argument)
 
-    # Verify the command status bar was updated
-    assert f"Command: {command}{tuple(cmd_args)}" in disq_app.cmd_status_label.text()
+    # Verify the command status bar was updated (ignoring single quote characters)
+    assert f"Command: {command}{tuple(cmd_args)}".replace(
+        "'", ""
+    ) in disq_app.cmd_status_label.text().replace("'", "")
 
     # Check for expected response from the OPC UA server
     with_plc = request.config.getoption("--with-plc")
