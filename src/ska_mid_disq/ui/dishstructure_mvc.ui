@@ -10683,12 +10683,12 @@
   <customwidget>
    <class>ToggleSwitch</class>
    <extends>QPushButton</extends>
-   <header>ska_mid_disq.view</header>
+   <header location="global">ska_mid_disq.view</header>
   </customwidget>
   <customwidget>
    <class>LimitedDisplaySpinBox</class>
    <extends>QDoubleSpinBox</extends>
-   <header>ska_mid_disq.view</header>
+   <header location="global">ska_mid_disq.view</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -10822,11 +10822,11 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="button_group_wind_direction"/>
-  <buttongroup name="button_group_temperature"/>
-  <buttongroup name="button_group_rainfall"/>
-  <buttongroup name="button_group_pressure"/>
   <buttongroup name="button_group_humidity"/>
   <buttongroup name="button_group_wind_direction"/>
+  <buttongroup name="button_group_rainfall"/>
+  <buttongroup name="button_group_pressure"/>
+  <buttongroup name="button_group_temperature"/>
+  <buttongroup name="button_group_wind_speed"/>
  </buttongroups>
 </ui>

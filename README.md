@@ -52,7 +52,7 @@ git clone --recurse-submodules git@gitlab.com:ska-telescope/ska-mid-disq.git
 
 Then install as an ["editable" development installation](https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs):
 ```
-pip install -e .[dev]
+pip install -e .[dev] --index-url https://artefact.skao.int/repository/pypi-all/simple
 ```
 
 #### How to develop the [Steering Control Unit](https://gitlab.com/ska-telescope/ska-mid-dish-steering-control) simultaneously with DiSQ

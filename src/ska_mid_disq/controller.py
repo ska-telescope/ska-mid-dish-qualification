@@ -6,7 +6,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
-from PyQt6.QtCore import QCoreApplication, QObject, pyqtSignal
+from PySide6.QtCore import QCoreApplication, QObject, Signal
 
 from ska_mid_disq import Command, ResultCode, configuration, model
 from ska_mid_disq.constants import PollerType
@@ -26,12 +26,12 @@ class Controller(QObject):
     :param parent: The parent object, if any.
     """
 
-    ui_status_message = pyqtSignal(str)
-    server_connected = pyqtSignal()
-    server_disconnected = pyqtSignal()
-    recording_status = pyqtSignal(bool)
-    weather_station_connected = pyqtSignal()
-    weather_station_disconnected = pyqtSignal()
+    ui_status_message = Signal(str)
+    server_connected = Signal()
+    server_disconnected = Signal()
+    recording_status = Signal(bool)
+    weather_station_connected = Signal()
+    weather_station_disconnected = Signal()
 
     def __init__(self, mvc_model: model.Model, parent: QObject | None = None) -> None:
         """
@@ -173,7 +173,7 @@ class Controller(QObject):
             return
         QCoreApplication.processEvents()
         try:
-            self._model.connect(connection_details)
+            self._model.connect_server(connection_details)
         except (OSError, RuntimeError) as e:
             self.emit_ui_status_message(
                 "ERROR", f"Unable to connect to server. Error: {e}"
@@ -193,7 +193,7 @@ class Controller(QObject):
         This method disconnects from the server, emits a status message signal, and
         emits a server disconnected signal.
         """
-        self._model.disconnect()
+        self._model.disconnect_server()
         self.emit_ui_status_message("INFO", "Disconnected from server")
         self.server_disconnected.emit()
 

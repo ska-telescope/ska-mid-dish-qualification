@@ -3,15 +3,15 @@ ignore=
     ds_opcua_server_mock.py,
     ui_resources.py,
 
-extension-pkg-allow-list=PyQt6
+extension-pkg-allow-list=PySide6
 
 [FORMAT]
 max-line-length = 88
 
 [MESSAGES CONTROL]
 disable=
-    import-error,       # issue with PyQt6 import in CI environment
-    no-name-in-module,  # issue with PyQt6 import in CI environment
+    import-error,
+    no-name-in-module,
     duplicate-code,
     fixme,
     logging-fstring-interpolation

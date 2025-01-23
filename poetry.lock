@@ -2539,137 +2539,6 @@ url = "https://artefact.skao.int/repository/pypi-all/simple"
 reference = "ska"
 
 [[package]]
-name = "pyqt6"
-version = "6.4.2"
-description = "Python bindings for the Qt cross platform application toolkit"
-optional = false
-python-versions = ">=3.6.1"
-files = [
-    {file = "PyQt6-6.4.2-cp37-abi3-macosx_10_14_universal2.whl", hash = "sha256:c128bc0f17833e324593e3db83e99470d451a197dd17ff0333927b946c935bd9"},
-    {file = "PyQt6-6.4.2-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:18d1daf98d9236d55102cdadafd1056f5802f3c9288fcf7238569937b71a89f0"},
-    {file = "PyQt6-6.4.2-cp37-abi3-win_amd64.whl", hash = "sha256:25bd399b4a95dce65d5f937c1aa85d3c7e14a21745ae2a4ca14c0116cd104290"},
-    {file = "PyQt6-6.4.2.tar.gz", hash = "sha256:740244f608fe15ee1d89695c43f31a14caeca41c4f02ac36c86dfba4a5d5813d"},
-]
-
-[package.dependencies]
-PyQt6-Qt6 = ">=6.4.0"
-PyQt6-sip = ">=13.4,<14"
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
-name = "pyqt6-plugins"
-version = "6.4.2.2.3"
-description = "PyQt Designer and QML plugins"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "pyqt6_plugins-6.4.2.2.3-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:01f9ce8538894970354ee1a6084685b18076c87fc71042fc1076b29ef13f5783"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:49c2704edc09dbfd95557701d6deb287f2e1a5df7eee1345d02d234118942b0d"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp310-cp310-win_amd64.whl", hash = "sha256:8d021627e73de9768ab1d8e30fbe0df02b82e070e30e2990ecf2c9da5834d515"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp311-cp311-macosx_10_14_universal2.whl", hash = "sha256:680c483d03442902fff13e519ca890d2dded4fe14d9ad9b088b5c8ce7040ec9b"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:0e7fc73da2272d401b60eab16b17ba123ebc58b98fdd05de12fd79bc35544c8f"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp311-cp311-win_amd64.whl", hash = "sha256:bca16efe5c26b1cddbfd2b66c5464f8a1ec7d7226fd95a63d32326707b0bb665"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:f4b7dafd93fe7478d61145fc7b4f6ced261b17459fe5553f2ab8752a40d29155"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:77ecdcb0bdf3e52a1a2c30ab0e9fac0d43803e8c517c507bb8d6055ae61a9ae1"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp37-cp37m-win_amd64.whl", hash = "sha256:f1762458710138f23496be5b3fae593b04248db655189a8d2bd4fa5efbfc10a1"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp38-cp38-macosx_10_15_x86_64.whl", hash = "sha256:a63ee26b7cd4415ddf8758c30064b01e19f31a286404ecfe430ae93c1c7b2a1c"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:91a40447879dfc8c7d232bef04182fb80e2e9698dfeb7a7cf47832f785fbd7f6"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp38-cp38-win_amd64.whl", hash = "sha256:e42f00a73ed91fc93fac27b169dace6928f4eb7a6b1c143345c27158594528b0"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:bea5caa5821f540c4577b1eb22723bd2c150792c2c69292518d899d25cb2a8e0"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:caac3299a28b1207c4844a4e89b0f4402cab2673a66e9bf46459786e45090b0a"},
-    {file = "pyqt6_plugins-6.4.2.2.3-cp39-cp39-win_amd64.whl", hash = "sha256:07985e1289ca066c5e467303f34e31ff56fe217a85535b77ba72d7f7f5d9b7a2"},
-]
-
-[package.dependencies]
-click = "*"
-pyqt6 = "6.4.2"
-pyqt6-qt6 = "6.4.3"
-qt6-tools = ">=6.4.3.1.2,<6.4.3.2"
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
-name = "pyqt6-qt6"
-version = "6.4.3"
-description = "The subset of a Qt installation needed by PyQt6."
-optional = false
-python-versions = "*"
-files = [
-    {file = "PyQt6_Qt6-6.4.3-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:b133bbc53e1cc05aafd78bfd3a577826481a976021d041c1c57d7dadc7de1c11"},
-    {file = "PyQt6_Qt6-6.4.3-py3-none-macosx_11_0_arm64.whl", hash = "sha256:27cc19976c872ae7111fcab8a9e9eae8c5ec5e55bfb6938a379551148b85f5b0"},
-    {file = "PyQt6_Qt6-6.4.3-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:96f30cca49af18f6863c66576b90f2f29987dc35397994d0575b197226c5b328"},
-    {file = "PyQt6_Qt6-6.4.3-py3-none-win_amd64.whl", hash = "sha256:b0151097aa93235676c0f83ce23916ee31ca8584bd1b45923725068404542cc2"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
-name = "pyqt6-sip"
-version = "13.8.0"
-description = "The sip module support for PyQt6"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "PyQt6_sip-13.8.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:cedd554c643e54c4c2e12b5874781a87441a1b405acf3650a4a2e1df42aae231"},
-    {file = "PyQt6_sip-13.8.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f57275b5af774529f9838adcfb58869ba3ebdaf805daea113bb0697a96a3f3cb"},
-    {file = "PyQt6_sip-13.8.0-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:835ed22eab977f75fd77e60d4ff308a1fa794b1d0c04849311f36d2a080cdf3b"},
-    {file = "PyQt6_sip-13.8.0-cp310-cp310-win_amd64.whl", hash = "sha256:d8b22a6850917c68ce83fc152a8b606ecb2efaaeed35be53110468885d6cdd9d"},
-    {file = "PyQt6_sip-13.8.0-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:b203b6fbae4a8f2d27f35b7df46200057033d9ecd9134bcf30e3eab66d43572c"},
-    {file = "PyQt6_sip-13.8.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:beaddc1ec96b342f4e239702f91802706a80cb403166c2da318cec4ad8b790cb"},
-    {file = "PyQt6_sip-13.8.0-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:a5c086b7c9c7996ea9b7522646cc24eebbf3591ec9dd38f65c0a3fdb0dbeaac7"},
-    {file = "PyQt6_sip-13.8.0-cp311-cp311-win_amd64.whl", hash = "sha256:dd168667addf01f8a4b0fa7755323e43e4cd12ca4bade558c61f713a5d48ba1a"},
-    {file = "PyQt6_sip-13.8.0-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:33d9b399fc9c9dc99496266842b0fb2735d924604774e97cf9b555667cc0fc59"},
-    {file = "PyQt6_sip-13.8.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:056af69d1d8d28d5968066ec5da908afd82fc0be07b67cf2b84b9f02228416ce"},
-    {file = "PyQt6_sip-13.8.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:08dd81037a2864982ece2bf9891f3bf4558e247034e112993ea1a3fe239458cb"},
-    {file = "PyQt6_sip-13.8.0-cp312-cp312-win_amd64.whl", hash = "sha256:fbb249b82c53180f1420571ece5dc24fea1188ba435923edd055599dffe7abfb"},
-    {file = "PyQt6_sip-13.8.0-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:6bce6bc5870d9e87efe5338b1ee4a7b9d7d26cdd16a79a5757d80b6f25e71edc"},
-    {file = "PyQt6_sip-13.8.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:cd81144b0770084e8005d3a121c9382e6f9bc8d0bb320dd618718ffe5090e0e6"},
-    {file = "PyQt6_sip-13.8.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:755beb5d271d081e56618fb30342cdd901464f721450495cb7cb0212764da89e"},
-    {file = "PyQt6_sip-13.8.0-cp38-cp38-win_amd64.whl", hash = "sha256:7a0bbc0918eab5b6351735d40cf22cbfa5aa2476b55e0d5fe881aeed7d871c29"},
-    {file = "PyQt6_sip-13.8.0-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:7f84c472afdc7d316ff683f63129350d645ef82d9b3fd75a609b08472d1f7291"},
-    {file = "PyQt6_sip-13.8.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:b1bf29e95f10a8a00819dac804ca7e5eba5fc1769adcd74c837c11477bf81954"},
-    {file = "PyQt6_sip-13.8.0-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:9ea9223c94906efd68148f12ae45b51a21d67e86704225ddc92bce9c54e4d93c"},
-    {file = "PyQt6_sip-13.8.0-cp39-cp39-win_amd64.whl", hash = "sha256:2559afa68825d08de09d71c42f3b6ad839dcc30f91e7c6d0785e07830d5541a5"},
-    {file = "PyQt6_sip-13.8.0.tar.gz", hash = "sha256:2f74cf3d6d9cab5152bd9f49d570b2dfb87553ebb5c4919abfde27f5b9fd69d4"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
-name = "pyqt6-tools"
-version = "6.4.2.3.3"
-description = "PyQt Designer and QML plugins"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "pyqt6_tools-6.4.2.3.3-py3-none-any.whl", hash = "sha256:dfeea682e64fb757f447328742402682eaba9784faf25ceedbd6e38e3d8871b7"},
-]
-
-[package.dependencies]
-click = "*"
-pyqt6 = "6.4.2"
-pyqt6-plugins = ">=6.4.2.2.2,<6.4.2.3"
-python-dotenv = "*"
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
 name = "pyqtgraph"
 version = "0.13.7"
 description = "Scientific Graphics and GUI Library for Python"
@@ -2682,6 +2551,78 @@ files = [
 
 [package.dependencies]
 numpy = ">=1.22.0"
+
+[package.source]
+type = "legacy"
+url = "https://artefact.skao.int/repository/pypi-all/simple"
+reference = "ska"
+
+[[package]]
+name = "pyside6"
+version = "6.4.3"
+description = "Python bindings for the Qt cross-platform application and UI framework"
+optional = false
+python-versions = "<3.12,>=3.7"
+files = [
+    {file = "PySide6-6.4.3-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:1389e818ecf794b52b570e4617c0813865fd9a790ee077fedabbd8aac6da7416"},
+    {file = "PySide6-6.4.3-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:706324dd7a16854073c3b08de608f9ced868d567b8b202a88b7b9985f54ef30c"},
+    {file = "PySide6-6.4.3-cp37-abi3-win_amd64.whl", hash = "sha256:1c1c7e6fb8e2d0fe041e278beefdb033c364e67867565f824d4dc40352906f42"},
+    {file = "PySide6-6.4.3-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:73883c13bc44221507abc2b3d6a7bebbf0e067844f7d0a6e16b2df177aab89d8"},
+    {file = "PySide6-6.4.3-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:bc37b7790ca69b0813b86d3c70c39db740a0d15dc1fc7dbb8e6a0499a96c6461"},
+    {file = "PySide6-6.4.3-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:137831ed89f79ff8c68d21457abbee82f61dedacc19bbefc8eb7d80da1703aad"},
+]
+
+[package.dependencies]
+PySide6-Addons = "6.4.3"
+PySide6-Essentials = "6.4.3"
+shiboken6 = "6.4.3"
+
+[package.source]
+type = "legacy"
+url = "https://artefact.skao.int/repository/pypi-all/simple"
+reference = "ska"
+
+[[package]]
+name = "pyside6-addons"
+version = "6.4.3"
+description = "Python bindings for the Qt cross-platform application and UI framework (Addons)"
+optional = false
+python-versions = "<3.12,>=3.7"
+files = [
+    {file = "PySide6_Addons-6.4.3-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:60781372ccf9f9cbc2a1aa7a41318111c92850f2434dbfbf6fa215a89681de1e"},
+    {file = "PySide6_Addons-6.4.3-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:062593d7810bb53e51c1268b8cba23e47e4600afba0e981a26b57ff05617b1c6"},
+    {file = "PySide6_Addons-6.4.3-cp37-abi3-win_amd64.whl", hash = "sha256:493527ed86ee903e496f761da66edc7c237e12a8465d62075fe206b2874585e8"},
+    {file = "PySide6_Addons-6.4.3-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:b95e6a98b1a71aaa2bc97e4a6a4e18e78d6141ff161eff598a3b85850eaacd4a"},
+    {file = "PySide6_Addons-6.4.3-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:9d9a607b7c233077f907baa326f55759427a3ae47efff0ca19e72007778e15e1"},
+    {file = "PySide6_Addons-6.4.3-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:4e0d0ab705a481e7b4714f06b3648818a0ef80404ea976becea43a13280cc7f3"},
+]
+
+[package.dependencies]
+PySide6-Essentials = "6.4.3"
+shiboken6 = "6.4.3"
+
+[package.source]
+type = "legacy"
+url = "https://artefact.skao.int/repository/pypi-all/simple"
+reference = "ska"
+
+[[package]]
+name = "pyside6-essentials"
+version = "6.4.3"
+description = "Python bindings for the Qt cross-platform application and UI framework (Essentials)"
+optional = false
+python-versions = "<3.12,>=3.7"
+files = [
+    {file = "PySide6_Essentials-6.4.3-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:62f7f80e99eaaa3b3f7014170bf01c2fa2e76955805f24c443630abc10793abb"},
+    {file = "PySide6_Essentials-6.4.3-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:7983cf2152dfebf3c2d0767d12e452c4bd0809aa53777fef949a7ff4b0ef8a49"},
+    {file = "PySide6_Essentials-6.4.3-cp37-abi3-win_amd64.whl", hash = "sha256:9e1964de12b6ea351c69032a6e15dcc29f48d561dfd579e67adc15bad3be1d45"},
+    {file = "PySide6_Essentials-6.4.3-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:c41cbef7a25c67da11b6f6281e60f59c21a198c1da471821e43963e1b8f196f7"},
+    {file = "PySide6_Essentials-6.4.3-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:c07e5c425b8720fe8ecdbd46f36d7ab90ffbe27ac0258fea326dcf153484b3c7"},
+    {file = "PySide6_Essentials-6.4.3-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:cadd2197f534f7ff55c7718ce50c61ab6d13270449dfde8e27f46b9500b9fe56"},
+]
+
+[package.dependencies]
+shiboken6 = "6.4.3"
 
 [package.source]
 type = "legacy"
@@ -2805,25 +2746,6 @@ url = "https://artefact.skao.int/repository/pypi-all/simple"
 reference = "ska"
 
 [[package]]
-name = "python-dotenv"
-version = "1.0.1"
-description = "Read key-value pairs from a .env file and set them as environment variables"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "python-dotenv-1.0.1.tar.gz", hash = "sha256:e324ee90a023d808f1959c46bcbc04446a10ced277783dc6ee09987c37ec10ca"},
-    {file = "python_dotenv-1.0.1-py3-none-any.whl", hash = "sha256:f7b63ef50f1b690dddf550d03497b66d609393b40b564ed0d674909a68ebf16a"},
-]
-
-[package.extras]
-cli = ["click (>=5.0)"]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
 name = "pytz"
 version = "2024.2"
 description = "World timezone definitions, modern and historical"
@@ -2916,42 +2838,6 @@ files = [
     {file = "PyYAML-6.0.2-cp39-cp39-win_amd64.whl", hash = "sha256:39693e1f8320ae4f43943590b49779ffb98acb81f788220ea932a6b6c51004d8"},
     {file = "pyyaml-6.0.2.tar.gz", hash = "sha256:d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e"},
 ]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
-name = "qt6-applications"
-version = "6.4.3.2.3"
-description = "The collection of Qt tools easily installable in Python"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "qt6_applications-6.4.3.2.3-py3-none-macosx_10_14_universal2.whl", hash = "sha256:aa4d1562ab154e32809045a08b7c2cd6fe86f061bbbe179eaba3580397168005"},
-    {file = "qt6_applications-6.4.3.2.3-py3-none-manylinux_2_17_x86_64.whl", hash = "sha256:f9c47faf46a71cf1b61b6ffd1908783454c99742fbfd59c49d523f29f035467e"},
-    {file = "qt6_applications-6.4.3.2.3-py3-none-win_amd64.whl", hash = "sha256:029a24611a45fa77a403476ce1a54f3046ef4bde5cfaa5ee6477dc17f8053be2"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://artefact.skao.int/repository/pypi-all/simple"
-reference = "ska"
-
-[[package]]
-name = "qt6-tools"
-version = "6.4.3.1.3"
-description = "Wrappers for the raw Qt programs from qt6-applications"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "qt6_tools-6.4.3.1.3-py3-none-any.whl", hash = "sha256:dd01cdf830ec8a14f353b7f6d0b81eb4d7472b86f9fa8e872c8ed9c3465726e3"},
-]
-
-[package.dependencies]
-click = "*"
-qt6-applications = ">=6.4.3.2.2,<6.4.3.3"
 
 [package.source]
 type = "legacy"
@@ -3166,6 +3052,26 @@ doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-
 enabler = ["pytest-enabler (>=2.2)"]
 test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test (>=5.5)", "packaging (>=24.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-home (>=0.5)", "pytest-perf", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel (>=0.44.0)"]
 type = ["importlib_metadata (>=7.0.2)", "jaraco.develop (>=7.21)", "mypy (>=1.12,<1.14)", "pytest-mypy"]
+
+[package.source]
+type = "legacy"
+url = "https://artefact.skao.int/repository/pypi-all/simple"
+reference = "ska"
+
+[[package]]
+name = "shiboken6"
+version = "6.4.3"
+description = "Python/C++ bindings helper module"
+optional = false
+python-versions = "<3.12,>=3.7"
+files = [
+    {file = "shiboken6-6.4.3-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:0b6d6a571131b94546aa784dc00221ba7afc90515354eaae65525753a84b6c4a"},
+    {file = "shiboken6-6.4.3-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:74570273004d2e481e55618150dfaee7ae253027b438066e216b339fae1e999a"},
+    {file = "shiboken6-6.4.3-cp37-abi3-win_amd64.whl", hash = "sha256:0fee602ba02a0d1a6e4d4a69ddc5375ec7bed2ac5b51f06266a919d896517ee5"},
+    {file = "shiboken6-6.4.3-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:6504ed8b01bde387cebc035687deae77a0bddcef3339e2e5b0e5bf9e6258e860"},
+    {file = "shiboken6-6.4.3-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:73af15fa9f6b7305849116308923d437354ecabefc0546dc514901ec3bae4d89"},
+    {file = "shiboken6-6.4.3-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:4a63978b1a4ffed32776413a213a0f4e0a7fde2ebe06ac2ac70f99103fed185b"},
+]
 
 [package.source]
 type = "legacy"
@@ -3795,4 +3701,4 @@ reference = "ska"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <3.12"
-content-hash = "b7bc65f2bcccf4b62b7d36792f8ef64d6984027c72de722fefc656c95054a06a"
+content-hash = "ebe504b1ae5053d2d07dae349286a5fb990d3f0d71137b419a77af8616cefef2"

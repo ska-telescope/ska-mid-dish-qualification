@@ -9,7 +9,7 @@ from pathlib import Path
 from queue import Empty, Queue
 from typing import Any, Callable, Final, Type
 
-from PyQt6.QtCore import QObject, QThread, pyqtBoundSignal, pyqtSignal
+from PySide6.QtCore import QObject, QThread, Signal, SignalInstance
 from ska_mid_dish_steering_control.sculib import AttrDict
 
 from ska_mid_disq import (
@@ -48,7 +48,7 @@ class QueuePollThread(QThread):
     :param signal: The signal used to communicate data from the thread.
     """
 
-    def __init__(self, signal: pyqtBoundSignal) -> None:
+    def __init__(self, signal: SignalInstance) -> None:
         """
         Initialize the SignalProcessor object.
 
@@ -68,9 +68,7 @@ class QueuePollThread(QThread):
         """
         self._running = True
         logger.debug(
-            "QueuePollThread: Starting queue poll thread %s(%d)",
-            QThread.currentThread(),
-            QThread.currentThreadId(),
+            "QueuePollThread: Starting queue poll thread %s", QThread.currentThread()
         )
         while self._running:
             try:
@@ -114,9 +112,9 @@ class StatusTreeHierarchy(QueuePollThread):
     def __init__(
         self,
         category: StatusTreeCategory,
-        status_signal: pyqtBoundSignal,
-        group_signal: pyqtBoundSignal,
-        global_signal: pyqtBoundSignal,
+        status_signal: SignalInstance,
+        group_signal: SignalInstance,
+        global_signal: SignalInstance,
         status_attributes: list[str],
     ) -> None:
         """A class to represent a hierarchy of status attributes.
@@ -126,8 +124,8 @@ class StatusTreeHierarchy(QueuePollThread):
         """
         self._category = category
         super().__init__(status_signal)
-        self._group_signal: pyqtBoundSignal = group_signal
-        self._global_signal: pyqtBoundSignal = global_signal
+        self._group_signal: SignalInstance = group_signal
+        self._global_signal: SignalInstance = global_signal
         self._status_attribute_full_names: list[str] = status_attributes
         self._status: dict[str, dict[str, str]] = {}
         self._group_summary_status: dict[str, bool] = {}
@@ -248,13 +246,13 @@ class Model(QObject):
     """
 
     # define signals here
-    command_response = pyqtSignal(str)
-    data_received = pyqtSignal(dict)
-    status_attribute_update = pyqtSignal(str, str, datetime)
-    status_group_update = pyqtSignal(int, str, bool)
-    status_global_update = pyqtSignal(int, bool)
-    weather_station_data_received = pyqtSignal(dict)
-    attribute_graph_data_received = pyqtSignal(dict)
+    command_response = Signal(str)
+    data_received = Signal(dict)
+    status_attribute_update = Signal(str, str, datetime)
+    status_group_update = Signal(int, str, bool)
+    status_global_update = Signal(int, bool)
+    weather_station_data_received = Signal(dict)
+    attribute_graph_data_received = Signal(dict)
 
     def __init__(self, parent: QObject | None = None) -> None:
         """
@@ -274,7 +272,7 @@ class Model(QObject):
         self.status_warning_tree: StatusTreeHierarchy | None = None
         self.status_error_tree: StatusTreeHierarchy | None = None
 
-    def connect(self, connect_details: dict) -> None:
+    def connect_server(self, connect_details: dict) -> None:
         """
         Connect to the server using the provided connection details.
 
@@ -287,7 +285,7 @@ class Model(QObject):
         """
         logger.debug("Connecting to server: %s", connect_details)
         if self.is_connected():
-            self.disconnect()
+            self.disconnect_server()
         try:
             self._scu = SCUWeatherStation(
                 **connect_details,
@@ -373,7 +371,7 @@ class Model(QObject):
             self.status_error_tree.stop()
             self.status_error_tree = None
 
-    def disconnect(self) -> None:
+    def disconnect_server(self) -> None:
         """
         Disconnect from the SCU and clean up resources.
 
