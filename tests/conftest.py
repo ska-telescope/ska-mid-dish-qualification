@@ -4,10 +4,12 @@ import logging
 from unittest.mock import MagicMock
 
 import pytest
+from PySide6.QtCore import QFile
+from PySide6.QtUiTools import QUiLoader
 
 from ska_mid_disq.controller import Controller
 from ska_mid_disq.model import Model
-from ska_mid_disq.view import MainView
+from ska_mid_disq.view import LimitedDisplaySpinBox, MainView, ToggleSwitch
 
 
 @pytest.fixture(autouse=True)
@@ -31,9 +33,16 @@ def pytest_addoption(parser: pytest.Parser) -> None:
 @pytest.fixture(name="main_view", scope="module")
 def main_view_fixture() -> MainView:
     """Fixture to setup the DiSQ application."""
+    ui_file = QFile("src/ska_mid_disq/ui/dishstructure_mvc.ui")
+    ui_file.open(QFile.OpenModeFlag.ReadOnly)
+    loader = QUiLoader()
+    loader.registerCustomWidget(LimitedDisplaySpinBox)
+    loader.registerCustomWidget(ToggleSwitch)
+    main_window = loader.load(ui_file)
+    ui_file.close()
     model = Model()
     controller = Controller(model)
-    main_view = MainView(model, controller)
+    main_view = MainView(main_window, model, controller)  # type: ignore
     return main_view
 
 
@@ -52,7 +61,6 @@ def disq_cetc_simulator_fixture(main_view: MainView) -> MainView:  # type: ignor
     yield main_view
     main_view.model.data_received.disconnect()
     main_view.controller.disconnect_server()
-    main_view.close()
 
 
 @pytest.fixture(name="disq_mid_itf_plc", scope="module")
@@ -71,7 +79,6 @@ def disq_mid_itf_plc_fixture(main_view: MainView) -> MainView:  # type: ignore
     yield main_view
     main_view.model.data_received.disconnect()
     main_view.controller.disconnect_server()
-    main_view.close()
 
 
 @pytest.fixture(name="disq_mock_model")
