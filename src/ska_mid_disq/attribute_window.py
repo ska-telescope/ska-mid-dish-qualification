@@ -6,8 +6,8 @@ from threading import Lock
 from typing import Any
 
 import pyqtgraph
-from PyQt6 import QtCore, QtWidgets
-from PyQt6.QtGui import QCloseEvent, QIcon, QKeySequence
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtGui import QCloseEvent, QIcon, QKeySequence
 
 from ska_mid_disq.constants import SKAO_ICON_PATH, SUBSCRIPTION_RATE_MS
 
@@ -17,12 +17,12 @@ logger = logging.getLogger("gui.view")
 class LiveAttributeWindow(QtWidgets.QWidget):
     """A window for displaying individual attribute values only."""
 
-    signal = QtCore.pyqtSignal(object)
+    signal = QtCore.Signal(object)
 
     def __init__(
         self,
         attribute: str,
-        close_signal: QtCore.pyqtBoundSignal,
+        close_signal: QtCore.SignalInstance,
     ):
         """
         Initialise the LiveAttributeWindow.
@@ -82,7 +82,7 @@ class LiveGraphWindow(LiveAttributeWindow):
         self,
         attribute: str,
         attribute_type: list[str],
-        close_signal: QtCore.pyqtBoundSignal,
+        close_signal: QtCore.SignalInstance,
     ):
         """
         Initialise the LiveGraphWindow.
@@ -124,7 +124,7 @@ class LiveGraphWindow(LiveAttributeWindow):
         self.line = self.graph.plot(self.time_axis_data, self.attribute_axis_data)
         self.timer = QtCore.QTimer()
         self.timer.setInterval(SUBSCRIPTION_RATE_MS)
-        self.timer.timeout.connect(self._update_plot)
+        self.timer.timeout.connect(self._update_plot)  # type: ignore[attr-defined]
         self.timer.start()
 
     def _new_data_point(self, data_time: float, value: Any) -> None:
@@ -175,7 +175,7 @@ class LiveHistoryWindow(LiveAttributeWindow):
     def __init__(
         self,
         attribute: str,
-        close_signal: QtCore.pyqtBoundSignal,
+        close_signal: QtCore.SignalInstance,
     ):
         """
         Initialise the LiveHistoryWindow.

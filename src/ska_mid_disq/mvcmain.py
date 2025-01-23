@@ -5,15 +5,17 @@ import logging
 import platform
 import signal
 import sys
+from importlib import resources
 
-from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QApplication
+from PySide6.QtCore import QFile, QTimer
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtWidgets import QApplication
 
 from ska_mid_disq import __version__
 from ska_mid_disq.configuration import configure_logging
 from ska_mid_disq.controller import Controller
 from ska_mid_disq.model import Model
-from ska_mid_disq.view import MainView
+from ska_mid_disq.view import LimitedDisplaySpinBox, MainView, ToggleSwitch
 
 logger = logging.getLogger("gui.main")
 
@@ -36,13 +38,23 @@ def main():
     args = parser.parse_args()
     configure_logging(default_log_level=logging.DEBUG)
     app = QApplication([])
+
+    # Load the UI from the XML .ui file
+    ui_file = QFile(resources.files(__package__) / "ui/dishstructure_mvc.ui")
+    ui_file.open(QFile.OpenModeFlag.ReadOnly)
+    loader = QUiLoader()
+    loader.registerCustomWidget(LimitedDisplaySpinBox)
+    loader.registerCustomWidget(ToggleSwitch)
+    main_window = loader.load(ui_file)
+    ui_file.close()
+
     # Create our M, V and C...
     model = Model()
     controller = Controller(model)
-    main_view = MainView(model, controller, server=args.server, cache=args.cache)
+    MainView(main_window, model, controller, server=args.server, cache=args.cache)
 
     # Connect the aboutToQuit signal to the model's disconnect method
-    app.instance().aboutToQuit.connect(model.disconnect)
+    app.instance().aboutToQuit.connect(model.disconnect_server)
 
     # Catch unhandled exceptions
     def _exception_hook(exc_type, exc_value, exc_traceback):
@@ -73,7 +85,7 @@ def main():
     timer.start(1000)
     timer.timeout.connect(lambda: None)
 
-    main_view.show()
+    main_window.show()
     logger.info(f"Successfully initialised DiSQ GUI v{__version__}")
     sys.exit(app.exec())
 
