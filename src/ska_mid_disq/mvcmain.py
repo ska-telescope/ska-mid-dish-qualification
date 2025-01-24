@@ -5,14 +5,14 @@ import logging
 import platform
 import signal
 import sys
-from importlib import resources
 
-from PySide6.QtCore import QFile, QTimer
+from PySide6.QtCore import QTimer
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QApplication
 
 from ska_mid_disq import __version__
 from ska_mid_disq.configuration import configure_logging
+from ska_mid_disq.constants import XML_UI_PATH
 from ska_mid_disq.controller import Controller
 from ska_mid_disq.model import Model
 from ska_mid_disq.view import LimitedDisplaySpinBox, MainView, ToggleSwitch
@@ -40,13 +40,10 @@ def main():
     app = QApplication([])
 
     # Load the UI from the XML .ui file
-    ui_file = QFile(resources.files(__package__) / "ui/dishstructure_mvc.ui")
-    ui_file.open(QFile.OpenModeFlag.ReadOnly)
     loader = QUiLoader()
     loader.registerCustomWidget(LimitedDisplaySpinBox)
     loader.registerCustomWidget(ToggleSwitch)
-    main_window = loader.load(ui_file)
-    ui_file.close()
+    main_window = loader.load(XML_UI_PATH)
 
     # Create our M, V and C...
     model = Model()

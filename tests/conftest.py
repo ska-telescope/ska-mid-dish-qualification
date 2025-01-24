@@ -4,9 +4,9 @@ import logging
 from unittest.mock import MagicMock
 
 import pytest
-from PySide6.QtCore import QFile
 from PySide6.QtUiTools import QUiLoader
 
+from ska_mid_disq.constants import XML_UI_PATH
 from ska_mid_disq.controller import Controller
 from ska_mid_disq.model import Model
 from ska_mid_disq.view import LimitedDisplaySpinBox, MainView, ToggleSwitch
@@ -33,13 +33,10 @@ def pytest_addoption(parser: pytest.Parser) -> None:
 @pytest.fixture(name="main_view", scope="module")
 def main_view_fixture() -> MainView:
     """Fixture to setup the DiSQ application."""
-    ui_file = QFile("src/ska_mid_disq/ui/dishstructure_mvc.ui")
-    ui_file.open(QFile.OpenModeFlag.ReadOnly)
     loader = QUiLoader()
     loader.registerCustomWidget(LimitedDisplaySpinBox)
     loader.registerCustomWidget(ToggleSwitch)
-    main_window = loader.load(ui_file)
-    ui_file.close()
+    main_window = loader.load(XML_UI_PATH)
     model = Model()
     controller = Controller(model)
     main_view = MainView(main_window, model, controller)  # type: ignore
