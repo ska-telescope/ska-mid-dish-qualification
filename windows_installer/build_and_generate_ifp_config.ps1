@@ -28,6 +28,8 @@ $arguments = @(
     "--clean", "--noconfirm", "--windowed", 
     "--add-data", "src/ska_mid_disq/ui/dishstructure_mvc.ui:ska_mid_disq/ui", 
     "--add-data", "src/ska_mid_disq/default_logging_config.yaml:ska_mid_disq", 
+    "--add-data", "src/ska_mid_disq/weather_station_resources/weather_station_configs.json:ska_mid_disq/weather_station_resources", 
+    "--add-data", "src/ska_mid_disq/weather_station_resources/weather_station.yaml:ska_mid_disq/weather_station_resources", 
     "--add-data", "src/ska_mid_disq/ui/icons/skao.ico:.", 
     "--icon", "src/ska_mid_disq/ui/icons/skao.ico", 
     "src/ska_mid_disq/mvcmain.py"
