@@ -68,10 +68,7 @@ class QueuePollThread(QThread):
         """
         self._running = True
         logger.debug(
-            # "QueuePollThread: Starting queue poll thread %s(%d)",
-            "QueuePollThread: Starting queue poll thread %s",
-            QThread.currentThread(),
-            # QThread.currentThreadId(),
+            "QueuePollThread: Starting queue poll thread %s", QThread.currentThread()
         )
         while self._running:
             try:
