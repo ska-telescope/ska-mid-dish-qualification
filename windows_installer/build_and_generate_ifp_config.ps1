@@ -34,7 +34,7 @@ $arguments = @(
     "--icon", "src/ska_mid_disq/ui/icons/skao.ico", 
     "--add-data", "src/ska_mid_disq/ui_resources/icons/skao.ico:.", 
     "--icon", "src/ska_mid_disq/ui_resources/icons/skao.ico", 
-    "src/ska_mid_disq/mvcmain.py"
+    "src/ska_mid_disq/gui_main.py"
 )
 
 # Call pyinstaller with the arguments

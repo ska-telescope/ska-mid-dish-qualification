@@ -72,7 +72,7 @@ docs = [
 ]
 
 [project.scripts]
-disq-gui = "ska_mid_disq.mvcmain:main"
+disq-gui = "ska_mid_disq.gui_main:main"
 disq-validate-server = "ska_mid_disq.server_validator.server_validator:main"
 
 [project.urls]
@@ -98,7 +98,7 @@ repository = "https://gitlab.com/ska-telescope/ska-mid-disq"
 documentation = "https://developer.skao.int/projects/ska-mid-disq"
 
 [tool.poetry.scripts]
-disq-gui = "ska_mid_disq.mvcmain:main"
+disq-gui = "ska_mid_disq.gui_main:main"
 disq-validate-server = "ska_mid_disq.server_validator:main"
 
 [[tool.poetry.source]]
