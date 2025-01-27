@@ -37,7 +37,7 @@ from ska_mid_disq.attribute_window import (
 )
 from ska_mid_disq.constants import SKAO_ICON_PATH, PollerType, StatusTreeCategory
 
-from . import ui_resources  # noqa pylint: disable=unused-import
+from .ui_resources import ui_resources  # noqa pylint: disable=unused-import
 
 logger = logging.getLogger("gui.view")
 

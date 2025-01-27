@@ -14,8 +14,8 @@ if (-not $version) {
 # Define paths
 $installerDir = "windows_installer"
 $installerPath = "$projectRoot\$installerDir\DiSQ-$version-windows-x64.exe"
-$wizardImgPath = "$projectRoot\src\ska_mid_disq\ui\images\installer.png"
-$headerImgPath = "$projectRoot\src\ska_mid_disq\ui\images\wombat_logo.png"
+$wizardImgPath = "$projectRoot\src\ska_mid_disq\ui_resources\images\installer.png"
+$headerImgPath = "$projectRoot\src\ska_mid_disq\ui_resources\images\wombat_logo.png"
 $distName = "DiSQ-$version-win64"
 $internalPath = "$projectRoot\dist\$distName\_internal"
 $exePath = "$projectRoot\dist\$distName\$distName.exe"
@@ -26,12 +26,14 @@ $ifpPath = "$projectRoot\$installerDir\disq.ifp"
 $arguments = @(
     "--name", $distName, 
     "--clean", "--noconfirm", "--windowed", 
-    "--add-data", "src/ska_mid_disq/ui/dishstructure_mvc.ui:ska_mid_disq/ui", 
+    "--add-data", "src/ska_mid_disq/ui_resources/main_window.ui:ska_mid_disq/ui_resources", 
     "--add-data", "src/ska_mid_disq/default_logging_config.yaml:ska_mid_disq", 
     "--add-data", "src/ska_mid_disq/weather_station_resources/weather_station_configs.json:ska_mid_disq/weather_station_resources", 
     "--add-data", "src/ska_mid_disq/weather_station_resources/weather_station.yaml:ska_mid_disq/weather_station_resources", 
     "--add-data", "src/ska_mid_disq/ui/icons/skao.ico:.", 
     "--icon", "src/ska_mid_disq/ui/icons/skao.ico", 
+    "--add-data", "src/ska_mid_disq/ui_resources/icons/skao.ico:.", 
+    "--icon", "src/ska_mid_disq/ui_resources/icons/skao.ico", 
     "src/ska_mid_disq/mvcmain.py"
 )
 
