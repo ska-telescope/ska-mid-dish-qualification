@@ -10,9 +10,10 @@ from typing import Any
 
 from asyncua import Node, ua
 
-from ska_mid_disq import SteeringControlUnit, __version__, configuration
-from ska_mid_disq.constants import USER_CACHE_DIR
-from ska_mid_disq.server_validator.serval_internal_server import SerValInternalServer
+from ska_mid_disq import SteeringControlUnit, __version__
+
+from ..utils.configuration import get_config_sculib_args, get_config_server_list
+from .serval_internal_server import SerValInternalServer
 
 
 # pylint: disable=too-many-instance-attributes
@@ -269,7 +270,6 @@ class OPCUAServerValidator:
             username,
             password,
             gui_app=True,  # Only use the PLC_PRG node tree.
-            nodes_cache_dir=USER_CACHE_DIR,
             app_name=f"DiSQ Server Validator v{__version__}",
         ) as server:
             self.server = server
@@ -604,7 +604,7 @@ class OPCUAServerValidator:
             )
 
         # First build tree of dubious server
-        server_args = configuration.get_config_sculib_args(server_file, server_config)
+        server_args = get_config_sculib_args(server_file, server_config)
         if "endpoint" in server_args and "namespace" in server_args:
             if "username" in server_args and "password" in server_args:
                 actual_tree = self._scan_opcua_server(
@@ -746,7 +746,7 @@ def main():
             if args.ini == " ":
                 args.ini = None
 
-            configurations = configuration.get_config_server_list(args.ini)
+            configurations = get_config_server_list(args.ini)
         except FileNotFoundError as e:
             print(e)
         else:
@@ -762,7 +762,7 @@ def main():
         config_file = args.config_file[0]
 
     try:
-        configuration.get_config_server_list(config_file)
+        get_config_server_list(config_file)
     except FileNotFoundError as e:
         print(e)
         return

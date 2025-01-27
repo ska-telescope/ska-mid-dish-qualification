@@ -6,16 +6,14 @@ from ska_mid_dish_steering_control import SCU, SteeringControlUnit
 from ska_mid_dish_steering_control.constants import CmdReturn, Command, ResultCode
 
 __version__ = version("ska-mid-disq")
-from ska_mid_disq import configuration
 from ska_mid_disq.model import DataLogger, SCUWeatherStation
-from ska_mid_disq.scu_generators import SCU_from_config
-from ska_mid_disq.server_validator.server_validator import OPCUAServerValidator
+from ska_mid_disq.server_validator import OPCUAServerValidator
+from ska_mid_disq.utils import SCU_from_config
 
 del version
 
 __all__ = [
     "__version__",
-    "configuration",
     "CmdReturn",
     "Command",
     "ResultCode",
