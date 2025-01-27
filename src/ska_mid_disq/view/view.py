@@ -30,14 +30,10 @@ from PySide6.QtWidgets import QFileDialog
 from ska_mid_wms_interface import load_weather_station_configuration
 
 from ska_mid_disq import ResultCode, __version__, controller, model
-from ska_mid_disq.attribute_window import (
-    LiveAttributeWindow,
-    LiveGraphWindow,
-    LiveHistoryWindow,
-)
 from ska_mid_disq.constants import SKAO_ICON_PATH, PollerType, StatusTreeCategory
+from ska_mid_disq.ui_resources import ui_resources  # noqa pylint: disable=unused-import
 
-from .ui_resources import ui_resources  # noqa pylint: disable=unused-import
+from .attribute_window import LiveAttributeWindow, LiveGraphWindow, LiveHistoryWindow
 
 logger = logging.getLogger("gui.view")
 
