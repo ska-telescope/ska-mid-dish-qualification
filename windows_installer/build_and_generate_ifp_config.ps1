@@ -30,7 +30,7 @@ $arguments = @(
     "--add-data", "src/ska_mid_disq/default_logging_config.yaml:ska_mid_disq", 
     "--add-data", "src/ska_mid_disq/ui_resources/icons/skao.ico:.", 
     "--icon", "src/ska_mid_disq/ui_resources/icons/skao.ico", 
-    "src/ska_mid_disq/mvcmain.py"
+    "src/ska_mid_disq/gui_main.py"
 )
 
 # Call pyinstaller with the arguments

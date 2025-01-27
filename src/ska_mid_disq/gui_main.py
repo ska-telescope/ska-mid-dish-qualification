@@ -6,7 +6,7 @@ import platform
 import signal
 import sys
 
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QCoreApplication, Qt, QTimer
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QApplication, QMainWindow
 
@@ -36,13 +36,16 @@ def main():
     )
     args = parser.parse_args()
     configure_logging(default_log_level=logging.DEBUG)
+
+    # Set the required attributes before creating the application instance
+    QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
     app = QApplication([])
 
     # Load the UI from the XML .ui file
     loader = QUiLoader()
     loader.registerCustomWidget(LimitedDisplaySpinBox)
     loader.registerCustomWidget(ToggleSwitch)
-    main_window: QMainWindow = loader.load(XML_UI_PATH)
+    main_window: QMainWindow = loader.load(XML_UI_PATH)  # type: ignore
 
     # Create our M, V and C...
     model = Model()

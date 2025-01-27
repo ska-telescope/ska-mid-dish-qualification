@@ -16,7 +16,7 @@
             "name": "DiSQ GUI",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/ska_mid_disq/mvcmain.py",
+            "program": "${workspaceFolder}/src/ska_mid_disq/gui_main.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "env": {
