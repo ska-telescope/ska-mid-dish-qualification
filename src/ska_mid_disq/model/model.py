@@ -12,14 +12,7 @@ from typing import Any, Callable, Final, Type
 from PySide6.QtCore import QObject, QThread, Signal, SignalInstance
 from ska_mid_dish_steering_control.sculib import AttrDict
 
-from ska_mid_disq import (
-    CmdReturn,
-    Command,
-    DataLogger,
-    ResultCode,
-    SCUWeatherStation,
-    __version__,
-)
+from ska_mid_disq import CmdReturn, Command, ResultCode, __version__
 from ska_mid_disq.constants import (
     SUBSCRIPTION_RATE_MS,
     USER_CACHE_DIR,
@@ -27,6 +20,9 @@ from ska_mid_disq.constants import (
     PollerType,
     StatusTreeCategory,
 )
+
+from .data_logger import DataLogger
+from .scu_weather_station import SCUWeatherStation
 
 logger = logging.getLogger("gui.model")
 
