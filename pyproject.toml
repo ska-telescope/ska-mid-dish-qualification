@@ -73,7 +73,7 @@ docs = [
 
 [project.scripts]
 disq-gui = "ska_mid_disq.mvcmain:main"
-disq-validate-server = "ska_mid_disq.server_validator:main"
+disq-validate-server = "ska_mid_disq.server_validator.server_validator:main"
 
 [project.urls]
 source = "https://gitlab.com/ska-telescope/ska-mid-disq"
