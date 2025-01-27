@@ -1,5 +1,5 @@
 [flake8]
-exclude = tests/resources/ds_opcua_server_mock.py, src/ska_mid_disq/ui_resources.py
+exclude = tests/resources/ds_opcua_server_mock.py, src/ska_mid_disq/ui_resources/ui_resources.py
 max-line-length = 88
 
 # See https://github.com/PyCQA/pycodestyle/issues/373

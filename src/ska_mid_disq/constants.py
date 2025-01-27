@@ -7,7 +7,7 @@ from typing import Final
 from platformdirs import user_cache_path, user_config_path
 
 # Constants
-XML_UI_PATH: Final = resources.files(__package__) / "ui/dishstructure_mvc.ui"
+XML_UI_PATH: Final = resources.files(__package__) / "ui_resources/main_window.ui"
 USER_CACHE_DIR: Final = user_cache_path(appauthor="SKAO", appname="disq")
 USER_CONFIG_DIR: Final = user_config_path(appauthor="SKAO", appname="disq")
 SUBSCRIPTION_RATE_MS: Final = 100
