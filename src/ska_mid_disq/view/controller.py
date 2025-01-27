@@ -14,7 +14,9 @@ from ska_mid_disq.constants import PollerType
 logger = logging.getLogger("gui.controller")
 
 _LOCAL_DIR_CONFIGFILE = "disq.ini"
-_WEATHER_STATION_CONFIGFILE = "weather_station_resources/weather_station_configs.json"
+_WEATHER_STATION_CONFIGFILE = (
+    "../weather_station_resources/weather_station_configs.json"
+)
 
 
 # pylint: disable=too-many-public-methods

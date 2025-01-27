@@ -47,7 +47,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ska_mid_disq import ResultCode, __version__, controller, model
+from ska_mid_disq import ResultCode, __version__, model
 from ska_mid_disq.constants import (
     DISPLAY_DECIMAL_PLACES,
     SKAO_ICON_PATH,
@@ -56,6 +56,7 @@ from ska_mid_disq.constants import (
 )
 from ska_mid_disq.ui_resources import ui_resources  # noqa pylint: disable=unused-import
 
+from . import controller
 from .attribute_window import LiveAttributeWindow, LiveGraphWindow, LiveHistoryWindow
 from .custom_widgets import LimitedDisplaySpinBox, ToggleSwitch
 from .dialogs import (

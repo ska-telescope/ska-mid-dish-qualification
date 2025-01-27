@@ -13,9 +13,8 @@ from PySide6.QtWidgets import QApplication
 from ska_mid_disq import __version__
 from ska_mid_disq.configuration import configure_logging
 from ska_mid_disq.constants import XML_UI_PATH
-from ska_mid_disq.controller import Controller
 from ska_mid_disq.model import Model
-from ska_mid_disq.view import LimitedDisplaySpinBox, MainView, ToggleSwitch
+from ska_mid_disq.view import Controller, LimitedDisplaySpinBox, MainView, ToggleSwitch
 
 logger = logging.getLogger("gui.main")
 

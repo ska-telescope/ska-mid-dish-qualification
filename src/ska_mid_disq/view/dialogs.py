@@ -34,8 +34,9 @@ from PySide6.QtWidgets import (
 )
 from ska_mid_wms_interface import load_weather_station_configuration
 
-from ska_mid_disq import controller
 from ska_mid_disq.constants import SKAO_ICON_PATH
+
+from . import controller
 
 _WEATHER_STATION_YAML: Final = "../weather_station_resources/weather_station.yaml"
 
