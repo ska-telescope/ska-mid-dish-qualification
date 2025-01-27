@@ -46,6 +46,12 @@ TILT_CORR_ACTIVE: Final = "Pointing.Status.TiltCorrActive"
 TILT_METER_TWO_ON: Final = "Pointing.Status.TiltTwo_On"
 BAND_FOR_CORR: Final = "Pointing.Status.BandForCorr"
 TEMP_CORR_ACTIVE: Final = "Pointing.Status.TempCorrActive"
+AZIMUTH_ACT_POS: Final = "Azimuth.Status.p_Act"
+AZIMUTH_MOVING: Final = "Azimuth.Status.AxisMoving"
+ELEVATION_ACT_POS: Final = "Elevation.Status.p_Act"
+ELEVATION_MOVING: Final = "Elevation.Status.AxisMoving"
+FEED_INDEXER_ACT_POS: Final = "FeedIndexer.Status.p_Act"
+FEED_INDEXER_MOVING: Final = "FeedIndexer.Status.AxisMoving"
 
 DISPLAY_DECIMAL_PLACES: Final = 5
 
@@ -1209,6 +1215,13 @@ class MainView(StatusBarMixin, QtCore.QObject):
                 float(self.combobox_axis_input_step.currentText())
             )
         )
+        self.block_azimuth_pos_inputs: bool = False
+        self.block_elevation_pos_inputs: bool = False
+        self.block_indexer_pos_inputs: bool = False
+        self.most_recent_azimuth_pos: float = 400.0
+        self.most_recent_elevation_pos: float = 400.0
+        self.most_recent_indexer_pos: float = 400.0
+
         # Point tab static pointing model widgets
         self.button_static_point_model_import: QtWidgets.QPushButton = (
             self.window.button_static_point_model_import
@@ -1757,8 +1770,52 @@ class MainView(StatusBarMixin, QtCore.QObject):
         # Get the widget update method from the dict of opcua widgets
         widgets = self.opcua_widgets[event["name"]][0]
         self._update_opcua_widget_tooltip(widgets, event)
+        self._check_axis_movement_to_update_inputs(event)
         widget_update_func = self.opcua_widgets[event["name"]][1]
-        widget_update_func(widgets, event)
+        if event["name"] == AZIMUTH_ACT_POS:
+            self.most_recent_azimuth_pos = event["value"]
+            widget_update_func(widgets, event, self.block_azimuth_pos_inputs)
+        elif event["name"] == ELEVATION_ACT_POS:
+            self.most_recent_elevation_pos = event["value"]
+            widget_update_func(widgets, event, self.block_elevation_pos_inputs)
+        elif event["name"] == FEED_INDEXER_ACT_POS:
+            self.most_recent_indexer_pos = event["value"]
+            widget_update_func(widgets, event, self.block_indexer_pos_inputs)
+        else:
+            widget_update_func(widgets, event)
+
+    def _check_axis_movement_to_update_inputs(self, event: dict) -> None:
+        """Check for axis movement events and update position input widget values."""
+        if event["name"] == AZIMUTH_MOVING:
+            if event["value"]:  # Started moving
+                self.block_azimuth_pos_inputs = True
+            else:  # Stopped moving
+                self.block_azimuth_pos_inputs = False
+                self._update_opcua_text_widget(
+                    self.opcua_widgets[AZIMUTH_ACT_POS][0],
+                    {"value": self.most_recent_azimuth_pos},
+                    False,
+                )
+        elif event["name"] == ELEVATION_MOVING:
+            if event["value"]:  # Started moving
+                self.block_elevation_pos_inputs = True
+            else:  # Stopped moving
+                self.block_elevation_pos_inputs = False
+                self._update_opcua_text_widget(
+                    self.opcua_widgets[ELEVATION_ACT_POS][0],
+                    {"value": self.most_recent_elevation_pos},
+                    False,
+                )
+        elif event["name"] == FEED_INDEXER_MOVING:
+            if event["value"]:  # Started moving
+                self.block_indexer_pos_inputs = True
+            else:  # Stopped moving
+                self.block_indexer_pos_inputs = False
+                self._update_opcua_text_widget(
+                    self.opcua_widgets[FEED_INDEXER_ACT_POS][0],
+                    {"value": self.most_recent_indexer_pos},
+                    False,
+                )
 
     def _update_opcua_widget_tooltip(
         self, widgets: list[QtWidgets.QWidget], opcua_event: dict
@@ -1800,10 +1857,9 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
     def _update_opcua_text_widget(
         self,
-        widgets: list[
-            QtWidgets.QLineEdit | QtWidgets.QDoubleSpinBox | QtWidgets.QLabel
-        ],
+        widgets: list[QtWidgets.QWidget],
         event: dict,
+        block_axis_inputs: bool = True,
     ) -> None:
         """
         Update the text of the widget with the event value.
@@ -1819,18 +1875,22 @@ class MainView(StatusBarMixin, QtCore.QObject):
         else:
             str_val = str(val)
         for widget in widgets:
-            wgt_name = widget.objectName()
             if isinstance(widget, (QtWidgets.QLineEdit, QtWidgets.QLabel)):
                 widget.setText(str_val)
             elif (
                 isinstance(widget, QtWidgets.QDoubleSpinBox)  # always inputs
                 and val is not None
                 and not widget.hasFocus()  # user not busy editing
-                and not (  # block any axis input widgets from updating
-                    "azim" in wgt_name or "elev" in wgt_name or "index" in wgt_name
-                )
             ):
-                widget.setValue(val)
+                # Block any axis input widgets from updating here
+                wgt_name = widget.objectName()
+                if (
+                    not (
+                        "azim" in wgt_name or "elev" in wgt_name or "index" in wgt_name
+                    )
+                    or not block_axis_inputs
+                ):
+                    widget.setValue(val)
 
     def _update_opcua_enum_widget(
         self, widgets: list[QtWidgets.QLineEdit], event: dict
@@ -2383,6 +2443,8 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
         :raises ValueError: If the input arguments cannot be converted to float.
         """
+        self.block_azimuth_pos_inputs = True
+        self.block_elevation_pos_inputs = True
         args = [
             self.spinbox_slew_simul_azim_position.value(),
             self.spinbox_slew_simul_elev_position.value(),
@@ -2402,16 +2464,19 @@ class MainView(StatusBarMixin, QtCore.QObject):
         """
         match axis:
             case "El":
+                self.block_elevation_pos_inputs = True
                 args = [
                     self.spinbox_slew_only_elevation_position.value(),
                     self.spinbox_slew_only_elevation_velocity.value(),
                 ]
             case "Az":
+                self.block_azimuth_pos_inputs = True
                 args = [
                     self.spinbox_slew_only_azimuth_position.value(),
                     self.spinbox_slew_only_azimuth_velocity.value(),
                 ]
             case "Fi":
+                self.block_indexer_pos_inputs = True
                 args = [
                     self.spinbox_slew_only_indexer_position.value(),
                     self.spinbox_slew_only_indexer_velocity.value(),
