@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- WOM-619: Axes' position input spin boxes are updated with the actual value after connecting to a server and after an axis movement has stopped, but not during movement.
 
 ### Changed
 - WOM-556: Refactored GUI to use PySide6 instead of PyQt6, as PySide6 is the official Python bindings maintained by the Qt project.
@@ -28,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - WOM-597: Check that the path in the track table file input field is a real file and not a directory to prevent an error message when pressing 'Load Track Table File'.
-- WOM-611: Axes' position input spin boxes are not updated to the actual or set value anymore. 
+- WOM-611: Axes' position input spin boxes are not constantly updated to the actual or set value anymore. 
 
 ## 0.5.2 - 2024-12-17
 
