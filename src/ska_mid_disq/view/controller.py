@@ -8,8 +8,9 @@ from typing import Any
 
 from PySide6.QtCore import QCoreApplication, QObject, Signal
 
-from ska_mid_disq import Command, ResultCode, configuration, model
+from ska_mid_disq import Command, ResultCode, model
 from ska_mid_disq.constants import PollerType
+from ska_mid_disq.utils import configuration
 
 logger = logging.getLogger("gui.controller")
 

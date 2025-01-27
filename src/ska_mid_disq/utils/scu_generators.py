@@ -2,8 +2,10 @@
 
 import logging
 
-from ska_mid_disq import SCU, SteeringControlUnit, configuration
+from ska_mid_disq import SCU, SteeringControlUnit
 from ska_mid_disq.constants import USER_CACHE_DIR
+
+from .configuration import configure_logging, get_config_sculib_args
 
 logger = logging.getLogger("ska-mid-ds-scu")
 
@@ -27,10 +29,8 @@ def SCU_from_config(  # noqa: N802
     :return: an initialised and connected instance of the SteeringControlUnit class or
         None if the connection to the OPC-UA server failed.
     """
-    configuration.configure_logging()
-    sculib_args: dict = configuration.get_config_sculib_args(
-        ini_file, server_name=server_name
-    )
+    configure_logging()
+    sculib_args: dict = get_config_sculib_args(ini_file, server_name=server_name)
     # TODO: figure out a neat way to handle conversion of config variables from string
     if "timeout" in sculib_args:
         sculib_args["timeout"] = float(sculib_args["timeout"].strip())
