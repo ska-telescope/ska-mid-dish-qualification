@@ -8,7 +8,7 @@ import sys
 
 from PySide6.QtCore import QTimer
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QMainWindow
 
 from ska_mid_disq import __version__
 from ska_mid_disq.configuration import configure_logging
@@ -42,7 +42,7 @@ def main():
     loader = QUiLoader()
     loader.registerCustomWidget(LimitedDisplaySpinBox)
     loader.registerCustomWidget(ToggleSwitch)
-    main_window = loader.load(XML_UI_PATH)
+    main_window: QMainWindow = loader.load(XML_UI_PATH)
 
     # Create our M, V and C...
     model = Model()
