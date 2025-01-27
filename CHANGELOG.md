@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - WOM-556, WOM-557: Refactored GUI to use PySide6 instead of PyQt6, as PySide6 is the official Python bindings maintained by the Qt project. Using the latest PySide 6.8 now also allows installing the package with Python 3.12.
+- WOM-621: Reorganised package source and unexposed `configuration` module.
 
 ### Fixed
 
