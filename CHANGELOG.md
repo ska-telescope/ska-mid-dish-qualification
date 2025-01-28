@@ -1,6 +1,20 @@
 # Changelog
 
-## 0.6.0
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## Unreleased
+
+### Added
+
+### Changed
+- WOM-556: Refactored GUI to use PySide6 instead of PyQt6, as PySide6 is the official Python bindings maintained by the Qt project.
+
+### Fixed
+
+## 0.6.0 - 2025-01-23
 
 ### Added
 - WOM-454, WOM-578, WOM-579, WOM-580, WOM-609: Integrated the Weather Monitoring System into DiSQ on the 'Weather' tab.
@@ -14,9 +28,9 @@
 
 ### Fixed
 - WOM-597: Check that the path in the track table file input field is a real file and not a directory to prevent an error message when pressing 'Load Track Table File'.
-- WOM-611: An axis' position input spinbox only updates to the current actual value once after the axis has stopped moving.
+- WOM-611: Axes' position input spin boxes are not updated to the actual or set value anymore. 
 
-## 0.5.2
+## 0.5.2 - 2024-12-17
 
 ### Added
 - WOM-542: Added buttons to server connection dialog window to save/delete configs.
@@ -25,7 +39,7 @@
 - WOM-518: Rectify static tracking offsets input range limits.
 - WOM-424: Simplified main dependencies and limited Python version to 3.10 and 3.11.
 
-## 0.5.1
+## 0.5.1 - 2024-11-11
 
 ### Fixed
 WOM-510: 
@@ -35,7 +49,7 @@ WOM-510:
 - Changed 'Slew2Abs' inputs to spin boxes as used in 'Axis' tab.
 - Various minor UI tweaks for consistency.
 
-## 0.5.0
+## 0.5.0 - 2024-11-07
 
 - API changes:
     - WOM-402: Removed `parameter_commands`, `server`, `server_nodes`, `server_attributes` and `server_commands` properties.
@@ -66,7 +80,7 @@ WOM-510:
     - WOM-428: Various small bugs in GUI and other GUI improvements.
     - WOM-427: Prevent DiSQ crashing when resetting the PLC it's connected to.
 
-## 0.4.0
+## 0.4.0 - 2024-08-27
 
 - Breaking changes for version 2 of ICD (WOM-334, WOM-335, WOM-392, WOM-399, WOM-235):
     - Updated commands to handle session ID.
@@ -86,7 +100,7 @@ WOM-510:
     - Refactored and cleaned-up SCU functions.
     - Data logger's wait_for_completion() has been squashed into stop() and local datetime is converted to timezone aware timestamp before writing to file.
 
-## 0.3.0
+## 0.3.0 - 2024-05-29
 
 - WOM-223: DiSQ: GUI Tooltips
 - WOM-353: DiSQ GUI throws exception in logging message
@@ -111,7 +125,7 @@ WOM-510:
 - WOM-267: Fix node name error
 - WOM-262: Fix abs_azel typo
 
-## 0.2.1
+## 0.2.1 - 2024-02-05
 
 - WOM-237: gui-load-track-table
 - WOM-247: improve-enum-logging
@@ -119,7 +133,7 @@ WOM-510:
 - WOM-241: easy-powershell-logging
 - WOM-239: short-diff-ini-readme
 
-## 0.2.0
+## 0.2.0 - 2024-01-17
 
 - WOM-189: hot-fix
 - WOM-238: log-to-files
@@ -133,11 +147,11 @@ WOM-510:
 - WOM-190: add-ci-build-release
 - WOM-171: fix-poetry-in-mvp
 
-## 0.1.1
+## 0.1.1 - 2023-11-29
 
 - WOM-170: fix-mvp-release-issues
 
-## 0.1.0
+## 0.1.0 - 2023-11-29
 
 - WOM-127: method-conversion
 - WOM-130: gui-match-wireframe

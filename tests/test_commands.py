@@ -1,15 +1,17 @@
 """Tests of the GUI."""
 
+import os
 from time import sleep
 
 import pytest
-from PyQt6 import QtWidgets
+from PySide6 import QtWidgets
 
 from ska_mid_disq.view import MainView
 
 
-@pytest.fixture(name="disq_app")
-def disq_app_fixture(qtbot, request: pytest.FixtureRequest) -> MainView:  # type: ignore
+# pylint: disable=unused-argument
+@pytest.fixture(name="disq_app", scope="module")
+def disq_app_fixture(qapp, request: pytest.FixtureRequest) -> MainView:  # type: ignore
     """Fixture to setup the qtbot with the DiSQ application."""
     # Switch the MainView between two fixtures defined in conftest.py
     with_plc = request.config.getoption("--with-plc")
@@ -17,9 +19,9 @@ def disq_app_fixture(qtbot, request: pytest.FixtureRequest) -> MainView:  # type
         disq_fixture: MainView = request.getfixturevalue("disq_mid_itf_plc")
     else:
         disq_fixture = request.getfixturevalue("disq_cetc_simulator")
-    qtbot.addWidget(disq_fixture)
-    yield disq_fixture
-    sleep(0.5)
+    if os.getenv("CI_JOB_ID") is None:
+        disq_fixture.window.show()
+    return disq_fixture
 
 
 def set_combobox_to_string(combo_box: QtWidgets.QComboBox, string: str) -> bool:
@@ -123,14 +125,6 @@ set_on_source_threshold_input_widgets = [
     ),
     [
         (
-            "stow_button_clicked",
-            None,
-            "Management.Commands.Stow",
-            (True,),
-            None,
-            (("CommandActivated", 9), ("CommandActivated", 9)),
-        ),
-        (
             "set_time_source_clicked",
             None,
             "Time_cds.Commands.SetTimeSource",
@@ -161,15 +155,6 @@ set_on_source_threshold_input_widgets = [
             (20.0, 10.0),
             set_on_source_threshold_input_widgets,
             (("CommandDone", 10), ("CommandActivated", 9)),
-        ),
-        (
-            "unstow_button_clicked",
-            None,
-            "Management.Commands.Stow",
-            (False,),
-            None,
-            # CETC sim does not startup stowed, so unstow is rejected.
-            (("CommandActivated", 9), ("CommandActivated", 9)),
         ),
         (
             "activate_button_clicked",
@@ -398,6 +383,23 @@ set_on_source_threshold_input_widgets = [
             (("CommandDone", 10), ("CommandActivated", 9)),
         ),
         (
+            "stow_button_clicked",
+            None,
+            "Management.Commands.Stow",
+            (True,),
+            None,
+            (("CommandActivated", 9), ("CommandActivated", 9)),
+        ),
+        (
+            "unstow_button_clicked",
+            None,
+            "Management.Commands.Stow",
+            (False,),
+            None,
+            # CETC sim does not startup stowed, so unstow is rejected.
+            (("CommandActivated", 9), ("CommandActivated", 9)),
+        ),
+        (
             "release_authority_button_clicked",
             None,
             "CommandArbiter.Commands.ReleaseAuth",
@@ -419,11 +421,15 @@ def test_opcua_command_slot_function(
     request: pytest.FixtureRequest,
 ) -> None:
     """Test the successful sending and response of OPC UA commands."""
+    sleep(1)
     if input_values is not None:
         # Setup the input widgets with valid values
         if input_widgets is not None:
             for widget_name, value in zip(input_widgets, input_values):
-                widget = getattr(disq_app, widget_name)
+                try:
+                    widget = getattr(disq_app, widget_name)
+                except AttributeError:
+                    widget = getattr(disq_app.window, widget_name)
                 if isinstance(widget, QtWidgets.QLineEdit):
                     widget.setText(str(value))
                 elif isinstance(widget, QtWidgets.QDoubleSpinBox):

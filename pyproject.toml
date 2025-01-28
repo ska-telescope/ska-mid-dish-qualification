@@ -10,9 +10,7 @@ description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
 requires-python = ">=3.10, <3.12"
 dependencies = [
     "asyncua>=1.1.5",
-    # Fix PyQt6 version to match pyqt6-tools Designer version
-    "PyQt6==6.4.2",
-    "PyQt6-Qt6==6.4.3",
+    "PySide6==6.4.3",
     "pyyaml>=6.0.2",
     "h5py>=3.12.1",
     "platformdirs>=4.3.6",
@@ -26,7 +24,6 @@ readme = "README.md"
 
 [project.optional-dependencies]
 dev = [
-    "pyqt6-tools",
     "pytest",
     "pytest-qt",
     "pytest-cov",
@@ -105,9 +102,7 @@ url = "https://artefact.skao.int/repository/pypi-all/simple"
 [tool.poetry.dependencies]
 python = ">=3.10, <3.12"
 asyncua = "^1.1.5"
-# Fix PyQt6 version to match pyqt6-tools Designer version
-PyQt6 = "6.4.2"
-PyQt6-Qt6 = "6.4.3"
+PySide6 = "6.4.3"
 pyyaml = "^6.0.2"
 h5py = "^3.12.1"
 platformdirs = "^4.3.6"
@@ -120,7 +115,6 @@ ska-mid-wms-interface = "^0.1.1"
 pyqtgraph = "^0.13.7"
 
 [tool.poetry.group.dev.dependencies]
-pyqt6-tools = "^6.4.2"
 pytest = "^8.1.1"
 pytest-qt = "^4.4.0"
 pytest-cov = "^4.0.0"
@@ -172,7 +166,6 @@ addopts = """
 filterwarnings = "error"
 # Doctest python code in docs, python code in src docstrings, test functions in tests
 testpaths = "docs src tests"
-qt_api = "pyqt6"
 
 [tool.coverage.run]
 omit = ["__init__.py"]
