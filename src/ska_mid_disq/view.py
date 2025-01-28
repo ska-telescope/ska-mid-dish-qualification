@@ -929,62 +929,62 @@ class MainView(StatusBarMixin, QtCore.QObject):
         :param kwargs: Additional keyword arguments.
         """
         super().__init__(*args, **kwargs)
-        self.w = main_window
-        self.w.setWindowTitle(f"DiSQ GUI v{__version__}")
-        self.w.setWindowIcon(QIcon(SKAO_ICON_PATH))
+        self.window = main_window
+        self.window.setWindowTitle(f"DiSQ GUI v{__version__}")
+        self.window.setWindowIcon(QIcon(SKAO_ICON_PATH))
 
         # Adding a default style for the tooltip with a white background and black text
         # This is a work-around for the issue that tooltips inherit style from the
         # parent widget - and this choice of colour-scheme is at least readable.
-        self.w.setStyleSheet(
+        self.window.setStyleSheet(
             "QToolTip { color: black; background-color: white;"
             "border: 1px solid black; }"
         )
 
         # Menubar
-        self.action_connect_opcua_server: QAction = self.w.findChild(
+        self.action_connect_opcua_server: QAction = self.window.findChild(
             QAction, "action_connect_opcua_server"
         )
         self.action_connect_opcua_server.triggered.connect(self.connect_button_clicked)
-        self.action_disconnect_opcua_server: QAction = self.w.findChild(
+        self.action_disconnect_opcua_server: QAction = self.window.findChild(
             QAction, "action_disconnect_opcua_server"
         )
         self.action_disconnect_opcua_server.triggered.connect(
             self.disconnect_button_clicked
         )
-        self.action_connect_weather_station: QAction = self.w.findChild(
+        self.action_connect_weather_station: QAction = self.window.findChild(
             QAction, "action_connect_weather_station"
         )
         self.action_connect_weather_station.triggered.connect(
             self.connect_weather_station_clicked
         )
-        self.action_disconnect_weather_station: QAction = self.w.findChild(
+        self.action_disconnect_weather_station: QAction = self.window.findChild(
             QAction, "action_disconnect_weather_station"
         )
         self.action_disconnect_weather_station.triggered.connect(
             self.connect_weather_station_clicked
         )
-        self.action_attribute_display: QAction = self.w.findChild(
+        self.action_attribute_display: QAction = self.window.findChild(
             QAction, "action_attribute_display"
         )
         self.action_attribute_display.triggered.connect(self.select_attribute_graphs)
-        self.action_close_all_attribute_windows: QAction = self.w.findChild(
+        self.action_close_all_attribute_windows: QAction = self.window.findChild(
             QAction, "action_close_all_attribute_windows"
         )
         self.action_close_all_attribute_windows.triggered.connect(
             self.close_all_graph_windows
         )
-        self.action_about: QAction = self.w.findChild(QAction, "action_about")
+        self.action_about: QAction = self.window.findChild(QAction, "action_about")
         self.action_about.triggered.connect(self.about_button_clicked)
-        self.action_docs: QAction = self.w.findChild(QAction, "action_docs")
+        self.action_docs: QAction = self.window.findChild(QAction, "action_docs")
         self.action_docs.triggered.connect(self.open_documentation)
-        self.action_disable_input_limits: QAction = self.w.findChild(
+        self.action_disable_input_limits: QAction = self.window.findChild(
             QAction, "action_disable_input_limits"
         )
         self.action_disable_input_limits.triggered.connect(
             self.disable_input_limits_clicked
         )
-        self.action_enable_input_limits: QAction = self.w.findChild(
+        self.action_enable_input_limits: QAction = self.window.findChild(
             QAction, "action_enable_input_limits"
         )
         self.action_enable_input_limits.triggered.connect(
@@ -992,7 +992,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         )
         self.spinbox_input_limits: list[tuple[float, float]] = []
 
-        self.server_status_bar: QtWidgets.QWidget = self.w.findChild(
+        self.server_status_bar: QtWidgets.QWidget = self.window.findChild(
             QtWidgets.QWidget, "server_status_bar"
         )
         # Load a background image for the server connection QGroupBox
@@ -1002,19 +1002,19 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.server_status_bar.setPalette(palette)
         self.server_status_bar.setAutoFillBackground(True)
 
-        self.label_conn_status: QtWidgets.QLabel = self.w.findChild(
+        self.label_conn_status: QtWidgets.QLabel = self.window.findChild(
             QtWidgets.QLabel, "label_conn_status"
         )
-        self.label_cache_status: QtWidgets.QLabel = self.w.findChild(
+        self.label_cache_status: QtWidgets.QLabel = self.window.findChild(
             QtWidgets.QLabel, "label_cache_status"
         )
         self.label_cache_status.setStyleSheet("QLabel { color: white; }")
         self.label_conn_status.setStyleSheet("QLabel { color: white; }")
 
-        self.list_cmd_history: QtWidgets.QListWidget = self.w.findChild(
+        self.list_cmd_history: QtWidgets.QListWidget = self.window.findChild(
             QtWidgets.QListWidget, "list_cmd_history"
         )  # Command history list widget
-        self.w.setStatusBar(self.create_status_bar_widget("ℹ️ Status"))
+        self.window.setStatusBar(self.create_status_bar_widget("ℹ️ Status"))
 
         # Keep a reference to model and controller
         self.model = disq_model
@@ -1041,203 +1041,211 @@ class MainView(StatusBarMixin, QtCore.QObject):
         )
 
         # Status panel widgets
-        self.line_edit_warning_general: QtWidgets.QLineEdit = self.w.findChild(
+        self.line_edit_warning_general: QtWidgets.QLineEdit = self.window.findChild(
             QtWidgets.QLineEdit, "line_edit_warning_general"
         )
 
         # Authority status group widgets
-        self.combobox_authority: QtWidgets.QComboBox = self.w.findChild(
+        self.combobox_authority: QtWidgets.QComboBox = self.window.findChild(
             QtWidgets.QComboBox, "combobox_authority"
         )
-        self.button_take_auth: QtWidgets.QPushButton = self.w.findChild(
+        self.button_take_auth: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_take_auth"
         )
         self.button_take_auth.clicked.connect(self.take_authority_button_clicked)
-        self.button_release_auth: QtWidgets.QPushButton = self.w.findChild(
+        self.button_release_auth: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_release_auth"
         )
         self.button_release_auth.clicked.connect(self.release_authority_button_clicked)
-        self.button_interlock_ack: QtWidgets.QPushButton = self.w.findChild(
+        self.button_interlock_ack: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_interlock_ack"
         )
         self.button_interlock_ack.clicked.connect(self.controller.command_interlock_ack)
         # Slew group widgets
-        self.spinbox_slew_simul_azim_position: LimitedDisplaySpinBox = self.w.findChild(
-            LimitedDisplaySpinBox, "spinbox_slew_simul_azim_position"
+        self.spinbox_slew_simul_azim_position: LimitedDisplaySpinBox = (
+            self.window.findChild(
+                LimitedDisplaySpinBox, "spinbox_slew_simul_azim_position"
+            )
         )
-        self.spinbox_slew_simul_elev_position: LimitedDisplaySpinBox = self.w.findChild(
-            LimitedDisplaySpinBox, "spinbox_slew_simul_elev_position"
+        self.spinbox_slew_simul_elev_position: LimitedDisplaySpinBox = (
+            self.window.findChild(
+                LimitedDisplaySpinBox, "spinbox_slew_simul_elev_position"
+            )
         )
-        self.spinbox_slew_simul_azim_velocity: LimitedDisplaySpinBox = self.w.findChild(
-            LimitedDisplaySpinBox, "spinbox_slew_simul_azim_velocity"
+        self.spinbox_slew_simul_azim_velocity: LimitedDisplaySpinBox = (
+            self.window.findChild(
+                LimitedDisplaySpinBox, "spinbox_slew_simul_azim_velocity"
+            )
         )
-        self.spinbox_slew_simul_elev_velocity: LimitedDisplaySpinBox = self.w.findChild(
-            LimitedDisplaySpinBox, "spinbox_slew_simul_elev_velocity"
+        self.spinbox_slew_simul_elev_velocity: LimitedDisplaySpinBox = (
+            self.window.findChild(
+                LimitedDisplaySpinBox, "spinbox_slew_simul_elev_velocity"
+            )
         )
-        self.button_slew2abs: QtWidgets.QPushButton = self.w.findChild(
+        self.button_slew2abs: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_slew2abs"
         )
         self.button_slew2abs.clicked.connect(self.slew2abs_button_clicked)
         # Commands group widgets
-        self.button_stop: QtWidgets.QPushButton = self.w.findChild(
+        self.button_stop: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_stop"
         )
         self.button_stop.clicked.connect(lambda: self.stop_button_clicked("AzEl"))
-        self.button_stow: QtWidgets.QPushButton = self.w.findChild(
+        self.button_stow: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_stow"
         )
         self.button_stow.clicked.connect(self.stow_button_clicked)
-        self.button_unstow: QtWidgets.QPushButton = self.w.findChild(
+        self.button_unstow: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_unstow"
         )
         self.button_unstow.clicked.connect(self.unstow_button_clicked)
-        self.button_activate: QtWidgets.QPushButton = self.w.findChild(
+        self.button_activate: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_activate"
         )
         self.button_activate.clicked.connect(
             lambda: self.activate_button_clicked("AzEl")
         )
-        self.button_deactivate: QtWidgets.QPushButton = self.w.findChild(
+        self.button_deactivate: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_deactivate"
         )
         self.button_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("AzEl")
         )
         # Power tab widgets
-        self.button_power_mode_normal: QtWidgets.QRadioButton = self.w.findChild(
+        self.button_power_mode_normal: QtWidgets.QRadioButton = self.window.findChild(
             QtWidgets.QRadioButton, "button_power_mode_normal"
         )
         self.button_power_mode_normal.setChecked(True)
-        self.button_power_mode_low: QtWidgets.QRadioButton = self.w.findChild(
+        self.button_power_mode_low: QtWidgets.QRadioButton = self.window.findChild(
             QtWidgets.QRadioButton, "button_power_mode_low"
         )
         self.button_power_mode_group = QtWidgets.QButtonGroup()
         self.button_power_mode_group.addButton(self.button_power_mode_normal, 0)
         self.button_power_mode_group.addButton(self.button_power_mode_low, 1)
-        self.spinbox_power_lim_kw: QtWidgets.QDoubleSpinBox = self.w.findChild(
+        self.spinbox_power_lim_kw: QtWidgets.QDoubleSpinBox = self.window.findChild(
             QtWidgets.QDoubleSpinBox, "spinbox_power_lim_kw"
         )
-        self.button_set_power_mode: QtWidgets.QPushButton = self.w.findChild(
+        self.button_set_power_mode: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_set_power_mode"
         )
         self.button_set_power_mode.clicked.connect(self.set_power_mode_clicked)
 
         # Axis tab elevation group widgets
-        self.button_elevation_slew: QtWidgets.QPushButton = self.w.findChild(
+        self.button_elevation_slew: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_elevation_slew"
         )
         self.button_elevation_slew.clicked.connect(
             lambda: self.slew_button_clicked("El")
         )
-        self.button_elevation_stop: QtWidgets.QPushButton = self.w.findChild(
+        self.button_elevation_stop: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_elevation_stop"
         )
         self.button_elevation_stop.clicked.connect(
             lambda: self.stop_button_clicked("El")
         )
-        self.button_elevation_activate: QtWidgets.QPushButton = self.w.findChild(
+        self.button_elevation_activate: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_elevation_activate"
         )
         self.button_elevation_activate.clicked.connect(
             lambda: self.activate_button_clicked("El")
         )
-        self.button_elevation_deactivate: QtWidgets.QPushButton = self.w.findChild(
+        self.button_elevation_deactivate: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_elevation_deactivate"
         )
         self.button_elevation_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("El")
         )
         self.spinbox_slew_only_elevation_position: LimitedDisplaySpinBox = (
-            self.w.findChild(
+            self.window.findChild(
                 LimitedDisplaySpinBox, "spinbox_slew_only_elevation_position"
             )
         )
         self.spinbox_slew_only_elevation_velocity: LimitedDisplaySpinBox = (
-            self.w.findChild(
+            self.window.findChild(
                 LimitedDisplaySpinBox, "spinbox_slew_only_elevation_velocity"
             )
         )
-        self.button_elevation_reset: QtWidgets.QPushButton = self.w.findChild(
+        self.button_elevation_reset: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_elevation_reset"
         )
         self.button_elevation_reset.clicked.connect(
             lambda: self.reset_button_clicked("El")
         )
         # Axis tab azimuth group widgets
-        self.button_azimuth_slew: QtWidgets.QPushButton = self.w.findChild(
+        self.button_azimuth_slew: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_azimuth_slew"
         )
         self.button_azimuth_slew.clicked.connect(lambda: self.slew_button_clicked("Az"))
-        self.button_azimuth_stop: QtWidgets.QPushButton = self.w.findChild(
+        self.button_azimuth_stop: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_azimuth_stop"
         )
         self.button_azimuth_stop.clicked.connect(lambda: self.stop_button_clicked("Az"))
-        self.button_azimuth_activate: QtWidgets.QPushButton = self.w.findChild(
+        self.button_azimuth_activate: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_azimuth_activate"
         )
         self.button_azimuth_activate.clicked.connect(
             lambda: self.activate_button_clicked("Az")
         )
-        self.button_azimuth_deactivate: QtWidgets.QPushButton = self.w.findChild(
+        self.button_azimuth_deactivate: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_azimuth_deactivate"
         )
         self.button_azimuth_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Az")
         )
         self.spinbox_slew_only_azimuth_position: LimitedDisplaySpinBox = (
-            self.w.findChild(
+            self.window.findChild(
                 LimitedDisplaySpinBox, "spinbox_slew_only_azimuth_position"
             )
         )
         self.spinbox_slew_only_azimuth_velocity: LimitedDisplaySpinBox = (
-            self.w.findChild(
+            self.window.findChild(
                 LimitedDisplaySpinBox, "spinbox_slew_only_azimuth_velocity"
             )
         )
-        self.button_azimuth_reset: QtWidgets.QPushButton = self.w.findChild(
+        self.button_azimuth_reset: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_azimuth_reset"
         )
         self.button_azimuth_reset.clicked.connect(
             lambda: self.reset_button_clicked("Az")
         )
         # Axis tab feed indexer group widgets
-        self.button_indexer_slew: QtWidgets.QPushButton = self.w.findChild(
+        self.button_indexer_slew: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_indexer_slew"
         )
         self.button_indexer_slew.clicked.connect(lambda: self.slew_button_clicked("Fi"))
-        self.button_indexer_stop: QtWidgets.QPushButton = self.w.findChild(
+        self.button_indexer_stop: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_indexer_stop"
         )
         self.button_indexer_stop.clicked.connect(lambda: self.stop_button_clicked("Fi"))
-        self.button_indexer_activate: QtWidgets.QPushButton = self.w.findChild(
+        self.button_indexer_activate: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_indexer_activate"
         )
         self.button_indexer_activate.clicked.connect(
             lambda: self.activate_button_clicked("Fi")
         )
-        self.button_indexer_deactivate: QtWidgets.QPushButton = self.w.findChild(
+        self.button_indexer_deactivate: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_indexer_deactivate"
         )
         self.button_indexer_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Fi")
         )
         self.spinbox_slew_only_indexer_position: LimitedDisplaySpinBox = (
-            self.w.findChild(
+            self.window.findChild(
                 LimitedDisplaySpinBox, "spinbox_slew_only_indexer_position"
             )
         )
         self.spinbox_slew_only_indexer_velocity: LimitedDisplaySpinBox = (
-            self.w.findChild(
+            self.window.findChild(
                 LimitedDisplaySpinBox, "spinbox_slew_only_indexer_velocity"
             )
         )
-        self.button_indexer_reset: QtWidgets.QPushButton = self.w.findChild(
+        self.button_indexer_reset: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_indexer_reset"
         )
         self.button_indexer_reset.clicked.connect(
             lambda: self.reset_button_clicked("Fi")
         )
-        self.combobox_axis_input_step: QtWidgets.QComboBox = self.w.findChild(
+        self.combobox_axis_input_step: QtWidgets.QComboBox = self.window.findChild(
             QtWidgets.QComboBox, "combobox_axis_input_step"
         )
         self.combobox_axis_input_step.currentIndexChanged.connect(
@@ -1246,42 +1254,50 @@ class MainView(StatusBarMixin, QtCore.QObject):
             )
         )
         # Point tab static pointing model widgets
-        self.button_static_point_model_import: QtWidgets.QPushButton = self.w.findChild(
-            QtWidgets.QPushButton, "button_static_point_model_import"
+        self.button_static_point_model_import: QtWidgets.QPushButton = (
+            self.window.findChild(
+                QtWidgets.QPushButton, "button_static_point_model_import"
+            )
         )
         self.button_static_point_model_import.clicked.connect(
             self.import_static_pointing_model
         )
-        self.button_static_point_model_export: QtWidgets.QPushButton = self.w.findChild(
-            QtWidgets.QPushButton, "button_static_point_model_export"
+        self.button_static_point_model_export: QtWidgets.QPushButton = (
+            self.window.findChild(
+                QtWidgets.QPushButton, "button_static_point_model_export"
+            )
         )
         self.button_static_point_model_export.clicked.connect(
             self.export_static_pointing_model
         )
-        self.button_static_point_model_apply: QtWidgets.QPushButton = self.w.findChild(
-            QtWidgets.QPushButton, "button_static_point_model_apply"
+        self.button_static_point_model_apply: QtWidgets.QPushButton = (
+            self.window.findChild(
+                QtWidgets.QPushButton, "button_static_point_model_apply"
+            )
         )
         self.button_static_point_model_apply.clicked.connect(
             self.apply_static_pointing_parameters
         )
-        self.button_static_point_model_toggle: ToggleSwitch = self.w.findChild(
+        self.button_static_point_model_toggle: ToggleSwitch = self.window.findChild(
             ToggleSwitch, "button_static_point_model_toggle"
         )
         self.button_static_point_model_toggle.clicked.connect(
             self.pointing_correction_setup_button_clicked
         )
-        self.static_point_model_band: QtWidgets.QLabel = self.w.findChild(
+        self.static_point_model_band: QtWidgets.QLabel = self.window.findChild(
             QtWidgets.QLabel, "static_point_model_band"
         )
         self.static_point_model_band_index_prev: int = 0
         self.combo_static_point_model_band_input: QtWidgets.QComboBox = (
-            self.w.findChild(QtWidgets.QComboBox, "combo_static_point_model_band_input")
+            self.window.findChild(
+                QtWidgets.QComboBox, "combo_static_point_model_band_input"
+            )
         )
         self.combo_static_point_model_band_input.currentTextChanged.connect(
             self.pointing_model_band_selected_for_input
         )
         self.combo_static_point_model_band_display: QtWidgets.QComboBox = (
-            self.w.findChild(
+            self.window.findChild(
                 QtWidgets.QComboBox, "combo_static_point_model_band_display"
             )
         )
@@ -1291,7 +1307,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         # NB: The order of the following two lists MUST match the order of the
         # Pointing.StaticPmSetup command's arguments
         self.static_pointing_values: list[QtWidgets.QLabel] = [
-            self.w.findChild(QtWidgets.QLabel, name)
+            self.window.findChild(QtWidgets.QLabel, name)
             for name in [
                 "opcua_ia",
                 "opcua_ca",
@@ -1314,7 +1330,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
             ]
         ]
         self.static_pointing_spinboxes: list[LimitedDisplaySpinBox] = [
-            self.w.findChild(LimitedDisplaySpinBox, name)
+            self.window.findChild(LimitedDisplaySpinBox, name)
             for name in [
                 "spinbox_ia",
                 "spinbox_ca",
@@ -1336,19 +1352,19 @@ class MainView(StatusBarMixin, QtCore.QObject):
                 "spinbox_hese8",
             ]
         ]
-        self.opcua_offset_xelev: QtWidgets.QLabel = self.w.findChild(
+        self.opcua_offset_xelev: QtWidgets.QLabel = self.window.findChild(
             QtWidgets.QLabel, "opcua_offset_xelev"
         )
-        self.opcua_offset_elev: QtWidgets.QLabel = self.w.findChild(
+        self.opcua_offset_elev: QtWidgets.QLabel = self.window.findChild(
             QtWidgets.QLabel, "opcua_offset_elev"
         )
-        self.spinbox_offset_xelev: LimitedDisplaySpinBox = self.w.findChild(
+        self.spinbox_offset_xelev: LimitedDisplaySpinBox = self.window.findChild(
             LimitedDisplaySpinBox, "spinbox_offset_xelev"
         )
-        self.spinbox_offset_elev: LimitedDisplaySpinBox = self.w.findChild(
+        self.spinbox_offset_elev: LimitedDisplaySpinBox = self.window.findChild(
             LimitedDisplaySpinBox, "spinbox_offset_elev"
         )
-        self.button_static_offset_apply: QtWidgets.QPushButton = self.w.findChild(
+        self.button_static_offset_apply: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_static_offset_apply"
         )
         self.button_static_offset_apply.clicked.connect(
@@ -1356,13 +1372,13 @@ class MainView(StatusBarMixin, QtCore.QObject):
         )
         self._update_static_pointing_inputs_text = False
         # Point tab tilt correction widgets
-        self.button_tilt_correction_toggle: ToggleSwitch = self.w.findChild(
+        self.button_tilt_correction_toggle: ToggleSwitch = self.window.findChild(
             ToggleSwitch, "button_tilt_correction_toggle"
         )
         self.button_tilt_correction_toggle.clicked.connect(
             self.pointing_correction_setup_button_clicked
         )
-        self.button_tilt_correction_meter_toggle: ToggleSwitch = self.w.findChild(
+        self.button_tilt_correction_meter_toggle: ToggleSwitch = self.window.findChild(
             ToggleSwitch, "button_tilt_correction_meter_toggle"
         )
         self.button_tilt_correction_meter_toggle.label_false = "TM1"
@@ -1371,31 +1387,31 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.button_tilt_correction_meter_toggle.clicked.connect(
             self.update_tilt_meter_calibration_parameters_values
         )
-        self.button_tilt_meter_cal_apply: QtWidgets.QPushButton = self.w.findChild(
+        self.button_tilt_meter_cal_apply: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_tilt_meter_cal_apply"
         )
         self.button_tilt_meter_cal_apply.clicked.connect(
             self.apply_tilt_meter_calibration_parameters
         )
         self.tilt_meter_cal_values: list[QtWidgets.QLabel] = [
-            self.w.findChild(QtWidgets.QLabel, "opcua_x_filt_dt"),
-            self.w.findChild(QtWidgets.QLabel, "opcua_y_filt_dt"),
+            self.window.findChild(QtWidgets.QLabel, "opcua_x_filt_dt"),
+            self.window.findChild(QtWidgets.QLabel, "opcua_y_filt_dt"),
         ]
         self.tilt_meter_cal_spinboxes: list[LimitedDisplaySpinBox] = [
-            self.w.findChild(LimitedDisplaySpinBox, "spinbox_x_filt_dt"),
-            self.w.findChild(LimitedDisplaySpinBox, "spinbox_y_filt_dt"),
+            self.window.findChild(LimitedDisplaySpinBox, "spinbox_x_filt_dt"),
+            self.window.findChild(LimitedDisplaySpinBox, "spinbox_y_filt_dt"),
         ]
         self.tilt_meter_cal_inputs: list[LimitedDisplaySpinBox | str] = [
             "Pointing.TiltmeterParameters.[OneTwo].Tiltmeter_serial_no",
             "Pointing.TiltmeterParameters.[OneTwo].tilt_temp_scale",
-            self.w.findChild(LimitedDisplaySpinBox, "spinbox_x_filt_dt"),
+            self.window.findChild(LimitedDisplaySpinBox, "spinbox_x_filt_dt"),
             "Pointing.TiltmeterParameters.[OneTwo].x_off",
             "Pointing.TiltmeterParameters.[OneTwo].x_offTC",
             "Pointing.TiltmeterParameters.[OneTwo].x_scale",
             "Pointing.TiltmeterParameters.[OneTwo].x_scaleTC",
             "Pointing.TiltmeterParameters.[OneTwo].x_zero",
             "Pointing.TiltmeterParameters.[OneTwo].x_zeroTC",
-            self.w.findChild(LimitedDisplaySpinBox, "spinbox_y_filt_dt"),
+            self.window.findChild(LimitedDisplaySpinBox, "spinbox_y_filt_dt"),
             "Pointing.TiltmeterParameters.[OneTwo].y_off",
             "Pointing.TiltmeterParameters.[OneTwo].y_offTC",
             "Pointing.TiltmeterParameters.[OneTwo].y_scale",
@@ -1404,20 +1420,20 @@ class MainView(StatusBarMixin, QtCore.QObject):
             "Pointing.TiltmeterParameters.[OneTwo].y_zeroTC",
         ]
         # Point tab ambient temperature correction widgets
-        self.button_temp_correction_toggle: ToggleSwitch = self.w.findChild(
+        self.button_temp_correction_toggle: ToggleSwitch = self.window.findChild(
             ToggleSwitch, "button_temp_correction_toggle"
         )
         self.button_temp_correction_toggle.clicked.connect(
             self.pointing_correction_setup_button_clicked
         )
-        self.button_temp_correction_apply: QtWidgets.QPushButton = self.w.findChild(
-            QtWidgets.QPushButton, "button_temp_correction_apply"
+        self.button_temp_correction_apply: QtWidgets.QPushButton = (
+            self.window.findChild(QtWidgets.QPushButton, "button_temp_correction_apply")
         )
         self.button_temp_correction_apply.clicked.connect(
             self.apply_ambtemp_correction_parameters
         )
         self.ambtemp_correction_values: list[QtWidgets.QLabel] = [
-            self.w.findChild(QtWidgets.QLabel, name)
+            self.window.findChild(QtWidgets.QLabel, name)
             for name in [
                 "opcua_ambtempfiltdt",
                 "opcua_ambtempparam1",
@@ -1429,7 +1445,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
             ]
         ]
         self.ambtemp_correction_spinboxes: list[LimitedDisplaySpinBox] = [
-            self.w.findChild(LimitedDisplaySpinBox, name)
+            self.window.findChild(LimitedDisplaySpinBox, name)
             for name in [
                 "spinbox_ambtempfiltdt",
                 "spinbox_ambtempparam1",
@@ -1442,49 +1458,49 @@ class MainView(StatusBarMixin, QtCore.QObject):
         ]
         self._update_temp_correction_inputs_text = False
         # Bands group widgets
-        self.button_band1: QtWidgets.QPushButton = self.w.findChild(
+        self.button_band1: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_band1"
         )
         self.button_band1.clicked.connect(
             lambda: self.move2band_button_clicked("Band_1")
         )
-        self.button_band2: QtWidgets.QPushButton = self.w.findChild(
+        self.button_band2: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_band2"
         )
         self.button_band2.clicked.connect(
             lambda: self.move2band_button_clicked("Band_2")
         )
-        self.button_band3: QtWidgets.QPushButton = self.w.findChild(
+        self.button_band3: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_band3"
         )
         self.button_band3.clicked.connect(
             lambda: self.move2band_button_clicked("Band_3")
         )
-        self.button_band4: QtWidgets.QPushButton = self.w.findChild(
+        self.button_band4: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_band4"
         )
         self.button_band4.clicked.connect(
             lambda: self.move2band_button_clicked("Band_4")
         )
-        self.button_band5a: QtWidgets.QPushButton = self.w.findChild(
+        self.button_band5a: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_band5a"
         )
         self.button_band5a.clicked.connect(
             lambda: self.move2band_button_clicked("Band_5a")
         )
-        self.button_band5b: QtWidgets.QPushButton = self.w.findChild(
+        self.button_band5b: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_band5b"
         )
         self.button_band5b.clicked.connect(
             lambda: self.move2band_button_clicked("Band_5b")
         )
-        self.button_band6: QtWidgets.QPushButton = self.w.findChild(
+        self.button_band6: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_band6"
         )
         self.button_band6.clicked.connect(
             lambda: self.move2band_button_clicked("Band_6")
         )
-        self.button_band_optical: QtWidgets.QPushButton = self.w.findChild(
+        self.button_band_optical: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_band_optical"
         )
         self.button_band_optical.clicked.connect(
@@ -1492,137 +1508,155 @@ class MainView(StatusBarMixin, QtCore.QObject):
         )
         self._disable_opcua_widgets()
         # Recording group widgets
-        self.button_select_recording_file: QtWidgets.QPushButton = self.w.findChild(
-            QtWidgets.QPushButton, "button_select_recording_file"
+        self.button_select_recording_file: QtWidgets.QPushButton = (
+            self.window.findChild(QtWidgets.QPushButton, "button_select_recording_file")
         )
         self.button_select_recording_file.clicked.connect(
             self.recording_file_button_clicked
         )
-        self.line_edit_recording_file: QtWidgets.QLineEdit = self.w.findChild(
+        self.line_edit_recording_file: QtWidgets.QLineEdit = self.window.findChild(
             QtWidgets.QLineEdit, "line_edit_recording_file"
         )
-        self.button_recording_overwrite_no: QtWidgets.QRadioButton = self.w.findChild(
-            QtWidgets.QRadioButton, "button_recording_overwrite_no"
+        self.button_recording_overwrite_no: QtWidgets.QRadioButton = (
+            self.window.findChild(
+                QtWidgets.QRadioButton, "button_recording_overwrite_no"
+            )
         )
         self.button_recording_overwrite_no.setChecked(True)
-        self.button_recording_config: QtWidgets.QPushButton = self.w.findChild(
+        self.button_recording_config: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_recording_config"
         )
         self.button_recording_config.clicked.connect(
             self.recording_config_button_clicked
         )
-        self.button_recording_start: QtWidgets.QPushButton = self.w.findChild(
+        self.button_recording_start: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_recording_start"
         )
         self.button_recording_start.clicked.connect(self.recording_start_clicked)
-        self.button_recording_stop: QtWidgets.QPushButton = self.w.findChild(
+        self.button_recording_stop: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_recording_stop"
         )
         self.button_recording_stop.clicked.connect(self.controller.recording_stop)
         self.button_recording_stop.setEnabled(False)
-        self.line_edit_recording_status: QtWidgets.QLineEdit = self.w.findChild(
+        self.line_edit_recording_status: QtWidgets.QLineEdit = self.window.findChild(
             QtWidgets.QLineEdit, "line_edit_recording_status"
         )
         self.controller.recording_status.connect(self.recording_status_update)
         self.recording_start_success = False
 
         # Track tab load table widgets
-        self.button_select_track_table_file: QtWidgets.QPushButton = self.w.findChild(
-            QtWidgets.QPushButton, "button_select_track_table_file"
+        self.button_select_track_table_file: QtWidgets.QPushButton = (
+            self.window.findChild(
+                QtWidgets.QPushButton, "button_select_track_table_file"
+            )
         )
         self.button_select_track_table_file.clicked.connect(
             self.track_table_file_button_clicked
         )
-        self.line_edit_track_table_file: QtWidgets.QLineEdit = self.w.findChild(
+        self.line_edit_track_table_file: QtWidgets.QLineEdit = self.window.findChild(
             QtWidgets.QLineEdit, "line_edit_track_table_file"
         )
         self.line_edit_track_table_file.textChanged.connect(
             self.track_table_file_changed
         )
         self.spinbox_file_track_additional_offset: QtWidgets.QDoubleSpinBox = (
-            self.w.findChild(
+            self.window.findChild(
                 QtWidgets.QDoubleSpinBox, "spinbox_file_track_additional_offset"
             )
         )
         self.spinbox_file_track_additional_offset.setEnabled(False)
         self.button_file_track_absolute_times: QtWidgets.QRadioButton = (
-            self.w.findChild(QtWidgets.QRadioButton, "button_file_track_absolute_times")
+            self.window.findChild(
+                QtWidgets.QRadioButton, "button_file_track_absolute_times"
+            )
         )
         self.button_file_track_absolute_times.setChecked(False)
         self.button_file_track_relative_times: QtWidgets.QRadioButton = (
-            self.w.findChild(QtWidgets.QRadioButton, "button_file_track_relative_times")
+            self.window.findChild(
+                QtWidgets.QRadioButton, "button_file_track_relative_times"
+            )
         )
         self.button_file_track_relative_times.toggled.connect(
             self.button_file_track_relative_times_toggled
         )
         self.button_file_track_relative_times.setChecked(True)
-        self.combobox_file_track_mode: QtWidgets.QComboBox = self.w.findChild(
+        self.combobox_file_track_mode: QtWidgets.QComboBox = self.window.findChild(
             QtWidgets.QComboBox, "combobox_file_track_mode"
         )
-        self.button_load_track_table: QtWidgets.QPushButton = self.w.findChild(
+        self.button_load_track_table: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_load_track_table"
         )
         self.button_load_track_table.clicked.connect(self.load_track_table_clicked)
 
         # Track tab control widgets
-        self.combobox_track_start_interpol_type: QtWidgets.QComboBox = self.w.findChild(
-            QtWidgets.QComboBox, "combobox_track_start_interpol_type"
+        self.combobox_track_start_interpol_type: QtWidgets.QComboBox = (
+            self.window.findChild(
+                QtWidgets.QComboBox, "combobox_track_start_interpol_type"
+            )
         )
-        self.button_start_track_now: QtWidgets.QRadioButton = self.w.findChild(
+        self.button_start_track_now: QtWidgets.QRadioButton = self.window.findChild(
             QtWidgets.QRadioButton, "button_start_track_now"
         )
         self.button_start_track_now.setChecked(True)
-        self.button_start_track_at: QtWidgets.QRadioButton = self.w.findChild(
+        self.button_start_track_at: QtWidgets.QRadioButton = self.window.findChild(
             QtWidgets.QRadioButton, "button_start_track_at"
         )
         self.button_start_track_at.toggled.connect(self.button_start_track_at_toggled)
         self.button_start_track_group = QtWidgets.QButtonGroup()
         self.button_start_track_group.addButton(self.button_start_track_at, 0)
         self.button_start_track_group.addButton(self.button_start_track_now, 1)
-        self.line_edit_start_track_at: QtWidgets.QLineEdit = self.w.findChild(
+        self.line_edit_start_track_at: QtWidgets.QLineEdit = self.window.findChild(
             QtWidgets.QLineEdit, "line_edit_start_track_at"
         )
         self.line_edit_start_track_at.setEnabled(False)
-        self.button_start_track_table: QtWidgets.QPushButton = self.w.findChild(
+        self.button_start_track_table: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_start_track_table"
         )
         self.button_start_track_table.clicked.connect(self.start_tracking_clicked)
-        self.spinbox_source_threshold_radius: LimitedDisplaySpinBox = self.w.findChild(
-            LimitedDisplaySpinBox, "spinbox_source_threshold_radius"
+        self.spinbox_source_threshold_radius: LimitedDisplaySpinBox = (
+            self.window.findChild(
+                LimitedDisplaySpinBox, "spinbox_source_threshold_radius"
+            )
         )
-        self.spinbox_source_threshold_period: LimitedDisplaySpinBox = self.w.findChild(
-            LimitedDisplaySpinBox, "spinbox_source_threshold_period"
+        self.spinbox_source_threshold_period: LimitedDisplaySpinBox = (
+            self.window.findChild(
+                LimitedDisplaySpinBox, "spinbox_source_threshold_period"
+            )
         )
-        self.button_set_on_source_threshold: QtWidgets.QPushButton = self.w.findChild(
-            QtWidgets.QPushButton, "button_set_on_source_threshold"
+        self.button_set_on_source_threshold: QtWidgets.QPushButton = (
+            self.window.findChild(
+                QtWidgets.QPushButton, "button_set_on_source_threshold"
+            )
         )
         self.button_set_on_source_threshold.clicked.connect(
             self.set_on_source_threshold_clicked
         )
 
         # Track tab time widgets
-        self.button_set_time_source: QtWidgets.QPushButton = self.w.findChild(
+        self.button_set_time_source: QtWidgets.QPushButton = self.window.findChild(
             QtWidgets.QPushButton, "button_set_time_source"
         )
         self.button_set_time_source.clicked.connect(self.set_time_source_clicked)
-        self.combobox_time_source: QtWidgets.QComboBox = self.w.findChild(
+        self.combobox_time_source: QtWidgets.QComboBox = self.window.findChild(
             QtWidgets.QComboBox, "combobox_time_source"
         )
-        self.line_edit_ntp_source_addr: QtWidgets.QLineEdit = self.w.findChild(
+        self.line_edit_ntp_source_addr: QtWidgets.QLineEdit = self.window.findChild(
             QtWidgets.QLineEdit, "line_edit_ntp_source_addr"
         )
 
         # Warning and Error tabs
-        self.warning_tree_view: QtWidgets.QTreeWidget = self.w.findChild(
+        self.warning_tree_view: QtWidgets.QTreeWidget = self.window.findChild(
             QtWidgets.QTreeWidget, "warning_tree_view"
         )
-        self.warning_status_show_only_warnings: QtWidgets.QCheckBox = self.w.findChild(
-            QtWidgets.QCheckBox, "warning_status_show_only_warnings"
+        self.warning_status_show_only_warnings: QtWidgets.QCheckBox = (
+            self.window.findChild(
+                QtWidgets.QCheckBox, "warning_status_show_only_warnings"
+            )
         )
-        self.error_tree_view: QtWidgets.QTreeWidget = self.w.findChild(
+        self.error_tree_view: QtWidgets.QTreeWidget = self.window.findChild(
             QtWidgets.QTreeWidget, "error_tree_view"
         )
-        self.error_status_show_only_errors: QtWidgets.QCheckBox = self.w.findChild(
+        self.error_status_show_only_errors: QtWidgets.QCheckBox = self.window.findChild(
             QtWidgets.QCheckBox, "error_status_show_only_errors"
         )
         self._status_widget_update_lut: dict[str, QtWidgets.QTreeWidgetItem] = {}
@@ -1641,11 +1675,11 @@ class MainView(StatusBarMixin, QtCore.QObject):
         )
 
         # Weather tab
-        self.weather_station: QtWidgets.QWidget = self.w.findChild(
+        self.weather_station: QtWidgets.QWidget = self.window.findChild(
             QtWidgets.QWidget, "weather_station"
         )
         self.button_weather_station_configure_reset: QtWidgets.QPushButton = (
-            self.w.findChild(
+            self.window.findChild(
                 QtWidgets.QPushButton, "button_weather_station_configure_reset"
             )
         )
@@ -1653,7 +1687,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
             self._reset_weather_tab_config
         )
         self.button_weather_station_configure_apply: QtWidgets.QPushButton = (
-            self.w.findChild(
+            self.window.findChild(
                 QtWidgets.QPushButton, "button_weather_station_configure_apply"
             )
         )
@@ -1694,10 +1728,10 @@ class MainView(StatusBarMixin, QtCore.QObject):
         :return: {name: (list of widgets, update function)}
         """
         all_widgets = (
-            self.w.findChildren(QtWidgets.QLineEdit)
-            + self.w.findChildren(QtWidgets.QLabel)
-            + self.w.findChildren(ToggleSwitch)
-            + self.w.findChildren(QtWidgets.QDoubleSpinBox)
+            self.window.findChildren(QtWidgets.QLineEdit)
+            + self.window.findChildren(QtWidgets.QLabel)
+            + self.window.findChildren(ToggleSwitch)
+            + self.window.findChildren(QtWidgets.QDoubleSpinBox)
         )
         opcua_widget_updates: dict[str, tuple[list[QtWidgets.QWidget], Callable]] = {}
         for wgt in all_widgets:
@@ -1752,7 +1786,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
         :return: List of OPC UA widgets.
         """
-        all_widgets = self.w.findChildren(QtWidgets.QWidget)
+        all_widgets = self.window.findChildren(QtWidgets.QWidget)
         all_opcua_widgets: list[QtWidgets.QWidget] = []
         for wgt in all_widgets:
             property_names: list[QtCore.QByteArray] = wgt.dynamicPropertyNames()
@@ -1853,7 +1887,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
     def _init_opcua_combo_widgets(self) -> None:
         """Initialise all the OPC-UA combo widgets."""
-        for widget in self.w.findChildren(QtWidgets.QComboBox):
+        for widget in self.window.findChildren(QtWidgets.QComboBox):
             if "opcua_type" not in widget.dynamicPropertyNames():
                 # Skip all the non-opcua widgets
                 continue
@@ -2104,7 +2138,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
     def connect_button_clicked(self):
         """Open the Connect To Server configuration dialog."""
-        dialog = ServerConnectDialog(self.w, self.controller)
+        dialog = ServerConnectDialog(self.window, self.controller)
         if dialog.exec():
             logger.debug("Connection configuration dialog accepted")
             logger.debug("Selected: %s", dialog.server_details)
@@ -2277,7 +2311,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
             return
 
         if self.controller.is_server_connected():
-            dialog = WeatherStationConnectDialog(self.w, self.controller)
+            dialog = WeatherStationConnectDialog(self.window, self.controller)
             if dialog.exec():
                 logger.debug("Connect weather station dialog accepted")
                 logger.debug("Selected: %s", dialog.server_details)
@@ -2293,7 +2327,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
                     "display": node in self.attribute_windows
                 }
 
-        dialog = AttributeGraphSelectDialog(self.w, self.controller.graph_config)
+        dialog = AttributeGraphSelectDialog(self.window, self.controller.graph_config)
         if dialog.exec():
             self.controller.graph_config = dialog.config_parameters
             for attribute, details in dialog.config_parameters.items():
@@ -2351,7 +2385,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         """Open a file dialog to select a track table file."""
         options = QFileDialog.Option(QFileDialog.Option.ReadOnly)
         filename, _ = QFileDialog.getOpenFileName(
-            parent=self.w,
+            parent=self.window,
             caption="Open Track Table File",
             dir=user_documents_dir(),
             filter="Track Table Files (*.csv);;All Files (*)",
@@ -2408,7 +2442,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
                     "period": 100,
                 }
 
-        dialog = RecordingConfigDialog(self.w, self.controller.recording_config)
+        dialog = RecordingConfigDialog(self.window, self.controller.recording_config)
         if dialog.exec():
             logger.debug("Recording config dialog accepted")
             logger.debug("Selected: %s", dialog.config_parameters)
@@ -2428,7 +2462,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
     def recording_file_button_clicked(self) -> None:
         """Open a dialog to select a file for the recording file box."""
         fname, _ = QtWidgets.QFileDialog.getSaveFileName(
-            parent=self.w,
+            parent=self.window,
             caption="Select Recording File",
             dir=user_documents_dir(),
             filter="DataLogger File (*.hdf5 *.h5);;All Files (*)",
@@ -2511,7 +2545,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
     def disable_input_limits_clicked(self) -> None:
         """Disable input limits of all spinboxes."""
         reply = QtWidgets.QMessageBox.warning(
-            self.w,
+            self.window,
             "Expert user option",
             "Are you sure you want to disable all input limits?",
             QtWidgets.QMessageBox.StandardButton.Yes
@@ -2520,7 +2554,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         if reply == QtWidgets.QMessageBox.StandardButton.Yes:
             self.action_disable_input_limits.setEnabled(False)
             self.action_enable_input_limits.setEnabled(True)
-            for spinbox in self.w.findChildren(LimitedDisplaySpinBox):
+            for spinbox in self.window.findChildren(LimitedDisplaySpinBox):
                 self.spinbox_input_limits.append(
                     (spinbox.minimum(), spinbox.maximum())  # type: ignore
                 )
@@ -2530,7 +2564,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         """Enable input limits of all spinboxes."""
         self.action_disable_input_limits.setEnabled(True)
         self.action_enable_input_limits.setEnabled(False)
-        for i, spinbox in enumerate(self.w.findChildren(LimitedDisplaySpinBox)):
+        for i, spinbox in enumerate(self.window.findChildren(LimitedDisplaySpinBox)):
             spinbox.setRange(*self.spinbox_input_limits[i])  # type: ignore
 
     def stop_button_clicked(self, axis: str) -> None:
@@ -2603,7 +2637,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         """Open a dialog to import a static pointing model JSON file."""
         options = QFileDialog.Option(QFileDialog.Option.ReadOnly)
         filename, _ = QFileDialog.getOpenFileName(
-            parent=self.w,
+            parent=self.window,
             caption="Import Static Pointing Model from JSON",
             dir=user_documents_dir(),
             filter="JSON Files (*.json);;All Files (*)",
@@ -2641,7 +2675,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         """Open a dialog to export a static pointing model JSON file."""
         band = self.combo_static_point_model_band_display.currentText()
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
-            parent=self.w,
+            parent=self.window,
             caption=f"Export '{band}' model to JSON",
             dir=f"{user_documents_dir()}/gpm-SKA000-{band}.json",
             filter="JSON Files (*.json);;All Files (*)",
@@ -2959,7 +2993,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
     def about_button_clicked(self) -> None:
         """Open the About dialog."""
-        dialog = QtWidgets.QMessageBox(self.w)
+        dialog = QtWidgets.QMessageBox(self.window)
         # dialog.setIcon(QtWidgets.QMessageBox.Icon.Information)
         dialog.setTextFormat(QtCore.Qt.TextFormat.RichText)
         source_code_url = "https://gitlab.com/ska-telescope/ska-mid-disq"
