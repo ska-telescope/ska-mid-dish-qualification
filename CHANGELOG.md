@@ -1,20 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.6.0
 
-- New functionality:
-    - WOM-454, WOM-579, WOM-580, WOM-609: Integrated the Weather Monitoring System into DiSQ on the 'Weather' tab.
-    - WOM-607: Add 'Set On Source Threshold' command to 'Track' tab.
-    - WOM-543: Added a global option to enable or disable min/max limits on all inputs.
-    - WOM-591: Display the current and end index of the loaded track table in the 'Track' tab.
-- Bug fixes:
-    - WOM-597: Check that the path in the track table file input field is a real file and not a directory to prevent an error message when pressing 'Load Track Table File'.
-    - WOM-576: Add an "Attribute" menu to display all attributes as graphs or logs in their own window.
 ### Added
-- WOM-454, WOM-579, WOM-580, WOM-609: Integrated the Weather Monitoring System into DiSQ on the 'Weather' tab.
+- WOM-454, WOM-578, WOM-579, WOM-580, WOM-609: Integrated the Weather Monitoring System into DiSQ on the 'Weather' tab.
 - WOM-543: Added a global option to enable or disable min/max limits on all inputs.
+- WOM-576: Add an 'Attribute' menu to display all attributes as graphs or logs in their own window.
 - WOM-591: Display the current and end index of the loaded track table in the 'Track' tab.
-- WOM-576: Add an "Attribute" menu to display all attributes as graphs or logs in their own window.
+- WOM-607: Add 'Set On Source Threshold' command to 'Track' tab.
+
+### Changed
+- WOM-577: Move `DataLogger` output file structure creation to thread.
 
 ### Fixed
 - WOM-597: Check that the path in the track table file input field is a real file and not a directory to prevent an error message when pressing 'Load Track Table File'.
