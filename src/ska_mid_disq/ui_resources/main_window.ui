@@ -10611,8 +10611,7 @@
      <string>Options</string>
     </property>
     <addaction name="action_run_any_command_method"/>
-    <addaction name="action_disable_input_limits"/>
-    <addaction name="action_enable_input_limits"/>
+    <addaction name="action_toggle_input_limits"/>
    </widget>
    <widget class="QMenu" name="menuAttributes">
     <property name="title">
@@ -10666,17 +10665,15 @@
     <string>Documentation</string>
    </property>
   </action>
-  <action name="action_disable_input_limits">
-   <property name="text">
-    <string>Disable all input limits</string>
+  <action name="action_toggle_input_limits">
+   <property name="checkable">
+    <bool>true</bool>
    </property>
-  </action>
-  <action name="action_enable_input_limits">
-   <property name="enabled">
-    <bool>false</bool>
+   <property name="checked">
+    <bool>true</bool>
    </property>
    <property name="text">
-    <string>Enable all input limits</string>
+    <string>Limit inputs to values in ICD</string>
    </property>
   </action>
   <action name="action_attribute_display">

@@ -195,19 +195,12 @@ class MainView(StatusBarMixin, QObject):
         self.action_about.triggered.connect(self.about_button_clicked)
         self.action_docs: QAction = self.window.action_docs
         self.action_docs.triggered.connect(self.open_documentation)
-        self.action_disable_input_limits: QAction = (
-            self.window.action_disable_input_limits
+        self.action_toggle_input_limits: QAction = (
+            self.window.action_toggle_input_limits
         )
-        self.action_disable_input_limits.triggered.connect(
-            self.disable_input_limits_clicked
+        self.action_toggle_input_limits.triggered.connect(
+            self.toggle_input_limits_clicked
         )
-        self.action_enable_input_limits: QAction = (
-            self.window.action_enable_input_limits
-        )
-        self.action_enable_input_limits.triggered.connect(
-            self.enable_input_limits_clicked
-        )
-        self.spinbox_input_limits: list[tuple[float, float]] = []
 
         self.server_status_bar: QWidget = self.window.server_status_bar
         # Load a background image for the server connection QGroupBox
@@ -774,6 +767,16 @@ class MainView(StatusBarMixin, QObject):
             if server_details is not None:
                 server_details["use_nodes_cache"] = str(cache)
                 self.server_connect(server_details, server)
+
+        # Store default configured input limits
+        self.spinbox_input_limits: list[tuple[float, float]] = []
+        self.all_input_spinboxes: list[LimitedDisplaySpinBox] = (
+            self.window.findChildren(LimitedDisplaySpinBox)  # type: ignore
+        )
+        for spinbox in self.all_input_spinboxes:
+            self.spinbox_input_limits.append(
+                (spinbox.minimum(), spinbox.maximum())  # type: ignore
+            )
 
     @cached_property
     def opcua_widgets(
@@ -1657,32 +1660,26 @@ class MainView(StatusBarMixin, QObject):
         self.spinbox_slew_simul_elev_position.setSingleStep(step_size)
         self.spinbox_slew_simul_elev_velocity.setSingleStep(step_size)
 
-    def disable_input_limits_clicked(self) -> None:
+    def toggle_input_limits_clicked(self) -> None:
         """Disable input limits of all spinboxes."""
-        reply = QMessageBox.warning(
-            self.window,
-            "Expert user option",
-            "Are you sure you want to disable all input limits?",
-            QMessageBox.StandardButton.Yes,
-            QMessageBox.StandardButton.No,
-        )
-        if reply == QMessageBox.StandardButton.Yes:
-            self.action_disable_input_limits.setEnabled(False)
-            self.action_enable_input_limits.setEnabled(True)
-            spinboxes = self.window.findChildren(LimitedDisplaySpinBox)  # type: ignore
-            for spinbox in spinboxes:
-                self.spinbox_input_limits.append(
-                    (spinbox.minimum(), spinbox.maximum())  # type: ignore
-                )
-                spinbox.setRange(-100000.0, 100000.0)  # type: ignore
-
-    def enable_input_limits_clicked(self) -> None:
-        """Enable input limits of all spinboxes."""
-        self.action_disable_input_limits.setEnabled(True)
-        self.action_enable_input_limits.setEnabled(False)
-        spinboxes = self.window.findChildren(LimitedDisplaySpinBox)  # type: ignore
-        for i, spinbox in enumerate(spinboxes):
-            spinbox.setRange(*self.spinbox_input_limits[i])  # type: ignore
+        if self.action_toggle_input_limits.isChecked():
+            for i, spinbox in enumerate(self.all_input_spinboxes):
+                spinbox.setRange(*self.spinbox_input_limits[i])  # type: ignore
+        else:
+            reply = QMessageBox.warning(
+                self.window,
+                "Expert user option",
+                "Are you sure you want to disable all input limits?",
+                QMessageBox.StandardButton.Yes,
+                QMessageBox.StandardButton.No,
+            )
+            if reply == QMessageBox.StandardButton.Yes:
+                for spinbox in self.all_input_spinboxes:
+                    spinbox.setRange(-100000.0, 100000.0)  # type: ignore
+            else:
+                self.action_toggle_input_limits.blockSignals(True)
+                self.action_toggle_input_limits.setChecked(True)
+                self.action_toggle_input_limits.blockSignals(False)
 
     def stop_button_clicked(self, axis: str) -> None:
         """
