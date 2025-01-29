@@ -1,57 +1,74 @@
 [project]
 name = "ska-mid-disq"
 version = "0.6.0"
+description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+authors = [
+    {name = "Thomas Juerges", email = "Thomas.Juerges@skao.int"},
+    {name = "Oliver Skivington", email = "oliver.skivington@criticalsoftware.com"},
+    {name = "Ulrik Pedersen", email = "ukp@observatorysciences.co.uk"},
+    {name = "Jarrett Engelbrecht", email = "jarrett@vivosa.co.za"}
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: BSD 3-Clause License",
+    "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
-description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
-requires-python = ">=3.10, <3.12"
+requires-python = ">=3.10, <3.13"
 dependencies = [
-    "asyncua>=1.1.5",
-    "PySide6==6.4.3",
+# For the following dependencies only patch updates are allowed, because they are 
+# specific to DiSQ (not used in any other dependencies), and even minor updates can 
+# easily cause bugs that can go unnoticed without thorough exploratory testing.
+    "PySide6~=6.8.1",
+    "pyqtgraph~=0.13.7",
+    "h5py~=3.12.1",
+# The following are more common dependencies which can have less strict constraints
     "pyyaml>=6.0.2",
-    "h5py>=3.12.1",
     "platformdirs>=4.3.6",
+    "asyncua>=1.1.5",
     "ska-mid-dish-steering-control>=0.2.0",
     # "ska-mid-dish-steering-control @ git+https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git@main",
     "ska-mid-wms-interface>=0.1.1",
     "pyqtgraph>=0.13.7",
 ]
-license.file = "LICENSE"
-readme = "README.md"
 
+# [dependency-groups] # Change to this later with Poetry 2.0 and a newer version of pip
 [project.optional-dependencies]
 dev = [
-    "pytest",
-    "pytest-qt",
-    "pytest-cov",
-    "assertpy",
-    "isort",
-    "black",
-    "pylint",
-    "pylint-junit",
-    "pyinstaller",
-    "flake8",
-    "flake8-isort",
-    "flake8-formatter-junit-xml",
-    "flake8-builtins",
-    "flake8-docstrings",
-    "flake8-use-fstring",
-    "flake8-rst-docstrings",
-    "mypy",
-    "pep8-naming",
-    "build",
-    "Sphinx",
-    "sphinx-argparse",
-    "ska-ser-sphinx-theme @ git+https://gitlab.com/ska-telescope/ska-ser-sphinx-theme.git@0.1.2",
-    "sphinx-autodoc-typehints",
-    "sphinxcontrib-mermaid",
-    "recommonmark",
-    "matplotlib",
-    "plotly",
-    "numpy",
+    "pytest>=8.1.1",
+    "pytest-qt>=4.4.0",
+    "pytest-cov>=4.0.0",
+    "assertpy>=1.1",
+    "isort>=5.13.2",
+    "black>=24.2.0",
+    "pylint>=3.2.4",
+    "pylint-junit>=0.3.2",
+    "pyinstaller>=6.11.1",
+    "flake8>=7.0.0",
+    "flake8-formatter-junit-xml>=0.0.6",
+    "flake8-builtins>=2.1.0",
+    "flake8-docstrings>=1.7.0",
+    "flake8-use-fstring>=1.4",
+    "flake8-rst-docstrings>=0.3.0",
+    "mypy>=1.9.0",
+    "pep8-naming>=0.13.3",
+    "build>=1.1.1",
+    "numpy>=1.26.4",
+    "matplotlib>=3.9.2",  # Used in the utility Reader class.
+    "plotly>=5.24.1",     # Used in the utility Reader class.
+    # {include-group = "docs"}
+]
+docs = [
+    "Sphinx>=7.2.6",
+    "sphinx-autodoc-typehints>=2.0.0",
+    "ska-ser-sphinx-theme>=0.1.2",
+    "sphinx-argparse>=0.4.0",
+    "sphinxcontrib-mermaid>=0.9.2",
+    "recommonmark>=0.7.1",
 ]
 
 [project.scripts]
@@ -59,23 +76,12 @@ disq-gui = "ska_mid_disq.mvcmain:main"
 disq-validate-server = "ska_mid_disq.server_validator:main"
 
 [project.urls]
-GitLab = "https://gitlab.com/ska-telescope/ska-mid-disq"
 source = "https://gitlab.com/ska-telescope/ska-mid-disq"
-
-[[project.authors]] # Further authors may be added by duplicating this section
-email = "Thomas.Juerges@skao.int"
-name = "Thomas Juerges"
-[[project.authors]]
-email = "oliver.skivington@criticalsoftware.com"
-name = "Oliver Skivington"
-[[project.authors]]
-email = "ukp@observatorysciences.co.uk"
-name = "Ulrik Pedersen"
-[[project.authors]]
-email = "jarrett@vivosa.co.za"
-name = "Jarrett Engelbrecht"
+changelog = "https://developer.skao.int/projects/ska-mid-disq/en/latest/releases/changelog.html"
+documentation = "https://developer.skao.int/projects/ska-mid-disq/en/latest"
 
 [tool.poetry]
+# requires-poetry = ">=2.0"
 include = ["MANIFEST.skao.int"]
 name = "ska-mid-disq"
 version = "0.6.0"
@@ -100,19 +106,23 @@ name = "ska"
 url = "https://artefact.skao.int/repository/pypi-all/simple"
 
 [tool.poetry.dependencies]
-python = ">=3.10, <3.12"
-asyncua = "^1.1.5"
-PySide6 = "6.4.3"
+python = ">=3.10, <3.13"
+# For the following dependencies only patch updates are allowed, because they are 
+# specific to DiSQ (not used in any other dependencies), and even minor updates can 
+# easily cause bugs that can go unnoticed without thorough exploratory testing.
+PySide6 = "~=6.8.1"
+pyqtgraph = "~=0.13.7"
+h5py = "~=3.12.1"
+# The following are more common dependencies which can have less strict constraints
 pyyaml = "^6.0.2"
-h5py = "^3.12.1"
 platformdirs = "^4.3.6"
+asyncua = "^1.1.5"
 ska-mid-dish-steering-control = "^0.2.0"
 # ska-mid-dish-steering-control = { path = "../ska-mid-dish-steering-control", develop = true }
 # ska-mid-dish-steering-control = { git = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git", branch = "main" }
 ska-mid-wms-interface = "^0.1.1"
 # ska-mid-wms-interface = { git = "https://gitlab.com/ska-telescope/ska-mid-wms-interface.git", branch = "main" }
 # ska-mid-wms-interface = { path = "../ska-mid-wms-interface", develop = true }
-pyqtgraph = "^0.13.7"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"

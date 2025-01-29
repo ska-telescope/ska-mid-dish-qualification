@@ -1983,16 +1983,15 @@ class MainView(StatusBarMixin, QtCore.QObject):
             return
         if event["name"] == TILT_CORR_ACTIVE:
             if event["value"]:
+                self.button_tilt_correction_meter_toggle.clicked.disconnect()
                 self.button_tilt_correction_meter_toggle.clicked.connect(
                     self.pointing_correction_setup_button_clicked
                 )
             else:
-                try:
-                    self.button_tilt_correction_meter_toggle.clicked.disconnect(
-                        self.pointing_correction_setup_button_clicked
-                    )
-                except (TypeError, RuntimeError):
-                    pass
+                self.button_tilt_correction_meter_toggle.clicked.disconnect()
+                self.button_tilt_correction_meter_toggle.clicked.connect(
+                    self.update_tilt_meter_calibration_parameters_values
+                )
         elif event["name"] == TEMP_CORR_ACTIVE:
             if self._update_temp_correction_inputs_text:
                 self._update_temp_correction_inputs_text = False
