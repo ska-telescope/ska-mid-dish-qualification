@@ -5,24 +5,34 @@ from datetime import datetime, timedelta, timezone
 from threading import Lock
 from typing import Any
 
-import pyqtgraph
-from PySide6 import QtCore, QtWidgets
+from pyqtgraph import DateAxisItem, PlotWidget
+from PySide6.QtCore import Qt, QTimer, Signal, SignalInstance
 from PySide6.QtGui import QCloseEvent, QIcon, QKeySequence
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QApplication,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ska_mid_disq.constants import SKAO_ICON_PATH, SUBSCRIPTION_RATE_MS
 
 logger = logging.getLogger("gui.view")
 
 
-class LiveAttributeWindow(QtWidgets.QWidget):
+class LiveAttributeWindow(QWidget):
     """A window for displaying individual attribute values only."""
 
-    signal = QtCore.Signal(object)
+    signal = Signal(object)
 
     def __init__(
         self,
         attribute: str,
-        close_signal: QtCore.SignalInstance,
+        close_signal: SignalInstance,
     ):
         """
         Initialise the LiveAttributeWindow.
@@ -39,23 +49,23 @@ class LiveAttributeWindow(QtWidgets.QWidget):
         self.resize(580, 50)
 
         # Value
-        self.attribute_value = QtWidgets.QLineEdit(parent=self)
+        self.attribute_value = QLineEdit(parent=self)
         self.attribute_value.setReadOnly(True)
         self.attribute_value.setPlaceholderText(self.attribute)
-        self.attribute_value.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.attribute_value.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.attribute_value.resize(12, 290)
-        self.attribute_time = QtWidgets.QLineEdit(parent=self)
+        self.attribute_time = QLineEdit(parent=self)
         self.attribute_time.setReadOnly(True)
         self.attribute_time.setPlaceholderText(self.attribute)
-        self.attribute_time.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.attribute_time.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.attribute_time.resize(12, 290)
-        self.label_layout = QtWidgets.QHBoxLayout()
-        self.label_layout.addWidget(QtWidgets.QLabel("Value"))
-        self.label_layout.addWidget(QtWidgets.QLabel("Timestamp"))
-        self.data_point_layout = QtWidgets.QHBoxLayout()
+        self.label_layout = QHBoxLayout()
+        self.label_layout.addWidget(QLabel("Value"))
+        self.label_layout.addWidget(QLabel("Timestamp"))
+        self.data_point_layout = QHBoxLayout()
         self.data_point_layout.addWidget(self.attribute_value)
         self.data_point_layout.addWidget(self.attribute_time)
-        self.window_layout = QtWidgets.QVBoxLayout()
+        self.window_layout = QVBoxLayout()
         self.window_layout.addLayout(self.label_layout)
         self.window_layout.addLayout(self.data_point_layout)
         self.setLayout(self.window_layout)
@@ -82,7 +92,7 @@ class LiveGraphWindow(LiveAttributeWindow):
         self,
         attribute: str,
         attribute_type: list[str],
-        close_signal: QtCore.SignalInstance,
+        close_signal: SignalInstance,
     ):
         """
         Initialise the LiveGraphWindow.
@@ -97,7 +107,7 @@ class LiveGraphWindow(LiveAttributeWindow):
         self.resize(580, 400)
 
         # Graph
-        self.graph = pyqtgraph.PlotWidget()
+        self.graph = PlotWidget()
 
         self.window_layout.addWidget(self.graph)
 
@@ -119,10 +129,10 @@ class LiveGraphWindow(LiveAttributeWindow):
         self.attribute_axis_data = [0.0] * self.AXES_LENGTH
         self._latest_data_time = init_date
         self._data_lock = Lock()
-        self.x_axis = pyqtgraph.DateAxisItem()
+        self.x_axis = DateAxisItem()
         self.graph.setAxisItems({"bottom": self.x_axis})
         self.line = self.graph.plot(self.time_axis_data, self.attribute_axis_data)
-        self.timer = QtCore.QTimer()
+        self.timer = QTimer()
         self.timer.setInterval(SUBSCRIPTION_RATE_MS)
         self.timer.timeout.connect(self._update_plot)  # type: ignore[attr-defined]
         self.timer.start()
@@ -175,7 +185,7 @@ class LiveHistoryWindow(LiveAttributeWindow):
     def __init__(
         self,
         attribute: str,
-        close_signal: QtCore.SignalInstance,
+        close_signal: SignalInstance,
     ):
         """
         Initialise the LiveHistoryWindow.
@@ -188,14 +198,12 @@ class LiveHistoryWindow(LiveAttributeWindow):
 
         # History
         # pylint: disable=too-few-public-methods
-        class CopyMultipleLines(QtWidgets.QListWidget):
+        class CopyMultipleLines(QListWidget):
             """Subclass QListWidget to be able to copy multiple lines."""
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
-                self.setSelectionMode(
-                    QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
-                )
+                self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
             # pylint: disable=invalid-name
             def keyPressEvent(self, e):  # noqa: N802
@@ -205,7 +213,7 @@ class LiveHistoryWindow(LiveAttributeWindow):
                     for item in self.selectedItems():
                         text += f"{item.text()}\n"
 
-                    clipboard = QtWidgets.QApplication.clipboard()
+                    clipboard = QApplication.clipboard()
                     clipboard.setText(text)
                     return None
 
