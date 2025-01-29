@@ -58,6 +58,7 @@ from ska_mid_disq.ui_resources import ui_resources  # noqa pylint: disable=unuse
 
 from . import controller
 from .attribute_window import LiveAttributeWindow, LiveGraphWindow, LiveHistoryWindow
+from .command_window import CommandWindow
 from .custom_widgets import LimitedDisplaySpinBox, ToggleSwitch
 from .dialogs import (
     RecordingConfigDialog,
@@ -201,6 +202,12 @@ class MainView(StatusBarMixin, QObject):
         self.action_toggle_input_limits.triggered.connect(
             self.toggle_input_limits_clicked
         )
+        self.action_run_any_command_method: QAction = (
+            self.window.action_run_any_command_method
+        )
+        self.action_run_any_command_method.triggered.connect(self.select_commands)
+        self.commands_config: dict[str, dict[str, bool | int]] = {}
+        self.command_windows: dict[str, CommandWindow] = {}
 
         self.server_status_bar: QWidget = self.window.server_status_bar
         # Load a background image for the server connection QGroupBox
@@ -1429,6 +1436,25 @@ class MainView(StatusBarMixin, QObject):
                 self.controller.connect_weather_station(dialog.server_details)
             else:
                 logger.debug("Connect weather station dialog cancelled")
+
+    def select_commands(self) -> None:
+        """Open the command methods selection dialog."""
+        if not self.commands_config:
+            for node in self.model.opcua_commands:
+                self.commands_config[node] = {"display": node in self.command_windows}
+        dialog = SelectNodesDialog(self.window, "commands", self.commands_config)
+        if dialog.exec():
+            self.commands_config = dialog.config_parameters
+            for command, details in dialog.config_parameters.items():
+                if details["display"] and command not in self.command_windows:
+                    logger.debug("Opening command window for: %s", command)
+                    command_window = CommandWindow(command)
+                    self.command_windows[command] = command_window
+                    command_window.show()
+                if command in self.command_windows and not details["display"]:
+                    self.command_windows[command].close()
+        else:
+            logger.debug("Command select dialog cancelled")
 
     def select_attribute_graphs(self):
         """Open the attribute selection dialog."""

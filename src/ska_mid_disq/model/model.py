@@ -559,6 +559,20 @@ class Model(QObject):
         return self._scu.opcua_enum_types
 
     @property
+    def opcua_commands(self) -> list[str]:
+        """
+        List containing the commands in the 'PLC_PRG' node tree.
+
+        This method retrieves a list of available commands from the OPC UA server if
+        the connection has been established.
+
+        :return: A list of OPC UA command names.
+        """
+        if self._scu is None:
+            return []
+        return self._scu.get_command_list()
+
+    @property
     def opcua_attributes(self) -> AttrDict:
         """
         Dictionary containing the attributes in the 'PLC_PRG' node tree.
@@ -569,7 +583,7 @@ class Model(QObject):
         :return: A dict of OPC UA attributes.
         """
         if self._scu is None:
-            return []
+            return {}
         return self._scu.attributes
 
     def get_attribute_type(self, attribute: str) -> list[str]:
