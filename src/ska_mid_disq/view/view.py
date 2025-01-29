@@ -60,8 +60,8 @@ from . import controller
 from .attribute_window import LiveAttributeWindow, LiveGraphWindow, LiveHistoryWindow
 from .custom_widgets import LimitedDisplaySpinBox, ToggleSwitch
 from .dialogs import (
-    AttributeGraphSelectDialog,
     RecordingConfigDialog,
+    SelectNodesDialog,
     ServerConnectDialog,
     StatusBarMixin,
     WeatherStationConnectDialog,
@@ -1428,14 +1428,16 @@ class MainView(StatusBarMixin, QObject):
                 logger.debug("Connect weather station dialog cancelled")
 
     def select_attribute_graphs(self):
-        """Open the attribute seleciton dialog."""
+        """Open the attribute selection dialog."""
         if not self.controller.graph_config:
             for node in self.model.opcua_attributes:
                 self.controller.graph_config[node] = {
                     "display": node in self.attribute_windows
                 }
 
-        dialog = AttributeGraphSelectDialog(self.window, self.controller.graph_config)
+        dialog = SelectNodesDialog(
+            self.window, "attributes", self.controller.graph_config
+        )
         if dialog.exec():
             self.controller.graph_config = dialog.config_parameters
             for attribute, details in dialog.config_parameters.items():
