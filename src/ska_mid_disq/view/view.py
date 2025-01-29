@@ -10,15 +10,7 @@ from pathlib import Path
 from typing import Any, Callable, Final
 
 from platformdirs import user_documents_dir
-from PySide6.QtCore import (
-    QByteArray,
-    QLocale,
-    QObject,
-    Qt,
-    QUrl,
-    Signal,
-    SignalInstance,
-)
+from PySide6.QtCore import QByteArray, QLocale, Qt, QUrl, Signal, SignalInstance
 from PySide6.QtGui import (
     QAction,
     QBrush,
@@ -87,7 +79,7 @@ ALLOWED_GRAPH_TYPES = ["Boolean", "Double", "Enumeration"]
 
 # pylint: disable=too-many-statements, too-many-public-methods,
 # pylint: disable=too-many-instance-attributes
-class MainView(StatusBarMixin, QObject):
+class MainView(StatusBarMixin, QMainWindow):
     """
     A class representing the main Window of the DiSQ GUI application.
 
@@ -119,7 +111,7 @@ class MainView(StatusBarMixin, QObject):
         disq_model: model.Model,
         disq_controller: controller.Controller,
         *args: Any,
-        server: str = None,
+        server: str | None = None,
         cache: bool = False,
         **kwargs: Any,
     ) -> None:
@@ -149,67 +141,71 @@ class MainView(StatusBarMixin, QObject):
         :param kwargs: Additional keyword arguments.
         """
         super().__init__(*args, **kwargs)
-        self.window = main_window
-        self.window.setWindowTitle(f"DiSQ GUI v{__version__}")
-        self.window.setWindowIcon(QIcon(SKAO_ICON_PATH))
+        self.win = main_window
+        self.setCentralWidget(self.win)
+        self.setWindowTitle(f"DiSQ GUI v{__version__}")
+        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
+        self.setMinimumSize(1200, 760)
+        self.setMaximumSize(1600, 900)
+        self.resize(1200, 760)
+
+        # Keep a reference to model and controller
+        self.model = disq_model
+        self.controller = disq_controller
 
         # Adding a default style for the tooltip with a white background and black text
         # This is a work-around for the issue that tooltips inherit style from the
         # parent widget - and this choice of colour-scheme is at least readable.
-        self.window.setStyleSheet(
+        self.win.setStyleSheet(
             "QToolTip { color: black; background-color: white;"
             "border: 1px solid black; }"
         )
 
         # Menubar
-        self.action_connect_opcua_server: QAction = (
-            self.window.action_connect_opcua_server
-        )
+        self.action_connect_opcua_server: QAction = self.win.action_connect_opcua_server
         self.action_connect_opcua_server.triggered.connect(self.connect_button_clicked)
         self.action_disconnect_opcua_server: QAction = (
-            self.window.action_disconnect_opcua_server
+            self.win.action_disconnect_opcua_server
         )
         self.action_disconnect_opcua_server.triggered.connect(
             self.disconnect_button_clicked
         )
         self.action_connect_weather_station: QAction = (
-            self.window.action_connect_weather_station
+            self.win.action_connect_weather_station
         )
         self.action_connect_weather_station.triggered.connect(
             self.connect_weather_station_clicked
         )
         self.action_disconnect_weather_station: QAction = (
-            self.window.action_disconnect_weather_station
+            self.win.action_disconnect_weather_station
         )
         self.action_disconnect_weather_station.triggered.connect(
             self.connect_weather_station_clicked
         )
-        self.action_attribute_display: QAction = self.window.action_attribute_display
+        self.action_attribute_display: QAction = self.win.action_attribute_display
         self.action_attribute_display.triggered.connect(self.select_attribute_graphs)
         self.action_close_all_attribute_windows: QAction = (
-            self.window.action_close_all_attribute_windows
+            self.win.action_close_all_attribute_windows
         )
         self.action_close_all_attribute_windows.triggered.connect(
             self.close_all_graph_windows
         )
-        self.action_about: QAction = self.window.action_about
+        self.action_about: QAction = self.win.action_about
         self.action_about.triggered.connect(self.about_button_clicked)
-        self.action_docs: QAction = self.window.action_docs
+        self.action_docs: QAction = self.win.action_docs
         self.action_docs.triggered.connect(self.open_documentation)
-        self.action_toggle_input_limits: QAction = (
-            self.window.action_toggle_input_limits
-        )
+        self.action_toggle_input_limits: QAction = self.win.action_toggle_input_limits
         self.action_toggle_input_limits.triggered.connect(
             self.toggle_input_limits_clicked
         )
         self.action_run_any_command_method: QAction = (
-            self.window.action_run_any_command_method
+            self.win.action_run_any_command_method
         )
         self.action_run_any_command_method.triggered.connect(self.select_commands)
         self.commands_config: dict[str, dict[str, bool | int]] = {}
         self.command_windows: dict[str, CommandWindow] = {}
 
-        self.server_status_bar: QWidget = self.window.server_status_bar
+        self.server_status_bar: QWidget = self.win.server_status_bar
         # Load a background image for the server connection QGroupBox
         pixmap = QPixmap(":/images/skao_colour_bar.png")
         palette = self.server_status_bar.palette()
@@ -217,19 +213,15 @@ class MainView(StatusBarMixin, QObject):
         self.server_status_bar.setPalette(palette)
         self.server_status_bar.setAutoFillBackground(True)
 
-        self.label_conn_status: QLabel = self.window.label_conn_status
-        self.label_cache_status: QLabel = self.window.label_cache_status
+        self.label_conn_status: QLabel = self.win.label_conn_status
+        self.label_cache_status: QLabel = self.win.label_cache_status
         self.label_cache_status.setStyleSheet("QLabel { color: white; }")
         self.label_conn_status.setStyleSheet("QLabel { color: white; }")
 
         self.list_cmd_history: QListWidget = (
-            self.window.list_cmd_history
+            self.win.list_cmd_history
         )  # Command history list widget
-        self.window.setStatusBar(self.create_status_bar_widget("ℹ️ Status"))
-
-        # Keep a reference to model and controller
-        self.model = disq_model
-        self.controller = disq_controller
+        self.win.setStatusBar(self.create_status_bar_widget("ℹ️ Status"))
 
         # Connect widgets and slots to the Controller
         self.controller.ui_status_message.connect(self.command_response_status_update)
@@ -252,143 +244,133 @@ class MainView(StatusBarMixin, QObject):
         )
 
         # Status panel widgets
-        self.line_edit_warning_general: QLineEdit = (
-            self.window.line_edit_warning_general
-        )
+        self.line_edit_warning_general: QLineEdit = self.win.line_edit_warning_general
 
         # Authority status group widgets
-        self.combobox_authority: QComboBox = self.window.combobox_authority
-        self.button_take_auth: QPushButton = self.window.button_take_auth
+        self.combobox_authority: QComboBox = self.win.combobox_authority
+        self.button_take_auth: QPushButton = self.win.button_take_auth
         self.button_take_auth.clicked.connect(self.take_authority_button_clicked)
-        self.button_release_auth: QPushButton = self.window.button_release_auth
+        self.button_release_auth: QPushButton = self.win.button_release_auth
         self.button_release_auth.clicked.connect(self.release_authority_button_clicked)
-        self.button_interlock_ack: QPushButton = self.window.button_interlock_ack
+        self.button_interlock_ack: QPushButton = self.win.button_interlock_ack
         self.button_interlock_ack.clicked.connect(self.controller.command_interlock_ack)
         # Slew group widgets
         self.spinbox_slew_simul_azim_position: LimitedDisplaySpinBox = (
-            self.window.spinbox_slew_simul_azim_position
+            self.win.spinbox_slew_simul_azim_position
         )
         self.spinbox_slew_simul_elev_position: LimitedDisplaySpinBox = (
-            self.window.spinbox_slew_simul_elev_position
+            self.win.spinbox_slew_simul_elev_position
         )
         self.spinbox_slew_simul_azim_velocity: LimitedDisplaySpinBox = (
-            self.window.spinbox_slew_simul_azim_velocity
+            self.win.spinbox_slew_simul_azim_velocity
         )
         self.spinbox_slew_simul_elev_velocity: LimitedDisplaySpinBox = (
-            self.window.spinbox_slew_simul_elev_velocity
+            self.win.spinbox_slew_simul_elev_velocity
         )
-        self.button_slew2abs: QPushButton = self.window.button_slew2abs
+        self.button_slew2abs: QPushButton = self.win.button_slew2abs
         self.button_slew2abs.clicked.connect(self.slew2abs_button_clicked)
         # Commands group widgets
-        self.button_stop: QPushButton = self.window.button_stop
+        self.button_stop: QPushButton = self.win.button_stop
         self.button_stop.clicked.connect(lambda: self.stop_button_clicked("AzEl"))
-        self.button_stow: QPushButton = self.window.button_stow
+        self.button_stow: QPushButton = self.win.button_stow
         self.button_stow.clicked.connect(self.stow_button_clicked)
-        self.button_unstow: QPushButton = self.window.button_unstow
+        self.button_unstow: QPushButton = self.win.button_unstow
         self.button_unstow.clicked.connect(self.unstow_button_clicked)
-        self.button_activate: QPushButton = self.window.button_activate
+        self.button_activate: QPushButton = self.win.button_activate
         self.button_activate.clicked.connect(
             lambda: self.activate_button_clicked("AzEl")
         )
-        self.button_deactivate: QPushButton = self.window.button_deactivate
+        self.button_deactivate: QPushButton = self.win.button_deactivate
         self.button_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("AzEl")
         )
         # Power tab widgets
-        self.button_power_mode_normal: QRadioButton = (
-            self.window.button_power_mode_normal
-        )
+        self.button_power_mode_normal: QRadioButton = self.win.button_power_mode_normal
         self.button_power_mode_normal.setChecked(True)
-        self.button_power_mode_low: QRadioButton = self.window.button_power_mode_low
+        self.button_power_mode_low: QRadioButton = self.win.button_power_mode_low
         self.button_power_mode_group = QButtonGroup()
         self.button_power_mode_group.addButton(self.button_power_mode_normal, 0)
         self.button_power_mode_group.addButton(self.button_power_mode_low, 1)
-        self.spinbox_power_lim_kw: QDoubleSpinBox = self.window.spinbox_power_lim_kw
-        self.button_set_power_mode: QPushButton = self.window.button_set_power_mode
+        self.spinbox_power_lim_kw: QDoubleSpinBox = self.win.spinbox_power_lim_kw
+        self.button_set_power_mode: QPushButton = self.win.button_set_power_mode
         self.button_set_power_mode.clicked.connect(self.set_power_mode_clicked)
 
         # Axis tab elevation group widgets
-        self.button_elevation_slew: QPushButton = self.window.button_elevation_slew
+        self.button_elevation_slew: QPushButton = self.win.button_elevation_slew
         self.button_elevation_slew.clicked.connect(
             lambda: self.slew_button_clicked("El")
         )
-        self.button_elevation_stop: QPushButton = self.window.button_elevation_stop
+        self.button_elevation_stop: QPushButton = self.win.button_elevation_stop
         self.button_elevation_stop.clicked.connect(
             lambda: self.stop_button_clicked("El")
         )
-        self.button_elevation_activate: QPushButton = (
-            self.window.button_elevation_activate
-        )
+        self.button_elevation_activate: QPushButton = self.win.button_elevation_activate
         self.button_elevation_activate.clicked.connect(
             lambda: self.activate_button_clicked("El")
         )
         self.button_elevation_deactivate: QPushButton = (
-            self.window.button_elevation_deactivate
+            self.win.button_elevation_deactivate
         )
         self.button_elevation_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("El")
         )
         self.spinbox_slew_only_elevation_position: LimitedDisplaySpinBox = (
-            self.window.spinbox_slew_only_elevation_position
+            self.win.spinbox_slew_only_elevation_position
         )
         self.spinbox_slew_only_elevation_velocity: LimitedDisplaySpinBox = (
-            self.window.spinbox_slew_only_elevation_velocity
+            self.win.spinbox_slew_only_elevation_velocity
         )
-        self.button_elevation_reset: QPushButton = self.window.button_elevation_reset
+        self.button_elevation_reset: QPushButton = self.win.button_elevation_reset
         self.button_elevation_reset.clicked.connect(
             lambda: self.reset_button_clicked("El")
         )
         # Axis tab azimuth group widgets
-        self.button_azimuth_slew: QPushButton = self.window.button_azimuth_slew
+        self.button_azimuth_slew: QPushButton = self.win.button_azimuth_slew
         self.button_azimuth_slew.clicked.connect(lambda: self.slew_button_clicked("Az"))
-        self.button_azimuth_stop: QPushButton = self.window.button_azimuth_stop
+        self.button_azimuth_stop: QPushButton = self.win.button_azimuth_stop
         self.button_azimuth_stop.clicked.connect(lambda: self.stop_button_clicked("Az"))
-        self.button_azimuth_activate: QPushButton = self.window.button_azimuth_activate
+        self.button_azimuth_activate: QPushButton = self.win.button_azimuth_activate
         self.button_azimuth_activate.clicked.connect(
             lambda: self.activate_button_clicked("Az")
         )
-        self.button_azimuth_deactivate: QPushButton = (
-            self.window.button_azimuth_deactivate
-        )
+        self.button_azimuth_deactivate: QPushButton = self.win.button_azimuth_deactivate
         self.button_azimuth_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Az")
         )
         self.spinbox_slew_only_azimuth_position: LimitedDisplaySpinBox = (
-            self.window.spinbox_slew_only_azimuth_position
+            self.win.spinbox_slew_only_azimuth_position
         )
         self.spinbox_slew_only_azimuth_velocity: LimitedDisplaySpinBox = (
-            self.window.spinbox_slew_only_azimuth_velocity
+            self.win.spinbox_slew_only_azimuth_velocity
         )
-        self.button_azimuth_reset: QPushButton = self.window.button_azimuth_reset
+        self.button_azimuth_reset: QPushButton = self.win.button_azimuth_reset
         self.button_azimuth_reset.clicked.connect(
             lambda: self.reset_button_clicked("Az")
         )
         # Axis tab feed indexer group widgets
-        self.button_indexer_slew: QPushButton = self.window.button_indexer_slew
+        self.button_indexer_slew: QPushButton = self.win.button_indexer_slew
         self.button_indexer_slew.clicked.connect(lambda: self.slew_button_clicked("Fi"))
-        self.button_indexer_stop: QPushButton = self.window.button_indexer_stop
+        self.button_indexer_stop: QPushButton = self.win.button_indexer_stop
         self.button_indexer_stop.clicked.connect(lambda: self.stop_button_clicked("Fi"))
-        self.button_indexer_activate: QPushButton = self.window.button_indexer_activate
+        self.button_indexer_activate: QPushButton = self.win.button_indexer_activate
         self.button_indexer_activate.clicked.connect(
             lambda: self.activate_button_clicked("Fi")
         )
-        self.button_indexer_deactivate: QPushButton = (
-            self.window.button_indexer_deactivate
-        )
+        self.button_indexer_deactivate: QPushButton = self.win.button_indexer_deactivate
         self.button_indexer_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("Fi")
         )
         self.spinbox_slew_only_indexer_position: LimitedDisplaySpinBox = (
-            self.window.spinbox_slew_only_indexer_position
+            self.win.spinbox_slew_only_indexer_position
         )
         self.spinbox_slew_only_indexer_velocity: LimitedDisplaySpinBox = (
-            self.window.spinbox_slew_only_indexer_velocity
+            self.win.spinbox_slew_only_indexer_velocity
         )
-        self.button_indexer_reset: QPushButton = self.window.button_indexer_reset
+        self.button_indexer_reset: QPushButton = self.win.button_indexer_reset
         self.button_indexer_reset.clicked.connect(
             lambda: self.reset_button_clicked("Fi")
         )
-        self.combobox_axis_input_step: QComboBox = self.window.combobox_axis_input_step
+        self.combobox_axis_input_step: QComboBox = self.win.combobox_axis_input_step
         self.combobox_axis_input_step.currentIndexChanged.connect(
             lambda: self.set_axis_inputs_step_size(
                 float(self.combobox_axis_input_step.currentText())
@@ -403,39 +385,39 @@ class MainView(StatusBarMixin, QObject):
 
         # Point tab static pointing model widgets
         self.button_static_point_model_import: QPushButton = (
-            self.window.button_static_point_model_import
+            self.win.button_static_point_model_import
         )
         self.button_static_point_model_import.clicked.connect(
             self.import_static_pointing_model
         )
         self.button_static_point_model_export: QPushButton = (
-            self.window.button_static_point_model_export
+            self.win.button_static_point_model_export
         )
         self.button_static_point_model_export.clicked.connect(
             self.export_static_pointing_model
         )
         self.button_static_point_model_apply: QPushButton = (
-            self.window.button_static_point_model_apply
+            self.win.button_static_point_model_apply
         )
         self.button_static_point_model_apply.clicked.connect(
             self.apply_static_pointing_parameters
         )
         self.button_static_point_model_toggle: ToggleSwitch = (
-            self.window.button_static_point_model_toggle
+            self.win.button_static_point_model_toggle
         )
         self.button_static_point_model_toggle.clicked.connect(
             self.pointing_correction_setup_button_clicked
         )
-        self.static_point_model_band: QLabel = self.window.static_point_model_band
+        self.static_point_model_band: QLabel = self.win.static_point_model_band
         self.static_point_model_band_index_prev: int = 0
         self.combo_static_point_model_band_input: QComboBox = (
-            self.window.combo_static_point_model_band_input
+            self.win.combo_static_point_model_band_input
         )
         self.combo_static_point_model_band_input.currentTextChanged.connect(
             self.pointing_model_band_selected_for_input
         )
         self.combo_static_point_model_band_display: QComboBox = (
-            self.window.combo_static_point_model_band_display
+            self.win.combo_static_point_model_band_display
         )
         self.combo_static_point_model_band_display.currentTextChanged.connect(
             self.update_static_pointing_parameters_values
@@ -443,7 +425,7 @@ class MainView(StatusBarMixin, QObject):
         # NB: The order of the following two lists MUST match the order of the
         # Pointing.StaticPmSetup command's arguments
         self.static_pointing_values: list[QLabel] = [
-            self.window.findChild(QLabel, name)
+            self.win.findChild(QLabel, name)
             for name in [
                 "opcua_ia",
                 "opcua_ca",
@@ -466,7 +448,7 @@ class MainView(StatusBarMixin, QObject):
             ]
         ]
         self.static_pointing_spinboxes: list[LimitedDisplaySpinBox] = [
-            self.window.findChild(LimitedDisplaySpinBox, name)
+            self.win.findChild(LimitedDisplaySpinBox, name)
             for name in [
                 "spinbox_ia",
                 "spinbox_ca",
@@ -488,16 +470,12 @@ class MainView(StatusBarMixin, QObject):
                 "spinbox_hese8",
             ]
         ]
-        self.opcua_offset_xelev: QLabel = self.window.opcua_offset_xelev
-        self.opcua_offset_elev: QLabel = self.window.opcua_offset_elev
-        self.spinbox_offset_xelev: LimitedDisplaySpinBox = (
-            self.window.spinbox_offset_xelev
-        )
-        self.spinbox_offset_elev: LimitedDisplaySpinBox = (
-            self.window.spinbox_offset_elev
-        )
+        self.opcua_offset_xelev: QLabel = self.win.opcua_offset_xelev
+        self.opcua_offset_elev: QLabel = self.win.opcua_offset_elev
+        self.spinbox_offset_xelev: LimitedDisplaySpinBox = self.win.spinbox_offset_xelev
+        self.spinbox_offset_elev: LimitedDisplaySpinBox = self.win.spinbox_offset_elev
         self.button_static_offset_apply: QPushButton = (
-            self.window.button_static_offset_apply
+            self.win.button_static_offset_apply
         )
         self.button_static_offset_apply.clicked.connect(
             self.apply_static_pointing_offsets
@@ -505,13 +483,13 @@ class MainView(StatusBarMixin, QObject):
         self._update_static_pointing_inputs_text = False
         # Point tab tilt correction widgets
         self.button_tilt_correction_toggle: ToggleSwitch = (
-            self.window.button_tilt_correction_toggle
+            self.win.button_tilt_correction_toggle
         )
         self.button_tilt_correction_toggle.clicked.connect(
             self.pointing_correction_setup_button_clicked
         )
         self.button_tilt_correction_meter_toggle: ToggleSwitch = (
-            self.window.button_tilt_correction_meter_toggle
+            self.win.button_tilt_correction_meter_toggle
         )
         self.button_tilt_correction_meter_toggle.label_false = "TM1"
         self.button_tilt_correction_meter_toggle.label_true = "TM2"
@@ -520,30 +498,30 @@ class MainView(StatusBarMixin, QObject):
             self.update_tilt_meter_calibration_parameters_values
         )
         self.button_tilt_meter_cal_apply: QPushButton = (
-            self.window.button_tilt_meter_cal_apply
+            self.win.button_tilt_meter_cal_apply
         )
         self.button_tilt_meter_cal_apply.clicked.connect(
             self.apply_tilt_meter_calibration_parameters
         )
         self.tilt_meter_cal_values: list[QLabel] = [
-            self.window.findChild(QLabel, "opcua_x_filt_dt"),
-            self.window.findChild(QLabel, "opcua_y_filt_dt"),
+            self.win.findChild(QLabel, "opcua_x_filt_dt"),
+            self.win.findChild(QLabel, "opcua_y_filt_dt"),
         ]
         self.tilt_meter_cal_spinboxes: list[LimitedDisplaySpinBox] = [
-            self.window.findChild(LimitedDisplaySpinBox, "spinbox_x_filt_dt"),
-            self.window.findChild(LimitedDisplaySpinBox, "spinbox_y_filt_dt"),
+            self.win.findChild(LimitedDisplaySpinBox, "spinbox_x_filt_dt"),
+            self.win.findChild(LimitedDisplaySpinBox, "spinbox_y_filt_dt"),
         ]
         self.tilt_meter_cal_inputs: list[LimitedDisplaySpinBox | str] = [
             "Pointing.TiltmeterParameters.[OneTwo].Tiltmeter_serial_no",
             "Pointing.TiltmeterParameters.[OneTwo].tilt_temp_scale",
-            self.window.findChild(LimitedDisplaySpinBox, "spinbox_x_filt_dt"),
+            self.win.findChild(LimitedDisplaySpinBox, "spinbox_x_filt_dt"),
             "Pointing.TiltmeterParameters.[OneTwo].x_off",
             "Pointing.TiltmeterParameters.[OneTwo].x_offTC",
             "Pointing.TiltmeterParameters.[OneTwo].x_scale",
             "Pointing.TiltmeterParameters.[OneTwo].x_scaleTC",
             "Pointing.TiltmeterParameters.[OneTwo].x_zero",
             "Pointing.TiltmeterParameters.[OneTwo].x_zeroTC",
-            self.window.findChild(LimitedDisplaySpinBox, "spinbox_y_filt_dt"),
+            self.win.findChild(LimitedDisplaySpinBox, "spinbox_y_filt_dt"),
             "Pointing.TiltmeterParameters.[OneTwo].y_off",
             "Pointing.TiltmeterParameters.[OneTwo].y_offTC",
             "Pointing.TiltmeterParameters.[OneTwo].y_scale",
@@ -553,19 +531,19 @@ class MainView(StatusBarMixin, QObject):
         ]
         # Point tab ambient temperature correction widgets
         self.button_temp_correction_toggle: ToggleSwitch = (
-            self.window.button_temp_correction_toggle
+            self.win.button_temp_correction_toggle
         )
         self.button_temp_correction_toggle.clicked.connect(
             self.pointing_correction_setup_button_clicked
         )
         self.button_temp_correction_apply: QPushButton = (
-            self.window.button_temp_correction_apply
+            self.win.button_temp_correction_apply
         )
         self.button_temp_correction_apply.clicked.connect(
             self.apply_ambtemp_correction_parameters
         )
         self.ambtemp_correction_values: list[QLabel] = [
-            self.window.findChild(QLabel, name)
+            self.win.findChild(QLabel, name)
             for name in [
                 "opcua_ambtempfiltdt",
                 "opcua_ambtempparam1",
@@ -577,7 +555,7 @@ class MainView(StatusBarMixin, QObject):
             ]
         ]
         self.ambtemp_correction_spinboxes: list[LimitedDisplaySpinBox] = [
-            self.window.findChild(LimitedDisplaySpinBox, name)
+            self.win.findChild(LimitedDisplaySpinBox, name)
             for name in [
                 "spinbox_ambtempfiltdt",
                 "spinbox_ambtempparam1",
@@ -590,144 +568,136 @@ class MainView(StatusBarMixin, QObject):
         ]
         self._update_temp_correction_inputs_text = False
         # Bands group widgets
-        self.button_band1: QPushButton = self.window.button_band1
+        self.button_band1: QPushButton = self.win.button_band1
         self.button_band1.clicked.connect(
             lambda: self.move2band_button_clicked("Band_1")
         )
-        self.button_band2: QPushButton = self.window.button_band2
+        self.button_band2: QPushButton = self.win.button_band2
         self.button_band2.clicked.connect(
             lambda: self.move2band_button_clicked("Band_2")
         )
-        self.button_band3: QPushButton = self.window.button_band3
+        self.button_band3: QPushButton = self.win.button_band3
         self.button_band3.clicked.connect(
             lambda: self.move2band_button_clicked("Band_3")
         )
-        self.button_band4: QPushButton = self.window.button_band4
+        self.button_band4: QPushButton = self.win.button_band4
         self.button_band4.clicked.connect(
             lambda: self.move2band_button_clicked("Band_4")
         )
-        self.button_band5a: QPushButton = self.window.button_band5a
+        self.button_band5a: QPushButton = self.win.button_band5a
         self.button_band5a.clicked.connect(
             lambda: self.move2band_button_clicked("Band_5a")
         )
-        self.button_band5b: QPushButton = self.window.button_band5b
+        self.button_band5b: QPushButton = self.win.button_band5b
         self.button_band5b.clicked.connect(
             lambda: self.move2band_button_clicked("Band_5b")
         )
-        self.button_band6: QPushButton = self.window.button_band6
+        self.button_band6: QPushButton = self.win.button_band6
         self.button_band6.clicked.connect(
             lambda: self.move2band_button_clicked("Band_6")
         )
-        self.button_band_optical: QPushButton = self.window.button_band_optical
+        self.button_band_optical: QPushButton = self.win.button_band_optical
         self.button_band_optical.clicked.connect(
             lambda: self.move2band_button_clicked("Optical")
         )
         self._disable_opcua_widgets()
         # Recording group widgets
         self.button_select_recording_file: QPushButton = (
-            self.window.button_select_recording_file
+            self.win.button_select_recording_file
         )
         self.button_select_recording_file.clicked.connect(
             self.recording_file_button_clicked
         )
-        self.line_edit_recording_file: QLineEdit = self.window.line_edit_recording_file
+        self.line_edit_recording_file: QLineEdit = self.win.line_edit_recording_file
         self.button_recording_overwrite_no: QRadioButton = (
-            self.window.button_recording_overwrite_no
+            self.win.button_recording_overwrite_no
         )
         self.button_recording_overwrite_no.setChecked(True)
-        self.button_recording_config: QPushButton = self.window.button_recording_config
+        self.button_recording_config: QPushButton = self.win.button_recording_config
         self.button_recording_config.clicked.connect(
             self.recording_config_button_clicked
         )
-        self.button_recording_start: QPushButton = self.window.button_recording_start
+        self.button_recording_start: QPushButton = self.win.button_recording_start
         self.button_recording_start.clicked.connect(self.recording_start_clicked)
-        self.button_recording_stop: QPushButton = self.window.button_recording_stop
+        self.button_recording_stop: QPushButton = self.win.button_recording_stop
         self.button_recording_stop.clicked.connect(self.controller.recording_stop)
         self.button_recording_stop.setEnabled(False)
-        self.line_edit_recording_status: QLineEdit = (
-            self.window.line_edit_recording_status
-        )
+        self.line_edit_recording_status: QLineEdit = self.win.line_edit_recording_status
         self.controller.recording_status.connect(self.recording_status_update)
         self.recording_start_success = False
 
         # Track tab load table widgets
         self.button_select_track_table_file: QPushButton = (
-            self.window.button_select_track_table_file
+            self.win.button_select_track_table_file
         )
         self.button_select_track_table_file.clicked.connect(
             self.track_table_file_button_clicked
         )
-        self.line_edit_track_table_file: QLineEdit = (
-            self.window.line_edit_track_table_file
-        )
+        self.line_edit_track_table_file: QLineEdit = self.win.line_edit_track_table_file
         self.line_edit_track_table_file.textChanged.connect(
             self.track_table_file_changed
         )
         self.spinbox_file_track_additional_offset: QDoubleSpinBox = (
-            self.window.spinbox_file_track_additional_offset
+            self.win.spinbox_file_track_additional_offset
         )
         self.spinbox_file_track_additional_offset.setEnabled(False)
         self.button_file_track_absolute_times: QRadioButton = (
-            self.window.button_file_track_absolute_times
+            self.win.button_file_track_absolute_times
         )
         self.button_file_track_absolute_times.setChecked(False)
         self.button_file_track_relative_times: QRadioButton = (
-            self.window.button_file_track_relative_times
+            self.win.button_file_track_relative_times
         )
         self.button_file_track_relative_times.toggled.connect(
             self.button_file_track_relative_times_toggled
         )
         self.button_file_track_relative_times.setChecked(True)
-        self.combobox_file_track_mode: QComboBox = self.window.combobox_file_track_mode
-        self.button_load_track_table: QPushButton = self.window.button_load_track_table
+        self.combobox_file_track_mode: QComboBox = self.win.combobox_file_track_mode
+        self.button_load_track_table: QPushButton = self.win.button_load_track_table
         self.button_load_track_table.clicked.connect(self.load_track_table_clicked)
 
         # Track tab control widgets
         self.combobox_track_start_interpol_type: QComboBox = (
-            self.window.combobox_track_start_interpol_type
+            self.win.combobox_track_start_interpol_type
         )
-        self.button_start_track_now: QRadioButton = self.window.button_start_track_now
+        self.button_start_track_now: QRadioButton = self.win.button_start_track_now
         self.button_start_track_now.setChecked(True)
-        self.button_start_track_at: QRadioButton = self.window.button_start_track_at
+        self.button_start_track_at: QRadioButton = self.win.button_start_track_at
         self.button_start_track_at.toggled.connect(self.button_start_track_at_toggled)
         self.button_start_track_group = QButtonGroup()
         self.button_start_track_group.addButton(self.button_start_track_at, 0)
         self.button_start_track_group.addButton(self.button_start_track_now, 1)
-        self.line_edit_start_track_at: QLineEdit = self.window.line_edit_start_track_at
+        self.line_edit_start_track_at: QLineEdit = self.win.line_edit_start_track_at
         self.line_edit_start_track_at.setEnabled(False)
-        self.button_start_track_table: QPushButton = (
-            self.window.button_start_track_table
-        )
+        self.button_start_track_table: QPushButton = self.win.button_start_track_table
         self.button_start_track_table.clicked.connect(self.start_tracking_clicked)
         self.spinbox_source_threshold_radius: LimitedDisplaySpinBox = (
-            self.window.spinbox_source_threshold_radius
+            self.win.spinbox_source_threshold_radius
         )
         self.spinbox_source_threshold_period: LimitedDisplaySpinBox = (
-            self.window.spinbox_source_threshold_period
+            self.win.spinbox_source_threshold_period
         )
         self.button_set_on_source_threshold: QPushButton = (
-            self.window.button_set_on_source_threshold
+            self.win.button_set_on_source_threshold
         )
         self.button_set_on_source_threshold.clicked.connect(
             self.set_on_source_threshold_clicked
         )
 
         # Track tab time widgets
-        self.button_set_time_source: QPushButton = self.window.button_set_time_source
+        self.button_set_time_source: QPushButton = self.win.button_set_time_source
         self.button_set_time_source.clicked.connect(self.set_time_source_clicked)
-        self.combobox_time_source: QComboBox = self.window.combobox_time_source
-        self.line_edit_ntp_source_addr: QLineEdit = (
-            self.window.line_edit_ntp_source_addr
-        )
+        self.combobox_time_source: QComboBox = self.win.combobox_time_source
+        self.line_edit_ntp_source_addr: QLineEdit = self.win.line_edit_ntp_source_addr
 
         # Warning and Error tabs
-        self.warning_tree_view: QTreeWidget = self.window.warning_tree_view
+        self.warning_tree_view: QTreeWidget = self.win.warning_tree_view
         self.warning_status_show_only_warnings: QCheckBox = (
-            self.window.warning_status_show_only_warnings
+            self.win.warning_status_show_only_warnings
         )
-        self.error_tree_view: QTreeWidget = self.window.error_tree_view
+        self.error_tree_view: QTreeWidget = self.win.error_tree_view
         self.error_status_show_only_errors: QCheckBox = (
-            self.window.error_status_show_only_errors
+            self.win.error_status_show_only_errors
         )
         self._status_widget_update_lut: dict[str, QTreeWidgetItem] = {}
         self._status_group_update_lut: dict[
@@ -745,15 +715,15 @@ class MainView(StatusBarMixin, QObject):
         )
 
         # Weather tab
-        self.weather_station: QWidget = self.window.weather_station
+        self.weather_station: QWidget = self.win.weather_station
         self.button_weather_station_configure_reset: QPushButton = (
-            self.window.button_weather_station_configure_reset
+            self.win.button_weather_station_configure_reset
         )
         self.button_weather_station_configure_reset.clicked.connect(
             self._reset_weather_tab_config
         )
         self.button_weather_station_configure_apply: QPushButton = (
-            self.window.button_weather_station_configure_apply
+            self.win.button_weather_station_configure_apply
         )
         self.button_weather_station_configure_apply.clicked.connect(
             self._apply_weather_tab_config
@@ -768,22 +738,22 @@ class MainView(StatusBarMixin, QObject):
             self.action_close_all_attribute_windows.setEnabled
         )
 
+        # Store default configured input limits
+        self.spinbox_input_limits: list[tuple[float, float]] = []
+        self.all_input_spinboxes: list[LimitedDisplaySpinBox] = self.win.findChildren(
+            LimitedDisplaySpinBox
+        )  # type: ignore
+        for spinbox in self.all_input_spinboxes:
+            self.spinbox_input_limits.append(
+                (spinbox.minimum(), spinbox.maximum())  # type: ignore
+            )
+
         # Connect to command line supplied server.
         if server is not None:
             server_details = self.controller.get_config_server_args(server)
             if server_details is not None:
                 server_details["use_nodes_cache"] = str(cache)
                 self.server_connect(server_details, server)
-
-        # Store default configured input limits
-        self.spinbox_input_limits: list[tuple[float, float]] = []
-        self.all_input_spinboxes: list[LimitedDisplaySpinBox] = (
-            self.window.findChildren(LimitedDisplaySpinBox)  # type: ignore
-        )
-        for spinbox in self.all_input_spinboxes:
-            self.spinbox_input_limits.append(
-                (spinbox.minimum(), spinbox.maximum())  # type: ignore
-            )
 
     @cached_property
     def opcua_widgets(
@@ -802,10 +772,10 @@ class MainView(StatusBarMixin, QObject):
         :return: {name: (list of widgets, update function)}
         """
         all_widgets = (  # type: ignore[operator]
-            self.window.findChildren(QLineEdit)  # type: ignore[operator]
-            + self.window.findChildren(QLabel)  # type: ignore[operator]
-            + self.window.findChildren(ToggleSwitch)  # type: ignore[operator]
-            + self.window.findChildren(QDoubleSpinBox)  # type: ignore[operator]
+            self.win.findChildren(QLineEdit)  # type: ignore[operator]
+            + self.win.findChildren(QLabel)  # type: ignore[operator]
+            + self.win.findChildren(ToggleSwitch)  # type: ignore[operator]
+            + self.win.findChildren(QDoubleSpinBox)  # type: ignore[operator]
         )
         opcua_widget_updates: dict[str, tuple[list[QWidget], Callable]] = {}
         for wgt in all_widgets:
@@ -860,7 +830,7 @@ class MainView(StatusBarMixin, QObject):
 
         :return: List of OPC UA widgets.
         """
-        all_widgets = self.window.findChildren(QWidget)  # type: ignore[var-annotated]
+        all_widgets = self.win.findChildren(QWidget)  # type: ignore[var-annotated]
         all_opcua_widgets: list[QWidget] = []
         for wgt in all_widgets:
             property_names: list[QByteArray] = wgt.dynamicPropertyNames()
@@ -1005,7 +975,7 @@ class MainView(StatusBarMixin, QObject):
 
     def _init_opcua_combo_widgets(self) -> None:
         """Initialise all the OPC-UA combo widgets."""
-        for widget in self.window.findChildren(QComboBox):  # type: ignore
+        for widget in self.win.findChildren(QComboBox):  # type: ignore
             if "opcua_type" not in widget.dynamicPropertyNames():
                 # Skip all the non-opcua widgets
                 continue
@@ -1258,7 +1228,7 @@ class MainView(StatusBarMixin, QObject):
 
     def connect_button_clicked(self):
         """Open the Connect To Server configuration dialog."""
-        dialog = ServerConnectDialog(self.window, self.controller)
+        dialog = ServerConnectDialog(self, self.controller)
         if dialog.exec():
             logger.debug("Connection configuration dialog accepted")
             logger.debug("Selected: %s", dialog.server_details)
@@ -1429,7 +1399,7 @@ class MainView(StatusBarMixin, QObject):
             return
 
         if self.controller.is_server_connected():
-            dialog = WeatherStationConnectDialog(self.window, self.controller)
+            dialog = WeatherStationConnectDialog(self, self.controller)
             if dialog.exec():
                 logger.debug("Connect weather station dialog accepted")
                 logger.debug("Selected: %s", dialog.server_details)
@@ -1442,7 +1412,7 @@ class MainView(StatusBarMixin, QObject):
         if not self.commands_config:
             for node in self.model.opcua_commands:
                 self.commands_config[node] = {"display": node in self.command_windows}
-        dialog = SelectNodesDialog(self.window, "commands", self.commands_config)
+        dialog = SelectNodesDialog(self, "commands", self.commands_config)
         if dialog.exec():
             self.commands_config = dialog.config_parameters
             for command, details in dialog.config_parameters.items():
@@ -1456,6 +1426,11 @@ class MainView(StatusBarMixin, QObject):
         else:
             logger.debug("Command select dialog cancelled")
 
+    def close_all_command_windows(self) -> None:
+        """Close all open command windows."""
+        for window in self.command_windows.copy().values():
+            window.close()
+
     def select_attribute_graphs(self):
         """Open the attribute selection dialog."""
         if not self.controller.graph_config:
@@ -1464,9 +1439,7 @@ class MainView(StatusBarMixin, QObject):
                     "display": node in self.attribute_windows
                 }
 
-        dialog = SelectNodesDialog(
-            self.window, "attributes", self.controller.graph_config
-        )
+        dialog = SelectNodesDialog(self, "attributes", self.controller.graph_config)
         if dialog.exec():
             self.controller.graph_config = dialog.config_parameters
             for attribute, details in dialog.config_parameters.items():
@@ -1524,7 +1497,7 @@ class MainView(StatusBarMixin, QObject):
         """Open a file dialog to select a track table file."""
         options = QFileDialog.Option(QFileDialog.Option.ReadOnly)
         filename, _ = QFileDialog.getOpenFileName(
-            parent=self.window,
+            parent=self,
             caption="Open Track Table File",
             dir=user_documents_dir(),
             filter="Track Table Files (*.csv);;All Files (*)",
@@ -1581,7 +1554,7 @@ class MainView(StatusBarMixin, QObject):
                     "period": 100,
                 }
 
-        dialog = RecordingConfigDialog(self.window, self.controller.recording_config)
+        dialog = RecordingConfigDialog(self, self.controller.recording_config)
         if dialog.exec():
             logger.debug("Recording config dialog accepted")
             logger.debug("Selected: %s", dialog.config_parameters)
@@ -1601,7 +1574,7 @@ class MainView(StatusBarMixin, QObject):
     def recording_file_button_clicked(self) -> None:
         """Open a dialog to select a file for the recording file box."""
         fname, _ = QFileDialog.getSaveFileName(
-            parent=self.window,
+            parent=self,
             caption="Select Recording File",
             dir=user_documents_dir(),
             filter="DataLogger File (*.hdf5 *.h5);;All Files (*)",
@@ -1693,7 +1666,7 @@ class MainView(StatusBarMixin, QObject):
                 spinbox.setRange(*self.spinbox_input_limits[i])  # type: ignore
         else:
             reply = QMessageBox.warning(
-                self.window,
+                self,
                 "Expert user option",
                 "Are you sure you want to disable all input limits?",
                 QMessageBox.StandardButton.Yes,
@@ -1777,7 +1750,7 @@ class MainView(StatusBarMixin, QObject):
         """Open a dialog to import a static pointing model JSON file."""
         options = QFileDialog.Option(QFileDialog.Option.ReadOnly)
         filename, _ = QFileDialog.getOpenFileName(
-            parent=self.window,
+            parent=self,
             caption="Import Static Pointing Model from JSON",
             dir=user_documents_dir(),
             filter="JSON Files (*.json);;All Files (*)",
@@ -1815,7 +1788,7 @@ class MainView(StatusBarMixin, QObject):
         """Open a dialog to export a static pointing model JSON file."""
         band = self.combo_static_point_model_band_display.currentText()
         filename, _ = QFileDialog.getSaveFileName(
-            parent=self.window,
+            parent=self,
             caption=f"Export '{band}' model to JSON",
             dir=f"{user_documents_dir()}/gpm-SKA000-{band}.json",
             filter="JSON Files (*.json);;All Files (*)",
@@ -2133,7 +2106,7 @@ class MainView(StatusBarMixin, QObject):
 
     def about_button_clicked(self) -> None:
         """Open the About dialog."""
-        dialog = QMessageBox(self.window)
+        dialog = QMessageBox(self)
         # dialog.setIcon(QMessageBox.Icon.Information)
         dialog.setTextFormat(Qt.TextFormat.RichText)
         source_code_url = "https://gitlab.com/ska-telescope/ska-mid-disq"
@@ -2164,4 +2137,5 @@ class MainView(StatusBarMixin, QObject):
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
         """Called when window is closed."""
         self.close_all_graph_windows()
-        super().closeEvent(event)  # type: ignore[misc]
+        self.close_all_command_windows()
+        super().closeEvent(event)

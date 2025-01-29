@@ -20,7 +20,7 @@ def disq_app_fixture(qapp, request: pytest.FixtureRequest) -> MainView:  # type:
     else:
         disq_fixture = request.getfixturevalue("disq_cetc_simulator")
     if os.getenv("CI_JOB_ID") is None:
-        disq_fixture.window.show()
+        disq_fixture.win.show()
     return disq_fixture
 
 
@@ -429,7 +429,7 @@ def test_opcua_command_slot_function(
                 try:
                     widget = getattr(disq_app, widget_name)
                 except AttributeError:
-                    widget = getattr(disq_app.window, widget_name)
+                    widget = getattr(disq_app.win, widget_name)
                 if isinstance(widget, QtWidgets.QLineEdit):
                     widget.setText(str(value))
                 elif isinstance(widget, QtWidgets.QDoubleSpinBox):
