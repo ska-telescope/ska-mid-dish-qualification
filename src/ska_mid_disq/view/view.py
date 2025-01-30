@@ -1418,7 +1418,12 @@ class MainView(StatusBarMixin, QMainWindow):
             for command, details in dialog.config_parameters.items():
                 if details["display"] and command not in self.command_windows:
                     logger.debug("Opening command window for: %s", command)
-                    command_window = CommandWindow(command)
+                    command_window = CommandWindow(
+                        command,
+                        self.model.opcua_commands[command],
+                        self.model.get_command_arguments(command),
+                        self.controller._command_response_str,
+                    )
                     self.command_windows[command] = command_window
                     command_window.show()
                 if command in self.command_windows and not details["display"]:

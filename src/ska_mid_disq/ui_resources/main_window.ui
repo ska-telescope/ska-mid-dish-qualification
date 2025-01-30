@@ -10682,7 +10682,7 @@
   </action>
   <action name="action_run_any_command_method">
    <property name="text">
-    <string>Run any command methods</string>
+    <string>Run any available command...</string>
    </property>
   </action>
  </widget>
