@@ -101,6 +101,7 @@ class MainView(StatusBarMixin, QMainWindow):
             "motiontimeout": "rgb(255, 0, 0)",
         },
     }
+    command_window_close = Signal(str)
     live_graph_close = Signal(str)
     all_live_graphs_closed = Signal(bool)
 
@@ -204,6 +205,7 @@ class MainView(StatusBarMixin, QMainWindow):
         self.action_run_any_command_method.triggered.connect(self.select_commands)
         self.commands_config: dict[str, dict[str, bool | int]] = {}
         self.command_windows: dict[str, CommandWindow] = {}
+        self.command_window_close.connect(self.command_window_closed)
 
         self.server_status_bar: QWidget = self.win.server_status_bar
         # Load a background image for the server connection QGroupBox
@@ -1415,14 +1417,15 @@ class MainView(StatusBarMixin, QMainWindow):
         dialog = SelectNodesDialog(self, "commands", self.commands_config)
         if dialog.exec():
             self.commands_config = dialog.config_parameters
-            for command, details in dialog.config_parameters.items():
+            for command, details in dialog.config_parameters.copy().items():
                 if details["display"] and command not in self.command_windows:
                     logger.debug("Opening command window for: %s", command)
                     command_window = CommandWindow(
                         command,
                         self.model.opcua_commands[command],
                         self.model.get_command_arguments(command),
-                        self.controller._command_response_str,
+                        self.controller.command_response_str,
+                        self.command_window_close,
                     )
                     self.command_windows[command] = command_window
                     command_window.show()
@@ -1436,6 +1439,15 @@ class MainView(StatusBarMixin, QMainWindow):
         for window in self.command_windows.copy().values():
             window.close()
 
+    def command_window_closed(self, command: str) -> None:
+        """
+        Remove the window reference and associated signals.
+
+        :param command: The command the window was created for.
+        """
+        self.commands_config[command] = {"display": False}
+        del self.commands_config[command]
+
     def select_attribute_graphs(self):
         """Open the attribute selection dialog."""
         if not self.controller.graph_config:
@@ -1447,7 +1459,7 @@ class MainView(StatusBarMixin, QMainWindow):
         dialog = SelectNodesDialog(self, "attributes", self.controller.graph_config)
         if dialog.exec():
             self.controller.graph_config = dialog.config_parameters
-            for attribute, details in dialog.config_parameters.items():
+            for attribute, details in dialog.config_parameters.copy().items():
                 if details["display"] and attribute not in self.attribute_windows:
                     logger.debug("Opening graph window for: %s", attribute)
                     attribute_type = self.controller.attribute_type_get(attribute)

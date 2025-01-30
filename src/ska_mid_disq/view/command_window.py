@@ -4,8 +4,8 @@ import logging
 from typing import Callable
 
 from asyncua import ua
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt, SignalInstance
+from PySide6.QtGui import QCloseEvent, QIcon
 from PySide6.QtWidgets import (
     QCheckBox,
     QFrame,
@@ -24,12 +24,14 @@ logger = logging.getLogger("gui.view")
 class CommandWindow(QWidget):
     """A window for executing any command method of the PLC program."""
 
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def __init__(
         self,
         command: str,
         command_method: Callable,
         input_args: list[tuple[str, str]],
         response_callback: Callable[[str, int, str], str],
+        close_signal: SignalInstance,
     ) -> None:
         """
         Initialise the CommandWindow.
@@ -38,11 +40,13 @@ class CommandWindow(QWidget):
         :param command_method: Method to execute the command.
         :param input_args: A list of the input arguments and their types.
         :param response_callback: Call with command name and response after executing.
+        :param close_signal: The signal to send when this window closes.
         """
         super().__init__()
         self.command = command
         self.command_method = command_method
         self.response_callback = response_callback
+        self.close_signal = close_signal
         self.setWindowTitle("Command")
         self.setWindowIcon(QIcon(SKAO_ICON_PATH))
         self.grid_layout = QGridLayout()
@@ -107,3 +111,9 @@ class CommandWindow(QWidget):
         logger.debug("Calling command: %s, args: %s", self.command, args)
         result_code, result_msg, _ = self.command_method(*args)
         self.response_callback(self.command, result_code, result_msg)
+
+    # pylint: disable=invalid-name
+    def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
+        """Override of PYQT method, called when window is closed."""
+        self.close_signal.emit(self.command)
+        super().closeEvent(event)
