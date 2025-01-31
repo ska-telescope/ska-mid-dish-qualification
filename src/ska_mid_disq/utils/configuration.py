@@ -210,9 +210,12 @@ def configure_logging(default_log_level: int = logging.INFO) -> None:
         is found. Defaults to logging.INFO.
     :raises ValueError: If an error occurs while configuring logging from the file.
     """
-    disq_log_config_file = Path(
-        resources.files(__package__) / "../default_logging_config.yaml"  # type: ignore
-    )
+    disq_log_config_file = Path("disq_logging_config.yaml")
+    if disq_log_config_file.exists() is False:
+        disq_log_config_file = Path(
+            resources.files(__package__)
+            / "../default_logging_config.yaml"  # type: ignore
+        )
     config = None
     if disq_log_config_file.exists():
         with open(disq_log_config_file, "rt", encoding="UTF-8") as f:
