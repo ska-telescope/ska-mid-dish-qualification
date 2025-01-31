@@ -146,9 +146,8 @@ class MainView(StatusBarMixin, QMainWindow):
         self.setCentralWidget(self.win)
         self.setWindowTitle(f"DiSQ GUI v{__version__}")
         self.setWindowIcon(QIcon(SKAO_ICON_PATH))
-        self.setMinimumSize(1200, 760)
-        self.setMaximumSize(1600, 900)
-        self.resize(1200, 760)
+        self.setMinimumSize(1210, 760)
+        self.resize(1210, 820)
 
         # Keep a reference to model and controller
         self.model = disq_model
