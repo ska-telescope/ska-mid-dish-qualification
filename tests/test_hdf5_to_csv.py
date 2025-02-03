@@ -8,7 +8,7 @@ from pathlib import Path
 import h5py
 import pytest
 
-from ska_mid_disq.utils import hdf5_to_csv as h2c
+from ska_mid_disq import hdf5_to_csv as h2c
 
 
 @pytest.fixture(name="base_path")

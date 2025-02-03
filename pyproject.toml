@@ -58,8 +58,6 @@ dev = [
     "pep8-naming>=0.13.3",
     "build>=1.1.1",
     "numpy>=1.26.4",
-    "matplotlib>=3.9.2",  # Used in the utility Reader class.
-    "plotly>=5.24.1",     # Used in the utility Reader class.
     # {include-group = "docs"}
 ]
 docs = [
@@ -144,8 +142,6 @@ mypy = "^1.9.0"
 pep8-naming = "^0.13.3"
 build = "^1.1.1"
 numpy = "^1.26.4"
-matplotlib = "^3.9.2"                 # Used in the utility Reader class.
-plotly = "^5.24.1"                    # Used in the utility Reader class.
 
 [tool.poetry.group.docs.dependencies]
 Sphinx = "^7.2.6"
