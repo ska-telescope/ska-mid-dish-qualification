@@ -10577,7 +10577,7 @@
    <property name="nativeMenuBar">
     <bool>false</bool>
    </property>
-   <widget class="QMenu" name="menuControl">
+   <widget class="QMenu" name="menuConnection">
     <property name="title">
      <string>Connection</string>
     </property>
@@ -10594,9 +10594,9 @@
     <addaction name="action_about"/>
     <addaction name="action_docs"/>
    </widget>
-   <widget class="QMenu" name="menuOptions">
+   <widget class="QMenu" name="menuExpert">
     <property name="title">
-     <string>Options</string>
+     <string>Expert options</string>
     </property>
     <addaction name="action_run_any_command_method"/>
     <addaction name="action_toggle_input_limits"/>
@@ -10608,9 +10608,9 @@
     <addaction name="action_attribute_display"/>
     <addaction name="action_close_all_attribute_windows"/>
    </widget>
-   <addaction name="menuControl"/>
+   <addaction name="menuConnection"/>
    <addaction name="menuAttributes"/>
-   <addaction name="menuOptions"/>
+   <addaction name="menuExpert"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -10682,7 +10682,7 @@
   </action>
   <action name="action_run_any_command_method">
    <property name="text">
-    <string>Run any available command...</string>
+    <string>Run any 'PLC_PRG' command...</string>
    </property>
   </action>
  </widget>
