@@ -1424,7 +1424,7 @@ class MainView(StatusBarMixin, QMainWindow):
                         command,
                         self.model.opcua_commands[command],
                         self.model.get_command_arguments(command),
-                        self.controller.command_response_str,
+                        self.controller,
                         self.command_window_close,
                     )
                     self.command_windows[command] = command_window

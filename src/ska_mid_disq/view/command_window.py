@@ -18,6 +18,8 @@ from PySide6.QtWidgets import (
 
 from ska_mid_disq.constants import SKAO_ICON_PATH
 
+from .controller import Controller
+
 logger = logging.getLogger("gui.view")
 
 
@@ -30,7 +32,7 @@ class CommandWindow(QWidget):
         command: str,
         command_method: Callable,
         input_args: list[tuple[str, str]],
-        response_callback: Callable[[str, int, str], str],
+        controller: Controller,
         close_signal: SignalInstance,
     ) -> None:
         """
@@ -39,13 +41,13 @@ class CommandWindow(QWidget):
         :param command: The command to open.
         :param command_method: Method to execute the command.
         :param input_args: A list of the input arguments and their types.
-        :param response_callback: Call with command name and response after executing.
+        :param controller: The controller object of the GUI view.
         :param close_signal: The signal to send when this window closes.
         """
         super().__init__()
         self.command = command
         self.command_method = command_method
-        self.response_callback = response_callback
+        self.controller = controller
         self.close_signal = close_signal
         self.setWindowTitle("Command")
         self.setWindowIcon(QIcon(SKAO_ICON_PATH))
@@ -111,12 +113,15 @@ class CommandWindow(QWidget):
                 cast_type = getattr(ua, type_name)  # Get type conversion method
                 try:
                     args.append(cast_type(input_wgt.text()))
-                except (ValueError, TypeError):
-                    logger.exception("Invalid input!")
+                except (ValueError, TypeError) as e:
+                    self.controller.emit_ui_status_message(
+                        "ERROR",
+                        f"Invalid input for command '{self.command}' argument - {e}",
+                    )
                     return
         logger.debug("Calling command: %s, args: %s", self.command, args)
         result_code, result_msg, _ = self.command_method(*args)
-        self.response_callback(self.command, result_code, result_msg)
+        self.controller.command_response_str(self.command, result_code, result_msg)
 
     # pylint: disable=invalid-name
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802

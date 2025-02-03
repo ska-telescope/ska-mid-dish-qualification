@@ -36,7 +36,7 @@ from ska_mid_wms_interface import load_weather_station_configuration
 
 from ska_mid_disq.constants import SKAO_ICON_PATH
 
-from . import controller
+from .controller import Controller
 
 _WEATHER_STATION_YAML: Final = "../weather_station_resources/weather_station.yaml"
 
@@ -51,7 +51,7 @@ class ServerConnectDialog(QDialog):
     :param parent: The parent widget of the dialog.
     """
 
-    def __init__(self, parent: QWidget, mvc_controller: controller.Controller):
+    def __init__(self, parent: QWidget, mvc_controller: Controller):
         """
         Initialize the Server Connect dialog.
 
@@ -288,7 +288,7 @@ class WeatherStationConnectDialog(StatusBarMixin, QDialog):
     # pylint: disable=too-few-public-methods
     """A dialog-window class for connecting to a weather station."""
 
-    def __init__(self, parent: QWidget, mvc_controller: controller.Controller):
+    def __init__(self, parent: QWidget, mvc_controller: Controller):
         """
         Initialize the weather station connect dialog.
 
