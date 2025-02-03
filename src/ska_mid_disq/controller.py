@@ -185,6 +185,7 @@ class Controller(QObject):
         )
         self.last_server_details = connection_details
         self.server_connected.emit()
+        self.weather_station_disconnected.emit()
 
     def disconnect_server(self):
         """

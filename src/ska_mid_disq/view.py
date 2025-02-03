@@ -2085,6 +2085,8 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.label_cache_status.setText("")
         self.action_disconnect_opcua_server.setEnabled(False)
         self.action_connect_weather_station.setEnabled(False)
+        self.action_disconnect_weather_station.setEnabled(False)
+        self._enable_weather_tab_widgets(False)
         self.action_attribute_display.setEnabled(False)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
