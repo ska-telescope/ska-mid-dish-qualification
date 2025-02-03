@@ -10595,6 +10595,7 @@
     </property>
     <addaction name="action_connect_opcua_server"/>
     <addaction name="action_disconnect_opcua_server"/>
+    <addaction name="separator"/>
     <addaction name="action_connect_weather_station"/>
     <addaction name="action_disconnect_weather_station"/>
    </widget>
@@ -10627,7 +10628,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_connect_opcua_server">
    <property name="text">
-    <string>Connect to DSC ...</string>
+    <string>Connect to DSC...</string>
    </property>
   </action>
   <action name="action_disconnect_opcua_server">

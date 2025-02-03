@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WOM-556, WOM-557: Refactored GUI to use PySide6 instead of PyQt6, as PySide6 is the official Python bindings maintained by the Qt project. Using the latest PySide 6.8 now also allows installing the package with Python 3.12.
 
 ### Fixed
+- WOM-623: Weather station widgets and disconnect menu action are disabled after disconnecting from DSC.
 
 ## 0.6.0 - 2025-01-23
 
