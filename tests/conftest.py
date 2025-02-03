@@ -7,9 +7,8 @@ import pytest
 from PySide6.QtUiTools import QUiLoader
 
 from ska_mid_disq.constants import XML_UI_PATH
-from ska_mid_disq.controller import Controller
 from ska_mid_disq.model import Model
-from ska_mid_disq.view import LimitedDisplaySpinBox, MainView, ToggleSwitch
+from ska_mid_disq.view import Controller, LimitedDisplaySpinBox, MainView, ToggleSwitch
 
 
 @pytest.fixture(autouse=True)

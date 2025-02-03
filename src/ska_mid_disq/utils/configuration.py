@@ -22,7 +22,7 @@ from pathlib import Path
 
 import yaml  # type: ignore
 
-from .constants import USER_CONFIG_DIR
+from ska_mid_disq.constants import USER_CONFIG_DIR
 
 # The default configuration file name to search for
 _DEFAULT_CONFIG_FILENAME = "disq.ini"
@@ -213,7 +213,8 @@ def configure_logging(default_log_level: int = logging.INFO) -> None:
     disq_log_config_file = Path("disq_logging_config.yaml")
     if disq_log_config_file.exists() is False:
         disq_log_config_file = Path(
-            resources.files(__package__) / "default_logging_config.yaml"  # type: ignore
+            resources.files(__package__)
+            / "../default_logging_config.yaml"  # type: ignore
         )
     config = None
     if disq_log_config_file.exists():

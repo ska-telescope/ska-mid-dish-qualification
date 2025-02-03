@@ -204,6 +204,14 @@ texinfo_documents = [
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.10/", None),
     "asyncua": ("https://opcua-asyncio.readthedocs.io/en/latest/", None),
+    "ska-mid-dish-steering-control": (
+        "https://developer.skao.int/projects/ska-mid-dish-steering-control/en/latest/",
+        None,
+    ),
+    "ska-mid-wms-interface": (
+        "https://developer.skao.int/projects/ska-mid-wms-interface/en/latest/",
+        None,
+    ),
 }
 
 nitpicky = True

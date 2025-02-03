@@ -23,9 +23,9 @@ fi
 echo "Building DiSQ version $version with PyInstaller..."
 pyinstaller --clean --noconfirm --onefile --name $dist_name \
     --target-architecture $arch \
-    --add-data "src/ska_mid_disq/ui/dishstructure_mvc.ui:ska_mid_disq/ui" \
+    --add-data "src/ska_mid_disq/ui_resources/main_window.ui:ska_mid_disq/ui_resources" \
     --add-data "src/ska_mid_disq/default_logging_config.yaml:ska_mid_disq" \
-    "src/ska_mid_disq/mvcmain.py"
+    "src/ska_mid_disq/gui_main.py"
     # -i skao.icns
 
 if [ $? -ne 0 ]; then

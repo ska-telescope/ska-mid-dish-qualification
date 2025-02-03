@@ -58,8 +58,6 @@ dev = [
     "pep8-naming>=0.13.3",
     "build>=1.1.1",
     "numpy>=1.26.4",
-    "matplotlib>=3.9.2",  # Used in the utility Reader class.
-    "plotly>=5.24.1",     # Used in the utility Reader class.
     # {include-group = "docs"}
 ]
 docs = [
@@ -72,8 +70,8 @@ docs = [
 ]
 
 [project.scripts]
-disq-gui = "ska_mid_disq.mvcmain:main"
-disq-validate-server = "ska_mid_disq.server_validator:main"
+disq-gui = "ska_mid_disq.gui_main:main"
+disq-validate-server = "ska_mid_disq.server_validator.server_validator:main"
 
 [project.urls]
 source = "https://gitlab.com/ska-telescope/ska-mid-disq"
@@ -98,8 +96,8 @@ repository = "https://gitlab.com/ska-telescope/ska-mid-disq"
 documentation = "https://developer.skao.int/projects/ska-mid-disq"
 
 [tool.poetry.scripts]
-disq-gui = "ska_mid_disq.mvcmain:main"
-disq-validate-server = "ska_mid_disq.server_validator:main"
+disq-gui = "ska_mid_disq.gui_main:main"
+disq-validate-server = "ska_mid_disq.server_validator.server_validator:main"
 
 [[tool.poetry.source]]
 name = "ska"
@@ -144,8 +142,6 @@ mypy = "^1.9.0"
 pep8-naming = "^0.13.3"
 build = "^1.1.1"
 numpy = "^1.26.4"
-matplotlib = "^3.9.2"                 # Used in the utility Reader class.
-plotly = "^5.24.1"                    # Used in the utility Reader class.
 
 [tool.poetry.group.docs.dependencies]
 Sphinx = "^7.2.6"

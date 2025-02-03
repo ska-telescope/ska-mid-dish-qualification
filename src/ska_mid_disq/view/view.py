@@ -1,19 +1,24 @@
 # pylint: disable=too-many-lines
-# mypy: ignore-errors
+# mypy: disable-error-code=attr-defined
 """DiSQ GUI View."""
 
-import ipaddress
-import json
 import logging
 from datetime import datetime, timezone
 from enum import Enum
 from functools import cached_property
-from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Final
 
 from platformdirs import user_documents_dir
-from PySide6 import QtCore, QtWidgets
+from PySide6.QtCore import (
+    QByteArray,
+    QLocale,
+    QObject,
+    Qt,
+    QUrl,
+    Signal,
+    SignalInstance,
+)
 from PySide6.QtGui import (
     QAction,
     QBrush,
@@ -21,23 +26,46 @@ from PySide6.QtGui import (
     QColor,
     QDesktopServices,
     QIcon,
-    QPainter,
     QPalette,
-    QPen,
     QPixmap,
 )
-from PySide6.QtWidgets import QFileDialog
-from ska_mid_wms_interface import load_weather_station_configuration
-
-from ska_mid_disq import ResultCode, __version__, controller, model
-from ska_mid_disq.attribute_window import (
-    LiveAttributeWindow,
-    LiveGraphWindow,
-    LiveHistoryWindow,
+from PySide6.QtWidgets import (
+    QButtonGroup,
+    QCheckBox,
+    QComboBox,
+    QDoubleSpinBox,
+    QFileDialog,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QRadioButton,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QWidget,
 )
-from ska_mid_disq.constants import SKAO_ICON_PATH, PollerType, StatusTreeCategory
 
-from . import ui_resources  # noqa pylint: disable=unused-import
+from ska_mid_disq import ResultCode, __version__, model
+from ska_mid_disq.constants import (
+    DISPLAY_DECIMAL_PLACES,
+    SKAO_ICON_PATH,
+    PollerType,
+    StatusTreeCategory,
+)
+from ska_mid_disq.ui_resources import ui_resources  # noqa pylint: disable=unused-import
+
+from . import controller
+from .attribute_window import LiveAttributeWindow, LiveGraphWindow, LiveHistoryWindow
+from .custom_widgets import LimitedDisplaySpinBox, ToggleSwitch
+from .dialogs import (
+    AttributeGraphSelectDialog,
+    RecordingConfigDialog,
+    ServerConnectDialog,
+    StatusBarMixin,
+    WeatherStationConnectDialog,
+)
 
 logger = logging.getLogger("gui.view")
 
@@ -53,827 +81,12 @@ ELEVATION_MOVING: Final = "Elevation.Status.AxisMoving"
 FEED_INDEXER_ACT_POS: Final = "FeedIndexer.Status.p_Act"
 FEED_INDEXER_MOVING: Final = "FeedIndexer.Status.AxisMoving"
 
-DISPLAY_DECIMAL_PLACES: Final = 5
-
-_WEATHER_STATION_YAML: Final = "weather_station_resources/weather_station.yaml"
-
 ALLOWED_GRAPH_TYPES = ["Boolean", "Double", "Enumeration"]
-
-
-# pylint: disable=too-many-instance-attributes,too-many-statements
-class ServerConnectDialog(QtWidgets.QDialog):
-    """
-    A dialog-window class for connecting to the OPC-UA server.
-
-    :param parent: The parent widget of the dialog.
-    """
-
-    def __init__(
-        self, parent: QtWidgets.QWidget, mvc_controller: controller.Controller
-    ):
-        """
-        Initialize the Server Connect dialog.
-
-        :param parent: The parent widget for the dialog.
-        """
-        super().__init__(parent)
-        self._controller = mvc_controller
-
-        self.setWindowTitle("Server Connection")
-        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
-
-        self.save_button = QtWidgets.QPushButton("Save", self)
-        self.save_button.clicked.connect(self.save_config)
-        self.delete_button = QtWidgets.QPushButton("Delete", self)
-        self.delete_button.clicked.connect(self.confirm_delete_dialog)
-        connect_buttons = (
-            QtWidgets.QDialogButtonBox.StandardButton.Ok
-            | QtWidgets.QDialogButtonBox.StandardButton.Close
-        )
-        self.connect_box = QtWidgets.QDialogButtonBox(connect_buttons)
-        self.connect_box.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setText(
-            "Connect"
-        )
-        self.connect_box.accepted.connect(self.confirm_connect)
-        self.connect_box.rejected.connect(self.reject)
-
-        self.vbox_layout = QtWidgets.QVBoxLayout()
-        message = QtWidgets.QLabel(
-            "Enter or select the OPC-UA server details and click OK"
-        )
-        self.vbox_layout.addWidget(message)
-
-        # Populate the server config select (drop-down) box with entries from
-        # configuration file
-        server_list = self._controller.get_config_servers()
-        self.dropdown_server_config_select = QtWidgets.QComboBox()
-        self.dropdown_server_config_select.setEditable(True)
-        self.dropdown_server_config_select.addItems([""] + server_list)
-        self.dropdown_server_config_select.currentTextChanged.connect(
-            self.server_config_select_changed
-        )
-        self.vbox_layout.addWidget(QtWidgets.QLabel("Select server from config file:"))
-        self.vbox_layout.addWidget(self.dropdown_server_config_select)
-
-        self.vbox_layout.addWidget(QtWidgets.QLabel("Server Address:"))
-        self.input_server_address = QtWidgets.QLineEdit()
-        self.input_server_address.setPlaceholderText("Server Address")
-        self.vbox_layout.addWidget(self.input_server_address)
-
-        self.vbox_layout.addWidget(QtWidgets.QLabel("Server Port:"))
-        self.input_server_port = QtWidgets.QLineEdit()
-        self.input_server_port.setPlaceholderText("Server Port")
-        self.vbox_layout.addWidget(self.input_server_port)
-
-        self.vbox_layout.addWidget(QtWidgets.QLabel("Server Endpoint:"))
-        self.input_server_endpoint = QtWidgets.QLineEdit()
-        self.input_server_endpoint.setPlaceholderText("Server Endpoint")
-        self.vbox_layout.addWidget(self.input_server_endpoint)
-
-        self.vbox_layout.addWidget(QtWidgets.QLabel("Server Namespace:"))
-        self.input_server_namespace = QtWidgets.QLineEdit()
-        self.input_server_namespace.setPlaceholderText("Server Namespace")
-        self.vbox_layout.addWidget(self.input_server_namespace)
-
-        self.cache_checkbox = QtWidgets.QCheckBox()
-        self.cache_checkbox.setText("Use nodes cache")
-        self.cache_checkbox.setChecked(False)
-        self.vbox_layout.addWidget(self.cache_checkbox)
-
-        self.hbox_layout = QtWidgets.QHBoxLayout()
-        self.hbox_layout.addWidget(self.connect_box)
-        self.hbox_layout.addWidget(self.save_button)
-        self.hbox_layout.addWidget(self.delete_button)
-        self.vbox_layout.addLayout(self.hbox_layout)
-        self.setLayout(self.vbox_layout)
-        self.server_details: dict[str, str | bool] = {}
-
-        if self._controller.last_server_details is not None:
-            server_config = self._controller.last_server_details
-            self.input_server_address.setText(server_config["host"])
-            self.input_server_port.setText(str(server_config["port"]))
-            self.input_server_endpoint.setText(server_config["endpoint"])
-            self.input_server_namespace.setText(server_config["namespace"])
-            self.cache_checkbox.setChecked(bool(server_config["use_nodes_cache"]))
-        self.dropdown_server_config_select.setFocus()
-
-    @property
-    def server_config_selected(self) -> str:
-        """Return the server config selected in the drop-down box."""
-        return self.dropdown_server_config_select.currentText()
-
-    def server_config_select_changed(self, server_name: str) -> None:
-        """
-        User changed server selection in drop-down box.
-
-        Enable/disable relevant widgets.
-        """
-        logger.debug("server config select changed: %s", server_name)
-        # Get the server config args from configfile
-        server_config = self._controller.get_config_server_args(server_name)
-        # Populate the widgets with the server config args
-        if server_config is None:
-            self.input_server_address.clear()
-            self.input_server_port.clear()
-            self.input_server_endpoint.clear()
-            self.input_server_namespace.clear()
-            self.cache_checkbox.setChecked(False)
-        else:
-            self.input_server_address.setText(server_config["host"])
-            self.input_server_port.setText(str(server_config["port"]))
-            self.input_server_endpoint.setText(server_config.get("endpoint", ""))
-            self.input_server_namespace.setText(server_config.get("namespace", ""))
-            self.cache_checkbox.setChecked(
-                bool(server_config.get("use_nodes_cache", False))
-            )
-            if "use_nodes_cache" in server_config:
-                self.cache_checkbox.setChecked(
-                    False
-                    if server_config["use_nodes_cache"]
-                    in ["False", "false", "No", "no"]
-                    else bool(server_config["use_nodes_cache"])
-                )
-            else:
-                self.cache_checkbox.setChecked(False)
-
-    def confirm_connect(self) -> None:
-        """Accepts the server connection details entered in the dialog."""
-        logger.debug("Server connect dialog accepted")
-        self.server_details = {
-            "host": self.input_server_address.text(),
-            "port": self.input_server_port.text(),
-            "endpoint": self.input_server_endpoint.text(),
-            "namespace": self.input_server_namespace.text(),
-            "use_nodes_cache": self.cache_checkbox.isChecked(),
-        }
-        self.accept()
-
-    def save_config(self) -> None:
-        """Save a server config."""
-        # Input validation
-        try:
-            ipaddress.ip_address(self.input_server_address.text())
-        except ValueError:
-            QtWidgets.QMessageBox.warning(
-                self,
-                "Invalid input",
-                f"'{self.input_server_address.text()}' is not a valid IP address!",
-                QtWidgets.QMessageBox.StandardButton.Ok,
-            )
-            return
-        server_details = {"host": self.input_server_address.text()}
-        port = self.input_server_port.text()
-        if port:
-            if not port.isdigit() or not 0 <= int(port) <= 65535:
-                QtWidgets.QMessageBox.warning(
-                    self,
-                    "Invalid input",
-                    f"'{port}' is not a valid port!\n"
-                    "Please enter a port between 0 and 65535.",
-                    QtWidgets.QMessageBox.StandardButton.Ok,
-                )
-                return
-            server_details["port"] = port
-        if self.input_server_endpoint.text():
-            server_details["endpoint"] = self.input_server_endpoint.text()
-        if self.input_server_namespace.text():
-            server_details["namespace"] = self.input_server_namespace.text()
-        if self.cache_checkbox.isChecked():
-            server_details["use_nodes_cache"] = "True"
-        if self.server_config_selected in self._controller.get_config_servers():
-            # Create a confirmation dialog
-            reply = QtWidgets.QMessageBox.warning(
-                self,
-                "Overwrite",
-                "Are you sure you want to overwrite the existing config for "
-                f"'{self.server_config_selected}'?",
-                QtWidgets.QMessageBox.StandardButton.Yes
-                | QtWidgets.QMessageBox.StandardButton.No,
-            )
-        else:
-            reply = QtWidgets.QMessageBox.StandardButton.Yes
-            self.dropdown_server_config_select.addItem(self.server_config_selected)
-        # Handle user response
-        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
-            if self._controller.save_server_config(
-                self.server_config_selected, server_details
-            ):
-                logger.info("Saved '%s' server config", self.server_config_selected)
-                QtWidgets.QMessageBox.information(
-                    self,
-                    "Success",
-                    f"Saved config for '{self.server_config_selected}'.",
-                    QtWidgets.QMessageBox.StandardButton.Ok,
-                )
-
-    def confirm_delete_dialog(self) -> None:
-        """Confirm a user wants to delete a server config."""
-        # Create a confirmation dialog
-        reply = QtWidgets.QMessageBox.warning(
-            self,
-            "Delete",
-            "Are you sure you want to delete the config for "
-            f"'{self.server_config_selected}'?",
-            QtWidgets.QMessageBox.StandardButton.Yes
-            | QtWidgets.QMessageBox.StandardButton.No,
-        )
-        # Handle user response
-        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
-            if self._controller.delete_server_config(self.server_config_selected):
-                logger.info("Deleted '%s' server config", self.server_config_selected)
-                self.dropdown_server_config_select.removeItem(
-                    self.dropdown_server_config_select.findText(
-                        self.server_config_selected
-                    )
-                )
-                self.dropdown_server_config_select.setCurrentIndex(0)
-
-
-class StatusBarMixin:
-    """A mixin class to provide a window with a status bar."""
-
-    def create_status_bar_widget(
-        self,
-        label: str = "",
-    ) -> QtWidgets.QStatusBar:
-        """Create the status bar widgets for the window."""
-        # Add a label widget to the status bar for command/response status
-        status_bar = QtWidgets.QStatusBar()
-        self.cmd_status_label = QtWidgets.QLabel(label)
-        status_bar.addWidget(self.cmd_status_label)
-        return status_bar
-
-    def status_bar_update(self, status: str) -> None:
-        """Update the status bar with a status update."""
-        self.cmd_status_label.setText(status[:200])
-
-
-class WeatherStationConnectDialog(StatusBarMixin, QtWidgets.QDialog):
-    # pylint: disable=too-few-public-methods
-    """A dialog-window class for connecting to a weather station."""
-
-    def __init__(
-        self, parent: QtWidgets.QWidget, mvc_controller: controller.Controller
-    ):
-        """
-        Initialize the weather station connect dialog.
-
-        :param parent: The parent widget for the dialog.
-        """
-        super().__init__(parent)
-        self._controller = mvc_controller
-        weather_stations = list(self._controller.get_weather_station_configs())
-        self.server_details: dict[str, str] = {}
-
-        self.setWindowTitle("Weather Station Connection")
-        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
-
-        button = (
-            QtWidgets.QDialogButtonBox.StandardButton.Ok
-            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
-        )
-
-        self.btn_box = QtWidgets.QDialogButtonBox(button)
-        self.btn_box.accepted.connect(self.confirm_connect)
-        self.btn_box.rejected.connect(self.reject)
-
-        self.vbox_layout = QtWidgets.QVBoxLayout()
-        # Create widgets
-        self.dropdown_weather_station_config_select = QtWidgets.QComboBox()
-        self.dropdown_weather_station_config_select.setEditable(True)
-        self.dropdown_weather_station_config_select.addItems([""] + weather_stations)
-        self.dropdown_weather_station_config_select.currentTextChanged.connect(
-            self.weather_station_config_select_changed
-        )
-        self.select_weather_station_config_file = QtWidgets.QPushButton(
-            "Select configuration..."
-        )
-        self.select_weather_station_config_file.clicked.connect(
-            self._select_weather_station_config_file_clicked
-        )
-        self.weather_station_config_file = QtWidgets.QLineEdit()
-        self.default_weather_station_config_file = QtWidgets.QPushButton(
-            "Use Default Configuration"
-        )
-        self.default_weather_station_config_file.clicked.connect(
-            lambda: self.weather_station_config_file.setText("/DEFAULT/")
-        )
-        self.weather_station_address = QtWidgets.QLineEdit()
-        self.weather_station_port = QtWidgets.QLineEdit()
-        # Create layout
-        self.vbox_layout.addWidget(
-            QtWidgets.QLabel("Enter or select the weather station details and click OK")
-        )
-        self.vbox_layout.addWidget(QtWidgets.QLabel("Select built-in weather station:"))
-        self.vbox_layout.addWidget(self.dropdown_weather_station_config_select)
-        self.vbox_layout.addWidget(QtWidgets.QLabel("Select configuration:"))
-        self.vbox_layout.addWidget(self.select_weather_station_config_file)
-        self.vbox_layout.addWidget(self.default_weather_station_config_file)
-        self.vbox_layout.addWidget(self.weather_station_config_file)
-        self.vbox_layout.addWidget(QtWidgets.QLabel("Weather Station Address:"))
-        self.vbox_layout.addWidget(self.weather_station_address)
-        self.vbox_layout.addWidget(QtWidgets.QLabel("Weather Station Port:"))
-        self.vbox_layout.addWidget(self.weather_station_port)
-        self.vbox_layout.addWidget(self.btn_box)
-        status_bar = self.create_status_bar_widget()
-        self.vbox_layout.addWidget(status_bar)
-        self.setLayout(self.vbox_layout)
-        self.weather_station_details: dict[str, str] = {}
-
-    def weather_station_config_select_changed(self, weather_station: str) -> None:
-        """
-        User changed weather station selection in drop-down box.
-
-        Fill or clear the form.
-        """
-        logger.debug("Selected weather station config changed to %s", weather_station)
-        try:
-            weather_station_details = self._controller.get_weather_station_configs()[
-                weather_station
-            ]
-        except KeyError:
-            # Unknown config, clear form.
-            self.weather_station_config_file.clear()
-            self.weather_station_address.clear()
-            self.weather_station_port.clear()
-            return
-
-        self.weather_station_config_file.setText(weather_station_details["config_file"])
-        self.weather_station_address.setText(weather_station_details["address"])
-        self.weather_station_port.setText(weather_station_details["port"])
-
-    def _select_weather_station_config_file_clicked(self):
-        """Load a weather station config from a yaml file."""
-        options = QFileDialog.Option(QFileDialog.Option.ReadOnly)
-        filename, _ = QFileDialog.getOpenFileName(
-            parent=self,
-            caption="Select Weather Station Config",
-            dir=user_documents_dir(),
-            filter="Weather Station Config Files (*.yaml);;All Files (*)",
-            options=options,
-        )
-        if filename:
-            logger.info("Weather station config file name: %s", filename)
-            self.weather_station_config_file.setText(filename)
-
-    def confirm_connect(self):
-        """Accepts the weather station details entered in the dialog."""
-        logger.debug("Weather station dialog accepted")
-        config = self.weather_station_config_file.text()
-        if config == "/DEFAULT/":
-            config = resources.files(__package__).joinpath(_WEATHER_STATION_YAML)
-        address = self.weather_station_address.text()
-        port = self.weather_station_port.text()
-        if not config or not address or not port:
-            self.status_bar_update("Please fill in all weather station details.")
-            return
-
-        try:
-            load_weather_station_configuration(config)
-        except ValueError:
-            msg = f"{config} does not contain a valid weather station configuration"
-            logger.error(msg)
-            self.status_bar_update(msg)
-            return
-
-        self.server_details = {"config": config, "address": address, "port": port}
-        self.accept()
-
-
-# pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-statements,too-few-public-methods
-class AttributeGraphSelectDialog(QtWidgets.QDialog):
-    """
-    A dialog-window class for displaying attributes.
-
-    :param parent: The parent widget of the dialog.
-    :param attributes: A list of OPC-UA attributes to be displayed and selected.
-    """
-
-    def __init__(
-        self,
-        parent: QtWidgets.QWidget,
-        attributes: dict[str, dict[str, bool | int]],
-    ):
-        """
-        Initialize the Recording Configuration dialog.
-
-        :param parent: The parent widget for the dialog.
-        :param attributes: A list of strings representing OPC-UA attributes to choose
-            from.
-        """
-        super().__init__(parent)
-
-        self.setWindowTitle("Choose Attributes")
-        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
-        self.resize(544, 512)
-
-        self._node_table_widgets: dict[
-            str, dict[str, QtWidgets.QCheckBox | QtWidgets.QLineEdit]
-        ] = {}
-
-        button = (
-            QtWidgets.QDialogButtonBox.StandardButton.Ok
-            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
-        )
-
-        self.btn_box = QtWidgets.QDialogButtonBox(button)
-        self.btn_box.accepted.connect(self.accept_selection)
-        self.btn_box.rejected.connect(self.reject)
-
-        self.grid_layout = QtWidgets.QGridLayout()
-        table_options_layout = QtWidgets.QGridLayout()
-        self.grid_layout.addLayout(table_options_layout, 0, 0)
-
-        message = QtWidgets.QLabel(
-            "Select all the OPC-UA attributes to display from the list and click OK"
-        )
-        message.setAlignment(
-            QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.AlignmentFlag.AlignCenter
-        )
-        self.grid_layout.addWidget(message)
-
-        self.node_table = QtWidgets.QTableWidget(len(attributes), 2, self)
-        self._create_node_table(attributes, self.node_table)
-        self.grid_layout.addWidget(self.node_table)
-
-        self.grid_layout.addWidget(self.btn_box)
-        self.setLayout(self.grid_layout)
-        self.config_parameters: dict[str, dict[str, bool | int]] = {}
-
-    def _create_node_table(self, attributes, node_table):
-        """Create the attribute node table."""
-        node_table.setStyleSheet(
-            "QCheckBox {margin-left: 28px;} "
-            "QCheckBox::indicator {width: 24px; height: 24px}"
-        )
-        node_table.setHorizontalHeaderLabels(["Attribute Name", "Display"])
-        horizontal_header = node_table.horizontalHeader()
-        horizontal_header.setDefaultSectionSize(80)
-        horizontal_header.setSectionResizeMode(
-            0, QtWidgets.QHeaderView.ResizeMode.Stretch
-        )
-
-        vertical_header = QtWidgets.QHeaderView(QtCore.Qt.Orientation.Vertical)
-        vertical_header.hide()
-        node_table.setVerticalHeader(vertical_header)
-        node_table.setSelectionMode(
-            QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
-        )
-        for i, (attr, value) in enumerate(attributes.items()):
-            # Add node name in first column and turn off table interactions
-            node_name = QtWidgets.QTableWidgetItem(attr)
-            node_name.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
-            node_table.setItem(i, 0, node_name)
-            # Ensure "Display" column is also not interactable
-            display_background = QtWidgets.QTableWidgetItem()
-            display_background.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
-            node_table.setItem(i, 1, display_background)
-            # Add "Display" checkbox
-            display_node = QtWidgets.QCheckBox()
-            display_node.setChecked(value["display"])
-            node_table.setCellWidget(i, 1, display_node)
-            self._node_table_widgets[attr] = {
-                "display_check_box": display_node,
-            }
-
-    def _get_current_config(self) -> dict[str, dict[str, bool | int]]:
-        """Get the current attribute display values."""
-        config_parameters = {}
-        for node, widgets in self._node_table_widgets.items():
-            config_parameters[node] = {
-                "display": widgets[
-                    "display_check_box"
-                ].isChecked(),  # type: ignore[union-attr]
-            }
-
-        return config_parameters
-
-    def accept_selection(self):
-        """Accepts the selection made in the configuration dialog."""
-        logger.debug("Recording config dialog accepted")
-        self.config_parameters = self._get_current_config()
-        self.accept()
-
-
-# pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-statements
-class RecordingConfigDialog(StatusBarMixin, QtWidgets.QDialog):
-    """
-    A dialog-window class for selecting OPC-UA parameters to be recorded.
-
-    :param parent: The parent widget of the dialog.
-    :param attributes: A list of OPC-UA attributes to be displayed and selected.
-    """
-
-    def __init__(
-        self,
-        parent: QtWidgets.QWidget,
-        attributes: dict[str, dict[str, bool | int]],
-    ):
-        """
-        Initialize the Recording Configuration dialog.
-
-        :param parent: The parent widget for the dialog.
-        :param attributes: A list of strings representing OPC-UA attributes to choose
-            from.
-        """
-        super().__init__(parent)
-
-        self.setWindowTitle("Recording Configuration")
-        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
-        self.resize(544, 512)
-
-        self._node_table_widgets: dict[
-            str, dict[str, QtWidgets.QCheckBox | QtWidgets.QLineEdit]
-        ] = {}
-
-        button = (
-            QtWidgets.QDialogButtonBox.StandardButton.Ok
-            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
-        )
-
-        self.btn_box = QtWidgets.QDialogButtonBox(button)
-        self.btn_box.accepted.connect(self.accept_selection)
-        self.btn_box.rejected.connect(self.reject)
-
-        self.grid_layout = QtWidgets.QGridLayout()
-        table_options_layout = QtWidgets.QGridLayout()
-        self.table_file_label = QtWidgets.QLabel("Table config file:")
-        self.table_file_label.setAlignment(
-            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
-        )
-        self.table_file_load = QtWidgets.QPushButton("Open File...")
-        self.table_file_load.clicked.connect(self._load_node_table)
-        self.table_file_save = QtWidgets.QPushButton("Save As...")
-        self.table_file_save.clicked.connect(self._save_node_table)
-        self.record_column_label = QtWidgets.QLabel("Record column:")
-        self.record_column_label.setAlignment(
-            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
-        )
-        self.record_column_tick = QtWidgets.QPushButton("Record All")
-        self.record_column_tick.clicked.connect(
-            lambda: self._set_all_record_checkboxes(True)
-        )
-        self.record_column_clear = QtWidgets.QPushButton("Clear All")
-        self.record_column_clear.clicked.connect(
-            lambda: self._set_all_record_checkboxes(False)
-        )
-        self.period_column_label = QtWidgets.QLabel("Period column:")
-        self.period_column_label.setAlignment(
-            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
-        )
-        self.period_column_value = QtWidgets.QSpinBox()
-        # Remove step buttons and prevent mouse wheel interaction
-        self.period_column_value.setButtonSymbols(
-            QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
-        )
-        self.period_column_value.wheelEvent = lambda e: None  # type: ignore[assignment]
-        self.period_column_value.setRange(50, 60000)
-        self.period_column_value.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
-        self.period_column_set = QtWidgets.QPushButton("Set All")
-        self.period_column_set.clicked.connect(self._set_all_period_spinboxes)
-        table_options_layout.addWidget(self.table_file_label, 0, 0)
-        table_options_layout.addWidget(self.table_file_load, 0, 1)
-        table_options_layout.addWidget(self.table_file_save, 0, 2)
-        table_options_layout.addWidget(self.record_column_label, 1, 0)
-        table_options_layout.addWidget(self.record_column_tick, 1, 1)
-        table_options_layout.addWidget(self.record_column_clear, 1, 2)
-        table_options_layout.addWidget(self.period_column_label, 2, 0)
-        table_options_layout.addWidget(self.period_column_value, 2, 1)
-        table_options_layout.addWidget(self.period_column_set, 2, 2)
-        self.grid_layout.addLayout(table_options_layout, 0, 0)
-
-        message = QtWidgets.QLabel(
-            "Select all the OPC-UA attributes to record from the list and click OK"
-        )
-        message.setAlignment(
-            QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.AlignmentFlag.AlignCenter
-        )
-        self.grid_layout.addWidget(message)
-
-        self.node_table = QtWidgets.QTableWidget(len(attributes), 3, self)
-        self._create_node_table(attributes, self.node_table)
-        self.grid_layout.addWidget(self.node_table)
-
-        self.grid_layout.addWidget(self.btn_box)
-        status_bar = self.create_status_bar_widget()
-        self.grid_layout.addWidget(status_bar)
-        self.setLayout(self.grid_layout)
-        self.config_parameters: dict[str, dict[str, bool | int]] = {}
-
-    def _create_node_table(self, attributes, node_table):
-        """Create the attribute node table."""
-        node_table.setStyleSheet(
-            "QCheckBox {margin-left: 28px;} "
-            "QCheckBox::indicator {width: 24px; height: 24px}"
-        )
-        node_table.setHorizontalHeaderLabels(
-            ["Attribute Name", "Record", "Period (ms)"]
-        )
-        horizontal_header = node_table.horizontalHeader()
-        horizontal_header.setDefaultSectionSize(80)
-        horizontal_header.setSectionResizeMode(
-            0, QtWidgets.QHeaderView.ResizeMode.Stretch
-        )
-
-        vertical_header = QtWidgets.QHeaderView(QtCore.Qt.Orientation.Vertical)
-        vertical_header.hide()
-        node_table.setVerticalHeader(vertical_header)
-        node_table.setSelectionMode(
-            QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
-        )
-        for i, (attr, value) in enumerate(attributes.items()):
-            # Add node name in first column and turn off table interactions
-            node_name = QtWidgets.QTableWidgetItem(attr)
-            node_name.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
-            node_table.setItem(i, 0, node_name)
-            # Ensure "Record" and "Period" columns are also not interactable
-            add_background = QtWidgets.QTableWidgetItem()
-            period_background = QtWidgets.QTableWidgetItem()
-            add_background.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
-            period_background.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
-            node_table.setItem(i, 1, add_background)
-            node_table.setItem(i, 2, period_background)
-            # Add "Record" checkbox
-            record_node = QtWidgets.QCheckBox()
-            record_node.setChecked(value["record"])
-            node_table.setCellWidget(i, 1, record_node)
-            # Add "Period" line edit
-            node_period = QtWidgets.QSpinBox()
-            # Remove step buttons and prevent mouse wheel interaction
-            node_period.setButtonSymbols(
-                QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
-            )
-            node_period.wheelEvent = node_table.wheelEvent
-            node_period.setRange(50, 60000)
-            node_period.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
-            node_period.setValue(value["period"])
-            node_table.setCellWidget(i, 2, node_period)
-            self._node_table_widgets[attr] = {
-                "record_check_box": record_node,
-                "period_spin_box": node_period,
-            }
-
-    def _set_all_record_checkboxes(self, checked: bool) -> None:
-        """Unchecks all of the "Record" checkboxes."""
-        for widgets in self._node_table_widgets.values():
-            widgets["record_check_box"].setChecked(checked)  # type: ignore[union-attr]
-
-        status_update = "Record column "
-        if checked:
-            status_update += "ticked."
-        else:
-            status_update += "cleared."
-
-        self.status_bar_update(status_update)
-
-    def _set_all_period_spinboxes(self) -> None:
-        """Sets all period spinboxes to the value in self.period_column_value."""
-        value = self.period_column_value.value()
-        for widgets in self._node_table_widgets.values():
-            widgets["period_spin_box"].setValue(value)  # type: ignore[union-attr]
-
-        self.status_bar_update(f"Period column set to {value} milliseconds.")
-
-    def _save_node_table(self) -> None:
-        """Save the node table to a json file."""
-        _fname, _ = QFileDialog.getSaveFileName(
-            parent=self,
-            caption="Save Recording Config File",
-            dir=user_documents_dir(),
-            filter="Recording Config Files (*.json);;All Files (*)",
-        )
-        if _fname:
-            filename = Path(_fname)
-            logger.info("Recording save file name: %s", filename)
-            if filename.suffix != ".json":
-                filename = filename.parent / (filename.name + ".json")
-            with open(filename, "w", encoding="UTF-8") as f:
-                json.dump(self._get_current_config(), f, indent=4, sort_keys=True)
-
-            self.status_bar_update(f"Recording config saved to file {filename}")
-
-    def _load_node_table(self) -> None:
-        """Load the node table from a json file."""
-        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
-            parent=self,
-            caption="Load Recording Config File",
-            dir=user_documents_dir(),
-            filter="Recording Config Files (*.json);;All Files (*)",
-        )
-        if filename:
-            logger.info("Recording load file name: %s", filename)
-            with open(filename, "r", encoding="UTF-8") as f:
-                try:
-                    config = json.load(f)
-                except Exception as e:  # pylint: disable=broad-except
-                    logger.warning("Could not load file %s: %s", filename, e)
-                    self.status_bar_update(f"Could not load file {filename}")
-                    return
-
-            # Check stored values before updating table
-            for node, values in config.items():
-                try:
-                    record = values["record"]
-                    period = values["period"]
-                except Exception as e:  # pylint: disable=broad-except
-                    logger.warning(
-                        "Could not load file %s: %s:%s",
-                        filename,
-                        type(e).__name__,
-                        e,
-                    )
-                    self.status_bar_update(
-                        f"Error: {e} value missing for node {node} in file {filename}"
-                    )
-                    return
-
-                if not isinstance(record, bool) or not isinstance(period, int):
-                    logger.warning(
-                        "Could not load file %s: incompatible values (%s, %s) for node "
-                        "%s",
-                        filename,
-                        record,
-                        period,
-                        node,
-                    )
-                    self.status_bar_update(
-                        f"Incompatible values ({record}, {period}) for {node} in file "
-                        "{filename}"
-                    )
-                    return
-
-            missing_nodes = list(self._node_table_widgets.keys())
-            extra_nodes = []
-            for node, values in config.items():
-                if node in self._node_table_widgets:
-                    self._node_table_widgets[node][
-                        "record_check_box"
-                    ].setChecked(  # type: ignore[union-attr]
-                        values["record"]
-                    )
-                    self._node_table_widgets[node][
-                        "period_spin_box"
-                    ].setValue(  # type: ignore[union-attr]
-                        values["period"]
-                    )
-                    missing_nodes.remove(node)
-                else:
-                    extra_nodes.append(node)
-
-            self.status_bar_update(f"Recording config loaded from file {filename}")
-            error_status_update = ""
-            if missing_nodes:
-                logger.warning(
-                    "The server has attributes not in the config file. "
-                    "The following attributes have not been updated: %s",
-                    missing_nodes,
-                )
-                error_status_update += (
-                    "This server has attributes not in the selected " "config file. "
-                )
-
-            if extra_nodes:
-                logger.warning(
-                    "The file contains attributes not available on the server. "
-                    "The following attributes have not been updated: %s",
-                    extra_nodes,
-                )
-                error_status_update += (
-                    "The selected config file contains attributes not available on "
-                    "this server. "
-                )
-
-            if error_status_update:
-                error_status_update += "Only overlapping attributes will be updated."
-                self.status_bar_update(error_status_update)
-
-    def _get_current_config(self) -> dict[str, dict[str, bool | int]]:
-        """Get the current attribute record and period values."""
-        config_parameters = {}
-        for node, widgets in self._node_table_widgets.items():
-            config_parameters[node] = {
-                "record": widgets[
-                    "record_check_box"
-                ].isChecked(),  # type: ignore[union-attr]
-                "period": widgets[
-                    "period_spin_box"
-                ].value(),  # type: ignore[union-attr]
-            }
-
-        return config_parameters
-
-    def accept_selection(self):
-        """Accepts the selection made in the configuration dialog."""
-        logger.debug("Recording config dialog accepted")
-        self.config_parameters = self._get_current_config()
-        self.accept()
 
 
 # pylint: disable=too-many-statements, too-many-public-methods,
 # pylint: disable=too-many-instance-attributes
-class MainView(StatusBarMixin, QtCore.QObject):
+class MainView(StatusBarMixin, QObject):
     """
     A class representing the main Window of the DiSQ GUI application.
 
@@ -895,13 +108,13 @@ class MainView(StatusBarMixin, QtCore.QObject):
             "motiontimeout": "rgb(255, 0, 0)",
         },
     }
-    live_graph_close = QtCore.Signal(str)
-    all_live_graphs_closed = QtCore.Signal(bool)
+    live_graph_close = Signal(str)
+    all_live_graphs_closed = Signal(bool)
 
     # pylint: disable=too-many-arguments
     def __init__(
         self,
-        main_window: QtWidgets.QMainWindow,
+        main_window: QMainWindow,
         disq_model: model.Model,
         disq_controller: controller.Controller,
         *args: Any,
@@ -996,7 +209,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         )
         self.spinbox_input_limits: list[tuple[float, float]] = []
 
-        self.server_status_bar: QtWidgets.QWidget = self.window.server_status_bar
+        self.server_status_bar: QWidget = self.window.server_status_bar
         # Load a background image for the server connection QGroupBox
         pixmap = QPixmap(":/images/skao_colour_bar.png")
         palette = self.server_status_bar.palette()
@@ -1004,12 +217,12 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.server_status_bar.setPalette(palette)
         self.server_status_bar.setAutoFillBackground(True)
 
-        self.label_conn_status: QtWidgets.QLabel = self.window.label_conn_status
-        self.label_cache_status: QtWidgets.QLabel = self.window.label_cache_status
+        self.label_conn_status: QLabel = self.window.label_conn_status
+        self.label_cache_status: QLabel = self.window.label_cache_status
         self.label_cache_status.setStyleSheet("QLabel { color: white; }")
         self.label_conn_status.setStyleSheet("QLabel { color: white; }")
 
-        self.list_cmd_history: QtWidgets.QListWidget = (
+        self.list_cmd_history: QListWidget = (
             self.window.list_cmd_history
         )  # Command history list widget
         self.window.setStatusBar(self.create_status_bar_widget("ℹ️ Status"))
@@ -1039,21 +252,17 @@ class MainView(StatusBarMixin, QtCore.QObject):
         )
 
         # Status panel widgets
-        self.line_edit_warning_general: QtWidgets.QLineEdit = (
+        self.line_edit_warning_general: QLineEdit = (
             self.window.line_edit_warning_general
         )
 
         # Authority status group widgets
-        self.combobox_authority: QtWidgets.QComboBox = self.window.combobox_authority
-        self.button_take_auth: QtWidgets.QPushButton = self.window.button_take_auth
+        self.combobox_authority: QComboBox = self.window.combobox_authority
+        self.button_take_auth: QPushButton = self.window.button_take_auth
         self.button_take_auth.clicked.connect(self.take_authority_button_clicked)
-        self.button_release_auth: QtWidgets.QPushButton = (
-            self.window.button_release_auth
-        )
+        self.button_release_auth: QPushButton = self.window.button_release_auth
         self.button_release_auth.clicked.connect(self.release_authority_button_clicked)
-        self.button_interlock_ack: QtWidgets.QPushButton = (
-            self.window.button_interlock_ack
-        )
+        self.button_interlock_ack: QPushButton = self.window.button_interlock_ack
         self.button_interlock_ack.clicked.connect(self.controller.command_interlock_ack)
         # Slew group widgets
         self.spinbox_slew_simul_azim_position: LimitedDisplaySpinBox = (
@@ -1068,62 +277,52 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.spinbox_slew_simul_elev_velocity: LimitedDisplaySpinBox = (
             self.window.spinbox_slew_simul_elev_velocity
         )
-        self.button_slew2abs: QtWidgets.QPushButton = self.window.button_slew2abs
+        self.button_slew2abs: QPushButton = self.window.button_slew2abs
         self.button_slew2abs.clicked.connect(self.slew2abs_button_clicked)
         # Commands group widgets
-        self.button_stop: QtWidgets.QPushButton = self.window.button_stop
+        self.button_stop: QPushButton = self.window.button_stop
         self.button_stop.clicked.connect(lambda: self.stop_button_clicked("AzEl"))
-        self.button_stow: QtWidgets.QPushButton = self.window.button_stow
+        self.button_stow: QPushButton = self.window.button_stow
         self.button_stow.clicked.connect(self.stow_button_clicked)
-        self.button_unstow: QtWidgets.QPushButton = self.window.button_unstow
+        self.button_unstow: QPushButton = self.window.button_unstow
         self.button_unstow.clicked.connect(self.unstow_button_clicked)
-        self.button_activate: QtWidgets.QPushButton = self.window.button_activate
+        self.button_activate: QPushButton = self.window.button_activate
         self.button_activate.clicked.connect(
             lambda: self.activate_button_clicked("AzEl")
         )
-        self.button_deactivate: QtWidgets.QPushButton = self.window.button_deactivate
+        self.button_deactivate: QPushButton = self.window.button_deactivate
         self.button_deactivate.clicked.connect(
             lambda: self.deactivate_button_clicked("AzEl")
         )
         # Power tab widgets
-        self.button_power_mode_normal: QtWidgets.QRadioButton = (
+        self.button_power_mode_normal: QRadioButton = (
             self.window.button_power_mode_normal
         )
         self.button_power_mode_normal.setChecked(True)
-        self.button_power_mode_low: QtWidgets.QRadioButton = (
-            self.window.button_power_mode_low
-        )
-        self.button_power_mode_group = QtWidgets.QButtonGroup()
+        self.button_power_mode_low: QRadioButton = self.window.button_power_mode_low
+        self.button_power_mode_group = QButtonGroup()
         self.button_power_mode_group.addButton(self.button_power_mode_normal, 0)
         self.button_power_mode_group.addButton(self.button_power_mode_low, 1)
-        self.spinbox_power_lim_kw: QtWidgets.QDoubleSpinBox = (
-            self.window.spinbox_power_lim_kw
-        )
-        self.button_set_power_mode: QtWidgets.QPushButton = (
-            self.window.button_set_power_mode
-        )
+        self.spinbox_power_lim_kw: QDoubleSpinBox = self.window.spinbox_power_lim_kw
+        self.button_set_power_mode: QPushButton = self.window.button_set_power_mode
         self.button_set_power_mode.clicked.connect(self.set_power_mode_clicked)
 
         # Axis tab elevation group widgets
-        self.button_elevation_slew: QtWidgets.QPushButton = (
-            self.window.button_elevation_slew
-        )
+        self.button_elevation_slew: QPushButton = self.window.button_elevation_slew
         self.button_elevation_slew.clicked.connect(
             lambda: self.slew_button_clicked("El")
         )
-        self.button_elevation_stop: QtWidgets.QPushButton = (
-            self.window.button_elevation_stop
-        )
+        self.button_elevation_stop: QPushButton = self.window.button_elevation_stop
         self.button_elevation_stop.clicked.connect(
             lambda: self.stop_button_clicked("El")
         )
-        self.button_elevation_activate: QtWidgets.QPushButton = (
+        self.button_elevation_activate: QPushButton = (
             self.window.button_elevation_activate
         )
         self.button_elevation_activate.clicked.connect(
             lambda: self.activate_button_clicked("El")
         )
-        self.button_elevation_deactivate: QtWidgets.QPushButton = (
+        self.button_elevation_deactivate: QPushButton = (
             self.window.button_elevation_deactivate
         )
         self.button_elevation_deactivate.clicked.connect(
@@ -1135,28 +334,20 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.spinbox_slew_only_elevation_velocity: LimitedDisplaySpinBox = (
             self.window.spinbox_slew_only_elevation_velocity
         )
-        self.button_elevation_reset: QtWidgets.QPushButton = (
-            self.window.button_elevation_reset
-        )
+        self.button_elevation_reset: QPushButton = self.window.button_elevation_reset
         self.button_elevation_reset.clicked.connect(
             lambda: self.reset_button_clicked("El")
         )
         # Axis tab azimuth group widgets
-        self.button_azimuth_slew: QtWidgets.QPushButton = (
-            self.window.button_azimuth_slew
-        )
+        self.button_azimuth_slew: QPushButton = self.window.button_azimuth_slew
         self.button_azimuth_slew.clicked.connect(lambda: self.slew_button_clicked("Az"))
-        self.button_azimuth_stop: QtWidgets.QPushButton = (
-            self.window.button_azimuth_stop
-        )
+        self.button_azimuth_stop: QPushButton = self.window.button_azimuth_stop
         self.button_azimuth_stop.clicked.connect(lambda: self.stop_button_clicked("Az"))
-        self.button_azimuth_activate: QtWidgets.QPushButton = (
-            self.window.button_azimuth_activate
-        )
+        self.button_azimuth_activate: QPushButton = self.window.button_azimuth_activate
         self.button_azimuth_activate.clicked.connect(
             lambda: self.activate_button_clicked("Az")
         )
-        self.button_azimuth_deactivate: QtWidgets.QPushButton = (
+        self.button_azimuth_deactivate: QPushButton = (
             self.window.button_azimuth_deactivate
         )
         self.button_azimuth_deactivate.clicked.connect(
@@ -1168,28 +359,20 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.spinbox_slew_only_azimuth_velocity: LimitedDisplaySpinBox = (
             self.window.spinbox_slew_only_azimuth_velocity
         )
-        self.button_azimuth_reset: QtWidgets.QPushButton = (
-            self.window.button_azimuth_reset
-        )
+        self.button_azimuth_reset: QPushButton = self.window.button_azimuth_reset
         self.button_azimuth_reset.clicked.connect(
             lambda: self.reset_button_clicked("Az")
         )
         # Axis tab feed indexer group widgets
-        self.button_indexer_slew: QtWidgets.QPushButton = (
-            self.window.button_indexer_slew
-        )
+        self.button_indexer_slew: QPushButton = self.window.button_indexer_slew
         self.button_indexer_slew.clicked.connect(lambda: self.slew_button_clicked("Fi"))
-        self.button_indexer_stop: QtWidgets.QPushButton = (
-            self.window.button_indexer_stop
-        )
+        self.button_indexer_stop: QPushButton = self.window.button_indexer_stop
         self.button_indexer_stop.clicked.connect(lambda: self.stop_button_clicked("Fi"))
-        self.button_indexer_activate: QtWidgets.QPushButton = (
-            self.window.button_indexer_activate
-        )
+        self.button_indexer_activate: QPushButton = self.window.button_indexer_activate
         self.button_indexer_activate.clicked.connect(
             lambda: self.activate_button_clicked("Fi")
         )
-        self.button_indexer_deactivate: QtWidgets.QPushButton = (
+        self.button_indexer_deactivate: QPushButton = (
             self.window.button_indexer_deactivate
         )
         self.button_indexer_deactivate.clicked.connect(
@@ -1201,15 +384,11 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.spinbox_slew_only_indexer_velocity: LimitedDisplaySpinBox = (
             self.window.spinbox_slew_only_indexer_velocity
         )
-        self.button_indexer_reset: QtWidgets.QPushButton = (
-            self.window.button_indexer_reset
-        )
+        self.button_indexer_reset: QPushButton = self.window.button_indexer_reset
         self.button_indexer_reset.clicked.connect(
             lambda: self.reset_button_clicked("Fi")
         )
-        self.combobox_axis_input_step: QtWidgets.QComboBox = (
-            self.window.combobox_axis_input_step
-        )
+        self.combobox_axis_input_step: QComboBox = self.window.combobox_axis_input_step
         self.combobox_axis_input_step.currentIndexChanged.connect(
             lambda: self.set_axis_inputs_step_size(
                 float(self.combobox_axis_input_step.currentText())
@@ -1223,19 +402,19 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.most_recent_indexer_pos: float = 400.0
 
         # Point tab static pointing model widgets
-        self.button_static_point_model_import: QtWidgets.QPushButton = (
+        self.button_static_point_model_import: QPushButton = (
             self.window.button_static_point_model_import
         )
         self.button_static_point_model_import.clicked.connect(
             self.import_static_pointing_model
         )
-        self.button_static_point_model_export: QtWidgets.QPushButton = (
+        self.button_static_point_model_export: QPushButton = (
             self.window.button_static_point_model_export
         )
         self.button_static_point_model_export.clicked.connect(
             self.export_static_pointing_model
         )
-        self.button_static_point_model_apply: QtWidgets.QPushButton = (
+        self.button_static_point_model_apply: QPushButton = (
             self.window.button_static_point_model_apply
         )
         self.button_static_point_model_apply.clicked.connect(
@@ -1247,17 +426,15 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.button_static_point_model_toggle.clicked.connect(
             self.pointing_correction_setup_button_clicked
         )
-        self.static_point_model_band: QtWidgets.QLabel = (
-            self.window.static_point_model_band
-        )
+        self.static_point_model_band: QLabel = self.window.static_point_model_band
         self.static_point_model_band_index_prev: int = 0
-        self.combo_static_point_model_band_input: QtWidgets.QComboBox = (
+        self.combo_static_point_model_band_input: QComboBox = (
             self.window.combo_static_point_model_band_input
         )
         self.combo_static_point_model_band_input.currentTextChanged.connect(
             self.pointing_model_band_selected_for_input
         )
-        self.combo_static_point_model_band_display: QtWidgets.QComboBox = (
+        self.combo_static_point_model_band_display: QComboBox = (
             self.window.combo_static_point_model_band_display
         )
         self.combo_static_point_model_band_display.currentTextChanged.connect(
@@ -1265,8 +442,8 @@ class MainView(StatusBarMixin, QtCore.QObject):
         )
         # NB: The order of the following two lists MUST match the order of the
         # Pointing.StaticPmSetup command's arguments
-        self.static_pointing_values: list[QtWidgets.QLabel] = [
-            self.window.findChild(QtWidgets.QLabel, name)
+        self.static_pointing_values: list[QLabel] = [
+            self.window.findChild(QLabel, name)
             for name in [
                 "opcua_ia",
                 "opcua_ca",
@@ -1311,15 +488,15 @@ class MainView(StatusBarMixin, QtCore.QObject):
                 "spinbox_hese8",
             ]
         ]
-        self.opcua_offset_xelev: QtWidgets.QLabel = self.window.opcua_offset_xelev
-        self.opcua_offset_elev: QtWidgets.QLabel = self.window.opcua_offset_elev
+        self.opcua_offset_xelev: QLabel = self.window.opcua_offset_xelev
+        self.opcua_offset_elev: QLabel = self.window.opcua_offset_elev
         self.spinbox_offset_xelev: LimitedDisplaySpinBox = (
             self.window.spinbox_offset_xelev
         )
         self.spinbox_offset_elev: LimitedDisplaySpinBox = (
             self.window.spinbox_offset_elev
         )
-        self.button_static_offset_apply: QtWidgets.QPushButton = (
+        self.button_static_offset_apply: QPushButton = (
             self.window.button_static_offset_apply
         )
         self.button_static_offset_apply.clicked.connect(
@@ -1342,15 +519,15 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.button_tilt_correction_meter_toggle.clicked.connect(
             self.update_tilt_meter_calibration_parameters_values
         )
-        self.button_tilt_meter_cal_apply: QtWidgets.QPushButton = (
+        self.button_tilt_meter_cal_apply: QPushButton = (
             self.window.button_tilt_meter_cal_apply
         )
         self.button_tilt_meter_cal_apply.clicked.connect(
             self.apply_tilt_meter_calibration_parameters
         )
-        self.tilt_meter_cal_values: list[QtWidgets.QLabel] = [
-            self.window.findChild(QtWidgets.QLabel, "opcua_x_filt_dt"),
-            self.window.findChild(QtWidgets.QLabel, "opcua_y_filt_dt"),
+        self.tilt_meter_cal_values: list[QLabel] = [
+            self.window.findChild(QLabel, "opcua_x_filt_dt"),
+            self.window.findChild(QLabel, "opcua_y_filt_dt"),
         ]
         self.tilt_meter_cal_spinboxes: list[LimitedDisplaySpinBox] = [
             self.window.findChild(LimitedDisplaySpinBox, "spinbox_x_filt_dt"),
@@ -1381,14 +558,14 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.button_temp_correction_toggle.clicked.connect(
             self.pointing_correction_setup_button_clicked
         )
-        self.button_temp_correction_apply: QtWidgets.QPushButton = (
+        self.button_temp_correction_apply: QPushButton = (
             self.window.button_temp_correction_apply
         )
         self.button_temp_correction_apply.clicked.connect(
             self.apply_ambtemp_correction_parameters
         )
-        self.ambtemp_correction_values: list[QtWidgets.QLabel] = [
-            self.window.findChild(QtWidgets.QLabel, name)
+        self.ambtemp_correction_values: list[QLabel] = [
+            self.window.findChild(QLabel, name)
             for name in [
                 "opcua_ambtempfiltdt",
                 "opcua_ambtempparam1",
@@ -1413,132 +590,112 @@ class MainView(StatusBarMixin, QtCore.QObject):
         ]
         self._update_temp_correction_inputs_text = False
         # Bands group widgets
-        self.button_band1: QtWidgets.QPushButton = self.window.button_band1
+        self.button_band1: QPushButton = self.window.button_band1
         self.button_band1.clicked.connect(
             lambda: self.move2band_button_clicked("Band_1")
         )
-        self.button_band2: QtWidgets.QPushButton = self.window.button_band2
+        self.button_band2: QPushButton = self.window.button_band2
         self.button_band2.clicked.connect(
             lambda: self.move2band_button_clicked("Band_2")
         )
-        self.button_band3: QtWidgets.QPushButton = self.window.button_band3
+        self.button_band3: QPushButton = self.window.button_band3
         self.button_band3.clicked.connect(
             lambda: self.move2band_button_clicked("Band_3")
         )
-        self.button_band4: QtWidgets.QPushButton = self.window.button_band4
+        self.button_band4: QPushButton = self.window.button_band4
         self.button_band4.clicked.connect(
             lambda: self.move2band_button_clicked("Band_4")
         )
-        self.button_band5a: QtWidgets.QPushButton = self.window.button_band5a
+        self.button_band5a: QPushButton = self.window.button_band5a
         self.button_band5a.clicked.connect(
             lambda: self.move2band_button_clicked("Band_5a")
         )
-        self.button_band5b: QtWidgets.QPushButton = self.window.button_band5b
+        self.button_band5b: QPushButton = self.window.button_band5b
         self.button_band5b.clicked.connect(
             lambda: self.move2band_button_clicked("Band_5b")
         )
-        self.button_band6: QtWidgets.QPushButton = self.window.button_band6
+        self.button_band6: QPushButton = self.window.button_band6
         self.button_band6.clicked.connect(
             lambda: self.move2band_button_clicked("Band_6")
         )
-        self.button_band_optical: QtWidgets.QPushButton = (
-            self.window.button_band_optical
-        )
+        self.button_band_optical: QPushButton = self.window.button_band_optical
         self.button_band_optical.clicked.connect(
             lambda: self.move2band_button_clicked("Optical")
         )
         self._disable_opcua_widgets()
         # Recording group widgets
-        self.button_select_recording_file: QtWidgets.QPushButton = (
+        self.button_select_recording_file: QPushButton = (
             self.window.button_select_recording_file
         )
         self.button_select_recording_file.clicked.connect(
             self.recording_file_button_clicked
         )
-        self.line_edit_recording_file: QtWidgets.QLineEdit = (
-            self.window.line_edit_recording_file
-        )
-        self.button_recording_overwrite_no: QtWidgets.QRadioButton = (
+        self.line_edit_recording_file: QLineEdit = self.window.line_edit_recording_file
+        self.button_recording_overwrite_no: QRadioButton = (
             self.window.button_recording_overwrite_no
         )
         self.button_recording_overwrite_no.setChecked(True)
-        self.button_recording_config: QtWidgets.QPushButton = (
-            self.window.button_recording_config
-        )
+        self.button_recording_config: QPushButton = self.window.button_recording_config
         self.button_recording_config.clicked.connect(
             self.recording_config_button_clicked
         )
-        self.button_recording_start: QtWidgets.QPushButton = (
-            self.window.button_recording_start
-        )
+        self.button_recording_start: QPushButton = self.window.button_recording_start
         self.button_recording_start.clicked.connect(self.recording_start_clicked)
-        self.button_recording_stop: QtWidgets.QPushButton = (
-            self.window.button_recording_stop
-        )
+        self.button_recording_stop: QPushButton = self.window.button_recording_stop
         self.button_recording_stop.clicked.connect(self.controller.recording_stop)
         self.button_recording_stop.setEnabled(False)
-        self.line_edit_recording_status: QtWidgets.QLineEdit = (
+        self.line_edit_recording_status: QLineEdit = (
             self.window.line_edit_recording_status
         )
         self.controller.recording_status.connect(self.recording_status_update)
         self.recording_start_success = False
 
         # Track tab load table widgets
-        self.button_select_track_table_file: QtWidgets.QPushButton = (
+        self.button_select_track_table_file: QPushButton = (
             self.window.button_select_track_table_file
         )
         self.button_select_track_table_file.clicked.connect(
             self.track_table_file_button_clicked
         )
-        self.line_edit_track_table_file: QtWidgets.QLineEdit = (
+        self.line_edit_track_table_file: QLineEdit = (
             self.window.line_edit_track_table_file
         )
         self.line_edit_track_table_file.textChanged.connect(
             self.track_table_file_changed
         )
-        self.spinbox_file_track_additional_offset: QtWidgets.QDoubleSpinBox = (
+        self.spinbox_file_track_additional_offset: QDoubleSpinBox = (
             self.window.spinbox_file_track_additional_offset
         )
         self.spinbox_file_track_additional_offset.setEnabled(False)
-        self.button_file_track_absolute_times: QtWidgets.QRadioButton = (
+        self.button_file_track_absolute_times: QRadioButton = (
             self.window.button_file_track_absolute_times
         )
         self.button_file_track_absolute_times.setChecked(False)
-        self.button_file_track_relative_times: QtWidgets.QRadioButton = (
+        self.button_file_track_relative_times: QRadioButton = (
             self.window.button_file_track_relative_times
         )
         self.button_file_track_relative_times.toggled.connect(
             self.button_file_track_relative_times_toggled
         )
         self.button_file_track_relative_times.setChecked(True)
-        self.combobox_file_track_mode: QtWidgets.QComboBox = (
-            self.window.combobox_file_track_mode
-        )
-        self.button_load_track_table: QtWidgets.QPushButton = (
-            self.window.button_load_track_table
-        )
+        self.combobox_file_track_mode: QComboBox = self.window.combobox_file_track_mode
+        self.button_load_track_table: QPushButton = self.window.button_load_track_table
         self.button_load_track_table.clicked.connect(self.load_track_table_clicked)
 
         # Track tab control widgets
-        self.combobox_track_start_interpol_type: QtWidgets.QComboBox = (
+        self.combobox_track_start_interpol_type: QComboBox = (
             self.window.combobox_track_start_interpol_type
         )
-        self.button_start_track_now: QtWidgets.QRadioButton = (
-            self.window.button_start_track_now
-        )
+        self.button_start_track_now: QRadioButton = self.window.button_start_track_now
         self.button_start_track_now.setChecked(True)
-        self.button_start_track_at: QtWidgets.QRadioButton = (
-            self.window.button_start_track_at
-        )
+        self.button_start_track_at: QRadioButton = self.window.button_start_track_at
         self.button_start_track_at.toggled.connect(self.button_start_track_at_toggled)
-        self.button_start_track_group = QtWidgets.QButtonGroup()
+        self.button_start_track_group = QButtonGroup()
         self.button_start_track_group.addButton(self.button_start_track_at, 0)
         self.button_start_track_group.addButton(self.button_start_track_now, 1)
-        self.line_edit_start_track_at: QtWidgets.QLineEdit = (
-            self.window.line_edit_start_track_at
-        )
+        self.line_edit_start_track_at: QLineEdit = self.window.line_edit_start_track_at
         self.line_edit_start_track_at.setEnabled(False)
-        self.button_start_track_table: QtWidgets.QPushButton = (
+        self.button_start_track_table: QPushButton = (
             self.window.button_start_track_table
         )
         self.button_start_track_table.clicked.connect(self.start_tracking_clicked)
@@ -1548,7 +705,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.spinbox_source_threshold_period: LimitedDisplaySpinBox = (
             self.window.spinbox_source_threshold_period
         )
-        self.button_set_on_source_threshold: QtWidgets.QPushButton = (
+        self.button_set_on_source_threshold: QPushButton = (
             self.window.button_set_on_source_threshold
         )
         self.button_set_on_source_threshold.clicked.connect(
@@ -1556,29 +713,25 @@ class MainView(StatusBarMixin, QtCore.QObject):
         )
 
         # Track tab time widgets
-        self.button_set_time_source: QtWidgets.QPushButton = (
-            self.window.button_set_time_source
-        )
+        self.button_set_time_source: QPushButton = self.window.button_set_time_source
         self.button_set_time_source.clicked.connect(self.set_time_source_clicked)
-        self.combobox_time_source: QtWidgets.QComboBox = (
-            self.window.combobox_time_source
-        )
-        self.line_edit_ntp_source_addr: QtWidgets.QLineEdit = (
+        self.combobox_time_source: QComboBox = self.window.combobox_time_source
+        self.line_edit_ntp_source_addr: QLineEdit = (
             self.window.line_edit_ntp_source_addr
         )
 
         # Warning and Error tabs
-        self.warning_tree_view: QtWidgets.QTreeWidget = self.window.warning_tree_view
-        self.warning_status_show_only_warnings: QtWidgets.QCheckBox = (
+        self.warning_tree_view: QTreeWidget = self.window.warning_tree_view
+        self.warning_status_show_only_warnings: QCheckBox = (
             self.window.warning_status_show_only_warnings
         )
-        self.error_tree_view: QtWidgets.QTreeWidget = self.window.error_tree_view
-        self.error_status_show_only_errors: QtWidgets.QCheckBox = (
+        self.error_tree_view: QTreeWidget = self.window.error_tree_view
+        self.error_status_show_only_errors: QCheckBox = (
             self.window.error_status_show_only_errors
         )
-        self._status_widget_update_lut: dict[str, QtWidgets.QTreeWidgetItem] = {}
+        self._status_widget_update_lut: dict[str, QTreeWidgetItem] = {}
         self._status_group_update_lut: dict[
-            tuple[StatusTreeCategory, str], QtWidgets.QTreeWidgetItem
+            tuple[StatusTreeCategory, str], QTreeWidgetItem
         ] = {}
         self.model.status_attribute_update.connect(self._status_attribute_event_handler)
         self.model.status_group_update.connect(self._status_group_event_handler)
@@ -1592,14 +745,14 @@ class MainView(StatusBarMixin, QtCore.QObject):
         )
 
         # Weather tab
-        self.weather_station: QtWidgets.QWidget = self.window.weather_station
-        self.button_weather_station_configure_reset: QtWidgets.QPushButton = (
+        self.weather_station: QWidget = self.window.weather_station
+        self.button_weather_station_configure_reset: QPushButton = (
             self.window.button_weather_station_configure_reset
         )
         self.button_weather_station_configure_reset.clicked.connect(
             self._reset_weather_tab_config
         )
-        self.button_weather_station_configure_apply: QtWidgets.QPushButton = (
+        self.button_weather_station_configure_apply: QPushButton = (
             self.window.button_weather_station_configure_apply
         )
         self.button_weather_station_configure_apply.clicked.connect(
@@ -1607,7 +760,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         )
 
         # Live graph windows
-        self.attribute_window_signals: dict[str, QtCore.SignalInstance] = {}
+        self.attribute_window_signals: dict[str, SignalInstance] = {}
         self.attribute_windows: dict[str, LiveAttributeWindow] = {}
 
         self.live_graph_close.connect(self.live_graph_window_closed)
@@ -1625,7 +778,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
     @cached_property
     def opcua_widgets(
         self,
-    ) -> dict[str, tuple[list[QtWidgets.QWidget], Callable]]:
+    ) -> dict[str, tuple[list[QWidget], Callable]]:
         """
         A dict of of all 'opcua' widgets and their update method.
 
@@ -1638,13 +791,13 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
         :return: {name: (list of widgets, update function)}
         """
-        all_widgets = (
-            self.window.findChildren(QtWidgets.QLineEdit)
-            + self.window.findChildren(QtWidgets.QLabel)
-            + self.window.findChildren(ToggleSwitch)
-            + self.window.findChildren(QtWidgets.QDoubleSpinBox)
+        all_widgets = (  # type: ignore[operator]
+            self.window.findChildren(QLineEdit)  # type: ignore[operator]
+            + self.window.findChildren(QLabel)  # type: ignore[operator]
+            + self.window.findChildren(ToggleSwitch)  # type: ignore[operator]
+            + self.window.findChildren(QDoubleSpinBox)  # type: ignore[operator]
         )
-        opcua_widget_updates: dict[str, tuple[list[QtWidgets.QWidget], Callable]] = {}
+        opcua_widget_updates: dict[str, tuple[list[QWidget], Callable]] = {}
         for wgt in all_widgets:
             if "opcua" not in wgt.dynamicPropertyNames():
                 # Skip all the non-opcua widgets
@@ -1685,7 +838,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         return opcua_widget_updates
 
     @cached_property
-    def all_opcua_widgets(self) -> list[QtWidgets.QWidget]:
+    def all_opcua_widgets(self) -> list[QWidget]:
         """
         Return a list of all OPC UA widgets.
 
@@ -1697,12 +850,12 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
         :return: List of OPC UA widgets.
         """
-        all_widgets = self.window.findChildren(QtWidgets.QWidget)
-        all_opcua_widgets: list[QtWidgets.QWidget] = []
+        all_widgets = self.window.findChildren(QWidget)  # type: ignore[var-annotated]
+        all_opcua_widgets: list[QWidget] = []
         for wgt in all_widgets:
-            property_names: list[QtCore.QByteArray] = wgt.dynamicPropertyNames()
+            property_names: list[QByteArray] = wgt.dynamicPropertyNames()
             for property_name in property_names:
-                if property_name.startsWith(QtCore.QByteArray("opcua".encode())):
+                if property_name.startsWith(QByteArray("opcua".encode())):
                     all_opcua_widgets.append(wgt)  # type: ignore
                     break
         return all_opcua_widgets
@@ -1720,7 +873,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         """Disable all the OPC-UA widgets."""
         for widget in self.all_opcua_widgets:
             widget.setEnabled(False)
-            if isinstance(widget, QtWidgets.QLineEdit):
+            if isinstance(widget, QLineEdit):
                 widget.setStyleSheet("QLineEdit { border-color: white;} ")
 
     def _enable_data_logger_widgets(self, enable: bool = True) -> None:
@@ -1818,7 +971,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
                 )
 
     def _update_opcua_widget_tooltip(
-        self, widgets: list[QtWidgets.QWidget], opcua_event: dict
+        self, widgets: list[QWidget], opcua_event: dict
     ) -> None:
         """Update the tooltip of the OPCUA widget."""
         str_val = str(opcua_event["value"])
@@ -1832,7 +985,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
             f"<b>OPCUA param:</b> {opcua_event['name']}<br>" f"<b>Value:</b> {str_val}"
         )
         for widget in widgets:
-            if isinstance(widget, QtWidgets.QDoubleSpinBox):
+            if isinstance(widget, QDoubleSpinBox):
                 widget.setToolTip(
                     tooltip + f"<br><b>Maximum:</b> {widget.maximum()}"
                     f"<br><b>Minimum:</b> {widget.minimum()}"
@@ -1842,7 +995,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
     def _init_opcua_combo_widgets(self) -> None:
         """Initialise all the OPC-UA combo widgets."""
-        for widget in self.window.findChildren(QtWidgets.QComboBox):
+        for widget in self.window.findChildren(QComboBox):  # type: ignore
             if "opcua_type" not in widget.dynamicPropertyNames():
                 # Skip all the non-opcua widgets
                 continue
@@ -1851,13 +1004,13 @@ class MainView(StatusBarMixin, QtCore.QObject):
                 opcua_enum = self.model.opcua_enum_types[opcua_type]
                 enum_strings = [str(e.name) for e in opcua_enum]
                 # Explicitly cast to QComboBox
-                wgt: QtWidgets.QComboBox = widget  # type: ignore
+                wgt: QComboBox = widget  # type: ignore
                 wgt.clear()
                 wgt.addItems(enum_strings)
 
     def _update_opcua_text_widget(
         self,
-        widgets: list[QtWidgets.QWidget],
+        widgets: list[QWidget],
         event: dict,
         block_axis_inputs: bool = True,
     ) -> None:
@@ -1871,14 +1024,14 @@ class MainView(StatusBarMixin, QtCore.QObject):
         """
         val = event["value"]
         if isinstance(val, float):
-            str_val = QtCore.QLocale().toString(val, "f", DISPLAY_DECIMAL_PLACES)
+            str_val = QLocale().toString(val, "f", DISPLAY_DECIMAL_PLACES)
         else:
             str_val = str(val)
         for widget in widgets:
-            if isinstance(widget, (QtWidgets.QLineEdit, QtWidgets.QLabel)):
+            if isinstance(widget, (QLineEdit, QLabel)):
                 widget.setText(str_val)
             elif (
-                isinstance(widget, QtWidgets.QDoubleSpinBox)  # always inputs
+                isinstance(widget, QDoubleSpinBox)  # always inputs
                 and val is not None
                 and not widget.hasFocus()  # user not busy editing
             ):
@@ -1892,9 +1045,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
                 ):
                     widget.setValue(val)
 
-    def _update_opcua_enum_widget(
-        self, widgets: list[QtWidgets.QLineEdit], event: dict
-    ) -> None:
+    def _update_opcua_enum_widget(self, widgets: list[QLineEdit], event: dict) -> None:
         """
         Update the text of the widget with the event data.
 
@@ -1959,7 +1110,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
                 self._set_static_pointing_inputs_text()
 
     def _update_opcua_boolean_toggle_switch_widget(
-        self, buttons: list[QtWidgets.QPushButton], event: dict
+        self, buttons: list[QPushButton], event: dict
     ) -> None:
         """Set toggle switch based on its boolean OPC-UA parameter."""
         # There should only be one toggle button connected to an OPC-UA parameter.
@@ -1999,7 +1150,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         button.setChecked(event["value"])
 
     def _update_opcua_boolean_text_widget(
-        self, widgets: list[QtWidgets.QLineEdit], event: dict
+        self, widgets: list[QLineEdit], event: dict
     ) -> None:
         """
         Update background colour of widget to reflect boolean state of OPC-UA parameter.
@@ -2130,7 +1281,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         self.controller.connect_server(connect_details)
 
     @cached_property
-    def weather_tab_widgets(self) -> list[QtWidgets.QWidget]:
+    def weather_tab_widgets(self) -> list[QWidget]:
         """
         Return a list of weather station widgets.
 
@@ -2142,14 +1293,12 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
         :return: List of weather tab widgets.
         """
-        weather_tab_widgets = self.weather_station.findChildren(QtWidgets.QWidget)
-        weather_station_widgets: list[QtWidgets.QWidget] = []
+        weather_tab_widgets = self.weather_station.findChildren(QWidget)  # type: ignore
+        weather_station_widgets: list[QWidget] = []
         for wgt in weather_tab_widgets:
-            property_names: list[QtCore.QByteArray] = wgt.dynamicPropertyNames()
+            property_names: list[QByteArray] = wgt.dynamicPropertyNames()
             for property_name in property_names:
-                if property_name.startsWith(
-                    QtCore.QByteArray("weather_station".encode())
-                ):
+                if property_name.startsWith(QByteArray("weather_station".encode())):
                     weather_station_widgets.append(wgt)  # type: ignore
                     break
 
@@ -2158,7 +1307,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
     def _enable_weather_tab_widgets(self, enable: bool) -> None:
         """Enable/disable weather tab widgets."""
         for wgt in self.weather_tab_widgets:
-            if isinstance(wgt, QtWidgets.QPushButton):
+            if isinstance(wgt, QPushButton):
                 wgt.setEnabled(enable)
                 continue
 
@@ -2172,7 +1321,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
     def _enable_weather_tab_value_widgets(self) -> None:
         for wgt in self.weather_tab_widgets:
-            if isinstance(wgt, QtWidgets.QLineEdit):
+            if isinstance(wgt, QLineEdit):
                 wgt.setEnabled(
                     wgt.property("weather_station")
                     in self.controller.weather_station_attributes()
@@ -2181,7 +1330,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
     def _reset_weather_tab_config(self) -> None:
         """Reset the sensor config radio buttons to match the current config."""
         for wgt in self.weather_tab_widgets:
-            if isinstance(wgt, QtWidgets.QRadioButton):
+            if isinstance(wgt, QRadioButton):
                 if (
                     wgt.property("weather_station")
                     in self.controller.weather_station_attributes()
@@ -2196,7 +1345,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         config_details = []
         for wgt in self.weather_tab_widgets:
             if (
-                isinstance(wgt, QtWidgets.QRadioButton)
+                isinstance(wgt, QRadioButton)
                 and "poll" in wgt.objectName()
                 and wgt.isChecked()
             ):
@@ -2218,7 +1367,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
         )
         for wgt in self.weather_tab_widgets:
             if (
-                isinstance(wgt, QtWidgets.QLineEdit)
+                isinstance(wgt, QLineEdit)
                 and wgt.property("weather_station") == event["name"]
             ):
                 wgt.setToolTip(
@@ -2420,7 +1569,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
     def recording_file_button_clicked(self) -> None:
         """Open a dialog to select a file for the recording file box."""
-        fname, _ = QtWidgets.QFileDialog.getSaveFileName(
+        fname, _ = QFileDialog.getSaveFileName(
             parent=self.window,
             caption="Select Recording File",
             dir=user_documents_dir(),
@@ -2508,17 +1657,18 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
     def disable_input_limits_clicked(self) -> None:
         """Disable input limits of all spinboxes."""
-        reply = QtWidgets.QMessageBox.warning(
+        reply = QMessageBox.warning(
             self.window,
             "Expert user option",
             "Are you sure you want to disable all input limits?",
-            QtWidgets.QMessageBox.StandardButton.Yes
-            | QtWidgets.QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.Yes,
+            QMessageBox.StandardButton.No,
         )
-        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             self.action_disable_input_limits.setEnabled(False)
             self.action_enable_input_limits.setEnabled(True)
-            for spinbox in self.window.findChildren(LimitedDisplaySpinBox):
+            spinboxes = self.window.findChildren(LimitedDisplaySpinBox)  # type: ignore
+            for spinbox in spinboxes:
                 self.spinbox_input_limits.append(
                     (spinbox.minimum(), spinbox.maximum())  # type: ignore
                 )
@@ -2528,7 +1678,8 @@ class MainView(StatusBarMixin, QtCore.QObject):
         """Enable input limits of all spinboxes."""
         self.action_disable_input_limits.setEnabled(True)
         self.action_enable_input_limits.setEnabled(False)
-        for i, spinbox in enumerate(self.window.findChildren(LimitedDisplaySpinBox)):
+        spinboxes = self.window.findChildren(LimitedDisplaySpinBox)  # type: ignore
+        for i, spinbox in enumerate(spinboxes):
             spinbox.setRange(*self.spinbox_input_limits[i])  # type: ignore
 
     def stop_button_clicked(self, axis: str) -> None:
@@ -2638,7 +1789,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
     def export_static_pointing_model(self) -> None:
         """Open a dialog to export a static pointing model JSON file."""
         band = self.combo_static_point_model_band_display.currentText()
-        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+        filename, _ = QFileDialog.getSaveFileName(
             parent=self.window,
             caption=f"Export '{band}' model to JSON",
             dir=f"{user_documents_dir()}/gpm-SKA000-{band}.json",
@@ -2759,7 +1910,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
             if attr_name in self.model.opcua_attributes:
                 attr_value = self.model.opcua_attributes[attr_name].value
                 label.setText(
-                    QtCore.QLocale().toString(attr_value, "f", DISPLAY_DECIMAL_PLACES)
+                    QLocale().toString(attr_value, "f", DISPLAY_DECIMAL_PLACES)
                     if isinstance(attr_value, float)
                     else str(attr_value)
                 )
@@ -2781,7 +1932,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
             if attr_name in self.model.opcua_attributes:
                 attr_value = self.model.opcua_attributes[attr_name].value
                 label.setText(
-                    QtCore.QLocale().toString(attr_value, "f", DISPLAY_DECIMAL_PLACES)
+                    QLocale().toString(attr_value, "f", DISPLAY_DECIMAL_PLACES)
                     if isinstance(attr_value, float)
                     else str(attr_value)
                 )
@@ -2858,7 +2009,7 @@ class MainView(StatusBarMixin, QtCore.QObject):
     def _configure_status_tree_widget(
         self,
         category: StatusTreeCategory,
-        tree_widget: QtWidgets.QTreeWidget,
+        tree_widget: QTreeWidget,
         status_attributes: dict[str, list[tuple[str, str, str]]],
     ) -> None:
         """Configure the status tree widget."""
@@ -2872,11 +2023,11 @@ class MainView(StatusBarMixin, QtCore.QObject):
         # tree_widget.setColumnWidth(3, 400)  # Description - TODO: add description
 
         for group, status_list in status_attributes.items():
-            parent = QtWidgets.QTreeWidgetItem([group])
+            parent = QTreeWidgetItem([group])
             tree_widget.addTopLevelItem(parent)
             self._status_group_update_lut[(category, group)] = parent
             for attr_short_name, attr_value, attr_full_name in status_list:
-                status_widget = QtWidgets.QTreeWidgetItem(
+                status_widget = QTreeWidgetItem(
                     parent, [attr_short_name, attr_value, "", ""]
                 )
                 self._status_widget_update_lut[attr_full_name] = status_widget
@@ -2957,9 +2108,9 @@ class MainView(StatusBarMixin, QtCore.QObject):
 
     def about_button_clicked(self) -> None:
         """Open the About dialog."""
-        dialog = QtWidgets.QMessageBox(self.window)
-        # dialog.setIcon(QtWidgets.QMessageBox.Icon.Information)
-        dialog.setTextFormat(QtCore.Qt.TextFormat.RichText)
+        dialog = QMessageBox(self.window)
+        # dialog.setIcon(QMessageBox.Icon.Information)
+        dialog.setTextFormat(Qt.TextFormat.RichText)
         source_code_url = "https://gitlab.com/ska-telescope/ska-mid-disq"
         dialog.setText(
             "<center><h2>SKA-Mid Dish Structure Qualification GUI</h2></center>"
@@ -2981,84 +2132,11 @@ class MainView(StatusBarMixin, QtCore.QObject):
     def open_documentation(self) -> None:
         """Open the RTD website."""
         QDesktopServices.openUrl(
-            QtCore.QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
+            QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
         )
 
     # pylint: disable=invalid-name
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
         """Called when window is closed."""
         self.close_all_graph_windows()
-        super().closeEvent(event)
-
-
-class LimitedDisplaySpinBox(QtWidgets.QDoubleSpinBox):
-    """Custom double (float) spin box that only limits the displayed decimal points."""
-
-    def __init__(self, *args, decimals_to_display=DISPLAY_DECIMAL_PLACES, **kwargs):
-        """Init LimitedDisplaySpinBox."""
-        super().__init__(*args, **kwargs)
-        self.decimals_to_display = decimals_to_display
-        self.setSingleStep(10**-decimals_to_display)  # Set step to displayed precision
-
-    # pylint: disable=invalid-name,
-    def textFromValue(self, value):  # noqa: N802
-        """Display the value with limited decimal points."""
-        return QtCore.QLocale().toString(value, "f", self.decimals_to_display)
-
-    # pylint: disable=invalid-name,
-    def stepBy(self, steps):  # noqa: N802
-        """Override stepBy to round the step value to the displayed decimals."""
-        new_value = self.value() + steps * self.singleStep()
-        rounded_value = round(new_value, self.decimals_to_display)
-        self.setValue(rounded_value)
-
-
-class ToggleSwitch(QtWidgets.QPushButton):
-    """Custom sliding style toggle push button."""
-
-    def __init__(self, parent: Any = None) -> None:
-        """Init ToggleSwitch."""
-        super().__init__(parent)
-        self.setCheckable(True)
-        self.setMinimumWidth(70)
-        self.setMinimumHeight(22)
-        self.label_true = "ON"
-        self.label_false = "OFF"
-        self.change_color = True
-
-    # pylint: disable=invalid-name,unused-argument
-    def mouseReleaseEvent(self, event: Any) -> None:  # noqa: N802
-        """Override mouseReleaseEvent to disable visual state change on click."""
-        self.setChecked(not self.isChecked())  # Toggle state manually
-        self.clicked.emit()  # Emit clicked signal for external logic
-
-    # pylint: disable=invalid-name,unused-argument
-    def paintEvent(self, event: Any) -> None:  # noqa: N802
-        """Paint event."""
-        label = self.label_true if self.isChecked() else self.label_false
-        radius = 9
-        width = 34
-        center = self.rect().center()
-        painter = QPainter(self)
-        palette = super().palette()
-        button_color = palette.color(QPalette.ColorRole.Window)
-        if self.isEnabled() and self.change_color:
-            background_color = QColor("green") if self.isChecked() else QColor("red")
-        else:
-            background_color = button_color
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-        painter.translate(center)
-        painter.setBrush(background_color)
-        painter.setPen(QPen(palette.color(QPalette.ColorRole.Shadow), 1))
-        painter.drawRoundedRect(
-            QtCore.QRect(-width, -radius, 2 * width, 2 * radius),
-            radius,
-            radius,
-        )
-        painter.setBrush(QBrush(button_color))
-        sw_rect = QtCore.QRect(-radius, -radius, width + radius, 2 * radius)
-        if not self.isChecked():
-            sw_rect.moveLeft(-width)
-        painter.drawRoundedRect(sw_rect, radius, radius)
-        painter.setPen(QPen(palette.color(QPalette.ColorRole.WindowText), 1))
-        painter.drawText(sw_rect, QtCore.Qt.AlignmentFlag.AlignCenter, label)
+        super().closeEvent(event)  # type: ignore[misc]

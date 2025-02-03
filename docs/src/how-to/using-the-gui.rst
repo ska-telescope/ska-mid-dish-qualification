@@ -29,7 +29,7 @@ Selecting the :code:`Control` menu in the top left corner will show a drop-down 
    
 The server connection dialog window has several inputs:
 
-1. Configuration drop-down: This menu is populated with configurations found via the :meth:`~ska_mid_disq.configuration.find_config_file` method (see :doc:`DiSQ Configuration</api/configuration>`). Selecting a configuration from the available options will populate the remaining input boxes with the stored configuration and prevent further user input. To re-enable these input boxes, select the empty option on the drop-down menu.
+1. Configuration drop-down: This menu is populated with configurations found via the :meth:`~ska_mid_disq.utils.configuration.find_config_file` method (see :doc:`DiSQ Configuration</api/configuration>`). Selecting a configuration from the available options will populate the remaining input boxes with the stored configuration and prevent further user input. To re-enable these input boxes, select the empty option on the drop-down menu.
 
 .. image:: /img/Screenshot-OPCUA_server_connection_dialog_cetc_sim.png
 

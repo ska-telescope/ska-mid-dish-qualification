@@ -8,13 +8,16 @@ from typing import Any
 
 from PySide6.QtCore import QCoreApplication, QObject, Signal
 
-from ska_mid_disq import Command, ResultCode, configuration, model
+from ska_mid_disq import Command, ResultCode, model
 from ska_mid_disq.constants import PollerType
+from ska_mid_disq.utils import configuration
 
 logger = logging.getLogger("gui.controller")
 
 _LOCAL_DIR_CONFIGFILE = "disq.ini"
-_WEATHER_STATION_CONFIGFILE = "weather_station_resources/weather_station_configs.json"
+_WEATHER_STATION_CONFIGFILE = (
+    "../weather_station_resources/weather_station_configs.json"
+)
 
 
 # pylint: disable=too-many-public-methods
