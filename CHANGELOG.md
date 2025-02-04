@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
-- WOM-593: Can open a generic window for any available command on the PLC to enter inputs and execute it. Available under the 'Options' menu and intended as a debugging tool.
+- WOM-593: Can open a generic window for any available command on the PLC to enter inputs and execute it. Available under the 'Expert options' menu and intended as a debugging tool.
 - WOM-619: Axes' position input spin boxes are updated with the actual value after connecting to a server and after an axis movement has stopped, but not during movement.
 
 ### Changed
