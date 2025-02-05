@@ -8,11 +8,14 @@ from PySide6.QtCore import Qt, SignalInstance
 from PySide6.QtGui import QCloseEvent, QIcon
 from PySide6.QtWidgets import (
     QCheckBox,
+    QDockWidget,
     QFrame,
     QGridLayout,
     QLabel,
     QLineEdit,
     QPushButton,
+    QSizePolicy,
+    QSpacerItem,
     QWidget,
 )
 
@@ -23,7 +26,7 @@ from .controller import Controller
 logger = logging.getLogger("gui.view")
 
 
-class CommandWindow(QWidget):
+class CommandWindow(QDockWidget):
     """A window for executing any command method of the PLC program."""
 
     # pylint: disable=too-many-arguments,too-many-positional-arguments
@@ -99,7 +102,19 @@ class CommandWindow(QWidget):
         self.grid_layout.addWidget(
             self.button_execute, self.grid_layout.rowCount() + 1, 1
         )
-        self.setLayout(self.grid_layout)
+        self.grid_layout.addItem(
+            QSpacerItem(
+                10, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
+            ),
+            self.grid_layout.rowCount() + 1,
+            0,
+        )
+        widget = QWidget()
+        widget.setLayout(self.grid_layout)
+        self.setWidget(widget)
+        self.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea
+        )
 
     def execute_command(self) -> None:
         """Execute the command."""

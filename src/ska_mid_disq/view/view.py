@@ -87,6 +87,8 @@ class MainView(StatusBarMixin, QMainWindow):
     :param disq_controller: The controller instance for the MainView.
     """
 
+    _MIN_WINDOW_WIDTH: Final = 1210
+    _WINDOW_WIDTH_WITH_DOCKING: Final = _MIN_WINDOW_WIDTH + 190
     _LED_COLOURS: Final[dict[str, dict[bool | str, str]]] = {
         "red": {True: "rgb(255, 0, 0)", False: "rgb(60, 0, 0)"},
         "green": {True: "rgb(10, 250, 25)", False: "rgb(10, 60, 0)"},
@@ -146,8 +148,8 @@ class MainView(StatusBarMixin, QMainWindow):
         self.setCentralWidget(self.win)
         self.setWindowTitle(f"DiSQ GUI v{__version__}")
         self.setWindowIcon(QIcon(SKAO_ICON_PATH))
-        self.setMinimumSize(1210, 760)
-        self.resize(1210, 820)
+        self.setMinimumSize(self._MIN_WINDOW_WIDTH, 760)
+        self.resize(self._MIN_WINDOW_WIDTH, 820)
 
         # Keep a reference to model and controller
         self.model = disq_model
@@ -1427,7 +1429,13 @@ class MainView(StatusBarMixin, QMainWindow):
                             self.controller,
                             self.command_window_close,
                         )
+                    self.win.addDockWidget(
+                        Qt.DockWidgetArea.RightDockWidgetArea,
+                        self.command_windows[command],
+                    )
                     self.command_windows[command].show()
+                    if self.width() <= self._WINDOW_WIDTH_WITH_DOCKING:
+                        self.resize(self._WINDOW_WIDTH_WITH_DOCKING, self.height())
                 if command in self.command_windows and not details["display"]:
                     self.command_windows[command].close()
         else:
