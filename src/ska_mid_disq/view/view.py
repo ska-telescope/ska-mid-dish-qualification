@@ -1417,17 +1417,17 @@ class MainView(StatusBarMixin, QMainWindow):
         if dialog.exec():
             self.commands_config = dialog.config_parameters
             for command, details in dialog.config_parameters.copy().items():
-                if details["display"] and command not in self.command_windows:
+                if details["display"]:
                     logger.debug("Opening command window for: %s", command)
-                    command_window = CommandWindow(
-                        command,
-                        self.model.opcua_commands[command],
-                        self.model.get_command_arguments(command),
-                        self.controller,
-                        self.command_window_close,
-                    )
-                    self.command_windows[command] = command_window
-                    command_window.show()
+                    if command not in self.command_windows:
+                        self.command_windows[command] = CommandWindow(
+                            command,
+                            self.model.opcua_commands[command],
+                            self.model.get_command_arguments(command),
+                            self.controller,
+                            self.command_window_close,
+                        )
+                    self.command_windows[command].show()
                 if command in self.command_windows and not details["display"]:
                     self.command_windows[command].close()
         else:
@@ -1445,7 +1445,6 @@ class MainView(StatusBarMixin, QMainWindow):
         :param command: The command the window was created for.
         """
         self.commands_config[command] = {"display": False}
-        del self.commands_config[command]
 
     def select_attribute_graphs(self):
         """Open the attribute selection dialog."""
