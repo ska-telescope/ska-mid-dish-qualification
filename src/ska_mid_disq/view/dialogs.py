@@ -426,6 +426,7 @@ class SelectNodesDialog(QDialog):
         parent: QWidget,
         node_type: str,
         nodes: dict[str, dict[str, bool | int]],
+        max_select: int | None = None,
     ):
         """
         Initialize the Recording Configuration dialog.
@@ -434,6 +435,8 @@ class SelectNodesDialog(QDialog):
         :param type: The type of nodes to use in the window title.
         :param nodes: A list of strings representing OPC-UA nodes to choose
             from.
+        :param max_select: Maximum amount of nodes to be selected simultaneously,
+            default to None (no limit).
         """
         super().__init__(parent)
 
@@ -441,7 +444,8 @@ class SelectNodesDialog(QDialog):
         self.setWindowIcon(QIcon(SKAO_ICON_PATH))
         self.resize(544, 512)
 
-        self._node_table_widgets: dict[str, dict[str, QCheckBox | QLineEdit]] = {}
+        self._max_select = max_select
+        self._node_table_widgets: dict[str, QCheckBox] = {}
 
         button = (
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
@@ -456,8 +460,13 @@ class SelectNodesDialog(QDialog):
         self.grid_layout.addLayout(table_options_layout, 0, 0)
 
         message = QLabel(
-            f"Select all the OPC-UA {node_type} to display from the list and click OK"
+            f"Select the OPC-UA {node_type} to display from the list and click OK"
         )
+        if self._max_select:
+            message.setText(
+                f"{message.text()}<br>NOTE: A maximum of {self._max_select} can be "
+                "selected at a time!"
+            )
         message.setAlignment(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignCenter
         )
@@ -500,20 +509,28 @@ class SelectNodesDialog(QDialog):
             # Add "Display" checkbox
             display_node = QCheckBox()
             display_node.setChecked(value["display"])  # type: ignore
+            if self._max_select:
+                display_node.checkStateChanged.connect(self._checkbox_state_changed)
             node_table.setCellWidget(i, 1, display_node)
-            self._node_table_widgets[node] = {
-                "display_check_box": display_node,
-            }
+            self._node_table_widgets[node] = display_node
 
-    def _get_current_config(self) -> dict[str, dict[str, bool | int]]:
+    def _checkbox_state_changed(self) -> None:
+        number_selected = 0
+        for checkbox in self._node_table_widgets.values():
+            checkbox.setHidden(False)
+            if checkbox.isChecked():
+                number_selected += 1
+            if number_selected >= self._max_select:
+                for checkbox in self._node_table_widgets.values():
+                    if not checkbox.isChecked():
+                        checkbox.setHidden(True)
+                return
+
+    def _get_current_config(self) -> dict[str, dict[str, bool]]:
         """Get the current displayed nodes' values."""
         config_parameters = {}
-        for node, widgets in self._node_table_widgets.items():
-            config_parameters[node] = {
-                "display": widgets[
-                    "display_check_box"
-                ].isChecked(),  # type: ignore[union-attr]
-            }
+        for node, checkbox in self._node_table_widgets.items():
+            config_parameters[node] = {"display": checkbox.isChecked()}
 
         return config_parameters
 

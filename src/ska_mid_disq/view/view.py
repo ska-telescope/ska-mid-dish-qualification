@@ -1415,7 +1415,7 @@ class MainView(StatusBarMixin, QMainWindow):
         if not self.commands_config:
             for node in self.model.opcua_commands:
                 self.commands_config[node] = {"display": node in self.command_windows}
-        dialog = SelectNodesDialog(self, "commands", self.commands_config)
+        dialog = SelectNodesDialog(self, "commands", self.commands_config, 6)
         if dialog.exec():
             self.commands_config = dialog.config_parameters
             for command, details in dialog.config_parameters.copy().items():
