@@ -5,21 +5,19 @@ from typing import Callable
 
 from asyncua import ua
 from PySide6.QtCore import Qt, SignalInstance
-from PySide6.QtGui import QCloseEvent, QIcon
+from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
     QCheckBox,
     QDockWidget,
-    QFrame,
     QGridLayout,
     QLabel,
     QLineEdit,
     QPushButton,
+    QScrollArea,
     QSizePolicy,
     QSpacerItem,
     QWidget,
 )
-
-from ska_mid_disq.constants import SKAO_ICON_PATH
 
 from .controller import Controller
 
@@ -52,27 +50,12 @@ class CommandWindow(QDockWidget):
         self.command_method = command_method
         self.controller = controller
         self.close_signal = close_signal
-        self.setWindowTitle("Command")
-        self.setWindowIcon(QIcon(SKAO_ICON_PATH))
-        self.grid_layout = QGridLayout()
-        # Add labels for command name, and argument/input field columns
         command_str = command.split(".")
-        label = QLabel(f"<b>{command_str[0]} -> {command_str[-1]}</b>")
-        label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        self.grid_layout.addWidget(label, 0, 0, 1, 2)
-        line = QFrame()
-        line.setFrameShape(QFrame.Shape.HLine)
-        line.setFrameShadow(QFrame.Shadow.Plain)
-        self.grid_layout.addWidget(line, 1, 0, 1, 2)
-        label = QLabel("Argument")
-        label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        self.grid_layout.addWidget(label, 2, 0)
-        label = QLabel("Input field")
-        label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        self.grid_layout.addWidget(label, 2, 1)
+        self.setWindowTitle(f"{command_str[0]}->{command_str[-1]}")
+        self.grid_layout = QGridLayout()
         # Add argument labels and corresponding line edit or checkbox widgets for input
         self.edit_inputs: list[QLineEdit | QCheckBox] = []
-        for i, arg in enumerate(input_args, self.grid_layout.rowCount() + 1):
+        for i, arg in enumerate(input_args):
             label = QLabel(f"{arg[0]}:")
             label.setAlignment(
                 Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
@@ -109,9 +92,17 @@ class CommandWindow(QDockWidget):
             self.grid_layout.rowCount() + 1,
             0,
         )
-        widget = QWidget()
-        widget.setLayout(self.grid_layout)
-        self.setWidget(widget)
+        # Create a container widget for the grid layout
+        container = QWidget()
+        container.setLayout(self.grid_layout)
+        # Create a scroll area
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(container)
+        # Set the scroll area as the widget for the window and set min/max window size
+        self.setWidget(scroll_area)
+        self.setMinimumSize(230, 100)
+        self.setMaximumSize(230, 660)
         self.setAllowedAreas(
             Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea
         )
