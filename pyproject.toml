@@ -30,8 +30,7 @@ dependencies = [
     "pyyaml>=6.0.2",
     "platformdirs>=4.3.6",
     "asyncua>=1.1.5",
-    "ska-mid-dish-steering-control>=0.2.0",
-    # "ska-mid-dish-steering-control @ git+https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git@main",
+    "ska-mid-dish-steering-control>=0.3.0",
     "ska-mid-wms-interface>=0.1.1",
     "pyqtgraph>=0.13.7",
 ]
@@ -115,11 +114,9 @@ h5py = "~=3.12.1"
 pyyaml = "^6.0.2"
 platformdirs = "^4.3.6"
 asyncua = "^1.1.5"
-ska-mid-dish-steering-control = "^0.2.0"
+ska-mid-dish-steering-control = "^0.3.0"
 # ska-mid-dish-steering-control = { path = "../ska-mid-dish-steering-control", develop = true }
-# ska-mid-dish-steering-control = { git = "https://gitlab.com/ska-telescope/ska-mid-dish-steering-control.git", branch = "main" }
 ska-mid-wms-interface = "^0.1.1"
-# ska-mid-wms-interface = { git = "https://gitlab.com/ska-telescope/ska-mid-wms-interface.git", branch = "main" }
 # ska-mid-wms-interface = { path = "../ska-mid-wms-interface", develop = true }
 
 [tool.poetry.group.dev.dependencies]

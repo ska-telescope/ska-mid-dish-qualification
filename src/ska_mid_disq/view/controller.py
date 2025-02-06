@@ -47,7 +47,7 @@ class Controller(QObject):
         self._model = mvc_model
         self.last_server_details: dict | None = None
 
-    def _command_response_str(
+    def command_response_str(
         self, command: str, result_code: int, result_msg: str
     ) -> str:
         """
@@ -433,7 +433,7 @@ class Controller(QObject):
         logger.debug("Command: %s, args: %s", command.value, args)
         # TODO: Nothing is currently done with other possible return values
         result_code, result_msg, _ = self._model.run_opcua_command(command, *args)
-        self._command_response_str(f"{command.value}{args}", result_code, result_msg)
+        self.command_response_str(f"{command.value}{args}", result_code, result_msg)
         if result_code == ResultCode.CONNECTION_CLOSED:
             self._handle_closed_connection()
         return (result_code, result_msg)

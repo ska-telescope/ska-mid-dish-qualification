@@ -2581,13 +2581,13 @@ reference = "ska"
 
 [[package]]
 name = "ska-mid-dish-steering-control"
-version = "0.2.0"
+version = "0.3.0"
 description = "Python module that interfaces with the OPCUA protocol of the dish structure controller"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "ska_mid_dish_steering_control-0.2.0-py3-none-any.whl", hash = "sha256:918df0d5dc009bfef99a1bb0a41aa4f7c1d04fc3cdc42338c82209f0841dfa66"},
-    {file = "ska_mid_dish_steering_control-0.2.0.tar.gz", hash = "sha256:9f7475b43806a9bada9c33e5a674a10ce72c03c5dd7c608bf830efdbff2a0d13"},
+    {file = "ska_mid_dish_steering_control-0.3.0-py3-none-any.whl", hash = "sha256:f684e784705e0b4e9f4d8f40f94fdd0d3a92821d3db347299190a8c08c050253"},
+    {file = "ska_mid_dish_steering_control-0.3.0.tar.gz", hash = "sha256:5aa7615e2ea151376cba7db7dd294d994fec8e8d704ac7fc8daad4bb285b73fb"},
 ]
 
 [package.dependencies]
@@ -3166,4 +3166,4 @@ reference = "ska"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <3.13"
-content-hash = "638048a666a295f37dbfffb51e94784bf8b897cabbb435537a8d3c6d28b27c53"
+content-hash = "47e74fde9b287a5c9cdd054be4defc8e3879766f36511661a5caa5885b0a5117"

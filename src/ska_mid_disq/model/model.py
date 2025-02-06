@@ -10,7 +10,7 @@ from queue import Empty, Queue
 from typing import Any, Callable, Final, Type
 
 from PySide6.QtCore import QObject, QThread, Signal, SignalInstance
-from ska_mid_dish_steering_control.sculib import AttrDict
+from ska_mid_dish_steering_control.sculib import AttrDict, CmdDict
 
 from ska_mid_disq import CmdReturn, Command, ResultCode, __version__
 from ska_mid_disq.constants import (
@@ -559,6 +559,31 @@ class Model(QObject):
         return self._scu.opcua_enum_types
 
     @property
+    def opcua_commands(self) -> CmdDict:
+        """
+        Dictionary containing the commands in the 'PLC_PRG' node tree.
+
+        This method retrieves the available command methods from the OPC UA server if
+        the connection has been established.
+
+        :return: A dict of OPC UA commands and their methods.
+        """
+        if self._scu is None:
+            return {}
+        return self._scu.commands
+
+    def get_command_arguments(self, command: str) -> list[tuple[str, str]] | None:
+        """
+        Get a list of arguments with their types for a given command name.
+
+        :return: List of tuples with each argument's name and its type, or None if the
+            command does not exist.
+        """
+        if self._scu is None:
+            return None
+        return self._scu.get_command_arguments(command)
+
+    @property
     def opcua_attributes(self) -> AttrDict:
         """
         Dictionary containing the attributes in the 'PLC_PRG' node tree.
@@ -569,7 +594,7 @@ class Model(QObject):
         :return: A dict of OPC UA attributes.
         """
         if self._scu is None:
-            return []
+            return {}
         return self._scu.attributes
 
     def get_attribute_type(self, attribute: str) -> list[str]:

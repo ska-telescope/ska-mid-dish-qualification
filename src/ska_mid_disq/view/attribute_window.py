@@ -1,4 +1,4 @@
-"""DiSQ GUI View."""
+"""DiSQ GUI display attributes window."""
 
 import logging
 from datetime import datetime, timedelta, timezone

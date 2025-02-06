@@ -36,7 +36,7 @@ from ska_mid_wms_interface import load_weather_station_configuration
 
 from ska_mid_disq.constants import SKAO_ICON_PATH
 
-from . import controller
+from .controller import Controller
 
 _WEATHER_STATION_YAML: Final = "../weather_station_resources/weather_station.yaml"
 
@@ -51,7 +51,7 @@ class ServerConnectDialog(QDialog):
     :param parent: The parent widget of the dialog.
     """
 
-    def __init__(self, parent: QWidget, mvc_controller: controller.Controller):
+    def __init__(self, parent: QWidget, mvc_controller: Controller):
         """
         Initialize the Server Connect dialog.
 
@@ -288,7 +288,7 @@ class WeatherStationConnectDialog(StatusBarMixin, QDialog):
     # pylint: disable=too-few-public-methods
     """A dialog-window class for connecting to a weather station."""
 
-    def __init__(self, parent: QWidget, mvc_controller: controller.Controller):
+    def __init__(self, parent: QWidget, mvc_controller: Controller):
         """
         Initialize the weather station connect dialog.
 
@@ -413,33 +413,39 @@ class WeatherStationConnectDialog(StatusBarMixin, QDialog):
 
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-statements,too-few-public-methods
-class AttributeGraphSelectDialog(QDialog):
+class SelectNodesDialog(QDialog):
     """
-    A dialog-window class for displaying attributes.
+    A dialog-window class for displaying OPC-UA nodes.
 
     :param parent: The parent widget of the dialog.
-    :param attributes: A list of OPC-UA attributes to be displayed and selected.
+    :param nodes: A list of OPC-UA nodes to be displayed and selected.
     """
 
     def __init__(
         self,
         parent: QWidget,
-        attributes: dict[str, dict[str, bool | int]],
+        node_type: str,
+        nodes: dict[str, dict[str, bool | int]],
+        max_select: int | None = None,
     ):
         """
         Initialize the Recording Configuration dialog.
 
         :param parent: The parent widget for the dialog.
-        :param attributes: A list of strings representing OPC-UA attributes to choose
+        :param type: The type of nodes to use in the window title.
+        :param nodes: A list of strings representing OPC-UA nodes to choose
             from.
+        :param max_select: Maximum amount of nodes to be selected simultaneously,
+            default to None (no limit).
         """
         super().__init__(parent)
 
-        self.setWindowTitle("Choose Attributes")
+        self.setWindowTitle(f"Choose {node_type}")
         self.setWindowIcon(QIcon(SKAO_ICON_PATH))
         self.resize(544, 512)
 
-        self._node_table_widgets: dict[str, dict[str, QCheckBox | QLineEdit]] = {}
+        self._max_select = max_select
+        self._node_table_widgets: dict[str, QCheckBox] = {}
 
         button = (
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
@@ -454,15 +460,20 @@ class AttributeGraphSelectDialog(QDialog):
         self.grid_layout.addLayout(table_options_layout, 0, 0)
 
         message = QLabel(
-            "Select all the OPC-UA attributes to display from the list and click OK"
+            f"Select the OPC-UA {node_type} to display from the list and click OK"
         )
+        if self._max_select:
+            message.setText(
+                f"{message.text()}<br>NOTE: A maximum of {self._max_select} can be "
+                "selected at a time!"
+            )
         message.setAlignment(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignCenter
         )
         self.grid_layout.addWidget(message)
 
-        self.node_table = QTableWidget(len(attributes), 2, self)
-        self._create_node_table(attributes, self.node_table)
+        self.node_table = QTableWidget(len(nodes), 2, self)
+        self._create_node_table(nodes, self.node_table)
         self.grid_layout.addWidget(self.node_table)
 
         self.grid_layout.addWidget(self.btn_box)
@@ -470,14 +481,14 @@ class AttributeGraphSelectDialog(QDialog):
         self.config_parameters: dict[str, dict[str, bool | int]] = {}
 
     def _create_node_table(
-        self, attributes: dict[str, dict[str, bool | int]], node_table: QTableWidget
+        self, nodes: dict[str, dict[str, bool | int]], node_table: QTableWidget
     ) -> None:
-        """Create the attribute node table."""
+        """Create the node table."""
         node_table.setStyleSheet(
             "QCheckBox {margin-left: 28px;} "
             "QCheckBox::indicator {width: 24px; height: 24px}"
         )
-        node_table.setHorizontalHeaderLabels(["Attribute Name", "Display"])
+        node_table.setHorizontalHeaderLabels(["Name", "Display"])
         horizontal_header = node_table.horizontalHeader()
         horizontal_header.setDefaultSectionSize(80)
         horizontal_header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
@@ -486,9 +497,9 @@ class AttributeGraphSelectDialog(QDialog):
         vertical_header.hide()
         node_table.setVerticalHeader(vertical_header)
         node_table.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-        for i, (attr, value) in enumerate(attributes.items()):
+        for i, (node, value) in enumerate(nodes.items()):
             # Add node name in first column and turn off table interactions
-            node_name = QTableWidgetItem(attr)
+            node_name = QTableWidgetItem(node)
             node_name.setFlags(Qt.ItemFlag.ItemIsEnabled)
             node_table.setItem(i, 0, node_name)
             # Ensure "Display" column is also not interactable
@@ -498,26 +509,34 @@ class AttributeGraphSelectDialog(QDialog):
             # Add "Display" checkbox
             display_node = QCheckBox()
             display_node.setChecked(value["display"])  # type: ignore
+            if self._max_select:
+                display_node.checkStateChanged.connect(self._checkbox_state_changed)
             node_table.setCellWidget(i, 1, display_node)
-            self._node_table_widgets[attr] = {
-                "display_check_box": display_node,
-            }
+            self._node_table_widgets[node] = display_node
 
-    def _get_current_config(self) -> dict[str, dict[str, bool | int]]:
-        """Get the current attribute display values."""
+    def _checkbox_state_changed(self) -> None:
+        number_selected = 0
+        for checkbox in self._node_table_widgets.values():
+            checkbox.setHidden(False)
+            if checkbox.isChecked():
+                number_selected += 1
+            if number_selected >= self._max_select:
+                for checkbox in self._node_table_widgets.values():
+                    if not checkbox.isChecked():
+                        checkbox.setHidden(True)
+                return
+
+    def _get_current_config(self) -> dict[str, dict[str, bool]]:
+        """Get the current displayed nodes' values."""
         config_parameters = {}
-        for node, widgets in self._node_table_widgets.items():
-            config_parameters[node] = {
-                "display": widgets[
-                    "display_check_box"
-                ].isChecked(),  # type: ignore[union-attr]
-            }
+        for node, checkbox in self._node_table_widgets.items():
+            config_parameters[node] = {"display": checkbox.isChecked()}
 
         return config_parameters
 
     def accept_selection(self):
         """Accepts the selection made in the configuration dialog."""
-        logger.debug("Recording config dialog accepted")
+        logger.debug("Choose nodes dialog accepted")
         self.config_parameters = self._get_current_config()
         self.accept()
 

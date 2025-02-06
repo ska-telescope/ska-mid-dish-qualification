@@ -50,7 +50,9 @@ def main():
     # Create our M, V and C...
     model = Model()
     controller = Controller(model)
-    MainView(main_window, model, controller, server=args.server, cache=args.cache)
+    main_view = MainView(
+        main_window, model, controller, server=args.server, cache=args.cache
+    )
 
     # Connect the aboutToQuit signal to the model's disconnect method
     app.instance().aboutToQuit.connect(model.disconnect_server)
@@ -84,7 +86,7 @@ def main():
     timer.start(1000)
     timer.timeout.connect(lambda: None)
 
-    main_window.show()
+    main_view.show()
     logger.info(f"Successfully initialised DiSQ GUI v{__version__}")
     sys.exit(app.exec())
 
