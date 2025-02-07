@@ -10773,7 +10773,7 @@
   </action>
   <action name="action_run_any_command_method">
    <property name="text">
-    <string>Run any 'PLC_PRG' command...</string>
+    <string>Run any server command...</string>
    </property>
   </action>
  </widget>

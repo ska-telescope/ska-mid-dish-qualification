@@ -32,7 +32,7 @@ class CommandWindow(QDockWidget):
         self,
         command: str,
         command_method: Callable,
-        input_args: list[tuple[str, str]],
+        input_args: list[tuple[str, str]] | None,
         controller: Controller,
         close_signal: SignalInstance,
     ) -> None:
@@ -51,34 +51,35 @@ class CommandWindow(QDockWidget):
         self.controller = controller
         self.close_signal = close_signal
         command_str = command.split(".")
-        self.setWindowTitle(f"{command_str[0]}->{command_str[-1]}")
+        self.setWindowTitle(f"{command_str[-2]}->{command_str[-1]}")
         self.grid_layout = QGridLayout()
         # Add argument labels and corresponding line edit or checkbox widgets for input
         self.edit_inputs: list[QLineEdit | QCheckBox] = []
-        for i, arg in enumerate(input_args):
-            label = QLabel(f"{arg[0]}:")
-            label.setAlignment(
-                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
-            )
-            self.grid_layout.addWidget(label, i, 0)
-            if arg[1] == "Boolean":
-                checkbox = QCheckBox()
-                checkbox.setToolTip("Boolean: Checked is true, unchecked is false.")
-                self.edit_inputs.append(checkbox)
-                self.grid_layout.addWidget(checkbox, i, 1)
-            else:
-                line_edit = QLineEdit()
-                if arg[0] == "SessionID":
-                    line_edit.setEnabled(False)
-                    line_edit.setPlaceholderText("*****")
-                    line_edit.setToolTip(
-                        "SessionID is handled internally in the OPC-UA client instance "
-                        "and cannot be changed."
-                    )
+        if input_args:
+            for i, arg in enumerate(input_args):
+                label = QLabel(f"{arg[0]}:")
+                label.setAlignment(
+                    Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+                )
+                self.grid_layout.addWidget(label, i, 0)
+                if arg[1] == "Boolean":
+                    checkbox = QCheckBox()
+                    checkbox.setToolTip("Boolean: Checked is true, unchecked is false.")
+                    self.edit_inputs.append(checkbox)
+                    self.grid_layout.addWidget(checkbox, i, 1)
                 else:
-                    line_edit.setPlaceholderText(arg[1])
-                    self.edit_inputs.append(line_edit)
-                self.grid_layout.addWidget(line_edit, i, 1)
+                    line_edit = QLineEdit()
+                    if arg[0] == "SessionID":
+                        line_edit.setEnabled(False)
+                        line_edit.setPlaceholderText("*****")
+                        line_edit.setToolTip(
+                            "SessionID is handled internally in the OPC-UA client "
+                            "instance and cannot be changed."
+                        )
+                    else:
+                        line_edit.setPlaceholderText(arg[1])
+                        self.edit_inputs.append(line_edit)
+                    self.grid_layout.addWidget(line_edit, i, 1)
         # Add button to execute command
         self.button_execute = QPushButton("Execute")
         self.button_execute.clicked.connect(self.execute_command)

@@ -9,6 +9,7 @@ from pathlib import Path
 from queue import Empty, Queue
 from typing import Any, Callable, Final, Type
 
+from asyncua import Node, ua
 from PySide6.QtCore import QObject, QThread, Signal, SignalInstance
 from ska_mid_dish_steering_control.sculib import AttrDict, CmdDict
 
@@ -559,7 +560,7 @@ class Model(QObject):
         return self._scu.opcua_enum_types
 
     @property
-    def opcua_commands(self) -> CmdDict:
+    def plc_prg_commands(self) -> CmdDict:
         """
         Dictionary containing the commands in the 'PLC_PRG' node tree.
 
@@ -572,6 +573,27 @@ class Model(QObject):
             return {}
         return self._scu.commands
 
+    @cached_property
+    def all_server_commands(self) -> dict[str, tuple[Node, Callable]]:
+        """
+        Dictionary containing the commands in the 'Server' node tree.
+
+        This method retrieves the available command methods from the OPC UA server if
+        the connection has been established.
+
+        :return: A dict of OPC UA commands and their methods.
+        """
+        if self._scu is None:
+            return {}
+        try:
+            # pylint: disable=protected-access
+            nodes, _, commands = self._scu.generate_node_dicts_from_server(
+                self._scu._client.get_node("i=2253"), "Server"
+            )
+            return {key: (nodes[key][0], commands[key]) for key in commands}
+        except ua.UaError:
+            return {}
+
     def get_command_arguments(self, command: str) -> list[tuple[str, str]] | None:
         """
         Get a list of arguments with their types for a given command name.
@@ -581,7 +603,9 @@ class Model(QObject):
         """
         if self._scu is None:
             return None
-        return self._scu.get_command_arguments(command)
+        if command in self._scu.nodes:
+            return self._scu.get_command_arguments(self._scu.nodes[command][0])
+        return self._scu.get_command_arguments(self.all_server_commands[command][0])
 
     @property
     def opcua_attributes(self) -> AttrDict:

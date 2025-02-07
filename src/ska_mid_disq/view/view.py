@@ -1413,7 +1413,7 @@ class MainView(StatusBarMixin, QMainWindow):
     def select_commands(self) -> None:
         """Open the command methods selection dialog."""
         if not self.commands_config:
-            for node in self.model.opcua_commands:
+            for node in self.model.all_server_commands:
                 self.commands_config[node] = {"display": node in self.command_windows}
         dialog = SelectNodesDialog(self, "commands", self.commands_config, 6)
         if dialog.exec():
@@ -1424,7 +1424,7 @@ class MainView(StatusBarMixin, QMainWindow):
                     if command not in self.command_windows:
                         self.command_windows[command] = CommandWindow(
                             command,
-                            self.model.opcua_commands[command],
+                            self.model.all_server_commands[command][1],
                             self.model.get_command_arguments(command),
                             self.controller,
                             self.command_window_close,
