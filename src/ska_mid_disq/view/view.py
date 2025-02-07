@@ -1192,7 +1192,7 @@ class MainView(StatusBarMixin, QMainWindow):
         )
         self.label_cache_status.setText(
             f"{self.model.opcua_nodes_status.value} - "
-            f"Nodes generated {self.model.plc_prg_nodes_timestamp}"
+            f"Nodes generated {self.model.nodes_timestamp}"
         )
         self.action_disconnect_opcua_server.setEnabled(True)
         self.action_connect_weather_station.setEnabled(True)
