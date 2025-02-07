@@ -10,7 +10,15 @@ from pathlib import Path
 from typing import Any, Callable, Final
 
 from platformdirs import user_documents_dir
-from PySide6.QtCore import QByteArray, QLocale, Qt, QUrl, Signal, SignalInstance
+from PySide6.QtCore import (
+    QByteArray,
+    QCoreApplication,
+    QLocale,
+    Qt,
+    QUrl,
+    Signal,
+    SignalInstance,
+)
 from PySide6.QtGui import (
     QAction,
     QBrush,
@@ -203,7 +211,9 @@ class MainView(StatusBarMixin, QMainWindow):
         self.action_run_any_command_method: QAction = (
             self.win.action_run_any_command_method
         )
-        self.action_run_any_command_method.triggered.connect(self.select_commands)
+        self.action_run_any_command_method.triggered.connect(
+            self.run_any_command_confirmation
+        )
         self.commands_config: dict[str, dict[str, bool | int]] = {}
         self.command_windows: dict[str, CommandWindow] = {}
         self.command_window_close.connect(self.command_window_closed)
@@ -1410,11 +1420,38 @@ class MainView(StatusBarMixin, QMainWindow):
             else:
                 logger.debug("Connect weather station dialog cancelled")
 
+    def run_any_command_confirmation(self) -> None:
+        """Show a confirmation dialog before opening the any command select dialog."""
+        reply = QMessageBox.warning(
+            self,
+            "Expert user option",
+            "This feature is only meant for expert users!<br><br>"
+            "A scan of the entire server's tree for command <br>"
+            "methods will be initiated - it will take a moment.<br><br>"
+            "Are you sure you want to continue?<br><br>"
+            "(This warning will not be shown again)",
+            QMessageBox.StandardButton.Yes,
+            QMessageBox.StandardButton.No,
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self.controller.emit_ui_status_message(
+                "WARNING", "Scanning server for commands! Please wait..."
+            )
+            QCoreApplication.processEvents()
+            self.action_run_any_command_method.triggered.disconnect(
+                self.run_any_command_confirmation
+            )
+            self.action_run_any_command_method.triggered.connect(self.select_commands)
+            self.select_commands()
+
     def select_commands(self) -> None:
         """Open the command methods selection dialog."""
         if not self.commands_config:
             for node in self.model.all_server_commands:
                 self.commands_config[node] = {"display": node in self.command_windows}
+            self.controller.emit_ui_status_message(
+                "INFO", "Finished retrieving all available server commands."
+            )
         dialog = SelectNodesDialog(self, "commands", self.commands_config, 6)
         if dialog.exec():
             self.commands_config = dialog.config_parameters
