@@ -1,7 +1,7 @@
 """DiSQ GUI execute command method window."""
 
 import logging
-from typing import Callable
+from typing import Callable, Final
 
 from asyncua import ua
 from PySide6.QtCore import Qt, SignalInstance
@@ -22,6 +22,8 @@ from PySide6.QtWidgets import (
 from .controller import Controller
 
 logger = logging.getLogger("gui.view")
+
+CMD_WINDOW_WIDTH: Final = 290
 
 
 class CommandWindow(QDockWidget):
@@ -51,7 +53,10 @@ class CommandWindow(QDockWidget):
         self.controller = controller
         self.close_signal = close_signal
         command_str = command.split(".")
-        self.setWindowTitle(f"{command_str[-2]}->{command_str[-1]}")
+        if len(command_str) > 2:
+            self.setWindowTitle(f"...{command_str[-2]}.{command_str[-1]}")
+        else:
+            self.setWindowTitle(command)
         self.grid_layout = QGridLayout()
         # Add argument labels and corresponding line edit or checkbox widgets for input
         self.edit_inputs: list[QLineEdit | QCheckBox] = []
@@ -82,6 +87,7 @@ class CommandWindow(QDockWidget):
                     self.grid_layout.addWidget(line_edit, i, 1)
         # Add button to execute command
         self.button_execute = QPushButton("Execute")
+        self.button_execute.setToolTip(f"Execute '{command}'.")
         self.button_execute.clicked.connect(self.execute_command)
         self.grid_layout.addWidget(
             self.button_execute, self.grid_layout.rowCount() + 1, 1
@@ -102,8 +108,8 @@ class CommandWindow(QDockWidget):
         scroll_area.setWidget(container)
         # Set the scroll area as the widget for the window and set min/max window size
         self.setWidget(scroll_area)
-        self.setMinimumSize(230, 100)
-        self.setMaximumSize(230, 660)
+        self.setMinimumSize(CMD_WINDOW_WIDTH, 100)
+        self.setMaximumSize(CMD_WINDOW_WIDTH, 660)
         self.setAllowedAreas(
             Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea
         )

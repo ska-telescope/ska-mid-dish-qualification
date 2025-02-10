@@ -165,6 +165,8 @@ class Controller(QObject):
         :raises OSError: If an OS level error occurs during the connection.
         :raises RuntimeError: If a runtime error occurs during the connection.
         """
+        if self.is_server_connected():
+            self.disconnect_server()
         self.emit_ui_status_message("INFO", "Connecting to server...")
         try:
             connection_details["port"] = int(connection_details["port"].strip())
