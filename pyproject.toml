@@ -17,8 +17,9 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
-requires-python = ">=3.10, <3.13"
+requires-python = ">=3.10, <3.14"
 dependencies = [
 # For the following dependencies only patch updates are allowed, because they are 
 # specific to DiSQ (not used in any other dependencies), and even minor updates can 
@@ -103,7 +104,7 @@ name = "ska"
 url = "https://artefact.skao.int/repository/pypi-all/simple"
 
 [tool.poetry.dependencies]
-python = ">=3.10, <3.13"
+python = ">=3.10, <3.14"
 # For the following dependencies only patch updates are allowed, because they are 
 # specific to DiSQ (not used in any other dependencies), and even minor updates can 
 # easily cause bugs that can go unnoticed without thorough exploratory testing.
