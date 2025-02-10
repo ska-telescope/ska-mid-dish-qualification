@@ -281,8 +281,6 @@ class Model(QObject):
             (after which the connection is cleaned up and the SCU object is set to None)
         """
         logger.debug("Connecting to server: %s", connect_details)
-        if self.is_connected():
-            self.disconnect_server()
         try:
             self._scu = SCUWeatherStation(
                 **connect_details,
@@ -381,6 +379,9 @@ class Model(QObject):
         if self._scu is not None:
             self._scu.disconnect_and_cleanup()
             self._scu = None
+        # Clear cached property
+        if hasattr(self, "all_server_commands"):
+            del self.all_server_commands
 
     def handle_closed_connection(self) -> None:
         """Handle unexpected closed connection."""

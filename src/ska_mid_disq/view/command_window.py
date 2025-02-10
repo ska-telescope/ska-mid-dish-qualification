@@ -51,7 +51,10 @@ class CommandWindow(QDockWidget):
         self.controller = controller
         self.close_signal = close_signal
         command_str = command.split(".")
-        self.setWindowTitle(f"{command_str[-2]}->{command_str[-1]}")
+        if len(command_str) > 2:
+            self.setWindowTitle(f"...{command_str[-2]}.{command_str[-1]}")
+        else:
+            self.setWindowTitle(command)
         self.grid_layout = QGridLayout()
         # Add argument labels and corresponding line edit or checkbox widgets for input
         self.edit_inputs: list[QLineEdit | QCheckBox] = []
@@ -82,6 +85,7 @@ class CommandWindow(QDockWidget):
                     self.grid_layout.addWidget(line_edit, i, 1)
         # Add button to execute command
         self.button_execute = QPushButton("Execute")
+        self.button_execute.setToolTip(f"Execute '{command}' with the given arguments.")
         self.button_execute.clicked.connect(self.execute_command)
         self.grid_layout.addWidget(
             self.button_execute, self.grid_layout.rowCount() + 1, 1

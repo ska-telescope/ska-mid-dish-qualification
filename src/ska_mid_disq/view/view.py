@@ -1207,6 +1207,7 @@ class MainView(StatusBarMixin, QMainWindow):
         self.action_disconnect_opcua_server.setEnabled(True)
         self.action_connect_weather_station.setEnabled(True)
         self.action_attribute_display.setEnabled(True)
+        self.action_run_any_command_method.setEnabled(True)
         self._enable_opcua_widgets()
         self._enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
@@ -1232,12 +1233,20 @@ class MainView(StatusBarMixin, QMainWindow):
         self.action_disconnect_weather_station.setEnabled(False)
         self._enable_weather_tab_widgets(False)
         self.action_attribute_display.setEnabled(False)
+        self.action_run_any_command_method.setEnabled(False)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
         self.warning_status_show_only_warnings.setEnabled(False)
         self.warning_tree_view.setEnabled(False)
         self.error_status_show_only_errors.setEnabled(False)
         self.error_tree_view.setEnabled(False)
+        self.close_all_graph_windows()
+        self.close_all_command_windows()
+        self.commands_config = {}
+        self.action_run_any_command_method.triggered.disconnect()
+        self.action_run_any_command_method.triggered.connect(
+            self.run_any_command_confirmation
+        )
 
     def connect_button_clicked(self):
         """Open the Connect To Server configuration dialog."""
@@ -1438,9 +1447,7 @@ class MainView(StatusBarMixin, QMainWindow):
                 "WARNING", "Scanning server for commands! Please wait..."
             )
             QCoreApplication.processEvents()
-            self.action_run_any_command_method.triggered.disconnect(
-                self.run_any_command_confirmation
-            )
+            self.action_run_any_command_method.triggered.disconnect()
             self.action_run_any_command_method.triggered.connect(self.select_commands)
             self.select_commands()
 
@@ -1482,6 +1489,7 @@ class MainView(StatusBarMixin, QMainWindow):
         """Close all open command windows."""
         for window in self.command_windows.copy().values():
             window.close()
+        self.command_windows = {}
 
     def command_window_closed(self, command: str) -> None:
         """
