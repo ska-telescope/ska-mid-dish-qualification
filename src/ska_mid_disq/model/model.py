@@ -591,7 +591,7 @@ class Model(QObject):
             nodes, _, commands = self._scu.generate_node_dicts_from_server(
                 self._scu._client.get_node("i=2253"), "Server"
             )
-            return {key: (nodes[key][0], commands[key]) for key in commands}
+            return {key: (nodes[key][0], command) for key, command in commands.items()}
         except ua.UaError:
             return {}
 
