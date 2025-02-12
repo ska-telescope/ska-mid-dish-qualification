@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - WOM-593: Can open a generic window for any available command on the PLC to enter inputs and execute it. Available under the 'Expert options' menu and intended as a debugging tool.
 - WOM-619: Axes' position input spin boxes are updated with the actual value after connecting to a server and after an axis movement has stopped, but not during movement.
+- WOM-626: Show PLC's 'System.DisplayedDiagnosis' variable on the main window.
 
 ### Changed
 - WOM-556, WOM-557: Refactored GUI to use PySide6 instead of PyQt6, as PySide6 is the official Python bindings maintained by the Qt project. Using the latest PySide 6.8 now also allows installing the package with Python 3.12.
