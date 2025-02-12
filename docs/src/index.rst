@@ -21,7 +21,7 @@ DiSQ enables engineers and scientists to control and qualify observatory dish st
   :caption: How-To Guides
 
   Getting started<how-to/readme>
-  Using the DiSQ GUI<how-to/using-the-gui>
+  DISQ GUI user guide<how-to/gui/index>
 
 .. toctree::
    :maxdepth: 1
