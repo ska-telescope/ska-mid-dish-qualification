@@ -237,9 +237,9 @@ class Grapher:
         # Get data from HDF5 file
         with h5py.File(file, "r") as f:
             if start is None:
-                start = f.attrs["Start time"]
+                start = f.attrs["Data start time"]
             if stop is None:
-                stop = f.attrs["Stop time"]
+                stop = f.attrs["Data stop time"]
 
             start_dt = datetime.fromisoformat(start)
             stop_dt = datetime.fromisoformat(stop)
@@ -251,7 +251,7 @@ class Grapher:
                 f, node1, start_dt, stop_dt
             )
 
-            if not self._allowed_type(f, node2):
+            if node2 is not None and not self._allowed_type(f, node2):
                 node2 = None
 
             if node2 is not None:
