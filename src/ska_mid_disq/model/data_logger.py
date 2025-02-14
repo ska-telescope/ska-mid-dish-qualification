@@ -253,7 +253,7 @@ class DataLogger:
 
         # Start to fill queue
         self.subscription_start_time = self.hll.attributes[
-            "ServerStatus.CurrentTime"
+            "Server.ServerStatus.CurrentTime"
         ].value
         for period, attributes in period_dict.items():
             self._subscription_ids.append(
@@ -309,7 +309,7 @@ class DataLogger:
             self.hll.unsubscribe(uid)
 
         self.subscription_stop_time = self.hll.attributes[
-            "ServerStatus.CurrentTime"
+            "Server.ServerStatus.CurrentTime"
         ].value
         self._stop_logging.set()
 

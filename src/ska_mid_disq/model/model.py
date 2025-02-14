@@ -280,12 +280,9 @@ class Model(QObject):
             (after which the connection is cleaned up and the SCU object is set to None)
         """
         logger.debug("Connecting to server: %s", connect_details)
-        if self.is_connected():
-            self.disconnect_server()
         try:
             self._scu = SCUWeatherStation(
                 **connect_details,
-                gui_app=True,
                 nodes_cache_dir=USER_CACHE_DIR,
                 app_name=f"DiSQ GUI v{__version__}",
             )
@@ -328,7 +325,7 @@ class Model(QObject):
         return version if version is not None else "not found on server"
 
     @property
-    def plc_prg_nodes_timestamp(self) -> str:
+    def nodes_timestamp(self) -> str:
         """
         Generation timestamp of the PLC_PRG Node tree.
 
@@ -336,18 +333,7 @@ class Model(QObject):
         """
         if self._scu is None:
             return "not connected to server"
-        return self._scu.plc_prg_nodes_timestamp
-
-    @property
-    def subscribed_nodes_status(self) -> str:
-        """
-        Status of the expected nodes versus what SCU client has loaded.
-
-        :return: status string.
-        """
-        if self._scu is None:
-            return "not connected to server"
-        return self._scu.plc_prg_nodes_timestamp
+        return self._scu.nodes_timestamp
 
     def stop_event_q_poller(self, server_type: PollerType) -> None:
         """Stop a specific QueuePollThread."""
@@ -561,7 +547,7 @@ class Model(QObject):
     @property
     def opcua_commands(self) -> CmdDict:
         """
-        Dictionary containing the commands in the 'PLC_PRG' node tree.
+        Dictionary containing the commands in the 'Server' node tree.
 
         This method retrieves the available command methods from the OPC UA server if
         the connection has been established.
@@ -581,7 +567,9 @@ class Model(QObject):
         """
         if self._scu is None:
             return None
-        return self._scu.get_command_arguments(command)
+        if command in self._scu.nodes:
+            return self._scu.get_command_arguments(self._scu.nodes[command][0])
+        return None
 
     @property
     def opcua_attributes(self) -> AttrDict:

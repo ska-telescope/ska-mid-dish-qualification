@@ -5876,7 +5876,7 @@
               <string>ISO 8601</string>
              </property>
              <property name="opcua" stdset="0">
-              <string>ServerStatus.CurrentTime</string>
+              <string>Server.ServerStatus.CurrentTime</string>
              </property>
             </widget>
            </item>
@@ -9683,37 +9683,23 @@
          </property>
          <item row="0" column="0">
           <widget class="QComboBox" name="combobox_authority">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>120</width>
-             <height>22</height>
-            </size>
-           </property>
            <property name="opcua_type" stdset="0">
             <string>DscCmdAuthorityType</string>
            </property>
           </widget>
          </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="button_take_auth">
+           <property name="text">
+            <string>Take Authority</string>
+           </property>
+           <property name="opcua_cmd" stdset="0">
+            <string>CommandArbiter.Commands.TakeReleaseAuth</string>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="0">
           <widget class="QPushButton" name="button_release_auth">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>120</width>
-             <height>22</height>
-            </size>
-           </property>
            <property name="text">
             <string>Release Authority</string>
            </property>
@@ -9722,7 +9708,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
+         <item row="1" column="1">
           <widget class="QLineEdit" name="opcua_cmd_authority">
            <property name="focusPolicy">
             <enum>Qt::FocusPolicy::NoFocus</enum>
@@ -9741,44 +9727,6 @@
            </property>
            <property name="opcua_type" stdset="0">
             <string>DscCmdAuthorityType</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" colspan="2">
-          <widget class="QPushButton" name="button_take_auth">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string>Take Authority</string>
-           </property>
-           <property name="opcua_cmd" stdset="0">
-            <string>CommandArbiter.Commands.TakeReleaseAuth</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="button_release_auth">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>120</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Release Authority</string>
-           </property>
-           <property name="opcua_cmd" stdset="0">
-            <string>CommandArbiter.Commands.TakeReleaseAuth</string>
            </property>
           </widget>
          </item>
@@ -10825,7 +10773,7 @@
   </action>
   <action name="action_run_any_command_method">
    <property name="text">
-    <string>Run any 'PLC_PRG' command...</string>
+    <string>Run any server command...</string>
    </property>
   </action>
  </widget>

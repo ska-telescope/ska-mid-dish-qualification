@@ -269,7 +269,6 @@ class OPCUAServerValidator:
             namespace,
             username,
             password,
-            gui_app=True,  # Only use the PLC_PRG node tree.
             app_name=f"DiSQ Server Validator v{__version__}",
         ) as server:
             self.server = server

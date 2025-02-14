@@ -128,9 +128,11 @@ class ServerConnectDialog(QDialog):
             server_config = self._controller.last_server_details
             self.input_server_address.setText(server_config["host"])
             self.input_server_port.setText(str(server_config["port"]))
-            self.input_server_endpoint.setText(server_config["endpoint"])
-            self.input_server_namespace.setText(server_config["namespace"])
-            self.cache_checkbox.setChecked(bool(server_config["use_nodes_cache"]))
+            self.input_server_endpoint.setText(server_config.get("endpoint", ""))
+            self.input_server_namespace.setText(server_config.get("namespace", ""))
+            self.cache_checkbox.setChecked(
+                bool(server_config.get("use_nodes_cache", False))
+            )
         self.dropdown_server_config_select.setFocus()
 
     @property
@@ -442,7 +444,7 @@ class SelectNodesDialog(QDialog):
 
         self.setWindowTitle(f"Choose {node_type}")
         self.setWindowIcon(QIcon(SKAO_ICON_PATH))
-        self.resize(544, 512)
+        self.resize(720, 600)
 
         self._max_select = max_select
         self._node_table_widgets: dict[str, QCheckBox] = {}

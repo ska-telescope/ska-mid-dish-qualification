@@ -330,7 +330,7 @@ def test_write_cache_to_group(scu_cetc_simulator: SteeringControlUnit) -> None:
     f_o.close()
 
 
-def test_log(scu_mock_simulator: SteeringControlUnit) -> None:
+def test_log(scu_cetc_simulator: SteeringControlUnit) -> None:
     """
     Test the log() method.
 
@@ -338,10 +338,11 @@ def test_log(scu_mock_simulator: SteeringControlUnit) -> None:
     all expected values.
     """
     input_file = "tests/resources/input_files/_log.hdf5"
-    output_file = "tests/resources/output_files/_log.hdf5"
+    # TODO Solve inexplicable output directory error
+    output_file = "tests/resources/input_files/_log_out.hdf5"
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
-    logger = DataLogger(scu_mock_simulator, output_file)
+    logger = DataLogger(scu_cetc_simulator, output_file)
     logger.add_nodes(nodes, 50)
 
     logger.start()
@@ -416,7 +417,7 @@ def test_nameplate_attributes(scu_cetc_simulator: SteeringControlUnit) -> None:
     output_f_o.close()
 
 
-def test_performance(scu_mock_simulator: SteeringControlUnit) -> None:
+def test_performance(scu_cetc_simulator: SteeringControlUnit) -> None:
     """
     Test the performance of the logger class.
 
@@ -428,7 +429,7 @@ def test_performance(scu_mock_simulator: SteeringControlUnit) -> None:
     input_f_o = h5py.File(input_file, "r", libver="latest")
     nodes = list(input_f_o.keys())
     start_time = datetime.now(timezone.utc)
-    logger = DataLogger(scu_mock_simulator, output_file)
+    logger = DataLogger(scu_cetc_simulator, output_file)
     logger.add_nodes(nodes, 50)
 
     logger.start()

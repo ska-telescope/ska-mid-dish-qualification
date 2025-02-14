@@ -50,7 +50,7 @@ from ska_mid_disq.ui_resources import ui_resources  # noqa pylint: disable=unuse
 
 from . import controller
 from .attribute_window import LiveAttributeWindow, LiveGraphWindow, LiveHistoryWindow
-from .command_window import CommandWindow
+from .command_window import CMD_WINDOW_WIDTH, CommandWindow
 from .custom_widgets import LimitedDisplaySpinBox, ToggleSwitch
 from .dialogs import (
     RecordingConfigDialog,
@@ -88,7 +88,7 @@ class MainView(StatusBarMixin, QMainWindow):
     """
 
     _MIN_WINDOW_WIDTH: Final = 1210
-    _WINDOW_WIDTH_WITH_DOCKING: Final = _MIN_WINDOW_WIDTH + 190
+    _WINDOW_WIDTH_WITH_DOCKING: Final = _MIN_WINDOW_WIDTH + CMD_WINDOW_WIDTH
     _LED_COLOURS: Final[dict[str, dict[bool | str, str]]] = {
         "red": {True: "rgb(255, 0, 0)", False: "rgb(60, 0, 0)"},
         "green": {True: "rgb(10, 250, 25)", False: "rgb(10, 60, 0)"},
@@ -203,7 +203,9 @@ class MainView(StatusBarMixin, QMainWindow):
         self.action_run_any_command_method: QAction = (
             self.win.action_run_any_command_method
         )
-        self.action_run_any_command_method.triggered.connect(self.select_commands)
+        self.action_run_any_command_method.triggered.connect(
+            self.run_any_command_confirmation
+        )
         self.commands_config: dict[str, dict[str, bool | int]] = {}
         self.command_windows: dict[str, CommandWindow] = {}
         self.command_window_close.connect(self.command_window_closed)
@@ -1192,11 +1194,12 @@ class MainView(StatusBarMixin, QMainWindow):
         )
         self.label_cache_status.setText(
             f"{self.model.opcua_nodes_status.value} - "
-            f"Nodes generated {self.model.plc_prg_nodes_timestamp}"
+            f"Nodes generated {self.model.nodes_timestamp}"
         )
         self.action_disconnect_opcua_server.setEnabled(True)
         self.action_connect_weather_station.setEnabled(True)
         self.action_attribute_display.setEnabled(True)
+        self.action_run_any_command_method.setEnabled(True)
         self._enable_opcua_widgets()
         self._enable_data_logger_widgets(True)
         self._init_opcua_combo_widgets()
@@ -1222,12 +1225,20 @@ class MainView(StatusBarMixin, QMainWindow):
         self.action_disconnect_weather_station.setEnabled(False)
         self._enable_weather_tab_widgets(False)
         self.action_attribute_display.setEnabled(False)
+        self.action_run_any_command_method.setEnabled(False)
         self.button_load_track_table.setEnabled(False)
         self.line_edit_track_table_file.setEnabled(False)
         self.warning_status_show_only_warnings.setEnabled(False)
         self.warning_tree_view.setEnabled(False)
         self.error_status_show_only_errors.setEnabled(False)
         self.error_tree_view.setEnabled(False)
+        self.close_all_graph_windows()
+        self.close_all_command_windows()
+        self.commands_config = {}
+        self.action_run_any_command_method.triggered.disconnect()
+        self.action_run_any_command_method.triggered.connect(
+            self.run_any_command_confirmation
+        )
 
     def connect_button_clicked(self):
         """Open the Connect To Server configuration dialog."""
@@ -1410,6 +1421,22 @@ class MainView(StatusBarMixin, QMainWindow):
             else:
                 logger.debug("Connect weather station dialog cancelled")
 
+    def run_any_command_confirmation(self) -> None:
+        """Show a confirmation dialog before opening the any command select dialog."""
+        reply = QMessageBox.warning(
+            self,
+            "Expert user option",
+            "This feature is only meant for expert users!<br><br>"
+            "Are you sure you want to continue?<br><br>"
+            "(This warning will not be shown again)",
+            QMessageBox.StandardButton.Yes,
+            QMessageBox.StandardButton.No,
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self.action_run_any_command_method.triggered.disconnect()
+            self.action_run_any_command_method.triggered.connect(self.select_commands)
+            self.select_commands()
+
     def select_commands(self) -> None:
         """Open the command methods selection dialog."""
         if not self.commands_config:
@@ -1445,6 +1472,7 @@ class MainView(StatusBarMixin, QMainWindow):
         """Close all open command windows."""
         for window in self.command_windows.copy().values():
             window.close()
+        self.command_windows = {}
 
     def command_window_closed(self, command: str) -> None:
         """
