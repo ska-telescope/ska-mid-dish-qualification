@@ -2310,6 +2310,14 @@
            <bool>true</bool>
           </property>
           <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>574</width>
+             <height>743</height>
+            </rect>
+           </property>
            <property name="minimumSize">
             <size>
              <width>400</width>
@@ -2940,6 +2948,12 @@
                  </item>
                  <item row="24" column="2">
                   <widget class="QLabel" name="opcua_StaticPmCorrVal_Az">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>22</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -3194,18 +3208,6 @@
                  </item>
                  <item row="25" column="2">
                   <widget class="QPushButton" name="button_static_point_model_apply">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>22</height>
-                    </size>
-                   </property>
                    <property name="toolTip">
                     <string>Apply the input static pointing parameters for the selected band (write it to the DSC).&lt;br&gt;Also updates the band for correction if it is not already set to the selected band.</string>
                    </property>
@@ -3463,18 +3465,6 @@
                  </item>
                  <item row="25" column="1">
                   <widget class="QPushButton" name="button_static_point_model_export">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>22</height>
-                    </size>
-                   </property>
                    <property name="toolTip">
                     <string>Export the currently displayed band's static pointing model to a validated JSON file.</string>
                    </property>
@@ -3689,12 +3679,12 @@
                     <enum>Qt::Orientation::Vertical</enum>
                    </property>
                    <property name="sizeType">
-                    <enum>QSizePolicy::Policy::MinimumExpanding</enum>
+                    <enum>QSizePolicy::Policy::Fixed</enum>
                    </property>
                    <property name="sizeHint" stdset="0">
                     <size>
                      <width>20</width>
-                     <height>2</height>
+                     <height>6</height>
                     </size>
                    </property>
                   </spacer>
@@ -3759,12 +3749,6 @@
                  </item>
                  <item row="0" column="1">
                   <widget class="QLabel" name="opcua_offset_elev">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="minimumSize">
                     <size>
                      <width>80</width>
@@ -3790,12 +3774,6 @@
                  </item>
                  <item row="1" column="1">
                   <widget class="QLabel" name="opcua_offset_xelev">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -3831,18 +3809,6 @@
                  </item>
                  <item row="1" column="2">
                   <widget class="LimitedDisplaySpinBox" name="spinbox_offset_xelev">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>16</height>
-                    </size>
-                   </property>
                    <property name="alignment">
                     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                    </property>
@@ -3865,18 +3831,6 @@
                  </item>
                  <item row="0" column="2">
                   <widget class="LimitedDisplaySpinBox" name="spinbox_offset_elev">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>16</height>
-                    </size>
-                   </property>
                    <property name="alignment">
                     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                    </property>
@@ -3899,18 +3853,6 @@
                  </item>
                  <item row="2" column="2">
                   <widget class="QPushButton" name="button_static_offset_apply">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>22</height>
-                    </size>
-                   </property>
                    <property name="toolTip">
                     <string>Apply the input static pointing offsets (write it to the DSC).</string>
                    </property>
@@ -4013,7 +3955,7 @@
                     <enum>Qt::Orientation::Vertical</enum>
                    </property>
                    <property name="sizeType">
-                    <enum>QSizePolicy::Policy::MinimumExpanding</enum>
+                    <enum>QSizePolicy::Policy::Fixed</enum>
                    </property>
                    <property name="sizeHint" stdset="0">
                     <size>
@@ -4025,6 +3967,12 @@
                  </item>
                  <item row="8" column="1">
                   <widget class="QLabel" name="opcua_TiltXFilt_One">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>22</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -4063,6 +4011,12 @@
                  </item>
                  <item row="5" column="1">
                   <widget class="QLabel" name="opcua_TiltYArcsec_One">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>22</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -4082,6 +4036,12 @@
                  </item>
                  <item row="14" column="1">
                   <widget class="QLabel" name="opcua_TiltCorrVal_Az">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>22</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -4141,6 +4101,12 @@
                  </item>
                  <item row="4" column="1">
                   <widget class="QLabel" name="opcua_TiltXArcsec_One">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>22</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -4227,6 +4193,12 @@
                  </item>
                  <item row="9" column="1">
                   <widget class="QLabel" name="opcua_TiltYFilt_One">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>22</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -4256,6 +4228,12 @@
                  </item>
                  <item row="12" column="1">
                   <widget class="QLabel" name="opcua_TiltCorrVal_El">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>22</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -4371,12 +4349,6 @@
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>16</height>
-                    </size>
-                   </property>
                    <property name="alignment">
                     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                    </property>
@@ -4407,12 +4379,6 @@
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>16</height>
-                    </size>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -4820,6 +4786,12 @@
                  </item>
                  <item row="2" column="2">
                   <widget class="QLabel" name="opcua_ActAmbTemp_East">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>22</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -4877,6 +4849,12 @@
                  </item>
                  <item row="17" column="1">
                   <widget class="QLabel" name="opcua_AmbTempCorrVal_Az">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>22</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -5010,6 +4988,12 @@
                  </item>
                  <item row="3" column="2">
                   <widget class="QLabel" name="opcua_ActAmbTemp_South">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>22</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -5029,6 +5013,12 @@
                  </item>
                  <item row="18" column="1">
                   <widget class="QLabel" name="opcua_AmbTempCorrVal_El">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>22</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -5058,6 +5048,12 @@
                  </item>
                  <item row="5" column="2">
                   <widget class="QLabel" name="opcua_ActAmbTemp_West">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>22</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::Panel</enum>
                    </property>
@@ -5103,7 +5099,7 @@
                     <enum>Qt::Orientation::Vertical</enum>
                    </property>
                    <property name="sizeType">
-                    <enum>QSizePolicy::Policy::MinimumExpanding</enum>
+                    <enum>QSizePolicy::Policy::Fixed</enum>
                    </property>
                    <property name="sizeHint" stdset="0">
                     <size>
@@ -9663,7 +9659,7 @@
          </size>
         </property>
         <property name="title">
-         <string>Authority Status</string>
+         <string>Command Authority</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_6">
          <property name="leftMargin">
@@ -9681,15 +9677,14 @@
          <property name="spacing">
           <number>4</number>
          </property>
-         <item row="0" column="0">
-          <widget class="QComboBox" name="combobox_authority">
-           <property name="opcua_type" stdset="0">
-            <string>DscCmdAuthorityType</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
+         <item row="0" column="3">
           <widget class="QPushButton" name="button_take_auth">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Take Authority</string>
            </property>
@@ -9698,8 +9693,47 @@
            </property>
           </widget>
          </item>
+         <item row="0" column="2">
+          <widget class="QComboBox" name="combobox_authority">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="opcua_type" stdset="0">
+            <string>DscCmdAuthorityType</string>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="0">
+          <widget class="QLabel" name="label_141">
+           <property name="text">
+            <string>Current user:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_140">
+           <property name="text">
+            <string>Select user:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
           <widget class="QPushButton" name="button_release_auth">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Release Authority</string>
            </property>
@@ -9708,8 +9742,14 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="1" column="2">
           <widget class="QLineEdit" name="opcua_cmd_authority">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
@@ -10920,11 +10960,11 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="button_group_rainfall"/>
-  <buttongroup name="button_group_wind_speed"/>
   <buttongroup name="button_group_wind_direction"/>
-  <buttongroup name="button_group_temperature"/>
-  <buttongroup name="button_group_pressure"/>
   <buttongroup name="button_group_humidity"/>
+  <buttongroup name="button_group_temperature"/>
+  <buttongroup name="button_group_wind_speed"/>
+  <buttongroup name="button_group_rainfall"/>
+  <buttongroup name="button_group_pressure"/>
  </buttongroups>
 </ui>

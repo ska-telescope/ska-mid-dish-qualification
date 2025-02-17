@@ -1,6 +1,6 @@
 [project]
 name = "ska-mid-disq"
-version = "0.6.0"
+version = "1.0.0"
 description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
 readme = "README.md"
 license = "BSD-3-Clause"
@@ -81,7 +81,7 @@ documentation = "https://developer.skao.int/projects/ska-mid-disq/en/latest"
 # requires-poetry = ">=2.0"
 include = ["MANIFEST.skao.int"]
 name = "ska-mid-disq"
-version = "0.6.0"
+version = "1.0.0"
 description = "SKA-Mid Dish Structure Qualification (DiSQ) software"
 authors = [
     "Oliver Skivington <oliver.skivington@criticalsoftware.com>",
