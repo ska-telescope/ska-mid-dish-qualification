@@ -5,7 +5,9 @@
 Launch and connect
 ==================
 
-The installation process of DiSQ for both users and developers will make a new command available in the Python virtual environment: ``disq-gui``. Running the ``disq-gui`` command will launch the Graphical User Interface (GUI) included in the DiSQ package:
+For most users, the recommened way to install the DiSQ GUI is with the standalone Windows installer. Launching the GUI is as simple as double-clicking the shortcut on the desktop or in the start menu.
+
+If the `ska-mid-disq` python package is installed in a Python virtual environment, running the ``disq-gui`` command will launch the GUI included in the package:
 
 :ps1:`(.venv) PS C:\\Users\\<user>\\Documents\\SKAO\\ska_mid_disq> disq-gui`
 

@@ -10,9 +10,12 @@ DiSQ enables engineers and scientists to control and qualify observatory dish st
 * A data logger built in to both of the two above interfaces to allow recording of engineering parameters published from the PLC.
 
 ## Installation
-This is a python software package which can be installed with the ubiquitous `pip` tool.
 
-Python >= 3.10 is required for this software package. Python package dependencies are installed automatically during the following installation steps.
+For Windows 10 or 11 users, the easiest way to install the DiSQ GUI is with the standalone installer, as it is bundled with the minimum required python 3.12 binaries, dependencies and source files. In other words, no existing python installation, virtual environment or even internet connection is required to install it. It can be downloaded from the Gitlab [project's package registry](https://gitlab.com/ska-telescope/ska-mid-disq/-/packages/?search%5B%5D=DiSQ-GUI) and distributed as needed. 
+
+For users of the DiSQ API for scripting, the python package can also be installed with the ubiquitous `pip` tool.
+
+Python 3.10, 3.11 or 3.12 is required for this package. Python package dependencies are installed automatically during the following installation steps.
 
 The recommendation is to use a [virtualenv](https://docs.python.org/3/library/venv.html):
 ```
