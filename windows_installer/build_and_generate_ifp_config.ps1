@@ -32,6 +32,7 @@ $arguments = @(
     "--add-data", "src/ska_mid_disq/weather_station_resources/weather_station.yaml:ska_mid_disq/weather_station_resources", 
     "--add-data", "src/ska_mid_disq/ui_resources/icons/skao.ico:.", 
     "--icon", "src/ska_mid_disq/ui_resources/icons/skao.ico", 
+    "--collect-data", "ska_mid_dish_steering_control", "--collect-data", "ska_mid_wms_interface",
     "src/ska_mid_disq/gui_main.py"
 )
 
