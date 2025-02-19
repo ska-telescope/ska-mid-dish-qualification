@@ -42,11 +42,13 @@ from PySide6.QtWidgets import (
 from ska_mid_disq import ResultCode, __version__, model
 from ska_mid_disq.constants import (
     DISPLAY_DECIMAL_PLACES,
+    DOCS_PATH,
     SKAO_ICON_PATH,
     PollerType,
     StatusTreeCategory,
 )
 from ska_mid_disq.ui_resources import ui_resources  # noqa pylint: disable=unused-import
+from ska_mid_disq.utils.environment import is_standalone_executable
 
 from . import controller
 from .attribute_window import LiveAttributeWindow, LiveGraphWindow, LiveHistoryWindow
@@ -2180,9 +2182,12 @@ class MainView(StatusBarMixin, QMainWindow):
 
     def open_documentation(self) -> None:
         """Open the RTD website."""
-        QDesktopServices.openUrl(
-            QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
-        )
+        if is_standalone_executable():
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(DOCS_PATH)))
+        else:
+            QDesktopServices.openUrl(
+                QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
+            )
 
     # pylint: disable=invalid-name
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
