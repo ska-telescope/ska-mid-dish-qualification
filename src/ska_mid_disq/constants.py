@@ -14,6 +14,7 @@ SUBSCRIPTION_RATE_MS: Final = 100
 CURRENT_POINTING_NODE = "Pointing.Status.CurrentPointing"
 SKAO_ICON_PATH: Final = ":/icons/skao.ico"
 DISPLAY_DECIMAL_PLACES: Final = 5
+DOCS_PATH: Final = resources.files(__package__) / "../../docs/build/html/index.html"
 
 
 # Enumerations

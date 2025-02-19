@@ -21,6 +21,7 @@ $internalPath = "$projectRoot\dist\$distName\_internal"
 $exePath = "$projectRoot\dist\$distName\$distName.exe"
 $scriptPath = "$projectRoot\$installerDir\post_install.bat"
 $ifpPath = "$projectRoot\$installerDir\disq.ifp"
+$docsPath = "$projectRoot\dist\$distName\docs"
 
 # Define pyinstaller arguments as individual items in an array
 $arguments = @(
@@ -52,6 +53,12 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
+
+# Build docs and copy to the dist path
+Write-Host "Building documentation to bundle with distribution..."
+& python -msphinx -M html "docs\src" "$docsPath\build"
+Write-Host "Any Sphinx warnings above can be safely ignored."
+
 # Read the .ifp file as bytes to preserve NUL characters
 $content = [System.IO.File]::ReadAllBytes($ifpPath)
 
@@ -65,6 +72,7 @@ $text = $text -replace "Wizard image = .+", "Wizard image = $wizardImgPath"
 $text = $text -replace "Header image = .+", "Header image = $headerImgPath"
 $text = $text -replace "File = .+", "File = $installerPath"
 $text = $text -replace ".+\\dist\\DiSQ.*?\\_internal", $internalPath
+$text = $text -replace ".+\\dist\\DiSQ.*?\\docs", $docsPath
 $text = $text -replace ".+\\dist\\DiSQ.*?\\DiSQ.*?\.exe", $exePath
 $text = $text -replace ".+\\$installerDir\\post_install.bat", $scriptPath
 $text = $text -replace "<InstallPath>\\DiSQ.*?\.exe", "<InstallPath>\$distName.exe"

@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QListWidget,
     QMainWindow,
+    QMenu,
     QMessageBox,
     QPushButton,
     QRadioButton,
@@ -42,11 +43,16 @@ from PySide6.QtWidgets import (
 from ska_mid_disq import ResultCode, __version__, model
 from ska_mid_disq.constants import (
     DISPLAY_DECIMAL_PLACES,
+    DOCS_PATH,
     SKAO_ICON_PATH,
     PollerType,
     StatusTreeCategory,
 )
 from ska_mid_disq.ui_resources import ui_resources  # noqa pylint: disable=unused-import
+from ska_mid_disq.utils.environment import (
+    is_standalone_executable,
+    open_path_in_explorer,
+)
 
 from . import controller
 from .attribute_window import LiveAttributeWindow, LiveGraphWindow, LiveHistoryWindow
@@ -192,6 +198,9 @@ class MainView(StatusBarMixin, QMainWindow):
         self.action_close_all_attribute_windows.triggered.connect(
             self.close_all_graph_windows
         )
+        self.menu_help: QMenu = self.win.menuHelp
+        if is_standalone_executable():
+            self.menu_help.addAction("Open logs directory", self.open_logs)
         self.action_about: QAction = self.win.action_about
         self.action_about.triggered.connect(self.about_button_clicked)
         self.action_docs: QAction = self.win.action_docs
@@ -2180,9 +2189,16 @@ class MainView(StatusBarMixin, QMainWindow):
 
     def open_documentation(self) -> None:
         """Open the RTD website."""
-        QDesktopServices.openUrl(
-            QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
-        )
+        if is_standalone_executable():
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(DOCS_PATH)))
+        else:
+            QDesktopServices.openUrl(
+                QUrl("https://developer.skao.int/projects/ska-mid-disq/en/latest/")
+            )
+
+    def open_logs(self) -> None:
+        """Open the application's logs directory."""
+        open_path_in_explorer(Path("./logs"))
 
     # pylint: disable=invalid-name
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
