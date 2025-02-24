@@ -21,7 +21,7 @@ logger = logging.getLogger("ska-mid-ds-scu")
 
 class SCUWeatherStation(SteeringControlUnit):
     """
-    SteeringControlUnit now with weather station connectivity.
+    SteeringControlUnit with weather station connectivity.
 
     Subclass of SteeringControlUnit that can connect to a weather station and include
     its sensors as SCU attributes.
