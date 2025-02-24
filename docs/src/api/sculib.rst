@@ -51,13 +51,12 @@ generator method, which will:
 .. code-block:: python
 
     from ska_mid_disq import SCU_from_config
-    scu = SCU_from_config("cetc54_simulator", authority_name="LMC")
+    scu = SCU_from_config("CETC54 simulator", authority_name="LMC")
     # Do things with the scu instance..
     scu.disconnect_and_cleanup()
 
-All nodes from and including the PLC_PRG node are stored in the nodes dictionary:
-:attr:`~ska_mid_disq.SteeringControlUnit.nodes`. The keys are the full node names, the values 
-are the Node objects. The full names of all nodes can be retrieved with:
+All nodes under the *Server* tree, including the *PLC_PRG* tree, are stored in the :attr:`~ska_mid_disq.SteeringControlUnit.nodes` dictionary. 
+The keys are the full node names, the values are the Node objects. The full names of all nodes can be retrieved with:
 
 .. code-block:: python
 
@@ -71,7 +70,7 @@ Note: When accessing nodes directly, it is mandatory to await any calls:
     node = scu.nodes["PLC_PRG"]
     node_name = (await node.read_display_name()).Text
 
-The command methods that are below the PLC_PRG node's hierarchy can be accessed through
+The command methods that are below the *Server* node's hierarchy can be accessed through
 the :attr:`~ska_mid_disq.SteeringControlUnit.commands` dictionary:
 
 .. code-block:: python
@@ -122,12 +121,34 @@ In case an attribute is not writeable, the OPC UA server will report an error:
 `*** Exception caught: User does not have permission to perform the requested operation.
 (BadUserAccessDenied)`
 
+How to use SCU with a weather station
+-------------------------------------
+
+The :class:`~ska_mid_disq.SCUWeatherStation` class is a subclass of :class:`~ska_mid_disq.SteeringControlUnit` that provides additional functionality for reading weather station sensor data.
+
+Simular to the :meth:`~ska_mid_disq.SCU_from_config` method, the :meth:`~ska_mid_disq.SCUWeatherStation_from_config` object generator method can be used to initialise and connect a :class:`~ska_mid_disq.SCUWeatherStation` object. However, connecting to a weather station must be done manually after the SCU object is initialised:
+
+.. code-block:: python
+
+    from ska_mid_disq import SCUWeatherStation_from_config
+    scu = SCUWeatherStation_from_config("CETC54 simulator", authority_name="LMC")
+    scu.connect_weather_station("/path/to/config/yaml", "localhost", 502)
+
+Once successfully connected to a weather station, a list of its available sensors can be retrieved with :meth:`~ska_mid_disq.SCUWeatherStation.list_weather_station_sensors`, and their values read with the :attr:`~ska_mid_disq.SteeringControlUnit.attributes` dictionary: 
+
+.. code-block:: python
+
+    temperature = scu.attributes["weather.station.temperature"].value
+
 .. Include the publicly exposed functions and classes as in src/ska_mid_disq/__init_.py
 
-SteeringControlUnit class
--------------------------
+SteeringControlUnit classes
+---------------------------
 
 .. autoclass:: ska_mid_disq.SteeringControlUnit
+   :members:
+
+.. autoclass:: ska_mid_disq.SCUWeatherStation
    :members:
 
 SCU generator methods
@@ -136,6 +157,8 @@ SCU generator methods
 .. autofunction:: ska_mid_disq.SCU
 
 .. autofunction:: ska_mid_disq.SCU_from_config
+
+.. autofunction:: ska_mid_disq.SCUWeatherStation_from_config
 
 Enum classes
 ------------
