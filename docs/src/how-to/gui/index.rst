@@ -15,3 +15,4 @@ This user guide describes how to connect the DiSQ GUI to a server and use the va
   authority
   slewing
   pointing-correction
+  weather-station
