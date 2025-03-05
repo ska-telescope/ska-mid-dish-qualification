@@ -7,11 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added 
+- WOM-561: Added `SCUWeatherStation_from_config()` object generator method to API, to allow monitoring of a weather station while interfacing with a dish using scripts.
+
 ### Changed
 - WOM-634: The DiSQ Sphinx docs is bundled with the Windows installer for offline viewing, and is opened in the `Help` menu of the GUI. The application logs directory can also be opened from the `Help` menu for easy access when needed for debugging.
 
 ### Documentation
-- WOM-560: Reorganised the DiSQ GUI user guide, updated existing pages with screenshots of v1.0.0 in Windows 11, and added the `Pointing correction` page. 
+- WOM-560, WOM-561: Reorganised the DiSQ GUI user guide, updated existing pages with screenshots of v1.0.0 in Windows 11, and added the `Pointing correction` and `Weather station` pages. 
 
 ## 1.0.0 - 2025-02-17
 

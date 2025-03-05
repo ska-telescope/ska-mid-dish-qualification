@@ -98,3 +98,5 @@ resources/git-hooks
 
 # Caches
 .nodes_cache
+
+*_ignore.py
