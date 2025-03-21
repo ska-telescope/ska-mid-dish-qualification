@@ -1088,7 +1088,7 @@ class MainView(StatusBarMixin, QMainWindow):
                     widget.setStyleSheet(
                         "QLineEdit {"
                         f"background-color: {led_colour};"
-                        "border-color: black;} "
+                        "color: black; border-color: black;} "
                     )
             except KeyError:
                 logger.warning(
