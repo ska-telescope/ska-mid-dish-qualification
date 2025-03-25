@@ -62,21 +62,24 @@ class SCUWeatherStation(SteeringControlUnit):
 
         return super().get_attribute_data_type(attribute)
 
-    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
     def subscribe(
         self,
         attributes: str | list[str],
-        period: int = 100,
+        publishing_interval: int,
         data_queue: queue.Queue | None = None,
         bad_shutdown_callback: Callable[[str], None] | None = None,
         subscription_handler: SubscriptionHandler | None = None,
+        buffer_samples: bool = True,
+        trigger_on_change: bool = True,
     ) -> tuple[int, list, list]:
         """
         Subscribe to SCU attributes for event updates.
 
         :param attributes: A single SCU attribute or a list of attributes to
             subscribe to.
-        :param period: The period in milliseconds for checking attribute updates
+        :param publishing_interval: The interval in milliseconds for receiving any/all
+            data change notifications.
             (ignored for weather station sensors).
         :param data_queue: A queue to store the subscribed attribute data. If None, uses
             the default subscription queue.
@@ -87,15 +90,24 @@ class SCUWeatherStation(SteeringControlUnit):
             reused, rather than creating a new instance every time.
             There is a limit on the number of handlers a server can have.
             Defaults to None.
+        :param buffer_samples: Request that the server buffers all samples taken during
+            a publishing interval, otherwise only the latest sample is received.
+            Defauls to True.
+        :param trigger_on_change: Subscribe to data changes only, rather than all data.
+            Defauls to True.
+        :return: tuple containing unique identifier for the subscription and lists of
+            missing nodes' names and bad (failed to subscribe) nodes.
         """
         if data_queue is None:
             data_queue = self._subscription_queue
 
         uid, missing_nodes, bad_nodes = super().subscribe(
             attributes,
-            period=period,
+            publishing_interval=publishing_interval,
             data_queue=data_queue,
             bad_shutdown_callback=bad_shutdown_callback,
+            buffer_samples=buffer_samples,
+            trigger_on_change=trigger_on_change,
         )
         sensors = []
         missing_nodes_copy = missing_nodes.copy()

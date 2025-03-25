@@ -74,16 +74,19 @@ class StubScu(SteeringControlUnit):
     def subscribe(
         self,
         attributes: str | list[str] | None = None,
-        period: int | None = None,
+        publishing_interval: int | None = None,
         data_queue: Queue | None = None,
         bad_shutdown_callback: Callable[[str], None] | None = None,
         subscription_handler: object | None = None,
+        buffer_samples: bool | None = None,
+        trigger_on_change: bool | None = None,
     ) -> tuple[int, list, list]:
         """
         Subscribe to a data source.
 
         :param attributes: Optional. Attributes related to the subscription.
-        :param period: Optional. Period of the subscription.
+        :param publishing_interval: The interval in milliseconds for receiving any/all
+            data change notifications.
         :param data_queue: Optional. Queue to store incoming data.
         :param bad_shutdown_callback: will be called if a BadShutdown subscription
             status notification is received, defaults to None.
@@ -91,6 +94,9 @@ class StubScu(SteeringControlUnit):
             reused, rather than creating a new instance every time.
             There is a limit on the number of handlers a server can have.
             Defaults to None.
+        :param buffer_samples: Request that the server buffers all samples taken during
+            a publishing interval, otherwise only the latest sample is received.
+        :param trigger_on_change: Subscribe to data changes only, rather than all data.
         :return: unique identifier for the subscription and lists of missing/bad nodes.
         """
         uid = time.monotonic_ns()

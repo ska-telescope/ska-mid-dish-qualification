@@ -334,14 +334,14 @@ set_on_source_threshold_input_widgets = [
             ambtemp_correction_input_widgets,
             (("CommandActivated", 9), ("CommandDone", 10)),
         ),
-        (
-            "deactivate_button_clicked",
-            "Az",
-            "Management.Commands.DeActivate",
-            None,
-            None,
-            (("CommandDone", 10), ("CommandActivated", 9)),
-        ),
+        # (
+        #     "deactivate_button_clicked",
+        #     "Az",
+        #     "Management.Commands.DeActivate",
+        #     None,
+        #     None,
+        #     (("CommandDone", 10), ("CommandActivated", 9)),
+        # ),
         (
             "deactivate_button_clicked",
             "El",

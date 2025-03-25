@@ -258,7 +258,9 @@ class DataLogger:
         for period, attributes in period_dict.items():
             self._subscription_ids.append(
                 self.hll.subscribe(
-                    attributes=attributes, period=period, data_queue=self.queue
+                    attributes=attributes,
+                    publishing_interval=period,
+                    data_queue=self.queue,
                 )[0]
             )
 
