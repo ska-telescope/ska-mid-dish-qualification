@@ -23,7 +23,7 @@ python-post-lint: # TODO: fix issues with excluded files
 	$(PYTHON_RUNNER) mypy --exclude "ds_opcua_server_mock.py" src/ tests/
 
 ifndef CI_JOB_TOKEN
-SIM_IMAGE=simulator:4.6.0
+SIM_IMAGE=simulator:4.7.0
 SIM_PORT=4840
 CONTAINER_NAME=cetc54-simulator-for-disq-tests
 
@@ -37,7 +37,7 @@ python-pre-test:
 	elif [ $$? -eq 23 ]; then \
 		echo "CETC54 simulator is running, but curl returned code 23 (write error)."; \
 	else \
-		echo "CETC54 simulator is not running. Starting Docker container..."; \
+		echo "CETC54 simulator is not running. Starting Docker container for image '$(SIM_IMAGE)'..."; \
 		docker run --rm -d -p 8090:8090 -p $(SIM_PORT):$(SIM_PORT) -p 5005:5005 --name $(CONTAINER_NAME)  $(SIM_IMAGE); \
 		sleep 6; \
 	fi

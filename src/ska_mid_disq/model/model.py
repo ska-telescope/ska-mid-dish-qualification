@@ -9,6 +9,7 @@ from pathlib import Path
 from queue import Empty, Queue
 from typing import Any, Callable, Final, Type
 
+from asyncua.ua import UaStatusCodeError
 from PySide6.QtCore import QObject, QThread, Signal, SignalInstance
 from ska_mid_dish_steering_control.sculib import AttrDict, CmdDict
 
@@ -279,25 +280,31 @@ class Model(QObject):
             (after which the connection is cleaned up and the SCU object is set to None)
         """
         logger.debug("Connecting to server: %s", connect_details)
+        self._scu = SCUWeatherStation(
+            **connect_details,
+            nodes_cache_dir=USER_CACHE_DIR,
+            app_name=f"DiSQ GUI v{__version__}",
+        )
         try:
-            self._scu = SCUWeatherStation(
-                **connect_details,
-                nodes_cache_dir=USER_CACHE_DIR,
-                app_name=f"DiSQ GUI v{__version__}",
-            )
             self._scu.connect_and_setup()
-        except RuntimeError as e:
+        except asyncexc.TimeoutError as e:
+            msg = "asyncio raised TimeoutError trying to connect to server"
+            logger.exception("%s (cleaning up SCU object)", msg)
+            self._scu = None
+            raise TimeoutError(msg) from e  # OSError
+        except UaStatusCodeError as e:
+            msg = "OPC-UA server returned an error code during connection and setup"
+            logger.exception("%s (cleaning up SCU object)", msg)
+            self._scu.disconnect_and_cleanup()
+            self._scu = None
+            raise RuntimeError(msg) from e
+        except RuntimeError:  # Catch any runtime errors
             logger.exception(
-                "Exception while creating sculib object server (cleaning up SCU object)"
+                "Caught exception during connect and setup (cleaning up SCU object)"
             )
             self._scu.disconnect_and_cleanup()
             self._scu = None
-            raise e
-        except asyncexc.TimeoutError as e:
-            msg = "asyncio raised TimeoutError trying to connect to server"
-            logger.error("%s (cleaning up SCU object)", msg)
-            self._scu = None
-            raise TimeoutError(msg) from e
+            raise
         logger.debug("Connected to server on URI: %s", self.get_server_uri())
         self._register_status_event_updates()
 

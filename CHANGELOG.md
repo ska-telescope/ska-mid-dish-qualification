@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The new optional ``buffer_samples`` argument can be explicitly set to ``False`` to revert to the original behaviour of only receiving the latest sample at the publishing interval. 
   - If the new optional argument ``trigger_on_change`` is set to ``False``, the subscription will trigger on timestamps - i.e. notifications will always be received at the ``publishing_interval``. This is useful for attributes that are not expected to change frequently, but need to be read at a high rate.
 
+### Fixed
+- WOM-695: Update exception handling of ``Model.connect_server()`` method, and log message of unhandled exceptions hook with type and traceback.
 
 ### Documentation
 - WOM-560, WOM-561: Reorganised the DiSQ GUI user guide, updated existing pages with screenshots of v1.0.0 in Windows 11, and added the `Pointing correction` and `Weather station` pages. 

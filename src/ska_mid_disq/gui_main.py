@@ -5,6 +5,9 @@ import logging
 import platform
 import signal
 import sys
+import traceback
+from types import TracebackType
+from typing import Type
 
 from PySide6.QtCore import QCoreApplication, Qt, QTimer
 from PySide6.QtUiTools import QUiLoader
@@ -58,9 +61,15 @@ def main():
     app.instance().aboutToQuit.connect(model.disconnect_server)
 
     # Catch unhandled exceptions
-    def _exception_hook(exc_type, exc_value, exc_traceback):
-        logger.error(
-            "Unhandled exception caught with hook. Cleaning up and quitting..."
+    def _exception_hook(
+        exc_type: Type[BaseException],
+        exc_value: BaseException,
+        exc_traceback: TracebackType | None,
+    ) -> None:
+        logger.exception(
+            "Unhandled %s exception caught with hook: %s",
+            exc_type.__qualname__,
+            traceback.format_tb(exc_traceback),
         )
         app.quit()
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
