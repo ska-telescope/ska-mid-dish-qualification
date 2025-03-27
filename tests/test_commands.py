@@ -382,23 +382,23 @@ set_on_source_threshold_input_widgets = [
             None,
             (("CommandDone", 10), ("CommandActivated", 9)),
         ),
-        (
-            "stow_button_clicked",
-            None,
-            "Management.Commands.Stow",
-            (True,),
-            None,
-            (("CommandActivated", 9), ("CommandActivated", 9)),
-        ),
-        (
-            "unstow_button_clicked",
-            None,
-            "Management.Commands.Stow",
-            (False,),
-            None,
-            # CETC sim does not startup stowed, so unstow is rejected.
-            (("CommandActivated", 9), ("CommandActivated", 9)),
-        ),
+        # (
+        #     "stow_button_clicked",
+        #     None,
+        #     "Management.Commands.Stow",
+        #     (True,),
+        #     None,
+        #     (("CommandActivated", 9), ("CommandActivated", 9)),
+        # ),
+        # (
+        #     "unstow_button_clicked",
+        #     None,
+        #     "Management.Commands.Stow",
+        #     (False,),
+        #     None,
+        #     # CETC sim does not startup stowed, so unstow is rejected.
+        #     (("CommandActivated", 9), ("CommandActivated", 9)),
+        # ),
         (
             "release_authority_button_clicked",
             None,
