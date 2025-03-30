@@ -422,6 +422,7 @@ class Model(QObject):
             _, missing_nodes, bad_nodes = self._scu.subscribe(
                 registrations,
                 publishing_interval=SUBSCRIPTION_RATE_MS,
+                sampling_interval=SUBSCRIPTION_RATE_MS,
                 buffer_samples=False,
                 data_queue=event_q_poller.queue,
                 bad_shutdown_callback=bad_shutdown_callback,
@@ -464,12 +465,14 @@ class Model(QObject):
             self._scu.subscribe(
                 self.status_warning_attributes,
                 publishing_interval=SUBSCRIPTION_RATE_MS,
+                sampling_interval=SUBSCRIPTION_RATE_MS,
                 buffer_samples=False,
                 data_queue=self.status_warning_tree.queue,
             )
             self._scu.subscribe(
                 self.status_error_attributes,
                 publishing_interval=SUBSCRIPTION_RATE_MS,
+                sampling_interval=SUBSCRIPTION_RATE_MS,
                 buffer_samples=False,
                 data_queue=self.status_error_tree.queue,
             )

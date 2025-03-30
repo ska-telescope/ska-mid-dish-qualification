@@ -78,6 +78,7 @@ class StubScu(SteeringControlUnit):
         data_queue: Queue | None = None,
         bad_shutdown_callback: Callable[[str], None] | None = None,
         subscription_handler: object | None = None,
+        sampling_interval: int | None = None,
         buffer_samples: bool | None = None,
         trigger_on_change: bool | None = None,
     ) -> tuple[int, list, list]:

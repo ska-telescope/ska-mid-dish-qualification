@@ -39,6 +39,7 @@ class DataLogger:
     _FLUSH_PERIOD_MSECS: Final = 5000
     _QUEUE_GET_TIMEOUT_SECS: Final = 0.01
     _COMPLETION_LOOP_TIMEOUT_SECS: Final = 0.01
+    _PUBLISHING_INTERVAL_MSECS: Final = 1000
     _HDF5_TYPE_FROM_VALUE_TYPE: Final = {
         "Boolean": "?",
         "Double": "f8",  # 64 bit double numpy type
@@ -256,11 +257,19 @@ class DataLogger:
             "Server.ServerStatus.CurrentTime"
         ].value
         for period, attributes in period_dict.items():
+            if period <= self._PUBLISHING_INTERVAL_MSECS:  # Default
+                publishing_interval = self._PUBLISHING_INTERVAL_MSECS
+                buffer_samples = True
+            else:
+                publishing_interval = period
+                buffer_samples = False
             self._subscription_ids.append(
                 self.hll.subscribe(
                     attributes=attributes,
-                    publishing_interval=period,
+                    publishing_interval=publishing_interval,
+                    sampling_interval=period,
                     data_queue=self.queue,
+                    buffer_samples=buffer_samples,
                 )[0]
             )
 
