@@ -9,7 +9,7 @@ from typing import Final
 
 from platformdirs import user_documents_dir
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QIntValidator
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QAbstractSpinBox,
@@ -553,6 +553,8 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
     :param attributes: A list of OPC-UA attributes to be displayed and selected.
     """
 
+    MAX_PERIOD_MS: Final = 60000
+
     def __init__(
         self,
         parent: QWidget,
@@ -569,7 +571,7 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
 
         self.setWindowTitle("Recording Configuration")
         self.setWindowIcon(QIcon(SKAO_ICON_PATH))
-        self.resize(720, 600)
+        self.resize(660, 620)
 
         self._node_table_widgets: dict[str, dict[str, QCheckBox | QSpinBox]] = {}
 
@@ -607,14 +609,32 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
         self.period_column_label.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter
         )
-        self.period_column_value = QSpinBox()
-        # Remove step buttons and prevent mouse wheel interaction
-        self.period_column_value.setButtonSymbols(
-            QAbstractSpinBox.ButtonSymbols.NoButtons
+        self.period_column_value = QComboBox()
+        self.period_column_value.setEditable(True)
+        self.period_column_value.addItems(
+            [
+                "0",
+                "50",
+                "100",
+                "250",
+                "500",
+                "1000",
+                "5000",
+                "10000",
+                str(self.MAX_PERIOD_MS),
+            ]
         )
-        self.period_column_value.wheelEvent = lambda e: None  # type: ignore[assignment]
-        self.period_column_value.setRange(50, 60000)
-        self.period_column_value.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.period_column_value.setToolTip(
+            f"Period between 0 and {self.MAX_PERIOD_MS} milliseconds.<br>"
+            "Setting 0 lets the server use its fastest practical rate.<br>"
+            "The server cannot sample at any abitrary rate, so it will use its nearest "
+            "supported rate to what is set."
+        )
+        self.period_column_value.setCurrentText("100")
+        validator = QIntValidator(0, self.MAX_PERIOD_MS, self.period_column_value)
+        # Connect to editingFinished signal (when focus leaves the combobox)
+        self.period_column_value.editTextChanged.connect(self.correct_period_input)
+        self.period_column_value.setValidator(validator)
         self.period_column_set = QPushButton("Set All")
         self.period_column_set.clicked.connect(self._set_all_period_spinboxes)
         self.trigger_column_label = QLabel("Sampling trigger column:")
@@ -622,10 +642,18 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter
         )
         self.trigger_column_on_change = QPushButton("All On Change")
+        self.trigger_column_on_change.setToolTip(
+            "Set all attributes to only be sampled on change "
+            "(the default OPC-UA subscription setting)."
+        )
         self.trigger_column_on_change.clicked.connect(
             lambda: self._set_all_trigger_checkboxes(True)
         )
         self.trigger_column_periodic = QPushButton("All Periodic")
+        self.trigger_column_periodic.setToolTip(
+            "Set all attributes to be sampled periodically "
+            "(uses the STATUS_VALUE_TIMESTAMP DataChangeTrigger)."
+        )
         self.trigger_column_periodic.clicked.connect(
             lambda: self._set_all_trigger_checkboxes(False)
         )
@@ -660,6 +688,15 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
         self.grid_layout.addWidget(status_bar)
         self.setLayout(self.grid_layout)
         self.config_parameters: dict[str, RecordOptions] = {}
+
+    def correct_period_input(self) -> None:
+        """Correct input of the period value when editing is finished."""
+        text = self.period_column_value.currentText()
+        if text != "":
+            if not text.isdigit():
+                self.period_column_value.setCurrentText("100")
+            elif int(text) > self.MAX_PERIOD_MS:
+                self.period_column_value.setCurrentText(str(self.MAX_PERIOD_MS))
 
     def _create_node_table(
         self, attributes: dict[str, RecordOptions], node_table: QTableWidget
@@ -704,7 +741,11 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
             # Remove step buttons and prevent mouse wheel interaction
             node_period.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
             node_period.wheelEvent = node_table.wheelEvent  # type: ignore[assignment]
-            node_period.setRange(50, 60000)
+            node_period.setRange(0, self.MAX_PERIOD_MS)
+            node_period.setToolTip(
+                f"Period between 0 and {self.MAX_PERIOD_MS} milliseconds.<br>"
+                "Setting 0 lets the server use its fastest practical rate."
+            )
             node_period.setAlignment(Qt.AlignmentFlag.AlignHCenter)
             node_period.setValue(value["period"])
             node_table.setCellWidget(i, 2, node_period)
@@ -733,11 +774,15 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
 
     def _set_all_period_spinboxes(self) -> None:
         """Sets all period spinboxes to the value in self.period_column_value."""
-        value = self.period_column_value.value()
-        for widgets in self._node_table_widgets.values():
-            widgets["period_spin_box"].setValue(value)  # type: ignore[union-attr]
-
-        self.status_bar_update(f"Period column set to {value} milliseconds.")
+        text = self.period_column_value.currentText()
+        try:
+            value = int(text) if text != "" else 0
+        except ValueError:
+            logger.warning("Invalid value in period column field: %s", text)
+        else:
+            for widgets in self._node_table_widgets.values():
+                widgets["period_spin_box"].setValue(value)  # type: ignore[union-attr]
+            self.status_bar_update(f"Period column set to {value} milliseconds.")
 
     def _set_all_trigger_checkboxes(self, checked: bool) -> None:
         """Unchecks all of the "Sample on change" checkboxes."""
