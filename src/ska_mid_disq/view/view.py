@@ -1612,6 +1612,7 @@ class MainView(StatusBarMixin, QMainWindow):
                 self.controller.recording_config[node] = {
                     "record": False,
                     "period": 100,
+                    "on_change": True,
                 }
 
         dialog = RecordingConfigDialog(self, self.controller.recording_config)

@@ -9,7 +9,7 @@ from typing import Any
 from PySide6.QtCore import QCoreApplication, QObject, Signal
 
 from ska_mid_disq import Command, ResultCode, model
-from ska_mid_disq.constants import PollerType
+from ska_mid_disq.constants import PollerType, RecordOptions
 from ska_mid_disq.utils import configuration
 
 logger = logging.getLogger("gui.controller")
@@ -579,7 +579,7 @@ class Controller(QObject):
             self.recording_status.emit(False)
 
     @property
-    def recording_config(self) -> dict[str, dict[str, bool | int]]:
+    def recording_config(self) -> dict[str, RecordOptions]:
         """
         Get the recording configuration of the model.
 
@@ -588,7 +588,7 @@ class Controller(QObject):
         return self._model.recording_config
 
     @recording_config.setter
-    def recording_config(self, config: dict[str, dict[str, bool | int]]) -> None:
+    def recording_config(self, config: dict[str, RecordOptions]) -> None:
         """
         Set the recording configuration for the model.
 

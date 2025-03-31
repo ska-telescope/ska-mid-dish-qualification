@@ -5,7 +5,7 @@ import os
 import queue
 import threading
 from datetime import datetime, timedelta, timezone
-from typing import Final
+from typing import Final, Optional, TypedDict
 
 import h5py
 
@@ -13,6 +13,15 @@ from ska_mid_disq import SteeringControlUnit
 from ska_mid_disq.constants import CURRENT_POINTING_NODE, NamePlate
 
 app_logger = logging.getLogger("datalog")
+
+
+class NodeData(TypedDict, total=False):
+    """A dictionary to hold the data for a node."""
+
+    period: int
+    on_change: bool
+    node_type: str
+    enum_strings: Optional[list[str]]
 
 
 # pylint: disable=too-many-instance-attributes
@@ -94,7 +103,7 @@ class DataLogger:
         )
         self.queue: queue.Queue = queue.Queue(maxsize=0)
         self._data_count = 0
-        self._nodes: dict | None = None
+        self._nodes: dict[str, NodeData] | None = None
         self._stop_logging = threading.Event()
         self._start_invoked = False
         self._cache: dict = {}
@@ -104,7 +113,7 @@ class DataLogger:
         self.subscription_start_time: datetime
         self.subscription_stop_time: datetime
 
-    def add_nodes(self, nodes: list[str], period: int) -> None:
+    def add_nodes(self, nodes: list[str], period: int, on_change: bool = True) -> None:
         """
         Add a node or list of nodes with desired period in milliseconds to subscribe to.
 
@@ -153,13 +162,17 @@ class DataLogger:
                 app_logger.info(
                     "Updating period for node %s from %d to %d.",
                     node,
-                    self._nodes[node]["Period"],
+                    self._nodes[node]["period"],
                     period,
                 )
 
-            node_data = {"Period": period, "Type": node_type}
+            node_data: NodeData = {
+                "period": period,
+                "node_type": node_type,
+                "on_change": on_change,
+            }
             if node_type == "Enumeration":
-                node_data["Enum strings"] = node_strings
+                node_data["enum_strings"] = node_strings
 
             self._nodes[node] = node_data
 
@@ -191,10 +204,10 @@ class DataLogger:
                         e,
                     )
 
-        for node, data in self._nodes.items():
+        for node_name, data in self._nodes.items():
             # One group per node containing a single dataset for each of
             # SourceTimestamp, Value
-            group = self.file_object.create_group(node)
+            group = self.file_object.create_group(node_name)
             # Zeroeth dataset is always source timestamp which must be an 8 byte float
             # as HDF5 does not support Python datetime.
             time_dataset = group.create_dataset(
@@ -208,7 +221,7 @@ class DataLogger:
                 "Info", "Source Timestamp; time since Unix epoch."
             )
 
-            value_type = data["Type"]
+            value_type = data["node_type"]
             dtype = self._HDF5_TYPE_FROM_VALUE_TYPE[value_type]
             value_chunks = self._CHUNKS_FROM_VALUE_TYPE[value_type]
             value_dataset = group.create_dataset(
@@ -221,17 +234,17 @@ class DataLogger:
             value_dataset.attrs.create(
                 "Info", "Node Value, index matches SourceTimestamp dataset."
             )
-            value_dataset.attrs.create("Type", value_type)
+            value_dataset.attrs.create("node_type", value_type)
             if value_type == "Enumeration":
                 value_dataset.attrs.create(
-                    "Enumerations", ",".join(data["Enum strings"])
+                    "Enumerations", ",".join(data["enum_strings"])
                 )
 
             # While here create cache structure per node.
             # Node name : [total data point count, type string, current data point count
             #                , [timestamp 1, timestamp 2, ...], [value 1, value 2, ...]]
             #                            ^ list indices match for data points ^
-            self._cache[node] = [0, value_type, 0, [], []]
+            self._cache[node_name] = [0, value_type, 0, [], []]
 
         # HDF5 structure created, can now enter SWMR mode
         self.file_object.swmr_mode = True
@@ -244,19 +257,20 @@ class DataLogger:
         in the `_nodes` dictionary attribute of the class instance.
         """
         # Sort added nodes into lists per period
-        period_dict = {}
+        combinations: dict[tuple[int, bool], list[str]] = {}
         for node, data in self._nodes.items():
-            period = data["Period"]
-            if period not in period_dict:
-                period_dict[period] = []
+            tuple_key = (data["period"], data["on_change"])
+            if tuple_key not in combinations:
+                combinations[tuple_key] = []
 
-            period_dict[period].append(node)
+            combinations[tuple_key].append(node)
 
         # Start to fill queue
         self.subscription_start_time = self.hll.attributes[
             "Server.ServerStatus.CurrentTime"
         ].value
-        for period, attributes in period_dict.items():
+        for combo, attributes in combinations.items():
+            period, on_change = combo
             if period <= self._PUBLISHING_INTERVAL_MSECS:  # Default
                 publishing_interval = self._PUBLISHING_INTERVAL_MSECS
                 buffer_samples = True
@@ -270,6 +284,7 @@ class DataLogger:
                     sampling_interval=period,
                     data_queue=self.queue,
                     buffer_samples=buffer_samples,
+                    trigger_on_change=on_change,
                 )[0]
             )
 

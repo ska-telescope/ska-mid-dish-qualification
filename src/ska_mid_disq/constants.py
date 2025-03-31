@@ -2,7 +2,7 @@
 
 from enum import Enum, IntEnum
 from importlib import resources
-from typing import Final
+from typing import Final, TypedDict
 
 from platformdirs import user_cache_path, user_config_path
 
@@ -65,3 +65,11 @@ class PollerType(Enum):
     OPCUA = "OPCUA"
     WMS = "WMS"
     GRAPH = "GRAPH"
+
+
+class RecordOptions(TypedDict):
+    """A dictionary to hold the record options for a node."""
+
+    record: bool
+    period: int
+    on_change: bool
