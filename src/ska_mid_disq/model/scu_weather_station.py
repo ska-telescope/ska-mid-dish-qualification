@@ -70,6 +70,7 @@ class SCUWeatherStation(SteeringControlUnit):
         data_queue: queue.Queue | None = None,
         bad_shutdown_callback: Callable[[str], None] | None = None,
         subscription_handler: SubscriptionHandler | None = None,
+        sampling_interval: int | None = None,
         buffer_samples: bool = True,
         trigger_on_change: bool = True,
     ) -> tuple[int, list, list]:
@@ -106,6 +107,8 @@ class SCUWeatherStation(SteeringControlUnit):
             publishing_interval=publishing_interval,
             data_queue=data_queue,
             bad_shutdown_callback=bad_shutdown_callback,
+            subscription_handler=subscription_handler,
+            sampling_interval=sampling_interval,
             buffer_samples=buffer_samples,
             trigger_on_change=trigger_on_change,
         )

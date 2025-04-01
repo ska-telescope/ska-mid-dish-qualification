@@ -12,13 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - WOM-634: The DiSQ Sphinx docs is bundled with the Windows installer for offline viewing, and is opened in the `Help` menu of the GUI. The application logs directory can also be opened from the `Help` menu for easy access when needed for debugging.
-- WOM-694: Update for changes to ``SCU.subscribe()`` method in ska-mid-dish-steering-control 0.6.0:
+- WOM-694, WOM-706: Update for changes to ``SCU.subscribe()`` method in ska-mid-dish-steering-control 0.7.0:
 
-  - The ``period`` argument has been renamed to ``publishing_interval`` to match OPC-UA nomenclature, and no longer has a default value.
+  - The ``period`` argument of ``SCU.subscribe()`` has been renamed to ``publishing_interval`` to match OPC-UA nomenclature, and no longer has a default value.
   - The client now requests that samples are buffered on the server (at its default rate). All samples are then received concurrently at the set publishing interval. 
   - The 'MinSupportedSampleRate' value of the server is read to set an appropriate queue size for sample buffering. 
   - The new optional ``buffer_samples`` argument can be explicitly set to ``False`` to revert to the original behaviour of only receiving the latest sample at the publishing interval. 
   - If the new optional argument ``trigger_on_change`` is set to ``False``, the subscription will trigger on timestamps - i.e. notifications will always be received at the ``publishing_interval``. This is useful for attributes that are not expected to change frequently, but need to be read at a high rate.
+  - ``DataLogger.add_nodes()`` has a matching optional argument ``on_change`` that defaults to ``True``.
+  - The given ``DataLogger`` period (in the ``add_nodes()`` method and GUI) is now set as the sampling interval rather than the publishing interval of a subscription, and a default minimum publishing interval of 1 second is used. In other words, if the period is less than 1 second, server side sample buffering is enabled and the client receives data once a second, but if the period is longer than 1 second, buffering is disabled and a single sample is received at the given period.  
 
 ### Fixed
 - WOM-695: Update exception handling of ``Model.connect_server()`` method, and log message of unhandled exceptions hook with type and traceback.

@@ -19,6 +19,7 @@ from ska_mid_disq.constants import (
     USER_CACHE_DIR,
     NodesStatus,
     PollerType,
+    RecordOptions,
     StatusTreeCategory,
 )
 
@@ -261,7 +262,7 @@ class Model(QObject):
         self._scu: SCUWeatherStation | None = None
         self._data_logger: DataLogger | None = None
         self._recording = False
-        self._recording_config: dict[str, dict[str, bool | int]] = {}
+        self._recording_config: dict[str, RecordOptions] = {}
         self._graph_config: dict[str, dict[str, bool | int]] = {}
         self._event_q_pollers: dict[PollerType, QueuePollThread] = {}
         self._nodes_status = NodesStatus.NOT_CONNECTED
@@ -422,6 +423,7 @@ class Model(QObject):
             _, missing_nodes, bad_nodes = self._scu.subscribe(
                 registrations,
                 publishing_interval=SUBSCRIPTION_RATE_MS,
+                sampling_interval=SUBSCRIPTION_RATE_MS,
                 buffer_samples=False,
                 data_queue=event_q_poller.queue,
                 bad_shutdown_callback=bad_shutdown_callback,
@@ -464,12 +466,14 @@ class Model(QObject):
             self._scu.subscribe(
                 self.status_warning_attributes,
                 publishing_interval=SUBSCRIPTION_RATE_MS,
+                sampling_interval=SUBSCRIPTION_RATE_MS,
                 buffer_samples=False,
                 data_queue=self.status_warning_tree.queue,
             )
             self._scu.subscribe(
                 self.status_error_attributes,
                 publishing_interval=SUBSCRIPTION_RATE_MS,
+                sampling_interval=SUBSCRIPTION_RATE_MS,
                 buffer_samples=False,
                 data_queue=self.status_error_tree.queue,
             )
@@ -665,7 +669,9 @@ class Model(QObject):
         node_to_record = False
         for node, values in self.recording_config.items():
             if values["record"]:
-                self._data_logger.add_nodes([node], values["period"])
+                self._data_logger.add_nodes(
+                    [node], values["period"], values["on_change"]
+                )
                 node_to_record = True
 
         if not node_to_record:
@@ -700,7 +706,7 @@ class Model(QObject):
         return self._recording
 
     @property
-    def recording_config(self) -> dict[str, dict[str, bool | int]]:
+    def recording_config(self) -> dict[str, RecordOptions]:
         """
         Get the recording configuration.
 
@@ -709,7 +715,7 @@ class Model(QObject):
         return self._recording_config
 
     @recording_config.setter
-    def recording_config(self, config: dict[str, dict[str, bool | int]]) -> None:
+    def recording_config(self, config: dict[str, RecordOptions]) -> None:
         """
         Set the recording configuration.
 

@@ -9,7 +9,7 @@ from typing import Final
 
 from platformdirs import user_documents_dir
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QIntValidator
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QAbstractSpinBox,
@@ -34,7 +34,7 @@ from PySide6.QtWidgets import (
 )
 from ska_mid_wms_interface import load_weather_station_configuration
 
-from ska_mid_disq.constants import SKAO_ICON_PATH
+from ska_mid_disq.constants import SKAO_ICON_PATH, RecordOptions
 
 from .controller import Controller
 
@@ -553,11 +553,13 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
     :param attributes: A list of OPC-UA attributes to be displayed and selected.
     """
 
+    MAX_PERIOD_MS: Final = 60000
+
     def __init__(
         self,
         parent: QWidget,
-        attributes: dict[str, dict[str, bool | int]],
-    ):
+        attributes: dict[str, RecordOptions],
+    ) -> None:
         """
         Initialize the Recording Configuration dialog.
 
@@ -569,9 +571,9 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
 
         self.setWindowTitle("Recording Configuration")
         self.setWindowIcon(QIcon(SKAO_ICON_PATH))
-        self.resize(544, 512)
+        self.resize(660, 620)
 
-        self._node_table_widgets: dict[str, dict[str, QCheckBox | QLineEdit]] = {}
+        self._node_table_widgets: dict[str, dict[str, QCheckBox | QSpinBox]] = {}
 
         button = (
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
@@ -607,16 +609,54 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
         self.period_column_label.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter
         )
-        self.period_column_value = QSpinBox()
-        # Remove step buttons and prevent mouse wheel interaction
-        self.period_column_value.setButtonSymbols(
-            QAbstractSpinBox.ButtonSymbols.NoButtons
+        self.period_column_value = QComboBox()
+        self.period_column_value.setEditable(True)
+        self.period_column_value.addItems(
+            [
+                "0",
+                "50",
+                "100",
+                "250",
+                "500",
+                "1000",
+                "5000",
+                "10000",
+                str(self.MAX_PERIOD_MS),
+            ]
         )
-        self.period_column_value.wheelEvent = lambda e: None  # type: ignore[assignment]
-        self.period_column_value.setRange(50, 60000)
-        self.period_column_value.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.period_column_value.setToolTip(
+            f"Period between 0 and {self.MAX_PERIOD_MS} milliseconds.<br>"
+            "Setting 0 lets the server use its fastest practical rate.<br>"
+            "The server cannot sample at any abitrary rate, so it will use its nearest "
+            "supported rate to what is set."
+        )
+        self.period_column_value.setCurrentText("100")
+        validator = QIntValidator(0, self.MAX_PERIOD_MS, self.period_column_value)
+        # Connect to editingFinished signal (when focus leaves the combobox)
+        self.period_column_value.editTextChanged.connect(self.correct_period_input)
+        self.period_column_value.setValidator(validator)
         self.period_column_set = QPushButton("Set All")
         self.period_column_set.clicked.connect(self._set_all_period_spinboxes)
+        self.trigger_column_label = QLabel("Sampling trigger column:")
+        self.trigger_column_label.setAlignment(
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter
+        )
+        self.trigger_column_on_change = QPushButton("All On Change")
+        self.trigger_column_on_change.setToolTip(
+            "Set all attributes to only be sampled on change "
+            "(the default OPC-UA subscription setting)."
+        )
+        self.trigger_column_on_change.clicked.connect(
+            lambda: self._set_all_trigger_checkboxes(True)
+        )
+        self.trigger_column_periodic = QPushButton("All Periodic")
+        self.trigger_column_periodic.setToolTip(
+            "Set all attributes to be sampled periodically "
+            "(uses the STATUS_VALUE_TIMESTAMP DataChangeTrigger)."
+        )
+        self.trigger_column_periodic.clicked.connect(
+            lambda: self._set_all_trigger_checkboxes(False)
+        )
         table_options_layout.addWidget(self.table_file_label, 0, 0)
         table_options_layout.addWidget(self.table_file_load, 0, 1)
         table_options_layout.addWidget(self.table_file_save, 0, 2)
@@ -626,6 +666,9 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
         table_options_layout.addWidget(self.period_column_label, 2, 0)
         table_options_layout.addWidget(self.period_column_value, 2, 1)
         table_options_layout.addWidget(self.period_column_set, 2, 2)
+        table_options_layout.addWidget(self.trigger_column_label, 3, 0)
+        table_options_layout.addWidget(self.trigger_column_on_change, 3, 1)
+        table_options_layout.addWidget(self.trigger_column_periodic, 3, 2)
         self.grid_layout.addLayout(table_options_layout, 0, 0)
 
         message = QLabel(
@@ -636,7 +679,7 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
         )
         self.grid_layout.addWidget(message)
 
-        self.node_table = QTableWidget(len(attributes), 3, self)
+        self.node_table = QTableWidget(len(attributes), 4, self)
         self._create_node_table(attributes, self.node_table)
         self.grid_layout.addWidget(self.node_table)
 
@@ -644,16 +687,27 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
         status_bar = self.create_status_bar_widget()
         self.grid_layout.addWidget(status_bar)
         self.setLayout(self.grid_layout)
-        self.config_parameters: dict[str, dict[str, bool | int]] = {}
+        self.config_parameters: dict[str, RecordOptions] = {}
 
-    def _create_node_table(self, attributes, node_table):
+    def correct_period_input(self) -> None:
+        """Correct input of the period value when editing is finished."""
+        text = self.period_column_value.currentText()
+        if text != "":
+            if not text.isdigit():
+                self.period_column_value.setCurrentText("100")
+            elif int(text) > self.MAX_PERIOD_MS:
+                self.period_column_value.setCurrentText(str(self.MAX_PERIOD_MS))
+
+    def _create_node_table(
+        self, attributes: dict[str, RecordOptions], node_table: QTableWidget
+    ) -> None:
         """Create the attribute node table."""
         node_table.setStyleSheet(
             "QCheckBox {margin-left: 28px;} "
             "QCheckBox::indicator {width: 24px; height: 24px}"
         )
         node_table.setHorizontalHeaderLabels(
-            ["Attribute Name", "Record", "Period (ms)"]
+            ["Attribute Name", "Record", "Period (ms)", "On Change"]
         )
         horizontal_header = node_table.horizontalHeader()
         horizontal_header.setDefaultSectionSize(80)
@@ -671,10 +725,13 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
             # Ensure "Record" and "Period" columns are also not interactable
             add_background = QTableWidgetItem()
             period_background = QTableWidgetItem()
+            on_change_background = QTableWidgetItem()
             add_background.setFlags(Qt.ItemFlag.ItemIsEnabled)
             period_background.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            on_change_background.setFlags(Qt.ItemFlag.ItemIsEnabled)
             node_table.setItem(i, 1, add_background)
             node_table.setItem(i, 2, period_background)
+            node_table.setItem(i, 3, on_change_background)
             # Add "Record" checkbox
             record_node = QCheckBox()
             record_node.setChecked(value["record"])
@@ -683,14 +740,23 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
             node_period = QSpinBox()
             # Remove step buttons and prevent mouse wheel interaction
             node_period.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
-            node_period.wheelEvent = node_table.wheelEvent
-            node_period.setRange(50, 60000)
+            node_period.wheelEvent = node_table.wheelEvent  # type: ignore[assignment]
+            node_period.setRange(0, self.MAX_PERIOD_MS)
+            node_period.setToolTip(
+                f"Period between 0 and {self.MAX_PERIOD_MS} milliseconds.<br>"
+                "Setting 0 lets the server use its fastest practical rate."
+            )
             node_period.setAlignment(Qt.AlignmentFlag.AlignHCenter)
             node_period.setValue(value["period"])
             node_table.setCellWidget(i, 2, node_period)
+            # Add "Sample on change" checkbox
+            sample_on_change = QCheckBox()
+            sample_on_change.setChecked(value["on_change"])
+            node_table.setCellWidget(i, 3, sample_on_change)
             self._node_table_widgets[attr] = {
                 "record_check_box": record_node,
                 "period_spin_box": node_period,
+                "trigger_check_box": sample_on_change,
             }
 
     def _set_all_record_checkboxes(self, checked: bool) -> None:
@@ -708,11 +774,28 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
 
     def _set_all_period_spinboxes(self) -> None:
         """Sets all period spinboxes to the value in self.period_column_value."""
-        value = self.period_column_value.value()
-        for widgets in self._node_table_widgets.values():
-            widgets["period_spin_box"].setValue(value)  # type: ignore[union-attr]
+        text = self.period_column_value.currentText()
+        try:
+            value = int(text) if text != "" else 0
+        except ValueError:
+            logger.warning("Invalid value in period column field: %s", text)
+        else:
+            for widgets in self._node_table_widgets.values():
+                widgets["period_spin_box"].setValue(value)  # type: ignore[union-attr]
+            self.status_bar_update(f"Period column set to {value} milliseconds.")
 
-        self.status_bar_update(f"Period column set to {value} milliseconds.")
+    def _set_all_trigger_checkboxes(self, checked: bool) -> None:
+        """Unchecks all of the "Sample on change" checkboxes."""
+        for widgets in self._node_table_widgets.values():
+            widgets["trigger_check_box"].setChecked(checked)  # type: ignore[union-attr]
+
+        status_update = "Sampling trigger column "
+        if checked:
+            status_update += "ticked."
+        else:
+            status_update += "cleared."
+
+        self.status_bar_update(status_update)
 
     def _save_node_table(self) -> None:
         """Save the node table to a json file."""
@@ -755,6 +838,7 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
                 try:
                     record = values["record"]
                     period = values["period"]
+                    on_change = values["on_change"]
                 except Exception as e:  # pylint: disable=broad-except
                     logger.warning(
                         "Could not load file %s: %s:%s",
@@ -767,18 +851,23 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
                     )
                     return
 
-                if not isinstance(record, bool) or not isinstance(period, int):
+                if (
+                    not isinstance(record, bool)
+                    or not isinstance(period, int)
+                    or not isinstance(on_change, bool)
+                ):
                     logger.warning(
-                        "Could not load file %s: incompatible values (%s, %s) for node "
-                        "%s",
+                        "Could not load file %s: incompatible values (%s, %s, %s) for "
+                        "node %s",
                         filename,
                         record,
                         period,
+                        on_change,
                         node,
                     )
                     self.status_bar_update(
-                        f"Incompatible values ({record}, {period}) for {node} in file "
-                        "{filename}"
+                        f"Incompatible values ({record}, {period}, {on_change}) for "
+                        f"{node} in file {filename}"
                     )
                     return
 
@@ -795,6 +884,11 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
                         "period_spin_box"
                     ].setValue(  # type: ignore[union-attr]
                         values["period"]
+                    )
+                    self._node_table_widgets[node][
+                        "trigger_check_box"
+                    ].setChecked(  # type: ignore[union-attr]
+                        values["on_change"]
                     )
                     missing_nodes.remove(node)
                 else:
@@ -827,9 +921,9 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
                 error_status_update += "Only overlapping attributes will be updated."
                 self.status_bar_update(error_status_update)
 
-    def _get_current_config(self) -> dict[str, dict[str, bool | int]]:
+    def _get_current_config(self) -> dict[str, RecordOptions]:
         """Get the current attribute record and period values."""
-        config_parameters = {}
+        config_parameters: dict[str, RecordOptions] = {}
         for node, widgets in self._node_table_widgets.items():
             config_parameters[node] = {
                 "record": widgets[
@@ -838,11 +932,13 @@ class RecordingConfigDialog(StatusBarMixin, QDialog):
                 "period": widgets[
                     "period_spin_box"
                 ].value(),  # type: ignore[union-attr]
+                "on_change": widgets[
+                    "trigger_check_box"
+                ].isChecked(),  # type: ignore[union-attr]
             }
-
         return config_parameters
 
-    def accept_selection(self):
+    def accept_selection(self) -> None:
         """Accepts the selection made in the configuration dialog."""
         logger.debug("Recording config dialog accepted")
         self.config_parameters = self._get_current_config()

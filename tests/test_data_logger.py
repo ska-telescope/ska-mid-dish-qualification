@@ -78,6 +78,7 @@ class StubScu(SteeringControlUnit):
         data_queue: Queue | None = None,
         bad_shutdown_callback: Callable[[str], None] | None = None,
         subscription_handler: object | None = None,
+        sampling_interval: int | None = None,
         buffer_samples: bool | None = None,
         trigger_on_change: bool | None = None,
     ) -> tuple[int, list, list]:
@@ -228,7 +229,7 @@ def test_add_nodes(
         "Elevation.Status.v_Act",
     ]
     logger.add_nodes(nodes1, 100)
-    logger.add_nodes(nodes2, 50)
+    logger.add_nodes(nodes2, 50, False)
     logger._start_invoked = True
     logger.add_nodes(nodes1, 50)
     expected_log = [
@@ -239,9 +240,21 @@ def test_add_nodes(
     for message in expected_log:
         assert message in caplog.messages
     expected_object_nodes = {
-        "Elevation.Status.AxisMoving": {"Period": 50, "Type": "Boolean"},
-        "Elevation.Status.p_Act": {"Period": 100, "Type": "Double"},
-        "Elevation.Status.v_Act": {"Period": 50, "Type": "Double"},
+        "Elevation.Status.AxisMoving": {
+            "period": 50,
+            "node_type": "Boolean",
+            "on_change": False,
+        },
+        "Elevation.Status.p_Act": {
+            "period": 100,
+            "node_type": "Double",
+            "on_change": True,
+        },
+        "Elevation.Status.v_Act": {
+            "period": 50,
+            "node_type": "Double",
+            "on_change": False,
+        },
     }
     assert logger._nodes == expected_object_nodes
 
