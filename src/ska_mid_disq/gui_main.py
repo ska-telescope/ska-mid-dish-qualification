@@ -5,7 +5,6 @@ import logging
 import platform
 import signal
 import sys
-import traceback
 from types import TracebackType
 from typing import Type
 
@@ -67,10 +66,10 @@ def main():
         exc_traceback: TracebackType | None,
     ) -> None:
         logger.exception(
-            "Unhandled %s exception caught with hook: %s",
+            "Unhandled %s exception caught with hook:",
             exc_type.__qualname__,
-            traceback.format_tb(exc_traceback),
         )
+        app.aboutToQuit.disconnect()  # Disconnect the signal to prevent recursion
         app.quit()
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
